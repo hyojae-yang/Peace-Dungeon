@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5886562ec1f792647af1815154bc9feb, type: 3}
+  m_Name: "\uB358\uC804UI 3"
+  m_EditorClassIdentifier: 
+  itemID: L2
+  itemName: "\uB358\uC804\uC870\uAC013"
+  itemImage: {fileID: 21300000, guid: 0fb17968fb0140b4bb4d9110a40cd008, type: 3}
+  backgroundColor: {r: 0.40272367, g: 0.6037736, b: 0.24207903, a: 1}
+  smallMapPrefab: {fileID: 5326824960318567900, guid: d90e81eace50c094ca6be9c7f0204457, type: 3}
+  uiItemPrefab: {fileID: 2750190332938198540, guid: 6a9086f301850184b9e19f12c1380ea1, type: 3}
