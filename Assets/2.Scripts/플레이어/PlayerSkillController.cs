@@ -12,21 +12,23 @@ public class PlayerSkillController : MonoBehaviour
 
     [Header("스킬 할당")]
     [Tooltip("1~8 키에 할당할 스킬 데이터를 드래그하여 할당하세요.")]
-    // 스킬 슬롯을 배열로 관리하여 확장성을 높입니다.
-    public SkillData[] skillSlots = new SkillData[8]; // 최대 8개의 스킬 슬롯
+    // 스킬 슬롯을 배열로 관리하여 확장성을 높입니다.
+    public SkillData[] skillSlots = new SkillData[8];
 
-    [Header("스킬 발사 지점")]
+    [Header("스킬 발사 지점")]
     [Tooltip("스킬 투사체가 발사될 위치입니다. 플레이어의 자식 오브젝트에 부착하세요.")]
     public Transform skillSpawnPoint;
 
-    // 쿨타임을 관리하기 위한 딕셔너리
-    // 스킬 데이터와 마지막 사용 시간(Time.time)을 매핑합니다.
-    private Dictionary<string, float> cooldownTimers = new Dictionary<string, float>();
+    // 쿨타임을 관리하기 위한 딕셔너리
+    // 키: 스킬 ID, 값: 다음 사용 가능 시간(Time.time)
+    private Dictionary<int, float> cooldownTimers = new Dictionary<int, float>();
+
+    // 스킬 슬롯 데이터가 변경되었음을 외부에 알리는 이벤트
+    public event System.Action<int, SkillData> OnSkillSlotChanged;
 
     void Start()
     {
-        // PlayerStats와 SkillSpawnPoint가 할당되었는지 확인합니다.
-        if (playerStats == null || skillSpawnPoint == null)
+        if (playerStats == null || skillSpawnPoint == null)
         {
             Debug.LogError("PlayerStats 또는 SkillSpawnPoint가 할당되지 않았습니다. 인스펙터에서 할당해 주세요.");
         }
@@ -34,23 +36,84 @@ public class PlayerSkillController : MonoBehaviour
 
     void Update()
     {
-        // 1부터 8까지의 숫자 키 입력에 따라 스킬 사용 함수를 호출합니다.
-        for (int i = 0; i < skillSlots.Length; i++)
+        for (int i = 0; i < skillSlots.Length; i++)
         {
-            // KeyCode.Alpha1은 1번 키, KeyCode.Alpha8은 8번 키에 해당합니다.
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 UseSkill(skillSlots[i]);
             }
         }
     }
 
-    /// <summary>
-    /// 지정된 스킬을 사용하는 메서드입니다.
-    /// 마나와 쿨타임을 체크하여 스킬 발동 가능 여부를 판단합니다.
-    /// </summary>
-    /// <param name="skill">사용할 스킬의 ScriptableObject 데이터</param>
-    public void UseSkill(SkillData skill)
+    /// <summary>
+    /// 특정 슬롯에 스킬을 등록하고 UI 업데이트 이벤트를 발생시킵니다.
+    /// 패시브 스킬은 등록할 수 없습니다.
+    /// </summary>
+    /// <param name="slotIndex">스킬을 등록할 슬롯의 인덱스 (0~7)</param>
+    /// <param name="skillToRegister">등록할 스킬 데이터</param>
+    public void RegisterSkill(int slotIndex, SkillData skillToRegister)
+    {
+        // 등록하려는 스킬이 null이거나 패시브 스킬일 경우 등록을 거부합니다.
+        if (skillToRegister == null || skillToRegister.skillType == SkillType.Passive)
+        {
+            Debug.LogWarning("패시브 스킬은 액티브 슬롯에 등록할 수 없습니다.");
+            return;
+        }
+
+        if (slotIndex >= 0 && slotIndex < skillSlots.Length)
+        {
+            // 이전에 슬롯에 등록된 스킬이 있다면 해제합니다.
+            if (skillSlots[slotIndex] != null)
+            {
+                Debug.LogWarning($"{skillSlots[slotIndex].skillName} 스킬이 {slotIndex + 1}번 슬롯에서 해제됩니다.");
+            }
+
+            skillSlots[slotIndex] = skillToRegister;
+            Debug.Log($"{skillToRegister.skillName} 스킬이 {slotIndex + 1}번 슬롯에 등록되었습니다.");
+
+            // 스킬 슬롯의 변경 사항을 외부에 알립니다.
+            OnSkillSlotChanged?.Invoke(slotIndex, skillToRegister);
+        }
+        else
+        {
+            Debug.LogError("잘못된 슬롯 인덱스입니다: " + slotIndex);
+        }
+    }
+
+    /// <summary>
+    /// 특정 스킬 데이터를 찾아 슬롯에서 해제하고 UI 업데이트 이벤트를 발생시킵니다.
+    /// </summary>
+    /// <param name="skillToUnregister">해제할 스킬 데이터</param>
+    public void UnregisterSkill(SkillData skillToUnregister)
+    {
+        if (skillToUnregister == null)
+        {
+            Debug.LogWarning("해제할 스킬 데이터가 없습니다.");
+            return;
+        }
+
+        // 스킬 슬롯을 순회하며 해제할 스킬을 찾습니다.
+        for (int i = 0; i < skillSlots.Length; i++)
+        {
+            if (skillSlots[i] == skillToUnregister)
+            {
+                skillSlots[i] = null;
+                Debug.Log($"{i + 1}번 슬롯의 스킬이 해제되었습니다.");
+
+                // 스킬 슬롯의 변경 사항을 외부에 알립니다.
+                OnSkillSlotChanged?.Invoke(i, null);
+                return; // 스킬을 찾아서 해제했으니 반복문을 종료합니다.
+            }
+        }
+        Debug.LogWarning("해당 스킬이 등록된 슬롯을 찾을 수 없습니다.");
+    }
+
+    /// <summary>
+    /// 지정된 스킬을 사용하는 메서드입니다.
+    /// 마나와 쿨타임을 체크하여 스킬 발동 가능 여부를 판단합니다.
+    /// </summary>
+    /// <param name="skill">사용할 스킬의 ScriptableObject 데이터</param>
+    public void UseSkill(SkillData skill)
     {
         if (skill == null)
         {
@@ -58,64 +121,56 @@ public class PlayerSkillController : MonoBehaviour
             return;
         }
 
-        // 스킬이 액티브 스킬인지 확인합니다.
-        if (skill.skillType != SkillType.Active)
+        if (skill.skillType != SkillType.Active)
         {
             Debug.Log(skill.skillName + " 스킬은 패시브 스킬입니다.");
             return;
         }
 
-        // 스킬 사용에 필요한 최소 레벨을 확인합니다.
-        // 현재 플레이어의 레벨은 PlayerStats에서 가져와야 합니다.
-        // 만약 SkillData에 requiredLevel 변수가 있다면 그 값을 사용합니다.
-        if (playerStats.level < skill.requiredLevel)
+        int currentSkillLevel = 0;
+        if (playerStats.skillLevels.ContainsKey(skill.skillId))
+        {
+            currentSkillLevel = playerStats.skillLevels[skill.skillId];
+        }
+
+        if (currentSkillLevel == 0)
+        {
+            Debug.Log(skill.skillName + " 스킬을 배우지 않았습니다.");
+            return;
+        }
+
+        if (playerStats.level < skill.requiredLevel)
         {
             Debug.Log("플레이어 레벨이 부족하여 " + skill.skillName + " 스킬을 사용할 수 없습니다.");
             return;
         }
 
-        // 플레이어의 현재 스킬 레벨을 가져옵니다.
-        // 이 부분은 SkillPointManager와 연동될 예정입니다.
-        // 현재는 임시로 1레벨로 고정합니다.
-        int currentSkillLevel = 1;
-
-        // 스킬 레벨에 맞는 정보가 있는지 확인
         if (currentSkillLevel > skill.levelInfo.Length)
         {
             Debug.LogError("스킬의 레벨 정보가 부족합니다. 스킬 데이터(" + skill.skillName + ")를 확인하세요.");
             return;
         }
 
-        // 현재 레벨의 스킬 정보 가져오기
-        SkillLevelInfo currentLevelInfo = skill.levelInfo[currentSkillLevel - 1];
+        SkillLevelInfo currentLevelInfo = skill.levelInfo[currentSkillLevel - 1];
 
-        // 마나가 충분한지 확인합니다.
-        if (playerStats.mana < currentLevelInfo.manaCost)
+        if (playerStats.mana < currentLevelInfo.manaCost)
         {
             Debug.Log("마나가 부족합니다!");
             return;
         }
 
-        // 쿨타임이 지났는지 확인합니다.
-        // 스킬 ID를 사용하여 쿨타임을 관리합니다.
-        if (cooldownTimers.ContainsKey(skill.skillId.ToString()) && Time.time < cooldownTimers[skill.skillId.ToString()])
+        if (cooldownTimers.ContainsKey(skill.skillId) && Time.time < cooldownTimers[skill.skillId])
         {
-            float remainingCooldown = cooldownTimers[skill.skillId.ToString()] - Time.time;
+            float remainingCooldown = cooldownTimers[skill.skillId] - Time.time;
             Debug.Log(skill.skillName + " 스킬이 아직 쿨타임입니다. 남은 시간: " + remainingCooldown.ToString("F1") + "초");
             return;
         }
 
-        // 모든 조건을 통과하면 스킬 발동
-        Debug.Log(skill.skillName + " 스킬 사용!");
+        Debug.Log(skill.skillName + " (Lv." + currentSkillLevel + ") 스킬 사용!");
 
-        // 마나 소모
-        playerStats.mana -= currentLevelInfo.manaCost;
+        playerStats.mana -= currentLevelInfo.manaCost;
+        cooldownTimers[skill.skillId] = Time.time + currentLevelInfo.cooldown;
 
-        // 쿨타임 업데이트 (스킬 ID를 키로 사용)
-        cooldownTimers[skill.skillId.ToString()] = Time.time + currentLevelInfo.cooldown;
-
-        // 스킬의 고유한 효과를 발동시킵니다.
-        // SkillData의 Execute 메서드를 호출하며, skillLevel 매개변수를 전달합니다.
-        skill.Execute(skillSpawnPoint, playerStats, currentSkillLevel);
+        skill.Execute(skillSpawnPoint, playerStats, currentSkillLevel);
     }
 }
