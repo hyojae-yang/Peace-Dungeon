@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: 2001
   skillName: "\uACF5\uACA9\uB825\uC99D\uAC00"
-  skillImage: {fileID: 0}
+  skillImage: {fileID: 21300000, guid: 4c5cb410aa284b14fa8e28ec7253b850, type: 3}
   skillType: 1
   damageType: 0
   skillDescription: "\uACF5\uACA9\uB825\uC774 \uC601\uAD6C\uC801\uC73C\uB85C \uC99D\uAC00\uD569\uB2C8\uB2E4."
