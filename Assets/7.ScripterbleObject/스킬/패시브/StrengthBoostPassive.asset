@@ -18,7 +18,8 @@ MonoBehaviour:
   skillType: 1
   damageType: 0
   skillDescription: "\uACF5\uACA9\uB825\uC774 \uC601\uAD6C\uC801\uC73C\uB85C \uC99D\uAC00\uD569\uB2C8\uB2E4."
-  requiredLevel: 0
+  statFormatString: "\uACF5\uACA9\uB825 \uC99D\uAC00: {AttackPower}"
+  requiredLevel: 1
   levelInfo:
   - manaCost: 0
     cooldown: 0

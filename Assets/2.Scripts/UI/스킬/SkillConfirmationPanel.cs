@@ -1,8 +1,10 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System.Text; // StringBuilder를 위해 추가합니다.
+using System.Text;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions; // 정규 표현식 사용을 위해 추가합니다.
 
 // 이 스크립트는 스킬 레벨업/레벨다운을 확인하는 UI 패널을 관리합니다.
 // 스킬 상세 정보를 표시하고, 임시 스킬 레벨을 조정하는 기능을 담당합니다.
@@ -68,8 +70,7 @@ public class SkillConfirmationPanel : MonoBehaviour
         currentSkillData = data;
 
         // SkillPointManager에서 현재 스킬의 실제 레벨을 가져와 임시 레벨로 초기화합니다.
-        // 이 로직은 SkillPointManager가 모든 스킬 레벨 데이터를 관리한다는 전제하에 작동합니다.
-        tempLevel = skillPointManager. GetSkillCurrentLevel(currentSkillData.skillId);
+        tempLevel = skillPointManager.GetTempSkillLevel(currentSkillData.skillId);
 
         // UI 업데이트
         UpdatePanelUI();
@@ -80,84 +81,77 @@ public class SkillConfirmationPanel : MonoBehaviour
     /// </summary>
     private void UpdatePanelUI()
     {
-        // StringBuilder를 사용하여 효율적으로 텍스트를 만듭니다.
-        StringBuilder statStringBuilder = new StringBuilder();
+        if (currentSkillData == null) return;
 
-        if (currentSkillData != null)
+        skillNameText.text = currentSkillData.skillName;
+
+        // 스킬 레벨이 유효한 범위 내에 있는지 확인합니다.
+        if (tempLevel >= 0 && tempLevel <= currentSkillData.levelInfo.Length)
         {
-            // 스킬 레벨이 유효한 범위 내에 있는지 확인합니다.
-            // tempLevel이 0인 경우 (스킬 미습득)도 포함하여 처리합니다.
-            if (tempLevel >= 0 && tempLevel <= currentSkillData.levelInfo.Length)
-            {
-                skillNameText.text = currentSkillData.skillName;
+            SkillLevelInfo currentLevelInfo = null;
 
-                // 레벨이 0일 때와 아닐 때를 분리하여 표시합니다.
-                if (tempLevel == 0)
+            if (tempLevel == 0)
+            {
+                skillLevelText.text = "Lv. 0 (미습득)";
+                // 다음 레벨(1레벨)의 능력치를 미리 보여줍니다.
+                if (currentSkillData.levelInfo.Length > 0)
                 {
-                    skillLevelText.text = "Lv. 0 (미습득)";
-                    // 다음 레벨(1레벨)의 능력치를 미리 보여줍니다.
-                    if (currentSkillData.levelInfo.Length > 0)
-                    {
-                        SkillLevelInfo nextLevelInfo = currentSkillData.levelInfo[0];
-                        statStringBuilder.AppendLine("<color=#FFFF00>다음 레벨 (Lv.1) 능력치:</color>");
-                        foreach (SkillStat stat in nextLevelInfo.stats)
-                        {
-                            statStringBuilder.AppendLine(GetStatText(stat.statType, stat.value));
-                        }
-                    }
-                    else
-                    {
-                        statStringBuilder.AppendLine("능력치 정보가 없습니다.");
-                    }
+                    currentLevelInfo = currentSkillData.levelInfo[0];
                 }
-                else
-                {
-                    skillLevelText.text = $"Lv. {tempLevel}";
-                    // 현재 레벨의 스킬 정보 가져오기
-                    SkillLevelInfo currentLevelInfo = currentSkillData.levelInfo[tempLevel - 1];
-                    // 능력치 텍스트를 동적으로 생성합니다.
-                    if (currentLevelInfo.stats != null && currentLevelInfo.stats.Length > 0)
-                    {
-                        foreach (SkillStat stat in currentLevelInfo.stats)
-                        {
-                            statStringBuilder.AppendLine(GetStatText(stat.statType, stat.value));
-                        }
-                    }
-                    else
-                    {
-                        statStringBuilder.AppendLine("능력치 정보가 없습니다.");
-                    }
-                }
-                skillStatText.text = statStringBuilder.ToString();
             }
             else
             {
-                Debug.LogWarning("스킬 레벨이 유효한 범위를 벗어났습니다. 툴팁 업데이트 실패.");
+                skillLevelText.text = $"Lv. {tempLevel}";
+                currentLevelInfo = currentSkillData.levelInfo[tempLevel - 1];
+            }
+
+            // 스킬 능력치 텍스트를 동적으로 생성합니다.
+            if (!string.IsNullOrEmpty(currentSkillData.statFormatString) && currentLevelInfo != null)
+            {
+                // 스탯 타입과 값을 저장할 딕셔너리 생성
+                Dictionary<StatType, float> statValues = new Dictionary<StatType, float>();
+
+                // 현재 레벨의 모든 스탯을 딕셔너리에 저장합니다.
+                foreach (var stat in currentLevelInfo.stats)
+                {
+                    statValues[stat.statType] = stat.value;
+                }
+
+                // 정규 표현식을 사용하여 템플릿의 {스탯이름}을 찾아서 값으로 대체합니다.
+                string formattedText = Regex.Replace(currentSkillData.statFormatString, @"\{(\w+)\}", match =>
+                {
+                    string statName = match.Groups[1].Value;
+                    StatType statType;
+
+                    // StatType 열거형으로 변환 성공 여부 확인
+                    if (System.Enum.TryParse(statName, out statType) && statValues.ContainsKey(statType))
+                    {
+                        // 해당 스탯의 값을 소수점 2자리로 포맷하여 반환
+                        return statValues[statType].ToString("F2");
+                    }
+                    else
+                    {
+                        // 해당하는 스탯이 없으면 N/A로 반환
+                        return "N/A";
+                    }
+                });
+
+                skillStatText.text = formattedText;
+            }
+            else
+            {
+                // statFormatString이 없으면 기본 설명 표시
+                skillStatText.text = currentSkillData.skillDescription;
             }
         }
+        else
+        {
+            Debug.LogWarning("스킬 레벨이 유효한 범위를 벗어났습니다.");
+            skillStatText.text = "스킬 정보 불러오기 실패.";
+        }
+
         // 버튼 활성화/비활성화 상태를 업데이트합니다.
         UpdateButtonStates();
-    }
-
-    /// <summary>
-    /// StatType에 따라 표시될 텍스트를 포맷합니다.
-    /// </summary>
-    /// <param name="type">스탯 종류</param>
-    /// <param name="value">스탯 값</param>
-    /// <returns>포맷된 문자열</returns>
-    private string GetStatText(StatType type, float value)
-    {
-        switch (type)
-        {
-            case StatType.BaseDamage:
-                return $"기본 데미지: {value}";
-            case StatType.Cooldown:
-                return $"쿨타임: {value}초";
-            case StatType.ManaCost:
-                return $"마나 소모: {value}";
-            default:
-                return $"{type}: {value}";
-        }
     }
 
     /// <summary>
@@ -186,8 +180,8 @@ public class SkillConfirmationPanel : MonoBehaviour
     /// </summary>
     private void OnLevelDownButtonClick()
     {
-        // 최소 레벨을 0으로 제한합니다.
-        if (tempLevel > 0)
+        // 수정된 로직: SkillPointManager에 레벨 다운이 가능한지 문의합니다.
+        if (skillPointManager.CanLevelDown(currentSkillData.skillId))
         {
             // 스킬 포인트 반환 (임시 증가)
             skillPointManager.RefundPoint();
@@ -217,8 +211,8 @@ public class SkillConfirmationPanel : MonoBehaviour
         bool canLevelUp = skillPointManager.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length;
         levelUpButton.interactable = canLevelUp;
 
-        // 레벨 다운 버튼 상태: 현재 레벨이 0보다 클 때 활성화
-        bool canLevelDown = tempLevel > 0;
+        // 레벨 다운 버튼 상태: SkillPointManager에 레벨 다운 가능 여부를 문의합니다.
+        bool canLevelDown = skillPointManager.CanLevelDown(currentSkillData.skillId);
         levelDownButton.interactable = canLevelDown;
     }
 }

@@ -80,6 +80,11 @@ public class PlayerLevelUp : MonoBehaviour
         {
             playerStatSystem.statPoints += 5;
         }
+        // 레벨업 시 스킬 포인트를 2점 지급합니다.
+        if (playerStats != null)
+        {
+            playerStats.skillPoints += 2;
+        }
 
         // 레벨업에 따른 스탯 증가 로직을 PlayerStatSystem에 위임합니다.
         playerStatSystem.UpdateFinalStats();

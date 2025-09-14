@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 
 // 스킬의 공격 타입을 정의하는 열거형 (Enum)
 public enum DamageType
@@ -31,8 +34,8 @@ public enum StatType
     HPRegenDuration,
     AttackPowerIncrease,
 
-    // 플레이어의 최종 스탯과 직접적으로 관련된 StatType 추가
-    Defense,
+    // 플레이어의 최종 스탯과 직접적으로 관련된 StatType 추가
+    Defense,
     MagicDefense,
     AttackPower,
     MagicAttackPower,
@@ -43,8 +46,8 @@ public enum StatType
     CriticalDamage,
     EvasionChance,
 
-    // 스탯 포인트 투자와 관련된 StatType 추가
-    Strength,
+    // 스탯 포인트 투자와 관련된 StatType 추가
+    Strength,
     Intelligence,
     Constitution,
     Agility,
@@ -101,6 +104,10 @@ public abstract class SkillData : ScriptableObject
     [TextArea(3, 5)]
     public string skillDescription;
 
+    [Tooltip("스킬 능력치를 표시할 텍스트 포맷입니다. {0}, {1} 등으로 스탯값을 참조할 수 있습니다.")]
+    [TextArea(3, 5)]
+    public string statFormatString;
+
     [Tooltip("스킬을 습득하기 위해 필요한 최소 레벨입니다.")]
     public int requiredLevel;
 
@@ -117,3 +124,4 @@ public abstract class SkillData : ScriptableObject
     /// <param name="skillLevel">현재 스킬의 레벨</param>
     public abstract void Execute(Transform spawnPoint, PlayerStats playerStats, int skillLevel);
 }
+

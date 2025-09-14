@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 // 플레이어의 스킬 사용 및 관리를 담당하는 컨트롤러 스크립트입니다.
 public class PlayerSkillController : MonoBehaviour
@@ -9,6 +10,8 @@ public class PlayerSkillController : MonoBehaviour
     public PlayerStats playerStats;
     [Tooltip("플레이어의 PlayerStatSystem 컴포넌트를 할당하세요.")]
     public PlayerStatSystem playerStatSystem;
+    [Tooltip("스킬 포인트를 관리하는 SkillPointManager 컴포넌트를 할당하세요.")]
+    public SkillPointManager skillPointManager; // <-- SkillPointManager 참조 추가
 
     [Header("스킬 할당")]
     [Tooltip("1~8 키에 할당할 스킬 데이터를 드래그하여 할당하세요.")]
@@ -26,16 +29,63 @@ public class PlayerSkillController : MonoBehaviour
     // 스킬 슬롯 데이터가 변경되었음을 외부에 알리는 이벤트
     public event System.Action<int, SkillData> OnSkillSlotChanged;
 
+    // 남은 쿨타임 정보를 외부에 알리는 새로운 이벤트 (남은 시간, 최대 시간)
+    public event System.Action<int, float, float> OnCooldownUpdated;
+
     void Start()
     {
         if (playerStats == null || skillSpawnPoint == null)
         {
             Debug.LogError("PlayerStats 또는 SkillSpawnPoint가 할당되지 않았습니다. 인스펙터에서 할당해 주세요.");
         }
+        // SkillPointManager의 스킬 레벨업 이벤트를 구독합니다.
+        if (skillPointManager != null)
+        {
+            skillPointManager.OnSkillLeveledUp += OnSkillLeveledUpHandler;
+        }
     }
 
     void Update()
     {
+        // === 쿨타임 텍스트 및 슬라이더 실시간 업데이트 로직 ===
+        // 현재 쿨타임 딕셔너리에 있는 모든 스킬의 남은 쿨타임을 갱신합니다.
+        var skillsOnCooldown = cooldownTimers.ToList();
+        foreach (var cooldownInfo in skillsOnCooldown)
+        {
+            float remainingCooldown = cooldownInfo.Value - Time.time;
+            int slotIndex = FindSkillSlotIndex(cooldownInfo.Key);
+
+            // 쿨타임이 끝난 경우
+            if (remainingCooldown <= 0f)
+            {
+                // 쿨타임이 끝났음을 UI에 알리고 딕셔너리에서 제거합니다.
+                if (slotIndex != -1)
+                {
+                    OnCooldownUpdated?.Invoke(slotIndex, 0f, 0f);
+                }
+                cooldownTimers.Remove(cooldownInfo.Key);
+            }
+            else
+            {
+                // 쿨타임이 남았다면 UI에 남은 시간을 알립니다.
+                if (slotIndex != -1 && skillSlots[slotIndex] != null)
+                {
+                    int currentLevel = 0;
+                    if (playerStats.skillLevels.ContainsKey(skillSlots[slotIndex].skillId))
+                    {
+                        currentLevel = playerStats.skillLevels[skillSlots[slotIndex].skillId];
+                    }
+
+                    if (currentLevel > 0 && currentLevel <= skillSlots[slotIndex].levelInfo.Length)
+                    {
+                        float maxCooldown = skillSlots[slotIndex].levelInfo[currentLevel - 1].cooldown;
+                        OnCooldownUpdated?.Invoke(slotIndex, remainingCooldown, maxCooldown);
+                    }
+                }
+            }
+        }
+        // ==================================
+
         for (int i = 0; i < skillSlots.Length; i++)
         {
             if (Input.GetKeyDown(KeyCode.Alpha1 + i))
@@ -43,6 +93,37 @@ public class PlayerSkillController : MonoBehaviour
                 UseSkill(skillSlots[i]);
             }
         }
+    }
+
+    /// <summary>
+    /// SkillPointManager의 이벤트로부터 호출되어 스킬 레벨업에 따른 UI 업데이트를 처리합니다.
+    /// </summary>
+    /// <param name="skillId">레벨업된 스킬의 ID</param>
+    private void OnSkillLeveledUpHandler(int skillId)
+    {
+        int slotIndex = FindSkillSlotIndex(skillId);
+        if (slotIndex != -1)
+        {
+            // 해당 스킬의 UI를 업데이트하도록 기존 이벤트를 다시 호출합니다.
+            OnSkillSlotChanged?.Invoke(slotIndex, skillSlots[slotIndex]);
+        }
+    }
+
+    /// <summary>
+    /// 스킬 ID에 해당하는 스킬이 어느 슬롯에 있는지 찾습니다.
+    /// </summary>
+    /// <param name="skillId">찾을 스킬의 ID</param>
+    /// <returns>스킬이 등록된 슬롯의 인덱스, 없으면 -1 반환</returns>
+    private int FindSkillSlotIndex(int skillId)
+    {
+        for (int i = 0; i < skillSlots.Length; i++)
+        {
+            if (skillSlots[i] != null && skillSlots[i].skillId == skillId)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     /// <summary>
@@ -159,6 +240,7 @@ public class PlayerSkillController : MonoBehaviour
             return;
         }
 
+        // 쿨타임 체크 로직
         if (cooldownTimers.ContainsKey(skill.skillId) && Time.time < cooldownTimers[skill.skillId])
         {
             float remainingCooldown = cooldownTimers[skill.skillId] - Time.time;

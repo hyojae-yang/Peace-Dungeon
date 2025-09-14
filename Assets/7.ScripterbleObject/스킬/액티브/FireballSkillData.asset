@@ -19,7 +19,9 @@ MonoBehaviour:
   damageType: 1
   skillDescription: "\uBC14\uB77C\uBCF4\uB294 \uBC29\uD5A5\uC744 \uD5A5\uD574 \uBD88\uACF5\uC744
     \uB0A0\uB9BD\uB2C8\uB2E4."
-  requiredLevel: 0
+  statFormatString: "\uAE30\uBCF8 \uB370\uBBF8\uC9C0: {BaseDamage}\\n\uB9C8\uB098
+    \uC18C\uBAA8: {ManaCost}\\n\uCFE8\uD0C0\uC784: {Cooldown}\uCD08"
+  requiredLevel: 1
   levelInfo:
   - manaCost: 5
     cooldown: 3
@@ -27,11 +29,23 @@ MonoBehaviour:
     - statType: 0
       value: 10
       isPercentage: 0
+    - statType: 2
+      value: 5
+      isPercentage: 0
+    - statType: 1
+      value: 3
+      isPercentage: 0
   - manaCost: 10
     cooldown: 2.5
     stats:
     - statType: 0
       value: 20
+      isPercentage: 0
+    - statType: 2
+      value: 10
+      isPercentage: 0
+    - statType: 1
+      value: 2.5
       isPercentage: 0
   - manaCost: 15
     cooldown: 2
@@ -39,16 +53,34 @@ MonoBehaviour:
     - statType: 0
       value: 30
       isPercentage: 0
+    - statType: 2
+      value: 15
+      isPercentage: 0
+    - statType: 1
+      value: 2
+      isPercentage: 0
   - manaCost: 20
     cooldown: 1.5
     stats:
     - statType: 0
       value: 40
       isPercentage: 0
+    - statType: 2
+      value: 20
+      isPercentage: 0
+    - statType: 0
+      value: 1.5
+      isPercentage: 0
   - manaCost: 20
-    cooldown: 1.5
+    cooldown: 1
     stats:
     - statType: 0
       value: 50
+      isPercentage: 0
+    - statType: 2
+      value: 20
+      isPercentage: 0
+    - statType: 1
+      value: 1
       isPercentage: 0
   fireballPrefab: {fileID: 451114298932106328, guid: b6c52941a4215594ab961b9950d04a90, type: 3}

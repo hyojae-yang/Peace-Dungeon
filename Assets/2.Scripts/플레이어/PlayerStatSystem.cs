@@ -10,7 +10,7 @@ public class PlayerStatSystem : MonoBehaviour
 
     [Header("스탯 포인트")]
     [Tooltip("레벨업 시 획득하는 스탯 포인트입니다. 능력치에 투자하여 스탯을 올릴 수 있습니다.")]
-    public int statPoints = 0;
+    public int statPoints = 5;
 
     [Header("플레이어 투자 스탯")]
     [Tooltip("물리 공격력에 영향을 줍니다.")]
@@ -153,16 +153,16 @@ public class PlayerStatSystem : MonoBehaviour
         float levelMagicDefenseBonus = (playerStats.level - 1) * 1f;
 
         // 기본 스탯 + 레벨 보너스
-        float baseMaxHealth = 100f + levelHealthBonus;
-        float baseMaxMana = 50f + levelManaBonus;
-        float baseAttackPower = 10f + levelAttackBonus;
-        float baseMagicAttackPower = 5f + levelMagicAttackBonus;
-        float baseDefense = 5f + levelDefenseBonus;
-        float baseMagicDefense = 5f + levelMagicDefenseBonus;
-        float baseCriticalChance = 0.05f;
-        float baseCriticalDamageMultiplier = 1.5f;
-        float baseMoveSpeed = 5f;
-        float baseEvasionChance = 0.02f;
+        float baseMaxHealth = playerStats.baseMaxHealth + levelHealthBonus;
+        float baseMaxMana = playerStats.baseMaxMana + levelManaBonus;
+        float baseAttackPower = playerStats.baseAttackPower + levelAttackBonus;
+        float baseMagicAttackPower = playerStats.baseMagicAttackPower + levelMagicAttackBonus;
+        float baseDefense = playerStats.baseDefense + levelDefenseBonus;
+        float baseMagicDefense = playerStats.baseMagicDefense + levelMagicDefenseBonus;
+        float baseCriticalChance = playerStats.baseCriticalChance;
+        float baseCriticalDamageMultiplier = playerStats.baseCriticalDamageMultiplier;
+        float baseMoveSpeed = playerStats.baseMoveSpeed;
+        float baseEvasionChance = playerStats.baseEvasionChance;
 
         // 최종 스탯 계산 (고정값 합산)
         float finalMaxHealth = baseMaxHealth + (constitution * constitutionToMaxHealth) + (vitality * vitalityToMaxHealth) + GetPassiveBonus(StatType.MaxHealth, passiveFlatBonuses);

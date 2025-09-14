@@ -6,11 +6,18 @@ using TMPro; // TextMeshPro를 사용한다면 필요합니다.
 // 스킬 등록/해제 시 이미지와 텍스트를 업데이트하며, 추후 쿨타임 슬라이더 등을 관리합니다.
 public class SkillSlotUI : MonoBehaviour
 {
+    // === UI 컴포넌트 ===
     [Header("UI 컴포넌트")]
     [Tooltip("스킬 이미지를 표시할 Image 컴포넌트를 할당하세요.")]
     public Image skillImage;
     [Tooltip("스킬이 등록되지 않았을 때 표시할 기본 슬롯 스프라이트를 할당하세요.")]
     public Sprite defaultSlotSprite; // <-- 기본 스프라이트 변수 추가
+    [Tooltip("스킬의 마나 소모량을 표시할 TextMeshProUGUI 컴포넌트를 할당하세요.")]
+    public TextMeshProUGUI manaCostText;
+    [Tooltip("스킬의 남은 쿨타임을 표시할 TextMeshProUGUI 컴포넌트를 할당하세요.")]
+    public TextMeshProUGUI cooldownText; // <-- 쿨타임 텍스트 변수 추가
+    [Tooltip("쿨타임 진행 상황을 시각적으로 표시할 슬라이더 컴포넌트를 할당하세요.")]
+    public Slider cooldownSlider; // <-- 쿨타임 슬라이더 추가
 
     // 이 스크립트는 데이터 자체를 저장하지 않고, 받은 데이터로 UI만 업데이트합니다.
     private SkillData currentSkillData;
@@ -19,30 +26,73 @@ public class SkillSlotUI : MonoBehaviour
     /// 외부(SlotSelectionPanel)에서 호출되어 슬롯의 UI를 업데이트합니다.
     /// </summary>
     /// <param name="data">슬롯에 등록할 스킬 데이터. 해제 시에는 null을 전달합니다.</param>
-    public void UpdateUI(SkillData data)
+    /// <param name="manaCost">표시할 스킬의 마나 소모량.</param>
+    public void UpdateUI(SkillData data, float manaCost)
     {
-        // 현재 슬롯에 등록된 스킬 데이터를 업데이트합니다.
         currentSkillData = data;
 
-        // 데이터가 유효한지 확인하고 UI를 갱신합니다.
         if (currentSkillData != null)
         {
-            // 스킬이 등록된 경우: 이미지를 활성화하고, 스프라이트를 설정합니다.
             skillImage.enabled = true;
             skillImage.sprite = currentSkillData.skillImage;
+
+            if (manaCostText != null)
+            {
+                manaCostText.text = manaCost.ToString();
+            }
+
+            // 스킬이 등록되면 슬라이더를 초기화합니다.
+            if (cooldownSlider != null)
+            {
+                cooldownSlider.gameObject.SetActive(false);
+            }
         }
         else
         {
-            // 스킬이 해제된 경우 (data가 null):
-            // 이미지를 활성화 상태로 유지하되, 기본 스프라이트로 변경합니다.
-            skillImage.enabled = true; // 이미지는 보이도록 유지
-            skillImage.sprite = defaultSlotSprite; // <-- null 대신 기본 스프라이트 할당
+            skillImage.enabled = true;
+            skillImage.sprite = defaultSlotSprite;
 
-            // 만약 기본 스프라이트도 없다면 이미지를 비활성화할 수 있습니다.
-            // if (defaultSlotSprite == null)
-            // {
-            //     skillImage.enabled = false;
-            // }
+            if (manaCostText != null)
+            {
+                manaCostText.text = string.Empty;
+            }
+
+            // 스킬이 해제되면 쿨타임 텍스트와 슬라이더를 비웁니다.
+            if (cooldownText != null)
+            {
+                cooldownText.text = string.Empty;
+            }
+            if (cooldownSlider != null)
+            {
+                cooldownSlider.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 남은 쿨타임 값을 받아 UI를 업데이트합니다.
+    /// </summary>
+    /// <param name="remainingCooldown">남은 쿨타임 시간 (초)</param>
+    /// <param name="maxCooldown">스킬의 최대 쿨타임 시간 (초)</param>
+    public void UpdateCooldownUI(float remainingCooldown, float maxCooldown)
+    {
+        // 쿨타임 텍스트와 슬라이더가 모두 할당되었는지 확인합니다.
+        if (cooldownText == null || cooldownSlider == null) return;
+
+        // 쿨타임이 남았다면 텍스트와 슬라이더를 표시하고, 아니면 비웁니다.
+        if (remainingCooldown > 0f)
+        {
+            cooldownText.text = remainingCooldown.ToString("F1"); // 소수점 첫째 자리까지 표시
+            cooldownSlider.gameObject.SetActive(true);
+
+            // 슬라이더의 값을 업데이트합니다.
+            cooldownSlider.maxValue = maxCooldown;
+            cooldownSlider.value = remainingCooldown;
+        }
+        else
+        {
+            cooldownText.text = string.Empty;
+            cooldownSlider.gameObject.SetActive(false);
         }
     }
 }

@@ -18,22 +18,38 @@ MonoBehaviour:
   skillType: 1
   damageType: 0
   skillDescription: "1\uCD08\uB9C8\uB2E4 \uCCB4\uB825\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
-  requiredLevel: 0
+  statFormatString: "\uCD08\uB2F9 \uCCB4\uB825 \uD68C\uBCF5: {HealOverTime}%"
+  requiredLevel: 10
   levelInfo:
   - manaCost: 0
     cooldown: 0
-    stats: []
+    stats:
+    - statType: 5
+      value: 1
+      isPercentage: 0
   - manaCost: 0
     cooldown: 0
-    stats: []
+    stats:
+    - statType: 5
+      value: 2
+      isPercentage: 0
   - manaCost: 0
     cooldown: 0
-    stats: []
+    stats:
+    - statType: 5
+      value: 3
+      isPercentage: 0
   - manaCost: 0
     cooldown: 0
-    stats: []
+    stats:
+    - statType: 5
+      value: 4
+      isPercentage: 0
   - manaCost: 0
     cooldown: 0
-    stats: []
+    stats:
+    - statType: 5
+      value: 5
+      isPercentage: 0
   passiveType: 2
   dynamicEffectPrefab: {fileID: 1342358990710576101, guid: 05fd076734886504287f7b3975816bae, type: 3}

@@ -27,6 +27,9 @@ public class SkillPointManager : MonoBehaviour
     // 스킬 포인트 변경을 외부에 알리는 이벤트
     public event System.Action<int> OnSkillPointsChanged;
 
+    // 스킬 레벨이 변경되었음을 외부에 알리는 새로운 이벤트
+    public event System.Action<int> OnSkillLeveledUp; // <-- 새로운 이벤트 추가
+
     void Awake()
     {
         // PlayerStats가 할당되었는지 확인
@@ -69,7 +72,7 @@ public class SkillPointManager : MonoBehaviour
     /// </summary>
     /// <param name="skillId">확인할 스킬의 ID</param>
     /// <returns>임시 레벨, 스킬이 없으면 0을 반환</returns>
-    public int GetSkillCurrentLevel(int skillId)
+    public int GetTempSkillLevel(int skillId)
     {
         // tempSkillLevels가 null인 경우 초기화
         if (tempSkillLevels == null)
@@ -137,6 +140,38 @@ public class SkillPointManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 스킬 레벨다운이 가능한지 확인합니다.
+    /// </summary>
+    /// <param name="skillId">확인할 스킬의 ID</param>
+    /// <returns>레벨 다운 가능 시 true, 아니면 false</returns>
+    public bool CanLevelDown(int skillId)
+    {
+        int tempLevel = GetTempSkillLevel(skillId);
+        int permanentLevel = playerStats.skillLevels.ContainsKey(skillId) ? playerStats.skillLevels[skillId] : 0;
+
+        // 임시 레벨이 영구 레벨보다 높을 때만 레벨 다운 가능
+        return tempLevel > permanentLevel;
+    }
+
+    /// <summary>
+    /// 특정 스킬을 배울 수 있는 레벨 조건이 충족되었는지 확인합니다.
+    /// </summary>
+    /// <param name="skillData">확인할 스킬 데이터</param>
+    /// <returns>레벨 조건이 충족되면 true, 아니면 false</returns>
+    public bool CanLearnSkill(SkillData skillData)
+    {
+        // PlayerStats와 skillData가 유효한지 확인
+        if (playerStats == null || skillData == null)
+        {
+            Debug.LogError("PlayerStats 또는 SkillData가 유효하지 않습니다.");
+            return false;
+        }
+
+        // 스킬이 요구하는 레벨(requiredLevel)과 플레이어의 현재 레벨(level)을 비교
+        return skillData.requiredLevel <= playerStats.level;
+    }
+
     // === 변경사항 최종 적용 및 취소 메서드 ===
 
     /// <summary>
@@ -145,9 +180,32 @@ public class SkillPointManager : MonoBehaviour
     public void ApplyChanges()
     {
         // === 최종 반영 로직 ===
-        // PlayerStats의 딕셔너리에 직접 접근하여 임시 데이터를 복사합니다.
+
+        // 1. 레벨업된 스킬들을 임시로 저장합니다. (데이터 복사 전에 실행해야 함)
+        List<int> leveledUpSkillIds = new List<int>();
+        foreach (var tempLevelPair in tempSkillLevels)
+        {
+            int skillId = tempLevelPair.Key;
+            int tempLevel = tempLevelPair.Value;
+            int permanentLevel = playerStats.skillLevels.ContainsKey(skillId) ? playerStats.skillLevels[skillId] : 0;
+
+            // 임시 레벨이 영구 레벨보다 높으면 레벨업된 스킬로 간주합니다.
+            if (tempLevel > permanentLevel)
+            {
+                leveledUpSkillIds.Add(skillId);
+            }
+        }
+
+        // 2. 임시 데이터를 최종 데이터에 반영합니다.
         playerStats.skillLevels = new Dictionary<int, int>(tempSkillLevels);
         playerStats.skillPoints = currentSkillPoints;
+
+        // 3. 레벨업된 스킬들에 대해 UI 업데이트 이벤트를 호출합니다.
+        // 데이터가 최종 반영된 후에 이벤트를 호출해야 PlayerSkillController가 최신 데이터를 참조할 수 있습니다.
+        foreach (int skillId in leveledUpSkillIds)
+        {
+            OnSkillLeveledUp?.Invoke(skillId);
+        }
 
         // 최종 반영 후 스킬 효과를 업데이트합니다.
         if (passiveSkillManager != null)
