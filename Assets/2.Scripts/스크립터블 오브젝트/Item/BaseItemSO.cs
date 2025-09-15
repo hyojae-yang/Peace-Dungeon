@@ -26,4 +26,7 @@ public abstract class BaseItemSO : ScriptableObject
 
     [Tooltip("아이템의 종류를 나타냅니다.")]
     public ItemType itemType;
+
+    [Tooltip("인벤토리 한 칸에 최대로 겹쳐질 수 있는 아이템의 개수입니다. 1로 설정하면 겹치지 않습니다.")]
+    public int maxStack = 1;
 }

@@ -1,11 +1,10 @@
-// EquipmentSlotUI.cs
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
 /// 플레이어 장비 슬롯 UI를 관리하는 스크립트입니다.
-/// 마우스 오버, 클릭 등 이벤트를 처리하고, 장비 해제 로직을 InventoryManager에 요청합니다.
+/// 마우스 오버, 클릭 등 이벤트를 처리하고, 장비 해제 로직을 PlayerEquipmentManager에 요청합니다.
 /// </summary>
 public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
@@ -17,8 +16,16 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [Tooltip("장비 아이템의 아이콘을 표시할 Image 컴포넌트입니다.")]
     [SerializeField] private Image iconImage;
 
+    [Header("UI 동적 생성")]
+    [Tooltip("장비 아이템 툴팁을 표시할 프리팹입니다.")]
+    [SerializeField] private GameObject tooltipPrefab;
+
+    [Tooltip("툴팁 패널이 마우스 포인터로부터 얼마나 떨어져서 나타날지 설정합니다.")]
+    private Vector3 tooltipOffset = new Vector3(-150, 50, 0);
+
     // === 내부 데이터 ===
     private EquipmentItemSO currentEquippedItem;
+    private GameObject instantiatedTooltip;
 
     /// <summary>
     /// 장비 슬롯에 아이템을 시각적으로 업데이트하는 메서드입니다.
@@ -46,15 +53,27 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
 
     /// <summary>
     /// 마우스 포인터가 UI 슬롯에 진입했을 때 호출됩니다.
+    /// 장착된 아이템이 있을 때만 툴팁을 띄웁니다.
     /// </summary>
     /// <param name="eventData">마우스 이벤트 데이터</param>
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // 장착된 아이템이 있을 때만 툴팁을 띄웁니다.
-        if (currentEquippedItem != null)
+        // 장착된 아이템이 있고, 툴팁 프리팹이 할당되어 있으며, 툴팁이 아직 생성되지 않았다면
+        if (currentEquippedItem != null && tooltipPrefab != null && instantiatedTooltip == null)
         {
-            // TODO: 추후 TooltipManager를 호출하여 툴팁을 표시합니다.
-            Debug.Log($"[EquipmentSlotUI] 툴팁 표시 요청: {currentEquippedItem.itemName} (Slot: {equipSlotType})");
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas != null)
+            {
+                instantiatedTooltip = Instantiate(tooltipPrefab, canvas.transform);
+                instantiatedTooltip.transform.position = Input.mousePosition + tooltipOffset;
+
+                // 생성된 툴팁 스크립트를 찾아 아이템 정보를 전달합니다.
+                ItemTooltip tooltip = instantiatedTooltip.GetComponent<ItemTooltip>();
+                if (tooltip != null)
+                {
+                    tooltip.SetupTooltip(currentEquippedItem);
+                }
+            }
         }
     }
 
@@ -64,9 +83,12 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     /// <param name="eventData">마우스 이벤트 데이터</param>
     public void OnPointerExit(PointerEventData eventData)
     {
-        // TooltipManager를 호출하여 툴팁을 숨깁니다.
-        // 추후 구현 예정: TooltipManager.Instance.HideTooltip();
-        Debug.Log($"[EquipmentSlotUI] 툴팁 숨김 요청");
+        // 생성된 툴팁을 파괴합니다.
+        if (instantiatedTooltip != null)
+        {
+            Destroy(instantiatedTooltip);
+            instantiatedTooltip = null;
+        }
     }
 
     /// <summary>
@@ -83,15 +105,15 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
 
     /// <summary>
-    /// 장비 해제 로직을 InventoryManager에게 요청하는 메서드입니다.
+    /// 장비 해제 로직을 PlayerEquipmentManager에게 요청하는 메서드입니다.
     /// </summary>
     public void OnRightClick()
     {
         if (currentEquippedItem != null)
         {
-            // InventoryManager에 장비 해제 로직을 요청합니다.
-            InventoryManager.Instance.UnEquipItem(equipSlotType);
+            // PlayerEquipmentManager에 장비 해제 로직을 요청합니다.
             Debug.Log($"[EquipmentSlotUI] 장비 해제 요청: {currentEquippedItem.itemName} (Slot: {equipSlotType})");
+            PlayerEquipmentManager.Instance.UnEquipItem(equipSlotType);
         }
     }
 }

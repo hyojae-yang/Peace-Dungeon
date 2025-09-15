@@ -1,4 +1,3 @@
-// InventoryData.cs
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -10,9 +9,9 @@ using System.Collections.Generic;
 public class InventoryData : ScriptableObject
 {
     // === 인벤토리 데이터 ===
-    // Key: 아이템 정보 (BaseItemSO), Value: 아이템 개수
+    // ItemData 리스트로 변경하여 아이템의 고유성과 개수를 함께 관리합니다.
     [Tooltip("플레이어의 인벤토리에 있는 모든 아이템과 그 개수를 저장합니다.")]
-    public Dictionary<BaseItemSO, int> inventoryItems = new Dictionary<BaseItemSO, int>();
+    public List<ItemData> inventoryItems = new List<ItemData>();
 
     // === 장착 장비 데이터 ===
     // Key: 장착 슬롯 (EquipSlot), Value: 장비 아이템 정보 (EquipmentItemSO)

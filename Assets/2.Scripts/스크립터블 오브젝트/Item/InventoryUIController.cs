@@ -1,12 +1,10 @@
-// InventoryUIController.cs
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 /// <summary>
 /// 인벤토리와 장비 패널의 UI를 총괄적으로 관리하는 컨트롤러 클래스입니다.
-/// InventoryManager의 이벤트에 반응하여 UI를 업데이트합니다.
+/// InventoryManager와 PlayerEquipmentManager의 이벤트에 반응하여 UI를 업데이트합니다.
 /// </summary>
 public class InventoryUIController : MonoBehaviour
 {
@@ -38,8 +36,15 @@ public class InventoryUIController : MonoBehaviour
     [Tooltip("특수 아이템 패널에 있는 슬롯들을 순서대로 할당합니다.")]
     [SerializeField] private List<ItemSlotUI> specialSlots = new List<ItemSlotUI>();
 
+    [Header("확인창")]
+    [Tooltip("인벤토리 아이템 버리기 전용 확인창 UI 오브젝트를 할당합니다.")]
+    [SerializeField] private GameObject itemDiscardConfirmPanel;
+    [Tooltip("장비 아이템 버리기 전용 확인창 UI 오브젝트를 할당합니다.")]
+    [SerializeField] private GameObject equipDiscardConfirmPanel;
+
     // === 슬롯 그룹화를 위한 딕셔너리 ===
     private Dictionary<ItemType, List<ItemSlotUI>> itemSlotGroups = new Dictionary<ItemType, List<ItemSlotUI>>();
+    private Dictionary<EquipType, List<ItemSlotUI>> equipSlotGroups = new Dictionary<EquipType, List<ItemSlotUI>>();
 
     // === MonoBehaviour 메서드 ===
     private void Awake()
@@ -47,6 +52,7 @@ public class InventoryUIController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
+            DontDestroyOnLoad(gameObject); // 씬 전환 시에도 유지되도록 설정
         }
         else
         {
@@ -55,12 +61,22 @@ public class InventoryUIController : MonoBehaviour
 
         InitializeSlotGroups();
 
-        // InventoryManager의 이벤트에 이 스크립트의 메서드를 구독합니다.
-        // 이제는 아이템 추가/제거 이벤트를 각각 구독합니다.
-        InventoryManager.Instance.onInventoryItemAdded += HandleItemAdded;
-        InventoryManager.Instance.onInventoryItemRemoved += HandleItemRemoved;
-        InventoryManager.Instance.onInventoryChanged += RefreshInventoryUI;
-        InventoryManager.Instance.onEquipmentChanged += RefreshEquipmentUI;
+        // InventoryManager와 PlayerEquipmentManager의 이벤트에 구독합니다.
+        if (InventoryManager.Instance != null)
+        {
+            InventoryManager.Instance.onInventoryChanged += RefreshInventoryUI;
+        }
+        if (PlayerEquipmentManager.Instance != null)
+        {
+            PlayerEquipmentManager.Instance.onEquipmentChanged += RefreshEquipmentUI;
+        }
+    }
+
+    private void Start()
+    {
+        // 게임 시작 시 초기 UI를 한번 갱신합니다.
+        RefreshInventoryUI();
+        RefreshEquipmentUI();
     }
 
     private void OnDestroy()
@@ -68,130 +84,64 @@ public class InventoryUIController : MonoBehaviour
         // 메모리 누수를 방지하기 위해 씬이 파괴될 때 이벤트를 구독 해제합니다.
         if (InventoryManager.Instance != null)
         {
-            InventoryManager.Instance.onInventoryItemAdded -= HandleItemAdded;
-            InventoryManager.Instance.onInventoryItemRemoved -= HandleItemRemoved;
             InventoryManager.Instance.onInventoryChanged -= RefreshInventoryUI;
-            InventoryManager.Instance.onEquipmentChanged -= RefreshEquipmentUI;
         }
-    }
-
-    /// <summary>
-    /// 아이템이 인벤토리에 추가될 때 호출됩니다.
-    /// 추가된 아이템 정보만을 기반으로 특정 슬롯을 업데이트합니다.
-    /// </summary>
-    /// <param name="item">추가된 아이템 정보</param>
-    /// <param name="amount">추가된 아이템의 개수</param>
-    private void HandleItemAdded(BaseItemSO item, int amount)
-    {
-        Debug.Log($"<color=cyan>[UI Controller]</color> 이벤트 수신! 아이템: {item.itemName}, 개수: {amount}");
-        List<ItemSlotUI> slotsToSearch = null;
-
-        if (item is EquipmentItemSO equipmentItem)
+        if (PlayerEquipmentManager.Instance != null)
         {
-            slotsToSearch = GetEquipmentSlotsByType(equipmentItem.equipType);
-        }
-        else
-        {
-            itemSlotGroups.TryGetValue(item.itemType, out slotsToSearch);
-        }
-
-        if (slotsToSearch != null)
-        {
-            foreach (var slot in slotsToSearch)
-            {
-                // ===== 핵심 추가 로그 =====
-                Debug.Log($"<color=yellow>현재 검사 중인 슬롯: {slot.name}</color>");
-                // =========================
-
-                if (slot.GetItem() == null)
-                {
-                    Debug.Log($"<color=green>비어있는 슬롯 발견! 아이템을 추가합니다.</color>");
-                    slot.UpdateSlot(item, slot.GetItemCount() + amount);
-                    return;
-                }
-                else if (slot.GetItem() == item)
-                {
-                    Debug.Log($"<color=yellow>이미 있는 아이템 발견! 개수를 추가합니다.</color>");
-                    slot.UpdateSlot(item, slot.GetItemCount() + amount);
-                    return;
-                }
-                else
-                {
-                    Debug.LogWarning($"<color=red>슬롯에 아이템이 이미 있음: {slot.GetItem().itemName} - (추가하려는 아이템과 다름)</color>");
-                }
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"<color=red>아이템 타입({item.itemType})에 맞는 슬롯 그룹을 찾을 수 없습니다! 에디터에서 슬롯을 할당했는지 확인하세요.</color>");
-        }
-    }
-
-    /// <summary>
-    /// 아이템이 인벤토리에서 제거될 때 호출됩니다.
-    /// 제거된 아이템 정보만을 기반으로 특정 슬롯을 업데이트합니다.
-    /// </summary>
-    /// <param name="item">제거된 아이템 정보</param>
-    /// <param name="amount">제거된 아이템의 개수</param>
-    private void HandleItemRemoved(BaseItemSO item, int amount)
-    {
-        if (item.itemType == ItemType.Equipment)
-        {
-            EquipmentItemSO equipmentItem = (EquipmentItemSO)item;
-            List<ItemSlotUI> slots = GetEquipmentSlotsByType(equipmentItem.equipType);
-
-            ItemSlotUI existingSlot = slots.FirstOrDefault(s => s.GetItem() == item);
-            if (existingSlot != null)
-            {
-                int newCount = existingSlot.GetItemCount() - amount;
-                if (newCount > 0)
-                {
-                    existingSlot.UpdateSlot(item, newCount);
-                }
-                else
-                {
-                    existingSlot.UpdateSlot(null, 0); // 개수가 0이면 슬롯을 비웁니다.
-                }
-            }
-        }
-        else
-        {
-            if (itemSlotGroups.TryGetValue(item.itemType, out List<ItemSlotUI> slots))
-            {
-                ItemSlotUI existingSlot = slots.FirstOrDefault(s => s.GetItem() == item);
-                if (existingSlot != null)
-                {
-                    int newCount = existingSlot.GetItemCount() - amount;
-                    if (newCount > 0)
-                    {
-                        existingSlot.UpdateSlot(item, newCount);
-                    }
-                    else
-                    {
-                        existingSlot.UpdateSlot(null, 0); // 개수가 0이면 슬롯을 비웁니다.
-                    }
-                }
-            }
+            PlayerEquipmentManager.Instance.onEquipmentChanged -= RefreshEquipmentUI;
         }
     }
 
     /// <summary>
     /// InventoryManager의 onInventoryChanged 이벤트가 발생하면 호출됩니다.
-    /// 장비 장착/해제로 인해 인벤토리 데이터가 변경될 때 UI를 갱신합니다.
+    /// 인벤토리 데이터를 새로 불러와 모든 아이템 슬롯 UI를 갱신합니다.
     /// </summary>
     public void RefreshInventoryUI()
     {
+        // 1. 모든 인벤토리 슬롯을 비워줍니다.
         ClearAllInventorySlots();
-        UpdateInventoryUI(InventoryManager.Instance.GetInventoryData());
+
+        // 2. InventoryManager에서 최신 인벤토리 데이터를 가져옵니다.
+        List<ItemData> inventoryData = InventoryManager.Instance.GetInventoryItems();
+
+        // 3. 각 아이템 타입에 맞는 패널에 아이템을 배치합니다.
+        foreach (var itemData in inventoryData)
+        {
+            List<ItemSlotUI> slotsToFill = null;
+            // 아이템 타입에 맞는 슬롯 그룹을 찾습니다.
+            if (itemData.itemSO is EquipmentItemSO equipmentItem)
+            {
+                // 장비 아이템은 EquipType에 따라 그룹을 찾습니다.
+                equipSlotGroups.TryGetValue(equipmentItem.equipType, out slotsToFill);
+            }
+            else
+            {
+                // 기타 아이템은 ItemType에 따라 그룹을 찾습니다.
+                itemSlotGroups.TryGetValue(itemData.itemSO.itemType, out slotsToFill);
+            }
+
+            if (slotsToFill != null)
+            {
+                // 슬롯 그룹 내의 비어있는 슬롯을 찾아 아이템을 채웁니다.
+                for (int i = 0; i < slotsToFill.Count; i++)
+                {
+                    if (slotsToFill[i].GetItem() == null)
+                    {
+                        slotsToFill[i].UpdateSlot(itemData);
+                        break; // 아이템을 채웠으니 다음 아이템으로 넘어갑니다.
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
-    /// InventoryManager의 onEquipmentChanged 이벤트가 발생하면 호출됩니다.
+    /// PlayerEquipmentManager의 onEquipmentChanged 이벤트가 발생하면 호출됩니다.
     /// 장비 패널의 UI만 갱신합니다.
     /// </summary>
     public void RefreshEquipmentUI()
     {
-        UpdateEquipmentUI(InventoryManager.Instance.GetEquippedData());
+        UpdateEquipmentUI(PlayerEquipmentManager.Instance.GetEquippedItems());
     }
 
     /// <summary>
@@ -199,51 +149,16 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     private void InitializeSlotGroups()
     {
+        // 일반 아이템 슬롯 그룹화
         itemSlotGroups.Add(ItemType.Consumable, consumableSlots);
         itemSlotGroups.Add(ItemType.Material, materialSlots);
         itemSlotGroups.Add(ItemType.Quest, questSlots);
         itemSlotGroups.Add(ItemType.Special, specialSlots);
-    }
 
-    /// <summary>
-    /// 실제 인벤토리 데이터에 기반하여 아이템 슬롯 UI를 업데이트합니다.
-    /// 아이템의 ItemType을 기준으로 올바른 패널에 정렬하여 배치합니다.
-    /// (주로 장비 장착/해제 시에 사용됩니다)
-    /// </summary>
-    /// <param name="items">업데이트할 아이템 목록과 개수입니다.</param>
-    private void UpdateInventoryUI(Dictionary<BaseItemSO, int> items)
-    {
-        ClearAllInventorySlots();
-
-        var groupedAndSortedItems = items
-            .OrderBy(x => x.Key.itemID)
-            .GroupBy(x => x.Key.itemType);
-
-        foreach (var group in groupedAndSortedItems)
-        {
-            if (group.Key == ItemType.Equipment)
-            {
-                var equippedItemsGrouped = group
-                    .GroupBy(x => ((EquipmentItemSO)x.Key).equipType)
-                    .ToDictionary(g => g.Key, g => g.ToList());
-
-                foreach (var equipGroup in equippedItemsGrouped)
-                {
-                    List<ItemSlotUI> slots = GetEquipmentSlotsByType(equipGroup.Key);
-                    if (slots != null)
-                    {
-                        FillSlots(slots, equipGroup.Value);
-                    }
-                }
-            }
-            else
-            {
-                if (itemSlotGroups.TryGetValue(group.Key, out List<ItemSlotUI> slots))
-                {
-                    FillSlots(slots, group.ToList());
-                }
-            }
-        }
+        // 장비 아이템 슬롯 그룹화
+        equipSlotGroups.Add(EquipType.Weapon, weaponInventorySlots);
+        equipSlotGroups.Add(EquipType.Armor, armorInventorySlots);
+        equipSlotGroups.Add(EquipType.Accessory, accessoryInventorySlots);
     }
 
     /// <summary>
@@ -252,11 +167,13 @@ public class InventoryUIController : MonoBehaviour
     /// <param name="equippedItems">업데이트할 장비 목록입니다.</param>
     private void UpdateEquipmentUI(Dictionary<EquipSlot, EquipmentItemSO> equippedItems)
     {
+        // 모든 장비 슬롯을 먼저 비웁니다.
         foreach (var slot in equippedSlots)
         {
             slot.UpdateSlot(null);
         }
 
+        // 장착된 아이템 데이터로 슬롯을 갱신합니다.
         foreach (var equippedItemPair in equippedItems)
         {
             foreach (var slot in equippedSlots)
@@ -272,51 +189,59 @@ public class InventoryUIController : MonoBehaviour
 
     /// <summary>
     /// 모든 인벤토리 슬롯을 초기화(비움)합니다.
+    /// ItemSlotUI.UpdateSlot()에 맞는 형태로 업데이트합니다.
     /// </summary>
     private void ClearAllInventorySlots()
     {
-        foreach (var slot in weaponInventorySlots) slot.UpdateSlot(null, 0);
-        foreach (var slot in armorInventorySlots) slot.UpdateSlot(null, 0);
-        foreach (var slot in accessoryInventorySlots) slot.UpdateSlot(null, 0);
+        // 모든 ItemSlotUI 리스트를 순회하며 슬롯을 비웁니다.
         foreach (var slotList in itemSlotGroups.Values)
         {
             foreach (var slot in slotList)
             {
-                slot.UpdateSlot(null, 0);
+                slot.UpdateSlot(new ItemData(null, 0));
+            }
+        }
+        foreach (var slotList in equipSlotGroups.Values)
+        {
+            foreach (var slot in slotList)
+            {
+                slot.UpdateSlot(new ItemData(null, 0));
             }
         }
     }
 
     /// <summary>
-    /// 아이템 타입에 따라 올바른 장비 슬롯 리스트를 반환합니다.
+    /// 아이템 버리기 확인창을 활성화하고 아이템 정보를 전달합니다.
     /// </summary>
-    private List<ItemSlotUI> GetEquipmentSlotsByType(EquipType equipType)
+    /// <param name="item">버릴 아이템의 데이터 (BaseItemSO)</param>
+    /// <param name="count">버릴 아이템의 개수</param>
+    public void ShowDiscardConfirmPanel(BaseItemSO item, int count)
     {
-        switch (equipType)
+        // 1. 아이템 타입에 따라 목표 확인창을 결정합니다.
+        GameObject targetPanel = null;
+        if (item is EquipmentItemSO)
         {
-            case EquipType.Weapon:
-                return weaponInventorySlots;
-            case EquipType.Armor:
-                return armorInventorySlots;
-            case EquipType.Accessory:
-                return accessoryInventorySlots;
-            default:
-                return null;
+            // 장비 아이템일 경우, 장비 버리기 확인창을 선택합니다.
+            targetPanel = equipDiscardConfirmPanel;
         }
-    }
-
-    /// <summary>
-    /// 주어진 슬롯 리스트에 아이템 목록을 순서대로 채워 넣습니다.
-    /// </summary>
-    private void FillSlots(List<ItemSlotUI> slots, List<KeyValuePair<BaseItemSO, int>> items)
-    {
-        int i = 0;
-        foreach (var itemPair in items)
+        else
         {
-            if (i < slots.Count)
+            // 그 외의 일반 아이템일 경우, 일반 아이템 버리기 확인창을 선택합니다.
+            targetPanel = itemDiscardConfirmPanel;
+        }
+
+        // 2. 목표 확인창이 제대로 할당되었는지 확인합니다.
+        if (targetPanel != null)
+        {
+            // 3. 해당 확인창 오브젝트를 활성화합니다.
+            targetPanel.SetActive(true);
+
+            // 4. 확인창 스크립트(ConfirmPanel.cs)를 찾아 초기화 메서드를 호출합니다.
+            ConfirmPanel confirmPanel = targetPanel.GetComponent<ConfirmPanel>();
+            if (confirmPanel != null)
             {
-                slots[i].UpdateSlot(itemPair.Key, itemPair.Value);
-                i++;
+                // 확인창에 아이템 정보와 개수를 전달합니다.
+                confirmPanel.Initialize(item, count);
             }
         }
     }

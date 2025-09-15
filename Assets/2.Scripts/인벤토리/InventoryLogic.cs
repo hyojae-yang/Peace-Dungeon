@@ -1,4 +1,3 @@
-// InventoryLogic.cs
 using System.Collections.Generic;
 
 /// <summary>
@@ -11,25 +10,36 @@ public class InventoryLogic
 
     /// <summary>
     /// 인벤토리에 아이템을 추가합니다.
+    /// 아이템의 maxStack을 고려하여 겹치기 및 새 슬롯 추가를 처리합니다.
     /// </summary>
     /// <param name="data">아이템 데이터를 담고 있는 InventoryData ScriptableObject입니다.</param>
     /// <param name="itemToAdd">추가할 아이템 정보입니다.</param>
     /// <param name="amount">추가할 아이템의 개수입니다.</param>
-    public void AddItem(InventoryData data, BaseItemSO itemToAdd, int amount)
+    /// <param name="inventorySize">인벤토리의 최대 슬롯 개수입니다.</param>
+    /// <returns>아이템 추가에 성공했는지 여부를 반환합니다.</returns>
+    public bool AddItem(InventoryData data, BaseItemSO itemToAdd, int amount, int inventorySize)
     {
-        // 이미 인벤토리에 같은 아이템이 있는지 확인합니다.
-        if (data.inventoryItems.ContainsKey(itemToAdd))
+        // 1. 겹쳐질 수 있는 아이템 슬롯을 찾습니다. (maxStack이 1보다 큰 경우)
+        // 장비 아이템은 겹쳐지지 않으므로 이 루프를 건너뜁니다.
+        for (int i = 0; i < data.inventoryItems.Count; i++)
         {
-            // 아이템이 이미 있다면 개수를 늘려줍니다.
-            data.inventoryItems[itemToAdd] += amount;
-            // TODO: UI에 업데이트를 알리는 이벤트 호출 로직 추가 예정
+            if (data.inventoryItems[i].itemSO == itemToAdd && data.inventoryItems[i].stackCount < itemToAdd.maxStack)
+            {
+                // 2. 같은 아이템이 있고, 아직 가득 차지 않았다면 개수를 업데이트합니다.
+                data.inventoryItems[i].stackCount += amount;
+                return true;
+            }
         }
-        else
+
+        // 3. 인벤토리가 꽉 찼는지 확인합니다.
+        if (data.inventoryItems.Count >= inventorySize)
         {
-            // 아이템이 없다면 새로 추가합니다.
-            data.inventoryItems.Add(itemToAdd, amount);
-            // TODO: UI에 업데이트를 알리는 이벤트 호출 로직 추가 예정
+            return false;
         }
+
+        // 4. 기존에 없던 아이템이거나, 겹칠 수 없는 아이템(장비 등)이라면 새로 추가합니다.
+        data.inventoryItems.Add(new ItemData(itemToAdd, amount));
+        return true;
     }
 
     // === 인벤토리에서 아이템을 제거하는 로직 ===
@@ -43,22 +53,23 @@ public class InventoryLogic
     /// <returns>아이템 제거에 성공했는지 여부를 반환합니다.</returns>
     public bool RemoveItem(InventoryData data, BaseItemSO itemToRemove, int amount)
     {
-        // 인벤토리에 해당 아이템이 있는지 확인합니다.
-        if (data.inventoryItems.ContainsKey(itemToRemove))
+        // 제거할 아이템을 인벤토리에서 찾습니다.
+        // 여러 슬롯에 나뉘어 있을 수 있으므로, 재고가 충분한 슬롯을 찾습니다.
+        for (int i = 0; i < data.inventoryItems.Count; i++)
         {
-            // 개수가 충분한지 확인합니다.
-            if (data.inventoryItems[itemToRemove] >= amount)
+            if (data.inventoryItems[i].itemSO == itemToRemove)
             {
-                data.inventoryItems[itemToRemove] -= amount;
-
-                // 아이템 개수가 0이 되면 딕셔너리에서 완전히 제거합니다.
-                if (data.inventoryItems[itemToRemove] <= 0)
+                // 2. 개수가 충분한지 확인합니다.
+                if (data.inventoryItems[i].stackCount >= amount)
                 {
-                    data.inventoryItems.Remove(itemToRemove);
+                    // 3. 개수를 차감하고, 0이 되면 슬롯을 제거합니다.
+                    data.inventoryItems[i].stackCount -= amount;
+                    if (data.inventoryItems[i].stackCount <= 0)
+                    {
+                        data.inventoryItems.RemoveAt(i);
+                    }
+                    return true;
                 }
-
-                // TODO: UI에 업데이트를 알리는 이벤트 호출 로직 추가 예정
-                return true;
             }
         }
         return false;
@@ -71,13 +82,14 @@ public class InventoryLogic
     /// </summary>
     /// <param name="data">아이템 데이터를 담고 있는 InventoryData ScriptableObject입니다.</param>
     /// <param name="itemToEquip">장착할 장비 아이템 정보입니다.</param>
-    public void EquipItem(InventoryData data, EquipmentItemSO itemToEquip)
+    /// <param name="inventorySize">인벤토리의 최대 슬롯 개수입니다.</param>
+    public void EquipItem(InventoryData data, EquipmentItemSO itemToEquip, int inventorySize)
     {
         // 현재 장착된 슬롯에 이미 아이템이 있는지 확인합니다.
         if (data.equippedItems.ContainsKey(itemToEquip.equipSlot))
         {
             // 이미 장비가 있다면, 기존 장비를 해제하고 인벤토리로 되돌립니다.
-            UnEquipItem(data, itemToEquip.equipSlot);
+            UnEquipItem(data, itemToEquip.equipSlot, inventorySize);
         }
 
         // 인벤토리에서 아이템을 제거합니다. (장착 시 인벤토리에서 사라져야 하므로)
@@ -85,8 +97,6 @@ public class InventoryLogic
 
         // 장비 슬롯에 새로운 아이템을 추가합니다.
         data.equippedItems.Add(itemToEquip.equipSlot, itemToEquip);
-
-        // TODO: UI에 업데이트를 알리는 이벤트 호출 로직 추가 예정
     }
 
     /// <summary>
@@ -94,19 +104,18 @@ public class InventoryLogic
     /// </summary>
     /// <param name="data">아이템 데이터를 담고 있는 InventoryData ScriptableObject입니다.</param>
     /// <param name="slotToUnEquip">해제할 장비 슬롯의 타입입니다.</param>
-    public void UnEquipItem(InventoryData data, EquipSlot slotToUnEquip)
+    /// <param name="inventorySize">인벤토리의 최대 슬롯 개수입니다.</param>
+    public void UnEquipItem(InventoryData data, EquipSlot slotToUnEquip, int inventorySize)
     {
         if (data.equippedItems.ContainsKey(slotToUnEquip))
         {
             EquipmentItemSO itemToUnEquip = data.equippedItems[slotToUnEquip];
 
             // 장착된 아이템을 인벤토리로 되돌립니다.
-            AddItem(data, itemToUnEquip, 1);
+            AddItem(data, itemToUnEquip, 1, inventorySize);
 
             // 장비 슬롯에서 아이템을 제거합니다.
             data.equippedItems.Remove(slotToUnEquip);
-
-            // TODO: UI에 업데이트를 알리는 이벤트 호출 로직 추가 예정
         }
     }
 }
