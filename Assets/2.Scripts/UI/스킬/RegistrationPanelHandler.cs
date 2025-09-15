@@ -19,8 +19,8 @@ public class RegistrationPanelHandler : MonoBehaviour
     [Header("참조 스크립트")]
     [Tooltip("부모 SkillIcon 스크립트를 할당하세요.")]
     private SkillIcon parentSkillIcon; // 부모 스킬 아이콘 스크립트 참조
-    [Tooltip("스킬 데이터를 관리하는 PlayerSkillController를 할당하세요.")]
-    public PlayerSkillController playerSkillController;
+    // PlayerSkillController는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // public PlayerSkillController playerSkillController;
 
     void Awake()
     {
@@ -32,10 +32,10 @@ public class RegistrationPanelHandler : MonoBehaviour
             return;
         }
 
-        // 인스펙터에서 할당하도록 변경
-        if (playerSkillController == null)
+        // PlayerSkillController 싱글턴 인스턴스가 존재하는지 확인합니다.
+        if (PlayerSkillController.Instance == null)
         {
-            Debug.LogError("PlayerSkillController가 할당되지 않았습니다. 인스펙터에서 할당해 주세요.");
+            Debug.LogError("PlayerSkillController 인스턴스가 존재하지 않습니다. 씬에 PlayerSkillController를 가진 게임 오브젝트가 있는지 확인해 주세요.");
             return;
         }
 
@@ -76,8 +76,8 @@ public class RegistrationPanelHandler : MonoBehaviour
     {
         if (parentSkillIcon.skillData != null)
         {
-            // PlayerSkillController의 UnregisterSkill 메서드를 호출하여 스킬 데이터로 해제 요청
-            playerSkillController.UnregisterSkill(parentSkillIcon.skillData);
+            // PlayerSkillController.Instance를 통해 UnregisterSkill 메서드를 호출하여 스킬 데이터로 해제 요청
+            PlayerSkillController.Instance.UnregisterSkill(parentSkillIcon.skillData);
         }
         else
         {

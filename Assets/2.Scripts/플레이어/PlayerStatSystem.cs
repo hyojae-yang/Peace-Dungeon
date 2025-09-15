@@ -1,12 +1,44 @@
+// PlayerStatSystem.cs
 using UnityEngine;
 using System.Collections.Generic;
 
 // 플레이어 스탯 포인트 투자 및 최종 능력치 계산을 관리하는 스크립트입니다.
+// 싱글턴으로 변경하여 게임 내에서 유일한 인스턴스로 관리됩니다.
 public class PlayerStatSystem : MonoBehaviour
 {
-    [Header("참조 스크립트")]
-    [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
-    public PlayerStats playerStats; // PlayerStats 스크립트 참조
+    // === 싱글턴 인스턴스 ===
+    private static PlayerStatSystem _instance;
+    public static PlayerStatSystem Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindFirstObjectByType<PlayerStatSystem>();
+
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject("PlayerStatSystemSingleton");
+                    _instance = singletonObject.AddComponent<PlayerStatSystem>();
+                    Debug.Log("새로운 'PlayerStatSystemSingleton' 게임 오브젝트를 생성했습니다.");
+                }
+            }
+            return _instance;
+        }
+    }
+
+    // === 스크립트 초기화 ===
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+    }
 
     [Header("스탯 포인트")]
     [Tooltip("레벨업 시 획득하는 스탯 포인트입니다. 능력치에 투자하여 스탯을 올릴 수 있습니다.")]
@@ -69,15 +101,23 @@ public class PlayerStatSystem : MonoBehaviour
     public int tempVitality = 0;
 
     // === 패시브 스킬 보너스 딕셔너리 ===
-    // 고정값과 백분율 보너스를 각각 다른 딕셔너리로 관리합니다.
     private Dictionary<StatType, float> passiveFlatBonuses = new Dictionary<StatType, float>();
     private Dictionary<StatType, float> passivePercentageBonuses = new Dictionary<StatType, float>();
 
+    // === 장비 스탯 보너스 딕셔너리 ===
+    [Header("장비 스탯 보너스")]
+    // 장비 아이템으로부터 받는 고정 스탯 보너스
+    private Dictionary<StatType, float> equipmentFlatBonuses = new Dictionary<StatType, float>();
+    // 장비 아이템으로부터 받는 백분율 스탯 보너스
+    private Dictionary<StatType, float> equipmentPercentageBonuses = new Dictionary<StatType, float>();
+
     void Start()
     {
-        if (playerStats == null)
+        // PlayerStats를 싱글턴으로 접근하도록 변경.
+        // 이 스크립트가 로드될 때 PlayerStats 인스턴스가 존재하는지 확인하는 것으로 충분합니다.
+        if (PlayerStats.Instance == null)
         {
-            Debug.LogError("PlayerStats 컴포넌트가 할당되지 않았습니다. 인스펙터 창에서 할당해 주세요.");
+            Debug.LogError("PlayerStats 인스턴스를 찾을 수 없습니다. 게임 시작 시 PlayerStats를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
             return;
         }
 
@@ -132,18 +172,30 @@ public class PlayerStatSystem : MonoBehaviour
     /// <param name="percentageBonuses">패시브 스킬로 인한 백분율 스탯 보너스 딕셔너리</param>
     public void ApplyPassiveBonuses(Dictionary<StatType, float> flatBonuses, Dictionary<StatType, float> percentageBonuses)
     {
-        // 기존 딕셔너리를 새로 받은 딕셔너리로 갱신합니다.
         passiveFlatBonuses = flatBonuses;
         passivePercentageBonuses = percentageBonuses;
         UpdateFinalStats();
     }
 
     /// <summary>
+    /// PlayerEquipmentManager로부터 장비 스탯 보너스를 받아서 저장합니다.
+    /// </summary>
+    /// <param name="flatBonuses">장비로 인한 고정 스탯 보너스 딕셔너리</param>
+    /// <param name="percentageBonuses">장비로 인한 백분율 스탯 보너스 딕셔너리</param>
+    public void ApplyEquipmentBonuses(Dictionary<StatType, float> flatBonuses, Dictionary<StatType, float> percentageBonuses)
+    {
+        equipmentFlatBonuses = flatBonuses;
+        equipmentPercentageBonuses = percentageBonuses;
+        UpdateFinalStats();
+    }
+
+    /// <summary>
     /// 플레이어의 현재 스탯에 기반하여 최종 능력치를 계산하고 업데이트합니다.
-    /// 이 메서드는 레벨업에 따른 기본 스탯 증가 로직을 포함합니다.
     /// </summary>
     public void UpdateFinalStats()
     {
+        PlayerStats playerStats = PlayerStats.Instance;
+
         // 레벨에 따른 기본 스탯 증가량 계산
         float levelHealthBonus = (playerStats.level - 1) * 10f;
         float levelManaBonus = (playerStats.level - 1) * 5f;
@@ -165,28 +217,67 @@ public class PlayerStatSystem : MonoBehaviour
         float baseEvasionChance = playerStats.baseEvasionChance;
 
         // 최종 스탯 계산 (고정값 합산)
-        float finalMaxHealth = baseMaxHealth + (constitution * constitutionToMaxHealth) + (vitality * vitalityToMaxHealth) + GetPassiveBonus(StatType.MaxHealth, passiveFlatBonuses);
-        float finalMaxMana = baseMaxMana + (endurance * enduranceToMaxMana) + GetPassiveBonus(StatType.MaxMana, passiveFlatBonuses);
-        float finalAttackPower = baseAttackPower + (strength * strengthToAttackPower) + GetPassiveBonus(StatType.AttackPower, passiveFlatBonuses);
-        float finalMagicAttackPower = baseMagicAttackPower + (intelligence * intelligenceToMagicAttackPower) + (focus * focusToMagicAttackPower) + GetPassiveBonus(StatType.MagicAttackPower, passiveFlatBonuses);
-        float finalDefense = baseDefense + (constitution * constitutionToDefense) + GetPassiveBonus(StatType.Defense, passiveFlatBonuses);
-        float finalMagicDefense = baseMagicDefense + (endurance * enduranceToMagicDefense) + GetPassiveBonus(StatType.MagicDefense, passiveFlatBonuses);
-        float finalCriticalChance = baseCriticalChance + (focus * focusToCriticalChance) + GetPassiveBonus(StatType.CriticalChance, passiveFlatBonuses);
-        float finalCriticalDamageMultiplier = baseCriticalDamageMultiplier + (strength * strengthToCriticalDamage) + GetPassiveBonus(StatType.CriticalDamage, passiveFlatBonuses);
-        float finalMoveSpeed = baseMoveSpeed + (agility * agilityToMoveSpeed) + (vitality * vitalityToMoveSpeed) + GetPassiveBonus(StatType.MoveSpeed, passiveFlatBonuses);
-        float finalEvasionChance = baseEvasionChance + (agility * agilityToEvasionChance) + GetPassiveBonus(StatType.EvasionChance, passiveFlatBonuses);
+        float finalMaxHealth = baseMaxHealth
+                             + (constitution * constitutionToMaxHealth) + (vitality * vitalityToMaxHealth)
+                             + GetPassiveBonus(StatType.MaxHealth, passiveFlatBonuses)
+                             + GetEquipmentBonus(StatType.MaxHealth, equipmentFlatBonuses);
 
-        // 최종 값에 백분율 보너스를 적용하고 PlayerStats에 반영합니다.
-        playerStats.MaxHealth = finalMaxHealth * (1 + GetPassiveBonus(StatType.MaxHealth, passivePercentageBonuses));
-        playerStats.MaxMana = finalMaxMana * (1 + GetPassiveBonus(StatType.MaxMana, passivePercentageBonuses));
-        playerStats.attackPower = finalAttackPower * (1 + GetPassiveBonus(StatType.AttackPower, passivePercentageBonuses));
-        playerStats.magicAttackPower = finalMagicAttackPower * (1 + GetPassiveBonus(StatType.MagicAttackPower, passivePercentageBonuses));
-        playerStats.defense = finalDefense * (1 + GetPassiveBonus(StatType.Defense, passivePercentageBonuses));
-        playerStats.magicDefense = finalMagicDefense * (1 + GetPassiveBonus(StatType.MagicDefense, passivePercentageBonuses));
-        playerStats.criticalChance = finalCriticalChance * (1 + GetPassiveBonus(StatType.CriticalChance, passivePercentageBonuses));
-        playerStats.criticalDamageMultiplier = finalCriticalDamageMultiplier * (1 + GetPassiveBonus(StatType.CriticalDamage, passivePercentageBonuses));
-        playerStats.moveSpeed = finalMoveSpeed * (1 + GetPassiveBonus(StatType.MoveSpeed, passivePercentageBonuses));
-        playerStats.evasionChance = finalEvasionChance * (1 + GetPassiveBonus(StatType.EvasionChance, passivePercentageBonuses));
+        float finalMaxMana = baseMaxMana
+                           + (endurance * enduranceToMaxMana)
+                           + GetPassiveBonus(StatType.MaxMana, passiveFlatBonuses)
+                           + GetEquipmentBonus(StatType.MaxMana, equipmentFlatBonuses);
+
+        float finalAttackPower = baseAttackPower
+                               + (strength * strengthToAttackPower)
+                               + GetPassiveBonus(StatType.AttackPower, passiveFlatBonuses)
+                               + GetEquipmentBonus(StatType.AttackPower, equipmentFlatBonuses);
+
+        float finalMagicAttackPower = baseMagicAttackPower
+                                    + (intelligence * intelligenceToMagicAttackPower) + (focus * focusToMagicAttackPower)
+                                    + GetPassiveBonus(StatType.MagicAttackPower, passiveFlatBonuses)
+                                    + GetEquipmentBonus(StatType.MagicAttackPower, equipmentFlatBonuses);
+
+        float finalDefense = baseDefense
+                           + (constitution * constitutionToDefense)
+                           + GetPassiveBonus(StatType.Defense, passiveFlatBonuses)
+                           + GetEquipmentBonus(StatType.Defense, equipmentFlatBonuses);
+
+        float finalMagicDefense = baseMagicDefense
+                                + (endurance * enduranceToMagicDefense)
+                                + GetPassiveBonus(StatType.MagicDefense, passiveFlatBonuses)
+                                + GetEquipmentBonus(StatType.MagicDefense, equipmentFlatBonuses);
+
+        float finalCriticalChance = baseCriticalChance
+                                  + (focus * focusToCriticalChance)
+                                  + GetPassiveBonus(StatType.CriticalChance, passiveFlatBonuses)
+                                  + GetEquipmentBonus(StatType.CriticalChance, equipmentFlatBonuses);
+
+        float finalCriticalDamageMultiplier = baseCriticalDamageMultiplier
+                                            + (strength * strengthToCriticalDamage)
+                                            + GetPassiveBonus(StatType.CriticalDamage, passiveFlatBonuses)
+                                            + GetEquipmentBonus(StatType.CriticalDamage, equipmentFlatBonuses);
+
+        float finalMoveSpeed = baseMoveSpeed
+                             + (agility * agilityToMoveSpeed) + (vitality * vitalityToMoveSpeed)
+                             + GetPassiveBonus(StatType.MoveSpeed, passiveFlatBonuses)
+                             + GetEquipmentBonus(StatType.MoveSpeed, equipmentFlatBonuses);
+
+        float finalEvasionChance = baseEvasionChance
+                                 + (agility * agilityToEvasionChance)
+                                 + GetPassiveBonus(StatType.EvasionChance, passiveFlatBonuses)
+                                 + GetEquipmentBonus(StatType.EvasionChance, equipmentFlatBonuses);
+
+        // 최종 값에 백분율 보너스를 적용합니다.
+        playerStats.MaxHealth = finalMaxHealth * (1 + GetPassiveBonus(StatType.MaxHealth, passivePercentageBonuses) + GetEquipmentBonus(StatType.MaxHealth, equipmentPercentageBonuses));
+        playerStats.MaxMana = finalMaxMana * (1 + GetPassiveBonus(StatType.MaxMana, passivePercentageBonuses) + GetEquipmentBonus(StatType.MaxMana, equipmentPercentageBonuses));
+        playerStats.attackPower = finalAttackPower * (1 + GetPassiveBonus(StatType.AttackPower, passivePercentageBonuses) + GetEquipmentBonus(StatType.AttackPower, equipmentPercentageBonuses));
+        playerStats.magicAttackPower = finalMagicAttackPower * (1 + GetPassiveBonus(StatType.MagicAttackPower, passivePercentageBonuses) + GetEquipmentBonus(StatType.MagicAttackPower, equipmentPercentageBonuses));
+        playerStats.defense = finalDefense * (1 + GetPassiveBonus(StatType.Defense, passivePercentageBonuses) + GetEquipmentBonus(StatType.Defense, equipmentPercentageBonuses));
+        playerStats.magicDefense = finalMagicDefense * (1 + GetPassiveBonus(StatType.MagicDefense, passivePercentageBonuses) + GetEquipmentBonus(StatType.MagicDefense, equipmentPercentageBonuses));
+        playerStats.criticalChance = finalCriticalChance * (1 + GetPassiveBonus(StatType.CriticalChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalChance, equipmentPercentageBonuses));
+        playerStats.criticalDamageMultiplier = finalCriticalDamageMultiplier * (1 + GetPassiveBonus(StatType.CriticalDamage, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalDamage, equipmentPercentageBonuses));
+        playerStats.moveSpeed = finalMoveSpeed * (1 + GetPassiveBonus(StatType.MoveSpeed, passivePercentageBonuses) + GetEquipmentBonus(StatType.MoveSpeed, equipmentPercentageBonuses));
+        playerStats.evasionChance = finalEvasionChance * (1 + GetPassiveBonus(StatType.EvasionChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.EvasionChance, equipmentPercentageBonuses));
 
         // 체력/마나가 최대치를 초과하지 않도록 보정합니다.
         if (playerStats.health > playerStats.MaxHealth)
@@ -211,6 +302,17 @@ public class PlayerStatSystem : MonoBehaviour
     }
 
     /// <summary>
+    /// 장비 보너스 딕셔너리에서 특정 스탯의 값을 가져오는 도우미 메서드입니다.
+    /// </summary>
+    /// <param name="type">가져올 스탯의 종류</param>
+    /// <param name="bonuses">장비 보너스 딕셔너리</param>
+    /// <returns>해당 스탯의 보너스 값. 없으면 0을 반환합니다.</returns>
+    private float GetEquipmentBonus(StatType type, Dictionary<StatType, float> bonuses)
+    {
+        return bonuses.ContainsKey(type) ? bonuses[type] : 0f;
+    }
+
+    /// <summary>
     /// UI에서 미리보기 값을 계산하기 위한 임시 스탯 계산기
     /// 이제 모든 스탯을 동일한 로직으로 계산합니다.
     /// </summary>
@@ -222,6 +324,8 @@ public class PlayerStatSystem : MonoBehaviour
         int tempStrength, int tempIntelligence, int tempConstitution, int tempAgility,
         int tempFocus, int tempEndurance, int tempVitality)
     {
+        PlayerStats playerStats = PlayerStats.Instance; // PlayerStats 싱글턴 접근
+
         // 레벨에 따른 기본 스탯 증가량 계산
         float levelHealthBonus = (playerStats.level - 1) * 10f;
         float levelManaBonus = (playerStats.level - 1) * 5f;
@@ -231,16 +335,16 @@ public class PlayerStatSystem : MonoBehaviour
         float levelMagicDefenseBonus = (playerStats.level - 1) * 1f;
 
         // 미리보기 계산의 시작점이 되는 기본 스탯
-        float baseMaxHealth = 100f + levelHealthBonus;
-        float baseMaxMana = 50f + levelManaBonus;
-        float baseAttackPower = 10f + levelAttackBonus;
-        float baseMagicAttackPower = 5f + levelMagicAttackBonus;
-        float baseDefense = 5f + levelDefenseBonus;
-        float baseMagicDefense = 5f + levelMagicDefenseBonus;
-        float baseCriticalChance = 0.05f;
-        float baseCriticalDamageMultiplier = 1.5f;
-        float baseMoveSpeed = 5f;
-        float baseEvasionChance = 0.02f;
+        float baseMaxHealth = playerStats.baseMaxHealth + levelHealthBonus;
+        float baseMaxMana = playerStats.baseMaxMana + levelManaBonus;
+        float baseAttackPower = playerStats.baseAttackPower + levelAttackBonus;
+        float baseMagicAttackPower = playerStats.baseMagicAttackPower + levelMagicAttackBonus;
+        float baseDefense = playerStats.baseDefense + levelDefenseBonus;
+        float baseMagicDefense = playerStats.baseMagicDefense + levelMagicDefenseBonus;
+        float baseCriticalChance = playerStats.baseCriticalChance;
+        float baseCriticalDamageMultiplier = playerStats.baseCriticalDamageMultiplier;
+        float baseMoveSpeed = playerStats.baseMoveSpeed;
+        float baseEvasionChance = playerStats.baseEvasionChance;
 
         // 임시 스탯 보너스를 적용한 중간값 계산
         float tempMaxHealth = baseMaxHealth + (tempConstitution * constitutionToMaxHealth) + (tempVitality * vitalityToMaxHealth);
@@ -254,35 +358,37 @@ public class PlayerStatSystem : MonoBehaviour
         float tempMoveSpeed = baseMoveSpeed + (tempAgility * agilityToMoveSpeed) + (tempVitality * vitalityToMoveSpeed);
         float tempEvasionChance = baseEvasionChance + (tempAgility * agilityToEvasionChance);
 
-        // 최종 값에 패시브 보너스를 적용하여 반환
+        // 최종 값에 패시브 보너스와 장비 보너스를 모두 적용하여 반환
         switch (statType)
         {
             case StatType.MaxHealth:
-                return (tempMaxHealth + GetPassiveBonus(StatType.MaxHealth, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.MaxHealth, passivePercentageBonuses));
+                return (tempMaxHealth + GetPassiveBonus(StatType.MaxHealth, passiveFlatBonuses) + GetEquipmentBonus(StatType.MaxHealth, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.MaxHealth, passivePercentageBonuses) + GetEquipmentBonus(StatType.MaxHealth, equipmentPercentageBonuses));
             case StatType.MaxMana:
-                return (tempMaxMana + GetPassiveBonus(StatType.MaxMana, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.MaxMana, passivePercentageBonuses));
+                return (tempMaxMana + GetPassiveBonus(StatType.MaxMana, passiveFlatBonuses) + GetEquipmentBonus(StatType.MaxMana, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.MaxMana, passivePercentageBonuses) + GetEquipmentBonus(StatType.MaxMana, equipmentPercentageBonuses));
             case StatType.AttackPower:
-                return (tempAttackPower + GetPassiveBonus(StatType.AttackPower, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.AttackPower, passivePercentageBonuses));
+                return (tempAttackPower + GetPassiveBonus(StatType.AttackPower, passiveFlatBonuses) + GetEquipmentBonus(StatType.AttackPower, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.AttackPower, passivePercentageBonuses) + GetEquipmentBonus(StatType.AttackPower, equipmentPercentageBonuses));
             case StatType.MagicAttackPower:
-                return (tempMagicAttackPower + GetPassiveBonus(StatType.MagicAttackPower, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.MagicAttackPower, passivePercentageBonuses));
+                return (tempMagicAttackPower + GetPassiveBonus(StatType.MagicAttackPower, passiveFlatBonuses) + GetEquipmentBonus(StatType.MagicAttackPower, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.MagicAttackPower, passivePercentageBonuses) + GetEquipmentBonus(StatType.MagicAttackPower, equipmentPercentageBonuses));
             case StatType.Defense:
-                return (tempDefense + GetPassiveBonus(StatType.Defense, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.Defense, passivePercentageBonuses));
+                return (tempDefense + GetPassiveBonus(StatType.Defense, passiveFlatBonuses) + GetEquipmentBonus(StatType.Defense, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.Defense, passivePercentageBonuses) + GetEquipmentBonus(StatType.Defense, equipmentPercentageBonuses));
             case StatType.MagicDefense:
-                return (tempMagicDefense + GetPassiveBonus(StatType.MagicDefense, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.MagicDefense, passivePercentageBonuses));
+                return (tempMagicDefense + GetPassiveBonus(StatType.MagicDefense, passiveFlatBonuses) + GetEquipmentBonus(StatType.MagicDefense, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.MagicDefense, passivePercentageBonuses) + GetEquipmentBonus(StatType.MagicDefense, equipmentPercentageBonuses));
             case StatType.CriticalChance:
-                return (tempCriticalChance + GetPassiveBonus(StatType.CriticalChance, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.CriticalChance, passivePercentageBonuses));
+                return (tempCriticalChance + GetPassiveBonus(StatType.CriticalChance, passiveFlatBonuses) + GetEquipmentBonus(StatType.CriticalChance, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.CriticalChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalChance, equipmentPercentageBonuses));
             case StatType.CriticalDamage:
-                return (tempCriticalDamageMultiplier + GetPassiveBonus(StatType.CriticalDamage, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.CriticalDamage, passivePercentageBonuses));
+                return (tempCriticalDamageMultiplier + GetPassiveBonus(StatType.CriticalDamage, passiveFlatBonuses) + GetEquipmentBonus(StatType.CriticalDamage, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.CriticalDamage, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalDamage, equipmentPercentageBonuses));
             case StatType.MoveSpeed:
-                return (tempMoveSpeed + GetPassiveBonus(StatType.MoveSpeed, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.MoveSpeed, passivePercentageBonuses));
+                return (tempMoveSpeed + GetPassiveBonus(StatType.MoveSpeed, passiveFlatBonuses) + GetEquipmentBonus(StatType.MoveSpeed, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.MoveSpeed, passivePercentageBonuses) + GetEquipmentBonus(StatType.MoveSpeed, equipmentPercentageBonuses));
             case StatType.EvasionChance:
-                return (tempEvasionChance + GetPassiveBonus(StatType.EvasionChance, passiveFlatBonuses)) * (1 + GetPassiveBonus(StatType.EvasionChance, passivePercentageBonuses));
+                return (tempEvasionChance + GetPassiveBonus(StatType.EvasionChance, passiveFlatBonuses) + GetEquipmentBonus(StatType.EvasionChance, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.EvasionChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.EvasionChance, equipmentPercentageBonuses));
             default:
                 Debug.LogError($"지원되지 않는 스탯 타입: {statType}");
                 return 0f;
         }
     }
 
+    // 이 아래부터는 기존 IncreaseTempStat/DecreaseTempStat 메서드와 관련된 내용입니다.
+    // 기존 코드의 로직을 유지하면서 PlayerStats.Instance를 사용하도록 변경했습니다.
     public void IncreaseTempStrength() { IncreaseTempStat("strength"); }
     public void IncreaseTempIntelligence() { IncreaseTempStat("intelligence"); }
     public void IncreaseTempConstitution() { IncreaseTempStat("constitution"); }

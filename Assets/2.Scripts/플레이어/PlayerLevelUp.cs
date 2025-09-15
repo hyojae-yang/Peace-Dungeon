@@ -1,12 +1,12 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 // 플레이어의 경험치와 레벨업을 관리하는 스크립트입니다.
 public class PlayerLevelUp : MonoBehaviour
 {
-    // PlayerStats 스크립트 참조 변수
-    private PlayerStats playerStats;
-    // PlayerStatSystem 스크립트 참조 변수
-    private PlayerStatSystem playerStatSystem;
+    // PlayerStats와 PlayerStatSystem 스크립트는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // private PlayerStats playerStats;
+    // private PlayerStatSystem playerStatSystem;
 
     // 다음 레벨에 필요한 경험치량을 계산하는 데 사용되는 변수
     [Header("레벨업 공식 설정")]
@@ -17,20 +17,16 @@ public class PlayerLevelUp : MonoBehaviour
 
     void Start()
     {
-        // 동일한 게임 오브젝트에 있는 PlayerStats 컴포넌트를 찾습니다.
-        playerStats = GetComponent<PlayerStats>();
-        // 동일한 게임 오브젝트에 있는 PlayerStatSystem 컴포넌트를 찾습니다.
-        playerStatSystem = GetComponent<PlayerStatSystem>();
-
-        if (playerStats == null)
+        // 게임 시작 시 PlayerStats와 PlayerStatSystem 싱글턴 인스턴스가 존재하는지 확인합니다.
+        if (PlayerStats.Instance == null)
         {
-            Debug.LogError("PlayerStats 컴포넌트가 PlayerLevelUp 스크립트와 같은 게임 오브젝트에 없습니다.");
+            Debug.LogError("PlayerStats 인스턴스가 존재하지 않습니다. 게임 시작 시 해당 컴포넌트를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
             return;
         }
 
-        if (playerStatSystem == null)
+        if (PlayerStatSystem.Instance == null)
         {
-            Debug.LogError("PlayerStatSystem 컴포넌트가 PlayerLevelUp 스크립트와 같은 게임 오브젝트에 없습니다.");
+            Debug.LogError("PlayerStatSystem 인스턴스가 존재하지 않습니다. 게임 시작 시 해당 컴포넌트를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
             return;
         }
 
@@ -38,58 +34,67 @@ public class PlayerLevelUp : MonoBehaviour
         CalculateRequiredExperience();
     }
 
-    // 외부에서 호출하여 플레이어에게 경험치를 추가하는 메서드
+    /// <summary>
+    /// 외부에서 호출하여 플레이어에게 경험치를 추가하는 메서드
+    /// </summary>
+    /// <param name="amount">추가할 경험치량</param>
     public void AddExperience(float amount)
     {
-        if (playerStats == null) return;
+        if (PlayerStats.Instance == null) return;
 
-        playerStats.experience += (int)amount;
+        PlayerStats.Instance.experience += (int)amount;
 
         CheckForLevelUp();
     }
 
-    // 다음 레벨에 필요한 경험치량을 계산하여 PlayerStats에 저장합니다.
+    /// <summary>
+    /// 다음 레벨에 필요한 경험치량을 계산하여 PlayerStats에 저장합니다.
+    /// </summary>
     private void CalculateRequiredExperience()
     {
+        // PlayerStats.Instance를 통해 데이터에 접근합니다.
         // 등비수열 공식: 필요한 경험치 = baseExp * (expGrowthFactor ^ (level - 1))
-        playerStats.requiredExperience = baseExp * Mathf.Pow(expGrowthFactor, playerStats.level - 1);
+        PlayerStats.Instance.requiredExperience = baseExp * Mathf.Pow(expGrowthFactor, PlayerStats.Instance.level - 1);
     }
 
-    // 경험치를 확인하고 레벨업이 가능한지 체크하는 메서드
+    /// <summary>
+    /// 경험치를 확인하고 레벨업이 가능한지 체크하는 메서드
+    /// </summary>
     private void CheckForLevelUp()
     {
-        while (playerStats.experience >= playerStats.requiredExperience)
+        if (PlayerStats.Instance == null) return;
+
+        while (PlayerStats.Instance.experience >= PlayerStats.Instance.requiredExperience)
         {
             LevelUp();
             CalculateRequiredExperience();
-            Debug.Log($"다음 레벨까지 남은 경험치: {playerStats.experience} / {playerStats.requiredExperience}");
+            Debug.Log($"다음 레벨까지 남은 경험치: {PlayerStats.Instance.experience} / {PlayerStats.Instance.requiredExperience}");
         }
     }
 
-    // 플레이어를 레벨업시키는 메서드
+    /// <summary>
+    /// 플레이어를 레벨업시키는 메서드
+    /// </summary>
     private void LevelUp()
     {
-        float remainingExp = playerStats.experience - playerStats.requiredExperience;
+        if (PlayerStats.Instance == null || PlayerStatSystem.Instance == null) return;
+
+        float remainingExp = PlayerStats.Instance.experience - PlayerStats.Instance.requiredExperience;
 
         // 레벨과 경험치를 업데이트합니다.
-        playerStats.level++;
-        playerStats.experience = (int)remainingExp;
+        PlayerStats.Instance.level++;
+        PlayerStats.Instance.experience = (int)remainingExp;
 
-        // 레벨업 시 스탯 포인트를 5점 지급합니다.
-        if (playerStatSystem != null)
-        {
-            playerStatSystem.statPoints += 5;
-        }
-        // 레벨업 시 스킬 포인트를 2점 지급합니다.
-        if (playerStats != null)
-        {
-            playerStats.skillPoints += 2;
-        }
+        // 레벨업 시 스탯 포인트를 지급합니다.
+        PlayerStatSystem.Instance.statPoints += 5;
+
+        // 레벨업 시 스킬 포인트를 지급합니다.
+        PlayerStats.Instance.skillPoints += 2;
 
         // 레벨업에 따른 스탯 증가 로직을 PlayerStatSystem에 위임합니다.
-        playerStatSystem.UpdateFinalStats();
-        playerStatSystem.StoreTempStats();
+        PlayerStatSystem.Instance.UpdateFinalStats();
+        PlayerStatSystem.Instance.StoreTempStats();
 
-        Debug.Log($"축하합니다! 레벨 {playerStats.level}로 레벨업했습니다!");
+        Debug.Log($"축하합니다! 레벨 {PlayerStats.Instance.level}로 레벨업했습니다!");
     }
 }

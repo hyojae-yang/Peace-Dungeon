@@ -4,30 +4,37 @@ using System.Collections.Generic;
 // IDetectable과 IDamageable 인터페이스를 구현합니다.
 public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 {
-    // PlayerStats 스크립트의 레퍼런스를 담을 변수
-    private PlayerStats playerStats;
+    // PlayerStats 스크립트는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // private PlayerStats playerStats;
 
     void Start()
     {
-        // 게임 시작 시, 같은 게임 오브젝트에 부착된 PlayerStats 컴포넌트를 찾습니다.
-        playerStats = GetComponent<PlayerStats>();
-        if (playerStats == null)
+        // 게임 시작 시, PlayerStats 싱글턴 인스턴스가 존재하는지 확인합니다.
+        // GetComponent를 통해 가져올 필요가 없습니다.
+        if (PlayerStats.Instance == null)
         {
-            Debug.LogError("PlayerStats 컴포넌트가 PlayerHealth와 같은 게임 오브젝트에 없습니다. PlayerStats를 먼저 부착해 주세요.");
+            Debug.LogError("PlayerStats 인스턴스가 존재하지 않습니다. 게임 시작 시 PlayerStats를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
         }
     }
 
     // IDetectable 인터페이스의 메서드 구현
+
+    /// <summary>
+    /// 플레이어가 감지 가능한 상태인지 확인합니다.
+    /// </summary>
     public bool IsDetectable()
     {
         // 플레이어가 살아있다면 감지 가능하도록 true를 반환합니다.
-        if (playerStats != null)
+        if (PlayerStats.Instance != null)
         {
-            return playerStats.health > 0;
+            return PlayerStats.Instance.health > 0;
         }
         return false;
     }
 
+    /// <summary>
+    /// 이 오브젝트의 트랜스폼을 반환합니다.
+    /// </summary>
     public Transform GetTransform()
     {
         return this.transform;
@@ -41,15 +48,16 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     /// <param name="amount">입을 데미지량</param>
     public void TakeDamage(float amount)
     {
-        if (playerStats == null) return;
+        // PlayerStats 인스턴스가 유효한지 다시 한번 확인합니다.
+        if (PlayerStats.Instance == null) return;
 
         // PlayerStats의 health 변수에 직접 접근하여 데미지를 적용합니다.
-        playerStats.health -= amount;
+        PlayerStats.Instance.health -= amount;
 
-        Debug.Log("플레이어가 데미지를 입었습니다! 남은 체력: " + playerStats.health);
+        Debug.Log("플레이어가 데미지를 입었습니다! 남은 체력: " + PlayerStats.Instance.health);
 
         // 체력이 0보다 작거나 같아지면 죽음 처리
-        if (playerStats.health <= 0)
+        if (PlayerStats.Instance.health <= 0)
         {
             Die();
         }
@@ -62,7 +70,8 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     /// <param name="type">데미지 타입 (물리, 마법, 고정 피해 등)</param>
     public void TakeDamage(float amount, DamageType type)
     {
-        if (playerStats == null) return;
+        // PlayerStats 인스턴스가 유효한지 다시 한번 확인합니다.
+        if (PlayerStats.Instance == null) return;
 
         float finalDamage = amount;
 
@@ -70,27 +79,29 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         switch (type)
         {
             case DamageType.Physical:
-                finalDamage = Mathf.Max(amount - playerStats.defense, 0);
+                finalDamage = Mathf.Max(amount - PlayerStats.Instance.defense, 0);
                 break;
             case DamageType.Magic:
-                finalDamage = Mathf.Max(amount - playerStats.magicDefense, 0);
+                finalDamage = Mathf.Max(amount - PlayerStats.Instance.magicDefense, 0);
                 break;
             case DamageType.True:
                 // 고정 피해는 방어력을 무시합니다.
                 break;
         }
 
-        playerStats.health -= finalDamage;
+        PlayerStats.Instance.health -= finalDamage;
 
-        Debug.Log($"플레이어가 {finalDamage}의 {type} 피해를 입었습니다! 남은 체력: {playerStats.health}");
+        Debug.Log($"플레이어가 {finalDamage}의 {type} 피해를 입었습니다! 남은 체력: {PlayerStats.Instance.health}");
 
-        if (playerStats.health <= 0)
+        if (PlayerStats.Instance.health <= 0)
         {
             Die();
         }
     }
 
-    // 플레이어가 죽었을 때 호출될 메서드
+    /// <summary>
+    /// 플레이어가 죽었을 때 호출될 메서드
+    /// </summary>
     private void Die()
     {
         Debug.Log("플레이어가 사망했습니다!");

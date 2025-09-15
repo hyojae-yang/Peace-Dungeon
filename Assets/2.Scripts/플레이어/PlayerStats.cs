@@ -1,50 +1,88 @@
 using UnityEngine;
-using System.Collections.Generic; // Dictionary를 사용하기 위해 추가합니다.
+using System.Collections.Generic;
 
-// 스탯 데이터를 저장하고 관리하는 스크립트입니다.
-// 이 스크립트는 MonoBehaviour를 상속받아 게임 오브젝트에 부착하여 사용할 수 있습니다.
+// 플레이어의 스탯 데이터를 저장하고 관리하는 스크립트입니다.
+// 싱글턴 패턴으로 변경하여 어디서든 접근 가능하도록 만듭니다.
 public class PlayerStats : MonoBehaviour
 {
+    // === 싱글턴 인스턴스 ===
+    // private static으로 외부에서 직접 인스턴스를 생성하지 못하게 막습니다.
+    private static PlayerStats _instance;
+
+    // public static으로 외부에서 PlayerStats.Instance를 통해 접근할 수 있도록 합니다.
+    public static PlayerStats Instance
+    {
+        get
+        {
+            // 인스턴스가 아직 생성되지 않았을 때
+            if (_instance == null)
+            {
+                // 씬에서 PlayerStats 컴포넌트를 가진 게임 오브젝트를 찾습니다.
+                _instance = FindFirstObjectByType<PlayerStats>();
+
+                // 만약 찾지 못했다면 새로운 게임 오브젝트를 만들고 컴포넌트를 추가합니다.
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject("PlayerStatsSingleton");
+                    _instance = singletonObject.AddComponent<PlayerStats>();
+                    Debug.Log("새로운 'PlayerStatsSingleton' 게임 오브젝트를 생성했습니다.");
+                }
+            }
+            return _instance;
+        }
+    }
+
+    // === 스크립트가 Awake될 때 싱글턴 초기화 ===
+    // 이 스크립트가 Awake될 때마다 호출됩니다.
+    void Awake()
+    {
+        // 만약 이미 인스턴스가 존재하고 이 객체가 그 인스턴스가 아니라면
+        if (_instance != null && _instance != this)
+        {
+            // 중복된 객체이므로 파괴합니다.
+            Destroy(gameObject);
+        }
+        else
+        {
+            // 이 객체를 유일한 인스턴스로 설정합니다.
+            _instance = this;
+            // 씬이 변경되어도 이 객체가 파괴되지 않도록 설정합니다.
+            // DontDestroyOnLoad(gameObject);
+            // 만약 게임 시작 시 이 객체를 이미 씬에 배치했다면 DontDestroyOnLoad는
+            // 필요 없을 수도 있습니다. 프로젝트의 구조에 맞게 선택해 주세요.
+        }
+    }
+
+    // === 기존 스탯 변수들은 그대로 둡니다. ===
+    // 이제 이 아래에 있는 기존 변수들은 모두 PlayerStats.Instance.변수명으로 접근하게 됩니다.
+
     // === 기본 능력치 ===
     [Header("기본 능력치")]
     [Tooltip("플레이어의 시작 체력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseMaxHealth = 100f;
-    [Tooltip("플레이어의 시작 마나입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
+    // ... (나머지 기존 변수들) ...
     public float baseMaxMana = 50f;
-    [Tooltip("플레이어의 시작 공격력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseAttackPower = 10f;
-    [Tooltip("플레이어의 시작 마법 공격력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseMagicAttackPower = 5f;
-    [Tooltip("플레이어의 시작 방어력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseDefense = 5f;
-    [Tooltip("플레이어의 시작 마법 방어력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseMagicDefense = 5f;
 
     [Header("기본 특수 능력치")]
     [Tooltip("치명타가 발생할 기본 확률입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseCriticalChance = 0.05f;
-    [Tooltip("치명타 발생 시 추가되는 기본 피해량 배율입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseCriticalDamageMultiplier = 1.5f;
-    [Tooltip("캐릭터의 기본 이동 속도입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseMoveSpeed = 5f;
-    [Tooltip("공격 회피 기본 확률입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     [Range(0.0f, 1.0f)]
     public float baseEvasionChance = 0.02f;
 
     // === 실시간 능력치 (게임 플레이 중 변하는 스탯) ===
     [Header("실시간 능력치")]
-    [Tooltip("캐릭터 이름")]
     public string characterName = "Hero";
-    [Tooltip("소지 금액")]
     public int gold = 0;
-    [Tooltip("현재 레벨")]
     public int level = 1;
-    [Tooltip("현재 경험치")]
     public int experience = 0;
-    [Tooltip("다음 레벨에 필요한 총 경험치")]
     public float requiredExperience = 10f;
 
-    // PlayerStatSystem 스크립트에서 계산되어 최종적으로 적용되는 스탯입니다.
     public float MaxHealth = 100f; // 최대 체력
     public float health = 100f; // 현재 체력
     public float MaxMana = 50f; // 최대 마나

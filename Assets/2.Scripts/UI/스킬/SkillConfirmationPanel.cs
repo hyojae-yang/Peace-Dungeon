@@ -4,7 +4,7 @@ using TMPro;
 using System.Text;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions; // 정규 표현식 사용을 위해 추가합니다.
+using System.Text.RegularExpressions;
 
 // 이 스크립트는 스킬 레벨업/레벨다운을 확인하는 UI 패널을 관리합니다.
 // 스킬 상세 정보를 표시하고, 임시 스킬 레벨을 조정하는 기능을 담당합니다.
@@ -34,13 +34,21 @@ public class SkillConfirmationPanel : MonoBehaviour
     [Tooltip("현재 패널이 보여주는 스킬의 임시 레벨")]
     private int tempLevel;
 
-    // === 외부 스크립트 참조 ===
-    [Header("매니저 참조")]
-    [Tooltip("스킬 포인트 로직을 관리하는 SkillPointManager 스크립트")]
-    public SkillPointManager skillPointManager;
+    // SkillPointManager는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // [Header("매니저 참조")]
+    // [Tooltip("스킬 포인트 로직을 관리하는 SkillPointManager 스크립트")]
+    // public SkillPointManager skillPointManager;
 
     void Awake()
     {
+        // SkillPointManager 싱글턴 인스턴스가 존재하는지 확인합니다.
+        if (SkillPointManager.Instance == null)
+        {
+            Debug.LogError("SkillPointManager 인스턴스가 존재하지 않습니다. 씬에 SkillPointManager를 가진 게임 오브젝트가 있는지 확인해 주세요.");
+            // 버튼 이벤트 연결을 중단합니다.
+            return;
+        }
+
         // 버튼 클릭 이벤트를 연결합니다.
         if (levelUpButton != null)
         {
@@ -69,8 +77,8 @@ public class SkillConfirmationPanel : MonoBehaviour
         // 현재 스킬 데이터 저장
         currentSkillData = data;
 
-        // SkillPointManager에서 현재 스킬의 실제 레벨을 가져와 임시 레벨로 초기화합니다.
-        tempLevel = skillPointManager.GetTempSkillLevel(currentSkillData.skillId);
+        // SkillPointManager.Instance에서 현재 스킬의 임시 레벨을 가져와 초기화합니다.
+        tempLevel = SkillPointManager.Instance.GetTempSkillLevel(currentSkillData.skillId);
 
         // UI 업데이트
         UpdatePanelUI();
@@ -161,14 +169,14 @@ public class SkillConfirmationPanel : MonoBehaviour
     private void OnLevelUpButtonClick()
     {
         // 스킬 포인트가 충분하고, 최대 레벨에 도달하지 않았을 때만 레벨업 진행
-        if (skillPointManager.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length)
+        if (SkillPointManager.Instance.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length)
         {
             // 스킬 포인트 사용 (임시 감소)
-            skillPointManager.SpendPoint();
+            SkillPointManager.Instance.SpendPoint();
             // 스킬 임시 레벨 증가
             tempLevel++;
             // 스킬 레벨 변경 사항을 SkillPointManager에 통지
-            skillPointManager.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
+            SkillPointManager.Instance.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
             // UI 업데이트
             UpdatePanelUI();
         }
@@ -180,15 +188,15 @@ public class SkillConfirmationPanel : MonoBehaviour
     /// </summary>
     private void OnLevelDownButtonClick()
     {
-        // 수정된 로직: SkillPointManager에 레벨 다운이 가능한지 문의합니다.
-        if (skillPointManager.CanLevelDown(currentSkillData.skillId))
+        // SkillPointManager.Instance에 레벨 다운이 가능한지 문의합니다.
+        if (SkillPointManager.Instance.CanLevelDown(currentSkillData.skillId))
         {
             // 스킬 포인트 반환 (임시 증가)
-            skillPointManager.RefundPoint();
+            SkillPointManager.Instance.RefundPoint();
             // 스킬 임시 레벨 감소
             tempLevel--;
             // 스킬 레벨 변경 사항을 SkillPointManager에 통지
-            skillPointManager.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
+            SkillPointManager.Instance.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
             // UI 업데이트
             UpdatePanelUI();
         }
@@ -208,11 +216,11 @@ public class SkillConfirmationPanel : MonoBehaviour
     private void UpdateButtonStates()
     {
         // 레벨업 버튼 상태: 임시 스킬 포인트가 1 이상이고, 최대 레벨에 도달하지 않았을 때 활성화
-        bool canLevelUp = skillPointManager.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length;
+        bool canLevelUp = SkillPointManager.Instance.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length;
         levelUpButton.interactable = canLevelUp;
 
-        // 레벨 다운 버튼 상태: SkillPointManager에 레벨 다운 가능 여부를 문의합니다.
-        bool canLevelDown = skillPointManager.CanLevelDown(currentSkillData.skillId);
+        // 레벨 다운 버튼 상태: SkillPointManager.Instance에 레벨 다운 가능 여부를 문의합니다.
+        bool canLevelDown = SkillPointManager.Instance.CanLevelDown(currentSkillData.skillId);
         levelDownButton.interactable = canLevelDown;
     }
 }

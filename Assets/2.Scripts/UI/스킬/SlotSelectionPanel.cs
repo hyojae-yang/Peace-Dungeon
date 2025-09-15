@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System.Collections.Generic;
 
 // 이 스크립트는 스킬 등록을 위해 1~8번 슬롯을 선택하는 UI를 관리합니다.
 public class SlotSelectionPanel : MonoBehaviour
@@ -9,9 +10,10 @@ public class SlotSelectionPanel : MonoBehaviour
     [Tooltip("1~8번 슬롯 버튼들을 순서대로 할당하세요.")]
     public Button[] slotButtons;
 
-    [Header("참조 스크립트")]
-    [Tooltip("스킬 데이터를 관리하는 PlayerSkillController를 할당하세요.")]
-    public PlayerSkillController playerSkillController;
+    // PlayerSkillController는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // [Header("참조 스크립트")]
+    // [Tooltip("스킬 데이터를 관리하는 PlayerSkillController를 할당하세요.")]
+    // public PlayerSkillController playerSkillController;
 
     // --- 내부 변수 ---
     private SkillData currentSkillData; // 현재 등록하려는 스킬 데이터를 임시로 저장
@@ -19,9 +21,9 @@ public class SlotSelectionPanel : MonoBehaviour
 
     private void Awake()
     {
-        if (playerSkillController == null)
+        if (PlayerSkillController.Instance == null)
         {
-            Debug.LogError("PlayerSkillController가 할당되지 않았습니다. 인스펙터에서 할당해 주세요.");
+            Debug.LogError("PlayerSkillController 인스턴스가 존재하지 않습니다. 씬에 해당 컴포넌트가 있는지 확인해 주세요.");
             return;
         }
 
@@ -56,8 +58,8 @@ public class SlotSelectionPanel : MonoBehaviour
     {
         if (currentSkillData != null && parentSkillIcon != null)
         {
-            // PlayerSkillController의 스킬 등록 메서드를 호출하여 데이터를 전달합니다.
-            playerSkillController.RegisterSkill(slotIndex, currentSkillData);
+            // PlayerSkillController.Instance의 스킬 등록 메서드를 호출하여 데이터를 전달합니다.
+            PlayerSkillController.Instance.RegisterSkill(slotIndex, currentSkillData);
         }
         else
         {

@@ -18,8 +18,9 @@ public class SkillPanel : MonoBehaviour
     public Button button2;
 
     [Header("스킬 포인트 시스템")]
-    [Tooltip("SkillPointManager 스크립트를 할당하세요. 인스펙터에서 직접 연결하세요.")]
-    public SkillPointManager skillPointManager;
+    // SkillPointManager는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // [Tooltip("SkillPointManager 스크립트를 할당하세요. 인스펙터에서 직접 연결하세요.")]
+    // public SkillPointManager skillPointManager;
     [Tooltip("현재 스킬 포인트를 표시할 TextMeshProUGUI 컴포넌트를 할당하세요.")]
     public TextMeshProUGUI skillPointText;
 
@@ -33,16 +34,16 @@ public class SkillPanel : MonoBehaviour
 
     void Awake()
     {
-        // 인스펙터에서 할당되었는지 확인하고, 이벤트 구독을 진행합니다.
-        if (skillPointManager != null)
+        // SkillPointManager 싱글턴 인스턴스가 존재하는지 확인하고 이벤트 구독을 진행합니다.
+        if (SkillPointManager.Instance != null)
         {
             // 스킬 포인트가 변경될 때마다 UI를 업데이트하는 이벤트에 메서드를 등록합니다.
-            skillPointManager.OnSkillPointsChanged += UpdateSkillPointUI;
+            SkillPointManager.Instance.OnSkillPointsChanged += UpdateSkillPointUI;
         }
         else
         {
-            // 인스펙터에서 할당하지 않았을 경우 경고 메시지를 띄웁니다.
-            Debug.LogError("SkillPointManager가 할당되지 않았습니다. 인스펙터 창에서 할당해 주세요.");
+            // 인스턴스가 존재하지 않을 경우 경고 메시지를 띄웁니다.
+            Debug.LogError("SkillPointManager 인스턴스가 존재하지 않습니다. 씬에 해당 컴포넌트가 있는지 확인해 주세요.");
         }
 
         // 저장 및 취소 버튼에 클릭 이벤트를 연결합니다.
@@ -69,9 +70,9 @@ public class SkillPanel : MonoBehaviour
 
         // 패널이 활성화될 때만 SkillPointManager를 초기화합니다.
         // 이렇게 하면 매번 패널을 열 때마다 임시 데이터가 초기 상태로 돌아갑니다.
-        if (active && skillPointManager != null)
+        if (active && SkillPointManager.Instance != null)
         {
-            skillPointManager.InitializePoints();
+            SkillPointManager.Instance.InitializePoints();
         }
     }
 
@@ -125,34 +126,34 @@ public class SkillPanel : MonoBehaviour
 
     /// <summary>
     /// '저장' 버튼 클릭 시 호출됩니다.
-    /// SkillPointManager의 ApplyChanges 메서드를 호출하여 변경 사항을 최종 적용합니다.
+    /// SkillPointManager.Instance의 ApplyChanges 메서드를 호출하여 변경 사항을 최종 적용합니다.
     /// </summary>
     private void OnSaveButtonClick()
     {
-        if (skillPointManager != null)
+        if (SkillPointManager.Instance != null)
         {
-            skillPointManager.ApplyChanges();
+            SkillPointManager.Instance.ApplyChanges();
         }
     }
 
     /// <summary>
     /// '취소' 버튼 클릭 시 호출됩니다.
-    /// SkillPointManager의 DiscardChanges 메서드를 호출하여 변경 사항을 되돌립니다.
+    /// SkillPointManager.Instance의 DiscardChanges 메서드를 호출하여 변경 사항을 되돌립니다.
     /// </summary>
     private void OnCancelButtonClick()
     {
-        if (skillPointManager != null)
+        if (SkillPointManager.Instance != null)
         {
-            skillPointManager.DiscardChanges();
+            SkillPointManager.Instance.DiscardChanges();
         }
     }
 
     private void OnDestroy()
     {
         // 스크립트가 파괴될 때 이벤트 구독을 해제하여 메모리 누수를 방지합니다.
-        if (skillPointManager != null)
+        if (SkillPointManager.Instance != null)
         {
-            skillPointManager.OnSkillPointsChanged -= UpdateSkillPointUI;
+            SkillPointManager.Instance.OnSkillPointsChanged -= UpdateSkillPointUI;
         }
     }
 }

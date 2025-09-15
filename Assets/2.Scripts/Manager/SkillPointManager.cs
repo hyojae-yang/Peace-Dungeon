@@ -6,18 +6,56 @@ using System.Linq;
 
 // 이 스크립트는 스킬 포인트 시스템의 핵심 로직을 관리합니다.
 // 스킬 포인트를 올리고 내리는 기능, 변경 사항을 확정하거나 취소하는 기능을 담당합니다.
+// 싱글턴 패턴을 적용하여 어디서든 접근 가능하도록 변경합니다.
 public class SkillPointManager : MonoBehaviour
 {
+    // === 싱글턴 인스턴스 ===
+    private static SkillPointManager _instance;
+    public static SkillPointManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindFirstObjectByType<SkillPointManager>();
+                if (_instance == null)
+                {
+                    GameObject singletonObject = new GameObject("SkillPointManagerSingleton");
+                    _instance = singletonObject.AddComponent<SkillPointManager>();
+                    Debug.Log("새로운 'SkillPointManagerSingleton' 게임 오브젝트를 생성했습니다.");
+                }
+            }
+            return _instance;
+        }
+    }
+
+    // === 스크립트 초기화 ===
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+
+        // 스크립트가 시작될 때 임시 스킬 레벨을 초기화
+        InitializePoints();
+    }
+
     // === UI 및 스크립트 참조 ===
     [Header("UI 및 스크립트 참조")]
     [Tooltip("스킬 포인트를 표시할 TextMeshProUGUI 컴포넌트를 할당하세요.")]
     public TextMeshProUGUI skillPointText;
-    [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
-    public PlayerStats playerStats;
-    [Tooltip("패시브 스킬 효과를 업데이트할 PassiveSkillManager 컴포넌트를 할당하세요.")]
-    public PassiveSkillManager passiveSkillManager;
 
-    // === 스킬 포인트 시스템 데이터 ===
+    // 이 스크립트들은 이제 싱글턴으로 접근하므로 인스펙터 할당이 필요 없습니다.
+    // [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
+    // public PlayerStats playerStats;
+    // [Tooltip("패시브 스킬 효과를 업데이트할 PassiveSkillManager 컴포넌트를 할당하세요.")]
+    // public PassiveSkillManager passiveSkillManager;
+
     // 'currentSkillPoints'는 현재 플레이어가 보유한 스킬 포인트입니다.
     private int currentSkillPoints;
 
@@ -28,20 +66,7 @@ public class SkillPointManager : MonoBehaviour
     public event System.Action<int> OnSkillPointsChanged;
 
     // 스킬 레벨이 변경되었음을 외부에 알리는 새로운 이벤트
-    public event System.Action<int> OnSkillLeveledUp; // <-- 새로운 이벤트 추가
-
-    void Awake()
-    {
-        // PlayerStats가 할당되었는지 확인
-        if (playerStats == null)
-        {
-            Debug.LogError("PlayerStats가 할당되지 않았습니다. 인스펙터에서 할당해 주세요.");
-            return;
-        }
-
-        // 스크립트가 시작될 때 임시 스킬 레벨을 초기화
-        InitializePoints();
-    }
+    public event System.Action<int> OnSkillLeveledUp;
 
     // === 외부에서 호출되는 메서드 ===
 
@@ -50,10 +75,17 @@ public class SkillPointManager : MonoBehaviour
     /// </summary>
     public void InitializePoints()
     {
+        // PlayerStats.Instance를 통해 데이터에 접근
+        if (PlayerStats.Instance == null)
+        {
+            Debug.LogError("PlayerStats 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
         // 최종 스킬 포인트와 스킬 레벨을 임시 데이터로 가져와 초기화합니다.
-        currentSkillPoints = playerStats.skillPoints;
+        currentSkillPoints = PlayerStats.Instance.skillPoints;
         // 깊은 복사(Deep Copy)를 통해 원본 딕셔너리를 보호합니다.
-        tempSkillLevels = new Dictionary<int, int>(playerStats.skillLevels);
+        tempSkillLevels = new Dictionary<int, int>(PlayerStats.Instance.skillLevels);
 
         // UI 업데이트
         UpdateSkillPointUI();
@@ -74,7 +106,6 @@ public class SkillPointManager : MonoBehaviour
     /// <returns>임시 레벨, 스킬이 없으면 0을 반환</returns>
     public int GetTempSkillLevel(int skillId)
     {
-        // tempSkillLevels가 null인 경우 초기화
         if (tempSkillLevels == null)
         {
             InitializePoints();
@@ -112,13 +143,11 @@ public class SkillPointManager : MonoBehaviour
     /// <param name="tempLevel">업데이트할 임시 레벨</param>
     public void UpdateTempSkillLevel(int skillId, int tempLevel)
     {
-        // tempSkillLevels가 null인 경우 초기화
         if (tempSkillLevels == null)
         {
             InitializePoints();
         }
 
-        // 임시 딕셔너리에 스킬 레벨을 업데이트합니다.
         if (tempLevel > 0)
         {
             if (tempSkillLevels.ContainsKey(skillId))
@@ -132,7 +161,6 @@ public class SkillPointManager : MonoBehaviour
         }
         else
         {
-            // 레벨이 0이 되면 딕셔너리에서 제거
             if (tempSkillLevels.ContainsKey(skillId))
             {
                 tempSkillLevels.Remove(skillId);
@@ -148,9 +176,8 @@ public class SkillPointManager : MonoBehaviour
     public bool CanLevelDown(int skillId)
     {
         int tempLevel = GetTempSkillLevel(skillId);
-        int permanentLevel = playerStats.skillLevels.ContainsKey(skillId) ? playerStats.skillLevels[skillId] : 0;
+        int permanentLevel = PlayerStats.Instance.skillLevels.ContainsKey(skillId) ? PlayerStats.Instance.skillLevels[skillId] : 0;
 
-        // 임시 레벨이 영구 레벨보다 높을 때만 레벨 다운 가능
         return tempLevel > permanentLevel;
     }
 
@@ -161,57 +188,46 @@ public class SkillPointManager : MonoBehaviour
     /// <returns>레벨 조건이 충족되면 true, 아니면 false</returns>
     public bool CanLearnSkill(SkillData skillData)
     {
-        // PlayerStats와 skillData가 유효한지 확인
-        if (playerStats == null || skillData == null)
+        if (PlayerStats.Instance == null || skillData == null)
         {
             Debug.LogError("PlayerStats 또는 SkillData가 유효하지 않습니다.");
             return false;
         }
 
-        // 스킬이 요구하는 레벨(requiredLevel)과 플레이어의 현재 레벨(level)을 비교
-        return skillData.requiredLevel <= playerStats.level;
+        return skillData.requiredLevel <= PlayerStats.Instance.level;
     }
-
-    // === 변경사항 최종 적용 및 취소 메서드 ===
 
     /// <summary>
     /// 변경된 스킬 레벨을 최종적으로 적용합니다.
     /// </summary>
     public void ApplyChanges()
     {
-        // === 최종 반영 로직 ===
-
-        // 1. 레벨업된 스킬들을 임시로 저장합니다. (데이터 복사 전에 실행해야 함)
         List<int> leveledUpSkillIds = new List<int>();
         foreach (var tempLevelPair in tempSkillLevels)
         {
             int skillId = tempLevelPair.Key;
             int tempLevel = tempLevelPair.Value;
-            int permanentLevel = playerStats.skillLevels.ContainsKey(skillId) ? playerStats.skillLevels[skillId] : 0;
+            int permanentLevel = PlayerStats.Instance.skillLevels.ContainsKey(skillId) ? PlayerStats.Instance.skillLevels[skillId] : 0;
 
-            // 임시 레벨이 영구 레벨보다 높으면 레벨업된 스킬로 간주합니다.
             if (tempLevel > permanentLevel)
             {
                 leveledUpSkillIds.Add(skillId);
             }
         }
 
-        // 2. 임시 데이터를 최종 데이터에 반영합니다.
-        playerStats.skillLevels = new Dictionary<int, int>(tempSkillLevels);
-        playerStats.skillPoints = currentSkillPoints;
+        PlayerStats.Instance.skillLevels = new Dictionary<int, int>(tempSkillLevels);
+        PlayerStats.Instance.skillPoints = currentSkillPoints;
 
-        // 3. 레벨업된 스킬들에 대해 UI 업데이트 이벤트를 호출합니다.
-        // 데이터가 최종 반영된 후에 이벤트를 호출해야 PlayerSkillController가 최신 데이터를 참조할 수 있습니다.
         foreach (int skillId in leveledUpSkillIds)
         {
             OnSkillLeveledUp?.Invoke(skillId);
         }
 
-        // 최종 반영 후 스킬 효과를 업데이트합니다.
-        if (passiveSkillManager != null)
-        {
-            passiveSkillManager.UpdatePassiveBonuses();
-        }
+        // PassiveSkillManager가 싱글턴으로 변경되면 아래 주석을 해제하세요.
+        // if (PassiveSkillManager.Instance != null)
+        // {
+        //     PassiveSkillManager.Instance.UpdatePassiveBonuses();
+        // }
 
         Debug.Log("스킬 레벨 변경사항이 적용되었습니다.");
     }
@@ -221,7 +237,6 @@ public class SkillPointManager : MonoBehaviour
     /// </summary>
     public void DiscardChanges()
     {
-        // 기존의 최종 데이터를 다시 임시 데이터로 복사합니다.
         InitializePoints();
         Debug.Log("스킬 변경사항이 취소되었습니다.");
     }
@@ -231,12 +246,10 @@ public class SkillPointManager : MonoBehaviour
     /// </summary>
     private void UpdateSkillPointUI()
     {
-        // UI가 할당되어 있다면 텍스트를 업데이트합니다.
         if (skillPointText != null)
         {
             skillPointText.text = $"스킬포인트: \n{currentSkillPoints}";
         }
-        // 외부 구독자(SkillPanel)에게 변경 사항을 알립니다.
         OnSkillPointsChanged?.Invoke(currentSkillPoints);
     }
 }

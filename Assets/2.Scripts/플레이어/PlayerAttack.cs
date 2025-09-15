@@ -15,16 +15,16 @@ public class PlayerAttack : MonoBehaviour
     [Tooltip("몬스터에게 데미지를 입히는 데 사용할 레이어 마스크입니다.")]
     public LayerMask monsterLayer;
 
-    // PlayerStats 스크립트 참조 변수
-    private PlayerStats playerStats;
+    // PlayerStats 스크립트는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
+    // private PlayerStats playerStats;
 
     void Start()
     {
-        // 게임 시작 시, 동일한 게임 오브젝트에 있는 PlayerStats 컴포넌트를 가져옵니다.
-        playerStats = GetComponent<PlayerStats>();
-        if (playerStats == null)
+        // 게임 시작 시, PlayerStats 싱글턴 인스턴스가 존재하는지 확인합니다.
+        // GetComponent를 통해 가져올 필요가 없습니다.
+        if (PlayerStats.Instance == null)
         {
-            Debug.LogError("PlayerStats 컴포넌트를 찾을 수 없습니다. PlayerStats 스크립트를 먼저 부착해 주세요.");
+            Debug.LogError("PlayerStats 인스턴스가 존재하지 않습니다. 게임 시작 시 PlayerStats를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
         }
     }
 
@@ -37,9 +37,13 @@ public class PlayerAttack : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 플레이어의 기본 공격 로직을 실행합니다.
+    /// </summary>
     void Attack()
     {
-        if (playerStats == null) return;
+        // 싱글턴 인스턴스가 유효한지 다시 한번 확인합니다.
+        if (PlayerStats.Instance == null) return;
 
         // Physics.OverlapSphere를 사용하여 attackRange 내의 모든 콜라이더를 우선 감지합니다.
         // 이 구는 부채꼴 공격의 최대 반경을 나타냅니다.
@@ -65,7 +69,8 @@ public class PlayerAttack : MonoBehaviour
                     Monster monster = monsterCollider.GetComponent<Monster>();
                     if (monster != null)
                     {
-                        float damage = playerStats.attackPower;
+                        // PlayerStats.Instance를 통해 공격력을 가져옵니다.
+                        float damage = PlayerStats.Instance.attackPower;
                         monster.TakeDamage(damage); // Monster 클래스의 TakeDamage 메서드 호출
                         Debug.Log(monsterCollider.name + "에게 " + damage + "의 데미지를 입혔습니다! 남은 체력: " + monster.health);
                     }

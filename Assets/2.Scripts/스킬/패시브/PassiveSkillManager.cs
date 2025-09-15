@@ -5,10 +5,11 @@ using System.Collections.Generic;
 public class PassiveSkillManager : MonoBehaviour
 {
     [Header("참조 스크립트")]
-    [Tooltip("플레이어의 PlayerStatSystem 컴포넌트를 할당하세요.")]
-    public PlayerStatSystem playerStatSystem;
-    [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
-    public PlayerStats playerStats;
+    // 이 스크립트들은 이제 싱글턴으로 접근하므로 인스펙터 할당이 필요 없습니다.
+    // [Tooltip("플레이어의 PlayerStatSystem 컴포넌트를 할당하세요.")]
+    // public PlayerStatSystem playerStatSystem;
+    // [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
+    // public PlayerStats playerStats;
     [Tooltip("모든 스킬 데이터를 담고 있는 ScriptableObject 배열을 할당하세요.")]
     public SkillData[] allSkills;
 
@@ -18,10 +19,11 @@ public class PassiveSkillManager : MonoBehaviour
 
     void Start()
     {
-        // PlayerStatSystem과 PlayerStats 컴포넌트가 할당되었는지 확인합니다.
-        if (playerStatSystem == null || playerStats == null)
+        // PlayerStatSystem과 PlayerStats 컴포넌트를 싱글턴으로 접근합니다.
+        // 게임 시작 시 인스턴스가 존재하는지 확인합니다.
+        if (PlayerStatSystem.Instance == null || PlayerStats.Instance == null)
         {
-            Debug.LogError("PlayerStatSystem 또는 PlayerStats가 할당되지 않았습니다. 인스펙터 창에서 할당해 주세요.");
+            Debug.LogError("PlayerStatSystem 또는 PlayerStats 인스턴스가 존재하지 않습니다. 게임 시작 시 해당 컴포넌트를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
             return;
         }
 
@@ -54,7 +56,8 @@ public class PassiveSkillManager : MonoBehaviour
         activeDynamicEffects.Clear();
 
         // PlayerStats의 최종 스킬 레벨 데이터를 순회하며 보너스 값을 합산합니다.
-        foreach (var skillLevelPair in playerStats.skillLevels)
+        // PlayerStats.Instance를 통해 데이터에 접근합니다.
+        foreach (var skillLevelPair in PlayerStats.Instance.skillLevels)
         {
             int skillID = skillLevelPair.Key;
             int currentLevel = skillLevelPair.Value;
@@ -100,6 +103,7 @@ public class PassiveSkillManager : MonoBehaviour
             }
         }
         // 합산된 최종 보너스 값을 PlayerStatSystem에 전달합니다.
-        playerStatSystem.ApplyPassiveBonuses(totalPassiveFlatBonuses, totalPassivePercentageBonuses);
+        // PlayerStatSystem.Instance를 통해 메서드를 호출합니다.
+        PlayerStatSystem.Instance.ApplyPassiveBonuses(totalPassiveFlatBonuses, totalPassivePercentageBonuses);
     }
 }

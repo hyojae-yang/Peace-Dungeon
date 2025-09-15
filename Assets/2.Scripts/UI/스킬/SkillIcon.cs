@@ -25,10 +25,10 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
     [Tooltip("1~8번 슬롯 버튼이 담긴 패널 스크립트. RegistrationPanelHandler에서 제어")]
     public SlotSelectionPanel slotSelectionPanel; // SlotSelectionPanel 오브젝트 참조
     [Tooltip("스킬 포인트 로직을 관리하는 SkillPointManager 스크립트")]
-    public SkillPointManager skillPointManager; // SkillPointManager 참조 추가
+    // 이 변수는 싱글턴 접근으로 변경되므로 이제 필요 없습니다.
+    // public SkillPointManager skillPointManager;
 
     // === 데이터 참조 ===
-    [Tooltip("이 아이콘이 나타내는 스킬의 데이터")]
     public SkillData skillData;
 
     // --- 내부 플래그 ---
@@ -41,6 +41,7 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (skillData != null)
             Initialize(skillData); // 스킬 데이터로 초기화
     }
+
     /// <summary>
     /// 스킬 아이콘을 특정 스킬 데이터로 초기화합니다.
     /// </summary>
@@ -50,15 +51,15 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         skillData = data;
         if (skillData != null)
         {
-            // SkillPointManager가 할당되었는지 확인
-            if (skillPointManager == null)
+            // SkillPointManager 싱글턴이 할당되었는지 확인
+            if (SkillPointManager.Instance == null)
             {
-                Debug.LogError("SkillPointManager가 할당되지 않았습니다. 아이콘 초기화 실패.");
+                Debug.LogError("SkillPointManager 인스턴스가 할당되지 않았습니다. 아이콘 초기화 실패.");
                 return;
             }
 
             // 스킬 획득 가능 여부 확인
-            canLearn = skillPointManager.CanLearnSkill(skillData);
+            canLearn = SkillPointManager.Instance.CanLearnSkill(skillData);
 
             // 아이콘 이미지 설정 및 상태 업데이트
             skillIconImage.sprite = data.skillImage;
@@ -101,8 +102,8 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         // 다른 패널이 활성화되어 있지 않고, 툴팁과 스킬 데이터가 존재할 때만 툴팁을 표시합니다.
         if (!isPanelActive && skillTooltip != null && skillData != null)
         {
-            // SkillPointManager에서 현재 스킬의 레벨을 가져옵니다.
-            int currentLevel = skillPointManager.GetTempSkillLevel(skillData.skillId);
+            // SkillPointManager.Instance에서 현재 스킬의 레벨을 가져옵니다.
+            int currentLevel = SkillPointManager.Instance.GetTempSkillLevel(skillData.skillId);
 
             // 툴팁에 최신 레벨 정보를 전달합니다.
             skillTooltip.SetTooltipData(skillData, currentLevel);
@@ -172,8 +173,6 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             }
         }
     }
-
-    // 이하 메서드는 변경 없음
 
     /// <summary>
     /// 등록 패널에서 호출되어 스킬 슬롯 선택 패널을 보여줍니다.
