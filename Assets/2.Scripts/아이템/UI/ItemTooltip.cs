@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using System.Text;
 using System.Collections.Generic; // List<T>를 사용하기 위해 추가
+using System.Linq;
 
 /// <summary>
 /// 아이템 툴팁 패널의 UI를 관리하는 스크립트입니다.
@@ -22,7 +23,7 @@ public class ItemTooltip : MonoBehaviour
     [Tooltip("아이템 설명을 표시할 Text 컴포넌트입니다.")]
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
 
-    // 이 아래 변수들은 장비 아이템 툴팁 프리팹에만 할당될 수 있습니다. 
+    // 이 아래 변수들은 장비 아이템 툴팁 프리팹에만 할당될 수 있습니다.
     // 일반 아이템 툴팁 프리팹에서는 null이 됩니다.
 
     [Header("장비 전용 툴팁 UI 요소")]
@@ -44,8 +45,8 @@ public class ItemTooltip : MonoBehaviour
     [Tooltip("추가 능력치 4를 표시할 텍스트입니다.")]
     [SerializeField] private TextMeshProUGUI additionalStat4Text;
 
-    [Tooltip("특수 능력치를 표시할 텍스트입니다. (추후 구현 예정)")]
-    [SerializeField] private TextMeshProUGUI specialAbilityText;
+    [Tooltip("세트 효과를 표시할 텍스트입니다.")]
+    [SerializeField] private TextMeshProUGUI setBonusText;
 
     /// <summary>
     /// 아이템 정보를 받아 툴팁의 내용을 설정합니다.
@@ -99,10 +100,43 @@ public class ItemTooltip : MonoBehaviour
                 if (additionalStat4Text != null) additionalStat4Text.text = string.Empty;
             }
 
-            // 특수 능력치 설정 (추후 구현 예정)
-            if (specialAbilityText != null)
+            // 세트 효과(이제는 세트 효과) 설정
+            if (setBonusText != null)
             {
-                specialAbilityText.text = "특수 능력치: (추후 구현)";
+                // 아이템에 세트 ID가 있는지 확인
+                if (!string.IsNullOrEmpty(equipmentItem.setID))
+                {
+                    // SetBonusDataManager로부터 세트 데이터를 가져옵니다.
+                    SetBonusDataSO setBonusData = SetBonusDataManager.Instance.GetSetBonusData(equipmentItem.setID);
+
+                    if (setBonusData != null)
+                    {
+                        // 세트 이름과 단계별 보너스를 보기 좋게 포맷팅합니다.
+                        StringBuilder sb = new StringBuilder();
+                        sb.AppendLine($"<color=#FFD700>{setBonusData.setName}</color>");
+
+                        // 세트 단계별 보너스를 출력
+                        if (setBonusData.bonusSteps != null)
+                        {
+                            foreach (var step in setBonusData.bonusSteps.OrderBy(s => s.requiredCount))
+                            {
+                                sb.AppendLine($"<color=#7CFC00>[{step.requiredCount}개 효과]</color>");
+                                sb.AppendLine(FormatStats(step.bonusStats));
+                            }
+                        }
+
+                        setBonusText.text = sb.ToString();
+                    }
+                    else
+                    {
+                        setBonusText.text = "세트 데이터를 찾을 수 없습니다.";
+                    }
+                }
+                else
+                {
+                    // 세트 아이템이 아닐 경우 빈 문자열로 설정
+                    setBonusText.text = string.Empty;
+                }
             }
         }
     }
@@ -119,7 +153,7 @@ public class ItemTooltip : MonoBehaviour
         StringBuilder sb = new StringBuilder();
         foreach (var stat in stats)
         {
-            sb.AppendFormat("{0}: {1}{2}\n", GetStatName(stat.statType), stat.value, stat.isPercentage ? "%" : "");
+            sb.AppendFormat("{0}: {1}{2}", GetStatName(stat.statType), stat.value, stat.isPercentage ? "%" : "");
         }
         return sb.ToString();
     }
@@ -195,7 +229,6 @@ public class ItemTooltip : MonoBehaviour
             case StatType.Focus: return "집중력";
             case StatType.Endurance: return "인내력";
             case StatType.Vitality: return "활력";
-            // 필요에 따라 추가 스탯을 여기에 매핑
             default: return statType.ToString(); // 정의되지 않은 경우 영어 이름 반환
         }
     }

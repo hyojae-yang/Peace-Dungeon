@@ -10,23 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94b0770c7abda4f48b68a4c05b1d7b72, type: 3}
-  m_Name: WoodSword
+  m_Name: WoodBoots
   m_EditorClassIdentifier: 
-  itemID: 3001
-  itemName: 
-  itemDescription: "\uB098\uBB34\uB85C \uB41C \uAC80"
-  itemIcon: {fileID: 21300000, guid: bc4275090bf7be74790d47ad29121888, type: 3}
-  itemPrice: 300
+  itemID: 4801
+  itemName: "\uB098\uBB34\uC2E0\uBC1C"
+  itemDescription: "\uB098\uBB34\uB85C \uB41C \uC2E0\uBC1C"
+  itemIcon: {fileID: 21300000, guid: 95b1bd75fee2b894bb00e1d3fe7bdd01, type: 3}
+  itemPrice: 130
   itemType: 0
   maxStack: 1
   itemGrade: 0
-  equipSlot: 1
-  equipType: 1
+  equipSlot: 6
+  equipType: 2
   baseStats:
-  - statType: 10
-    value: 8
+  - statType: 8
+    value: 3
     isPercentage: 0
-  additionalStats:
-  - statType: 15
-    value: 0.05
-    isPercentage: 0
+  additionalStats: []
+  setID: 1

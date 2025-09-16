@@ -222,14 +222,6 @@ public class SkillPointManager : MonoBehaviour
         {
             OnSkillLeveledUp?.Invoke(skillId);
         }
-
-        // PassiveSkillManager가 싱글턴으로 변경되면 아래 주석을 해제하세요.
-        // if (PassiveSkillManager.Instance != null)
-        // {
-        //     PassiveSkillManager.Instance.UpdatePassiveBonuses();
-        // }
-
-        Debug.Log("스킬 레벨 변경사항이 적용되었습니다.");
     }
 
     /// <summary>
@@ -238,7 +230,6 @@ public class SkillPointManager : MonoBehaviour
     public void DiscardChanges()
     {
         InitializePoints();
-        Debug.Log("스킬 변경사항이 취소되었습니다.");
     }
 
     /// <summary>

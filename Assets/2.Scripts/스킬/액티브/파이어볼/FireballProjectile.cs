@@ -58,7 +58,6 @@ public class FireballProjectile : MonoBehaviour
         {
             // IDamageable 인터페이스를 가진 객체에게 데미지를 입힙니다.
             damageableObject.TakeDamage(damage, damageType);
-            Debug.Log(other.name + " 객체가 " + damage + "의 " + damageType + " 피해를 입었습니다.");
         }
 
         // 몬스터나 지형지물에 닿으면 즉시 파괴됩니다.

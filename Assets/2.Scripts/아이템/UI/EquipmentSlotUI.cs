@@ -21,7 +21,7 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     [SerializeField] private GameObject tooltipPrefab;
 
     [Tooltip("툴팁 패널이 마우스 포인터로부터 얼마나 떨어져서 나타날지 설정합니다.")]
-    private Vector3 tooltipOffset = new Vector3(-150, 50, 0);
+    private Vector3 tooltipOffset = new Vector3(-200, 50, 0);
 
     // === 내부 데이터 ===
     private EquipmentItemSO currentEquippedItem;

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b0770c7abda4f48b68a4c05b1d7b72, type: 3}
+  m_Name: WoodArmor
+  m_EditorClassIdentifier: 
+  itemID: 4401
+  itemName: "\uB098\uBB34\uAC11\uC637"
+  itemDescription: "\uB098\uBB34\uB85C \uB41C \uAC11\uC637"
+  itemIcon: {fileID: 21300000, guid: e314eed1fc8750f458a65521e95c068a, type: 3}
+  itemPrice: 230
+  itemType: 0
+  maxStack: 1
+  itemGrade: 0
+  equipSlot: 4
+  equipType: 2
+  baseStats:
+  - statType: 8
+    value: 5
+    isPercentage: 0
+  additionalStats: []
+  setID: 1

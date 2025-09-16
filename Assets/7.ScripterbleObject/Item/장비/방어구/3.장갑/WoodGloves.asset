@@ -10,22 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 94b0770c7abda4f48b68a4c05b1d7b72, type: 3}
-  m_Name: IronSword
+  m_Name: WoodGloves
   m_EditorClassIdentifier: 
-  itemID: 3002
-  itemName: 
-  itemDescription: "\uCCA0\uB85C \uB41C \uAC80"
-  itemIcon: {fileID: 0}
-  itemPrice: 300
+  itemID: 4601
+  itemName: "\uB098\uBB34\uC7A5\uAC11"
+  itemDescription: "\uB098\uBB34\uB85C \uB41C \uC7A5\uAC11"
+  itemIcon: {fileID: 21300000, guid: 4daa43d5d765c804e9d5d0ac59c2667c, type: 3}
+  itemPrice: 130
   itemType: 0
+  maxStack: 1
   itemGrade: 0
-  equipSlot: 1
-  equipType: 1
+  equipSlot: 5
+  equipType: 2
   baseStats:
-  - statType: 10
-    value: 10
+  - statType: 8
+    value: 2
     isPercentage: 0
-  additionalStats:
-  - statType: 15
-    value: 0.05
-    isPercentage: 0
+  additionalStats: []
+  setID: 1

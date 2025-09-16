@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using System; // Action을 사용하기 위해 추가
 
 /// <summary>
 /// 아이템 우클릭 시 나타나는 버튼 패널을 관리하는 스크립트입니다.
@@ -21,15 +22,25 @@ public class ButtonPanel : MonoBehaviour
     // === 내부 데이터 변수 ===
     private BaseItemSO currentItem;
     private int currentItemCount;
+    private PlayerCharacter playerCharacter; // PlayerCharacter 참조 추가
 
     /// <summary>
     /// ItemSlotUI에서 호출되어 현재 아이템 정보를 받고, 버튼을 초기화합니다.
     /// </summary>
     /// <param name="item">현재 슬롯에 있는 아이템 데이터</param>
+    /// <param name="count">현재 슬롯에 있는 아이템 개수</param>
     public void Initialize(BaseItemSO item, int count)
     {
         currentItem = item;
         currentItemCount = count;
+
+        // PlayerCharacter 인스턴스를 가져옵니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("ButtonPanel: PlayerCharacter 인스턴스를 찾을 수 없습니다.");
+        }
+
         ShowButtonsByItemType();
         AddButtonListeners();
     }
@@ -46,9 +57,23 @@ public class ButtonPanel : MonoBehaviour
         discardButton.onClick.RemoveAllListeners();
 
         // 각 버튼에 맞는 기능을 연결합니다.
-        equipButton.onClick.AddListener(OnEquipButtonClicked);
-        useButton.onClick.AddListener(OnUseButtonClicked);
-        discardButton.onClick.AddListener(OnDiscardButtonClicked);
+        // EquipButton은 EquipmentItemSO 타입일 때만 작동하도록 안전 장치 추가
+        if (equipButton != null && currentItem != null && currentItem.itemType == ItemType.Equipment)
+        {
+            equipButton.onClick.AddListener(OnEquipButtonClicked);
+        }
+
+        // UseButton은 ConsumableItemSO 타입일 때만 작동하도록 안전 장치 추가
+        if (useButton != null && currentItem != null && currentItem.itemType == ItemType.Consumable)
+        {
+            useButton.onClick.AddListener(OnUseButtonClicked);
+        }
+
+        // DiscardButton은 항상 작동하지만, currentItem이 null이 아닐 때만 유효합니다.
+        if (discardButton != null && currentItem != null)
+        {
+            discardButton.onClick.AddListener(OnDiscardButtonClicked);
+        }
     }
 
     /// <summary>
@@ -57,9 +82,9 @@ public class ButtonPanel : MonoBehaviour
     private void ShowButtonsByItemType()
     {
         // 모든 버튼을 일단 비활성화합니다.
-        equipButton.gameObject.SetActive(false);
-        useButton.gameObject.SetActive(false);
-        discardButton.gameObject.SetActive(false);
+        if (equipButton != null) equipButton.gameObject.SetActive(false);
+        if (useButton != null) useButton.gameObject.SetActive(false);
+        if (discardButton != null) discardButton.gameObject.SetActive(false);
 
         // 아이템 타입에 따라 필요한 버튼만 활성화합니다.
         if (currentItem != null)
@@ -67,16 +92,16 @@ public class ButtonPanel : MonoBehaviour
             switch (currentItem.itemType)
             {
                 case ItemType.Equipment:
-                    equipButton.gameObject.SetActive(true);
-                    discardButton.gameObject.SetActive(true);
+                    if (equipButton != null) equipButton.gameObject.SetActive(true);
+                    if (discardButton != null) discardButton.gameObject.SetActive(true);
                     break;
                 case ItemType.Consumable:
-                    useButton.gameObject.SetActive(true);
-                    discardButton.gameObject.SetActive(true);
+                    if (useButton != null) useButton.gameObject.SetActive(true);
+                    if (discardButton != null) discardButton.gameObject.SetActive(true);
                     break;
                 case ItemType.Material:
                 case ItemType.Quest:
-                    discardButton.gameObject.SetActive(true);
+                    if (discardButton != null) discardButton.gameObject.SetActive(true);
                     break;
                 default:
                     // 특수 아이템 등은 아무 버튼도 표시하지 않습니다.
@@ -95,14 +120,25 @@ public class ButtonPanel : MonoBehaviour
     {
         // 장비 아이템인지 확인하고 캐스팅합니다.
         EquipmentItemSO equipItem = currentItem as EquipmentItemSO;
-        if (equipItem != null)
+        if (equipItem != null && playerCharacter != null)
         {
-            // PlayerEquipmentManager에게 장착 요청만 합니다.
-            // 인벤토리에서 아이템을 제거하는 로직은 PlayerEquipmentManager가 처리합니다.
+            // PlayerEquipmentManager에게 장착 요청을 합니다.
+            // EquipItem 메서드 내부에서 아이템 수량 감소 및 인벤토리 업데이트 로직을 처리합니다.
+            // PlayerEquipmentManager.Instance.EquipItem(equipItem, currentItemCount); // currentItemCount도 함께 전달할 수 있다면 좋습니다.
+            // 현재는 EquipItem 메서드가 단일 장비 아이템만 처리한다고 가정하고 equipItem만 전달합니다.
+            // 만약 스택 가능한 장비라면 해당 로직은 별도 처리 필요.
             PlayerEquipmentManager.Instance.EquipItem(equipItem);
 
             // 버튼 클릭 후 패널을 파괴합니다.
             Destroy(gameObject);
+        }
+        else if (equipItem == null)
+        {
+            Debug.LogWarning("장착하려는 아이템이 EquipmentItemSO 타입이 아닙니다.");
+        }
+        else if (playerCharacter == null)
+        {
+            Debug.LogError("PlayerCharacter 인스턴스가 없어 장착할 수 없습니다.");
         }
     }
 
@@ -114,11 +150,20 @@ public class ButtonPanel : MonoBehaviour
     {
         // 소모품 아이템인지 확인하고 캐스팅합니다.
         ConsumableItemSO consumeItem = currentItem as ConsumableItemSO;
-        if (consumeItem != null)
+        if (consumeItem != null && playerCharacter != null)
         {
-            InventoryManager.Instance.UseItem(consumeItem);
+            // InventoryManager의 UseItem 메서드를 호출하며 PlayerCharacter를 전달합니다.
+            InventoryManager.Instance.UseItem(consumeItem, playerCharacter);
             // 버튼 클릭 후 패널을 파괴합니다.
             Destroy(gameObject);
+        }
+        else if (consumeItem == null)
+        {
+            Debug.LogWarning("사용하려는 아이템이 ConsumableItemSO 타입이 아닙니다.");
+        }
+        else if (playerCharacter == null)
+        {
+            Debug.LogError("PlayerCharacter 인스턴스가 없어 아이템을 사용할 수 없습니다.");
         }
     }
 
@@ -128,13 +173,21 @@ public class ButtonPanel : MonoBehaviour
     /// </summary>
     public void OnDiscardButtonClicked()
     {
-        if (currentItem != null && currentItemCount > 0)
+        if (currentItem != null && currentItemCount > 0 && playerCharacter != null)
         {
             // InventoryUIController에 확인창을 띄우도록 요청합니다.
             // 실제 버리기 로직은 ConfirmPanel에서 처리됩니다.
             InventoryUIController.Instance.ShowDiscardConfirmPanel(currentItem, currentItemCount);
             // 버튼 클릭 후 패널을 파괴합니다.
             Destroy(gameObject);
+        }
+        else if (currentItem == null)
+        {
+            Debug.LogWarning("버릴 아이템이 없습니다.");
+        }
+        else if (playerCharacter == null)
+        {
+            Debug.LogError("PlayerCharacter 인스턴스가 없어 아이템을 버릴 수 없습니다.");
         }
     }
 }

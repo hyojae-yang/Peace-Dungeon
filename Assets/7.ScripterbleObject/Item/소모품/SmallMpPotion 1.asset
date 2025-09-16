@@ -9,19 +9,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8a583e4137015a5478da68e28cf395b8, type: 3}
-  m_Name: SmallPotion
+  m_Script: {fileID: 11500000, guid: d328dd5789f33ea48afd191d6eba63b1, type: 3}
+  m_Name: SmallMpPotion 1
   m_EditorClassIdentifier: 
-  itemID: 6001
-  itemName: "\uCCB4\uB825\uD3EC\uC158(\uC18C)"
-  itemDescription: "\uCCB4\uB825\uC744 100\uD68C\uBCF5"
+  itemID: 6004
+  itemName: "\uB9C8\uB098\uD3EC\uC158(\uC18C)"
+  itemDescription: "\uB9C8\uB098\uB97C 50 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   itemIcon: {fileID: 0}
-  itemPrice: 100
+  itemPrice: 30
   itemType: 1
-  maxStack: 999
   consumptionEffects:
-  - statType: 12
-    value: 100
+  - statType: 13
+    value: 50
     isPercentage: 0
-  maxStackCount: 999
+  maxStackCount: 10
   effectDuration: 0

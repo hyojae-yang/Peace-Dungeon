@@ -60,7 +60,6 @@ public class PlayerStats : MonoBehaviour
     [Header("기본 능력치")]
     [Tooltip("플레이어의 시작 체력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]
     public float baseMaxHealth = 100f;
-    // ... (나머지 기존 변수들) ...
     public float baseMaxMana = 50f;
     public float baseAttackPower = 10f;
     public float baseMagicAttackPower = 5f;

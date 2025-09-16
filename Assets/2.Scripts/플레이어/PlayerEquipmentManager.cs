@@ -18,22 +18,40 @@ public class PlayerEquipmentManager : MonoBehaviour
     public event Action onEquipmentChanged;
 
     // === 데이터 저장용 변수 ===
-    // 현재 장착된 아이템들을 관리하는 딕셔너리
     private Dictionary<EquipSlot, EquipmentItemSO> equippedItems = new Dictionary<EquipSlot, EquipmentItemSO>();
+    private Dictionary<string, int> equippedSetItemCounts = new Dictionary<string, int>();
+
+    // === PlayerAttack 및 시각적 장착 변수 ===
+    // 장착된 무기 데이터를 전달할 PlayerAttack 스크립트의 참조 변수입니다.
+    private PlayerAttack playerAttack;
+
+    [Header("시각적 장착 설정")]
+    [Tooltip("무기 프리팹이 장착될 플레이어 모델의 위치입니다.")]
+    public Transform weaponSocket;
+    private GameObject equippedWeaponGameObject;
 
     // === MonoBehaviour 메서드 ===
     private void Awake()
     {
-        // 싱글턴 패턴 구현
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 씬 전환 시에도 유지되도록 설정
+            // Awake에서 PlayerAttack 컴포넌트를 찾아서 참조를 가져옵니다.
+            playerAttack = GetComponent<PlayerAttack>();
+            if (playerAttack == null)
+            {
+                Debug.LogError("PlayerAttack 컴포넌트를 찾을 수 없습니다! PlayerEquipmentManager와 같은 게임 오브젝트에 PlayerAttack을 추가했는지 확인해주세요.");
+            }
         }
         else
         {
             Destroy(gameObject);
         }
+    }
+
+    private void Start()
+    {
+        UpdatePlayerStats();
     }
 
     /// <summary>
@@ -47,65 +65,184 @@ public class PlayerEquipmentManager : MonoBehaviour
         EquipSlot slot = itemToEquip.equipSlot;
         EquipmentItemSO oldItem = null;
 
-        // 1. 현재 슬롯에 다른 장비가 있다면, 기존 장비를 인벤토리로 되돌립니다.
         if (equippedItems.TryGetValue(slot, out oldItem))
         {
-            // 기존 장비를 인벤토리로 추가합니다.
             InventoryManager.Instance.AddItem(oldItem);
             Debug.Log($"<color=yellow>장비 해제 (교체):</color> {oldItem.itemName}을(를) 인벤토리로 반환.");
         }
 
-        // 2. 인벤토리에서 현재 장착하려는 아이템을 제거합니다.
-        // 이 로직은 장착 성공 시에만 실행되어야 합니다.
         if (InventoryManager.Instance.RemoveItem(itemToEquip, 1))
         {
-            // 3. 인벤토리 제거에 성공하면, 새로운 장비를 슬롯에 할당합니다.
             equippedItems[slot] = itemToEquip;
             Debug.Log($"<color=lime>장비 착용:</color> {itemToEquip.itemName}을(를) {slot} 슬롯에 장착.");
+
+            // === 수정된 로직: 장착된 아이템이 무기일 경우 시각적 장착 및 PlayerAttack에 데이터 전달 ===
+            if (itemToEquip is WeaponItemSO weapon)
+            {
+                // 기존 무기 프리팹이 있다면 파괴합니다.
+                if (equippedWeaponGameObject != null)
+                {
+                    Destroy(equippedWeaponGameObject);
+                }
+
+                // 무기 프리팹을 생성하고, weaponSocket의 자식으로 설정합니다.
+                if (weapon.weaponPrefab != null && weaponSocket != null)
+                {
+                    equippedWeaponGameObject = Instantiate(weapon.weaponPrefab, weaponSocket);
+                    // === 트랜스폼 초기화 코드 제거 ===
+                    // equippedWeaponGameObject.transform.localPosition = Vector3.zero;
+                    // equippedWeaponGameObject.transform.localRotation = Quaternion.identity;
+                    // equippedWeaponGameObject.transform.localScale = Vector3.one;
+                }
+
+                if (playerAttack != null)
+                {
+                    playerAttack.UpdateEquippedWeapon(weapon);
+                    Debug.Log($"<color=cyan>무기 데이터 전달:</color> {weapon.itemName}의 데이터를 PlayerAttack에 전달했습니다.");
+                }
+            }
         }
         else
         {
-            // 인벤토리에서 아이템을 찾지 못하면 장착 실패
             Debug.LogWarning($"<color=red>장비 착용 실패:</color> 인벤토리에 {itemToEquip.itemName} 아이템이 없습니다.");
-            return; // 메서드 종료
+            return;
         }
 
-        // 4. 장비 상태가 변경되었음을 알립니다. (UI 갱신 등)
         onEquipmentChanged?.Invoke();
+        UpdatePlayerStats();
     }
 
     /// <summary>
-    /// 특정 슬롯에 장비된 아이템을 해제합니다. (Void 반환 타입)
+    /// 특정 슬롯에 장비된 아이템을 해제합니다.
     /// </summary>
     /// <param name="slot">해제할 장비 슬롯</param>
     public void UnEquipItem(EquipSlot slot)
     {
-        // 해당 슬롯에 장착된 아이템이 있는지 확인합니다.
         if (equippedItems.TryGetValue(slot, out EquipmentItemSO itemToUnequip))
         {
-            // 아이템을 인벤토리로 되돌립니다.
             InventoryManager.Instance.AddItem(itemToUnequip);
             Debug.Log($"<color=yellow>장비 해제:</color> {itemToUnequip.itemName}을(를) {slot} 슬롯에서 해제하고 인벤토리로 반환했습니다.");
 
-            // 딕셔너리에서 해당 장비 정보를 제거합니다.
-            equippedItems.Remove(slot);
+            // === 수정된 로직: 해제된 아이템이 무기일 경우 프리팹 파괴 및 PlayerAttack에 null 값 전달 ===
+            if (itemToUnequip is WeaponItemSO)
+            {
+                // 무기 프리팹을 파괴합니다.
+                if (equippedWeaponGameObject != null)
+                {
+                    Destroy(equippedWeaponGameObject);
+                }
 
-            // 장비 상태 변경 이벤트 호출
+                if (playerAttack != null)
+                {
+                    playerAttack.UpdateEquippedWeapon(null);
+                    Debug.Log("<color=cyan>무기 데이터 전달:</color> 무기가 해제되어 PlayerAttack 데이터를 초기화합니다.");
+                }
+            }
+
+            equippedItems.Remove(slot);
             onEquipmentChanged?.Invoke();
+            UpdatePlayerStats();
         }
         else
         {
-            // 해당 슬롯에 장비가 없으면 경고 로그를 출력합니다.
             Debug.LogWarning($"<color=red>장비 해제 실패:</color> {slot} 슬롯에 장착된 아이템이 없습니다.");
         }
     }
 
-    /// <summary>
-    /// 현재 장착된 아이템 목록을 반환합니다.
-    /// </summary>
-    /// <returns>장비 아이템 딕셔너리</returns>
+    // === (이하 기존 메서드 동일) ===
     public Dictionary<EquipSlot, EquipmentItemSO> GetEquippedItems()
     {
         return equippedItems;
+    }
+    public int GetEquippedSetCount(string setID)
+    {
+        if (equippedSetItemCounts.TryGetValue(setID, out int count))
+        {
+            return count;
+        }
+        return 0;
+    }
+    private void UpdatePlayerStats()
+    {
+        Dictionary<StatType, float> equipmentFlatBonuses = new Dictionary<StatType, float>();
+        Dictionary<StatType, float> equipmentPercentageBonuses = new Dictionary<StatType, float>();
+
+        equippedSetItemCounts.Clear();
+
+        foreach (var item in equippedItems.Values)
+        {
+            AddStatsToDictionary(item.baseStats, equipmentFlatBonuses, equipmentPercentageBonuses);
+            AddStatsToDictionary(item.additionalStats, equipmentFlatBonuses, equipmentPercentageBonuses);
+
+            if (!string.IsNullOrEmpty(item.setID))
+            {
+                if (equippedSetItemCounts.ContainsKey(item.setID))
+                {
+                    equippedSetItemCounts[item.setID]++;
+                }
+                else
+                {
+                    equippedSetItemCounts.Add(item.setID, 1);
+                }
+            }
+        }
+
+        foreach (var setEntry in equippedSetItemCounts)
+        {
+            string setID = setEntry.Key;
+            int equippedCount = setEntry.Value;
+
+            SetBonusDataSO setBonusData = SetBonusDataManager.Instance.GetSetBonusData(setID);
+
+            if (setBonusData != null)
+            {
+                foreach (var step in setBonusData.bonusSteps)
+                {
+                    if (equippedCount >= step.requiredCount)
+                    {
+                        AddStatsToDictionary(step.bonusStats, equipmentFlatBonuses, equipmentPercentageBonuses);
+                    }
+                }
+            }
+        }
+
+        if (PlayerStatSystem.Instance != null)
+        {
+            PlayerStatSystem.Instance.ApplyEquipmentBonuses(equipmentFlatBonuses, equipmentPercentageBonuses);
+            Debug.Log("<color=purple>능력치 갱신:</color> 장비 및 세트 능력치 보너스를 PlayerStatSystem에 전달했습니다.");
+        }
+        else
+        {
+            Debug.LogError("PlayerStatSystem 인스턴스를 찾을 수 없습니다. 장비 능력치를 갱신할 수 없습니다.");
+        }
+    }
+
+    private void AddStatsToDictionary(List<StatModifier> statsToApply, Dictionary<StatType, float> flatBonuses, Dictionary<StatType, float> percentageBonuses)
+    {
+        foreach (var statBonus in statsToApply)
+        {
+            if (!statBonus.isPercentage)
+            {
+                if (flatBonuses.ContainsKey(statBonus.statType))
+                {
+                    flatBonuses[statBonus.statType] += statBonus.value;
+                }
+                else
+                {
+                    flatBonuses.Add(statBonus.statType, statBonus.value);
+                }
+            }
+            else
+            {
+                if (percentageBonuses.ContainsKey(statBonus.statType))
+                {
+                    percentageBonuses[statBonus.statType] += statBonus.value;
+                }
+                else
+                {
+                    percentageBonuses.Add(statBonus.statType, statBonus.value);
+                }
+            }
+        }
     }
 }

@@ -49,36 +49,3 @@ public enum ItemGrade
     Epic,           // 영웅
     Legendary       // 전설
 }
-
-// 아이템의 세부 종류를 정의하는 열거형입니다.
-// 이 열거형은 아이템 데이터 스크립터블 오브젝트에서 사용됩니다.
-public enum ItemSubtype
-{
-    None,
-    // 무기 종류
-    TwoHandedSword,
-    Staff,
-    Axe,
-    Bow,
-    Dagger,
-    Spear,
-    // 방어구 종류
-    Shield,
-    Helmet,
-    Armor,
-    Gloves,
-    Boots,
-    // 장신구 종류
-    Necklace,
-    Ring,
-    Talisman,
-    Cloak,
-    // 소모품 종류
-    HealthPotion,
-    ManaPotion,
-    // 재료 종류
-    IronOre,
-    Wood,
-    // 퀘스트 아이템
-    // 특수 아이템
-}

@@ -95,6 +95,11 @@ public class PlayerLevelUp : MonoBehaviour
         PlayerStatSystem.Instance.UpdateFinalStats();
         PlayerStatSystem.Instance.StoreTempStats();
 
+        SkillPointManager.Instance.InitializePoints();
+
+        PlayerStats.Instance.health = PlayerStats.Instance.MaxHealth; // 체력 회복
+        PlayerStats.Instance.mana = PlayerStats.Instance.MaxMana;     // 마나 회복
+
         Debug.Log($"축하합니다! 레벨 {PlayerStats.Instance.level}로 레벨업했습니다!");
     }
 }

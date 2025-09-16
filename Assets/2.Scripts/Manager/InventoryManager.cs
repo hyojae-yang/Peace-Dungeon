@@ -58,23 +58,19 @@ public class InventoryManager : MonoBehaviour
     /// <returns>아이템이 모두 추가되었는지 여부</returns>
     public bool AddItem(BaseItemSO item, int amount = 1)
     {
-        // 디버그 추적 시작: 어떤 메서드에서, 왜 AddItem이 호출되었는지 명확히 파악하기 위함입니다.
-        Debug.Log($"<color=lime>AddItem 호출됨:</color> {item.itemName} ({amount}개)\n" +
-                  $"호출 스택:\n{new StackTrace(true)}");
-
         if (item == null || amount <= 0) return false;
 
-        // 1. 겹칠 수 있는 아이템을 찾습니다. (장비 아이템은 maxStack이 1이므로 여기에 포함되지 않음)
+        // 1. 겹칠 수 있는 아이템을 찾습니다.
+        // 문제 해결: itemID로 동일한 아이템인지 확인합니다.
         for (int i = 0; i < inventoryData.inventoryItems.Count; i++)
         {
-            if (inventoryData.inventoryItems[i].itemSO == item && inventoryData.inventoryItems[i].stackCount < item.maxStack)
+            if (inventoryData.inventoryItems[i].itemSO.itemID == item.itemID && inventoryData.inventoryItems[i].stackCount < item.maxStack)
             {
                 int spaceLeft = item.maxStack - inventoryData.inventoryItems[i].stackCount;
                 int addAmount = Mathf.Min(amount, spaceLeft);
                 inventoryData.inventoryItems[i].stackCount += addAmount;
-                Debug.Log($"<color=green>아이템 추가:</color> {item.itemName} (+{addAmount})");
 
-                // 남은 수량이 있다면, 다시 이 메서드를 호출하여 빈 슬롯에 추가합니다.
+                // 남은 수량이 있다면, 재귀 호출하여 빈 슬롯에 추가합니다.
                 if (addAmount < amount)
                 {
                     return AddItem(item, amount - addAmount);
@@ -93,6 +89,8 @@ public class InventoryManager : MonoBehaviour
                 Debug.LogWarning($"인벤토리가 가득 차서 아이템 '{item.itemName}'({amount}개)을(를) 추가할 수 없습니다.");
                 return false;
             }
+            // 이 시점에서는 item 자체가 아니라 새로운 ItemData를 생성해야 합니다.
+            // item이 복제된 인스턴스이므로, 원본 SO의 itemID를 사용하여 ItemData를 생성하는 것이 더 안전합니다.
             inventoryData.inventoryItems.Add(new ItemData(item, amount));
             Debug.Log($"<color=green>아이템 추가:</color> {item.itemName} ({amount}개) 새 슬롯에 추가.");
         }
@@ -109,10 +107,6 @@ public class InventoryManager : MonoBehaviour
     /// <returns>아이템 제거 성공 여부</returns>
     public bool RemoveItem(BaseItemSO item, int amount)
     {
-        // 디버그 추적 시작: 어떤 메서드에서, 왜 RemoveItem이 호출되었는지 파악하기 위함입니다.
-        Debug.Log($"<color=red>RemoveItem 호출됨:</color> {item.itemName} ({amount}개)\n" +
-                  $"호출 스택:\n{new StackTrace(true)}");
-
         if (item == null || amount <= 0) return false;
 
         // 제거할 아이템을 인벤토리에서 찾습니다. (가장 마지막에 추가된 동일 아이템부터 처리)
@@ -126,7 +120,6 @@ public class InventoryManager : MonoBehaviour
                     if (inventoryData.inventoryItems[i].stackCount <= 0)
                     {
                         inventoryData.inventoryItems.RemoveAt(i);
-                        Debug.Log($"<color=red>아이템 제거:</color> {item.itemName} (슬롯 비움)");
                     }
                     else
                     {
@@ -150,19 +143,17 @@ public class InventoryManager : MonoBehaviour
     /// <summary>
     /// 소모 아이템을 사용하고 인벤토리에서 제거합니다.
     /// </summary>
-    /// <param name="itemToUse">사용할 소모 아이템 데이터</param>
-    public void UseItem(ConsumableItemSO itemToUse)
+    public void UseItem(ConsumableItemSO itemToUse, PlayerCharacter playerCharacter)
     {
-        if (itemToUse == null) return;
 
-        // 아이템 사용 로직 (예: 체력 회복, 버프 적용 등)
-        // TODO: 여기에 실제 아이템 효과를 적용하는 코드를 추가하세요.
-        // 예: PlayerStatSystem.Instance.Heal(itemToUse.healAmount);
-        Debug.Log($"<color=cyan>소모품 사용:</color> {itemToUse.itemName}");
+        if (itemToUse == null || playerCharacter == null)
+        {
+            Debug.LogError("아이템 또는 플레이어 캐릭터가 유효하지 않습니다.");
+            return;
+        }
 
-        // 사용한 아이템을 인벤토리에서 제거합니다.
+        itemToUse.Use(playerCharacter);
         RemoveItem(itemToUse, 1);
-        onInventoryChanged?.Invoke();
     }
 
     /// <summary>

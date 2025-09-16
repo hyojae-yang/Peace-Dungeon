@@ -12,20 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94b0770c7abda4f48b68a4c05b1d7b72, type: 3}
   m_Name: WoodenShield
   m_EditorClassIdentifier: 
-  itemID: 4101
+  itemID: 4001
   itemName: "\uB098\uBB34\uBC29\uD328"
   itemDescription: "\uB098\uBB34\uB85C \uB41C \uBC29\uD328\uC785\uB2C8\uB2E4."
   itemIcon: {fileID: 21300000, guid: 3594d4995a091d94983fefdc6194a732, type: 3}
-  itemPrice: 100
+  itemPrice: 200
   itemType: 0
+  maxStack: 1
   itemGrade: 0
   equipSlot: 2
   equipType: 2
   baseStats:
   - statType: 8
-    value: 3
+    value: 4
     isPercentage: 0
   additionalStats:
   - statType: 9
     value: 3
     isPercentage: 0
+  setID: 1

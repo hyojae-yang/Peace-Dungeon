@@ -52,7 +52,6 @@ public class InventoryUIController : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject); // 씬 전환 시에도 유지되도록 설정
         }
         else
         {
