@@ -98,7 +98,6 @@ public class Projectile : MonoBehaviour
             {
                 float finalDamage = PlayerStats.Instance.attackPower;
                 monster.TakeDamage(finalDamage, weaponData.damageType);
-                Debug.Log($"<color=red>원거리 공격 히트:</color> {other.name}에게 {finalDamage}의 데미지를 입혔습니다.");
 
                 // 넉백 효과 적용
                 if (weaponData.knockbackForce > 0)

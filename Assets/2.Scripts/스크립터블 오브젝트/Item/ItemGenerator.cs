@@ -109,7 +109,6 @@ public class ItemGenerator : MonoBehaviour
         }
         newItem.additionalStats = newAdditionalStats;
 
-        Debug.Log($"<color=lime>아이템 생성 성공:</color> '{newItem.itemName}' (등급: {itemGrade})");
         return newItem;
     }
 }

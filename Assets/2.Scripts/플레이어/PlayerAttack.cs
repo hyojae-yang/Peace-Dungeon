@@ -27,13 +27,11 @@ public class PlayerAttack : MonoBehaviour
         if (equippedWeapon != null)
         {
             lastAttackTime = -equippedWeapon.attackSpeed;
-            Debug.Log("PlayerAttack: " + equippedWeapon.itemName + " 무기 데이터로 업데이트 완료.");
         }
         else
         {
             // 무기가 해제될 경우, 마지막 공격 시간을 초기화하여 즉시 공격 불가 상태로 만듭니다.
             lastAttackTime = 0;
-            Debug.Log("PlayerAttack: 무기 데이터가 해제되었습니다.");
         }
     }
 
@@ -103,7 +101,6 @@ public class PlayerAttack : MonoBehaviour
                             monsterRb.AddForce(knockbackDirection * equippedWeapon.knockbackForce, ForceMode.Impulse);
                         }
                     }
-                    Debug.Log(monsterCollider.name + "에게 " + finalDamage + "의 데미지를 입혔습니다!");
                 }
             }
         }

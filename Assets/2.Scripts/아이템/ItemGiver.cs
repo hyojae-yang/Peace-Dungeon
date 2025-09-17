@@ -54,7 +54,6 @@ public class ItemGiver : MonoBehaviour
             // 생성된 아이템을 인벤토리에 추가합니다.
             InventoryManager.Instance.AddItem(newItem, 1);
 
-            Debug.Log($"<color=green>[System]</color> 등급: {itemGrade}인 '{newItem.itemName}' 장비 아이템을 인벤토리에 추가했습니다.");
         }
         else
         {
@@ -79,7 +78,6 @@ public class ItemGiver : MonoBehaviour
             // 생성된 아이템을 인벤토리에 추가합니다.
             InventoryManager.Instance.AddItem(newItem, 1);
 
-            Debug.Log($"<color=green>[System]</color> '{newItem.itemName}' 소모품 아이템을 인벤토리에 추가했습니다.");
         }
         else
         {

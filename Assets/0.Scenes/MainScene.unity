@@ -26254,7 +26254,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemTemplate: {fileID: 11400000, guid: 529b04942c1f00940a2e9670e8e32f76, type: 2}
+  itemTemplate: {fileID: 11400000, guid: 44735197101296340af672c351b76f6a, type: 2}
   itemGrade: 4
 --- !u!114 &564450287
 MonoBehaviour:

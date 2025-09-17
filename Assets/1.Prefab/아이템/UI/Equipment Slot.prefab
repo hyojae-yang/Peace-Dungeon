@@ -166,4 +166,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   equipSlotType: 0
   iconImage: {fileID: 9058171309114605959}
-  tooltipPrefab: {fileID: 0}
+  tooltipPrefab: {fileID: 2663319339912663650, guid: aa404c8681b736f4baa32f7babe342ee, type: 3}

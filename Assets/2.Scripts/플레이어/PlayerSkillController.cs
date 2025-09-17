@@ -41,15 +41,6 @@ public class PlayerSkillController : MonoBehaviour
         }
     }
 
-    [Header("참조 스크립트")]
-    // 이제 스크립트들을 싱글턴으로 접근하므로 인스펙터 할당이 필요 없습니다.
-    // [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
-    // public PlayerStats playerStats;
-    // [Tooltip("플레이어의 PlayerStatSystem 컴포넌트를 할당하세요.")]
-    // public PlayerStatSystem playerStatSystem;
-    // [Tooltip("스킬 포인트를 관리하는 SkillPointManager 컴포넌트를 할당하세요.")]
-    // public SkillPointManager skillPointManager;
-
     [Header("스킬 할당")]
     [Tooltip("1~8 키에 할당할 스킬 데이터를 드래그하여 할당하세요.")]
     public SkillData[] skillSlots = new SkillData[8];
@@ -211,11 +202,8 @@ public class PlayerSkillController : MonoBehaviour
         if (cooldownTimers.ContainsKey(skill.skillId) && Time.time < cooldownTimers[skill.skillId])
         {
             float remainingCooldown = cooldownTimers[skill.skillId] - Time.time;
-            Debug.Log(skill.skillName + " 스킬이 아직 쿨타임입니다. 남은 시간: " + remainingCooldown.ToString("F1") + "초");
             return;
         }
-
-        Debug.Log(skill.skillName + " (Lv." + currentSkillLevel + ") 스킬 사용!");
 
         playerStatsInstance.mana -= currentLevelInfo.manaCost;
         cooldownTimers[skill.skillId] = Time.time + currentLevelInfo.cooldown;

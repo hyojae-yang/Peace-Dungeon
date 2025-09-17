@@ -68,7 +68,6 @@ public class PlayerLevelUp : MonoBehaviour
         {
             LevelUp();
             CalculateRequiredExperience();
-            Debug.Log($"다음 레벨까지 남은 경험치: {PlayerStats.Instance.experience} / {PlayerStats.Instance.requiredExperience}");
         }
     }
 

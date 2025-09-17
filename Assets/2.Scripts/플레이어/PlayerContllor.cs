@@ -22,6 +22,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("플레이어가 땅에 닿았는지 여부를 나타냅니다.")]
     private bool isGrounded = true;
 
+
     void Start()
     {
         // Rigidbody 컴포넌트를 가져옵니다.

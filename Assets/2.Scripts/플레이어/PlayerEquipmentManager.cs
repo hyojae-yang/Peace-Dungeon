@@ -1,46 +1,46 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾îÀÇ Àåºñ Âø¿ë »óÅÂ¸¦ °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ¾ÆÀÌÅÛÀ» ÀåÂøÇÏ°í, ÇØÁ¦ÇÏ¸ç, Àåºñ ´É·ÂÄ¡¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+/// í”Œë ˆì´ì–´ì˜ ì¥ë¹„ ì°©ìš© ìƒíƒœë¥¼ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì•„ì´í…œì„ ì¥ì°©í•˜ê³ , í•´ì œí•˜ë©°, ì¥ë¹„ ëŠ¥ë ¥ì¹˜ë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
 /// </summary>
 public class PlayerEquipmentManager : MonoBehaviour
 {
-    // === ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ===
+    // === ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ===
     public static PlayerEquipmentManager Instance { get; private set; }
 
-    // === ÀÌº¥Æ® ===
+    // === ì´ë²¤íŠ¸ ===
     /// <summary>
-    /// Àåºñ »óÅÂ°¡ º¯°æµÉ ¶§ È£ÃâµÇ´Â ÀÌº¥Æ®ÀÔ´Ï´Ù.
+    /// ì¥ë¹„ ìƒíƒœê°€ ë³€ê²½ë  ë•Œ í˜¸ì¶œë˜ëŠ” ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
     /// </summary>
     public event Action onEquipmentChanged;
 
-    // === µ¥ÀÌÅÍ ÀúÀå¿ë º¯¼ö ===
+    // === ë°ì´í„° ì €ì¥ìš© ë³€ìˆ˜ ===
     private Dictionary<EquipSlot, EquipmentItemSO> equippedItems = new Dictionary<EquipSlot, EquipmentItemSO>();
     private Dictionary<string, int> equippedSetItemCounts = new Dictionary<string, int>();
 
-    // === PlayerAttack ¹× ½Ã°¢Àû ÀåÂø º¯¼ö ===
-    // ÀåÂøµÈ ¹«±â µ¥ÀÌÅÍ¸¦ Àü´ŞÇÒ PlayerAttack ½ºÅ©¸³Æ®ÀÇ ÂüÁ¶ º¯¼öÀÔ´Ï´Ù.
+    // === PlayerAttack ë° ì‹œê°ì  ì¥ì°© ë³€ìˆ˜ ===
+    // ì¥ì°©ëœ ë¬´ê¸° ë°ì´í„°ë¥¼ ì „ë‹¬í•  PlayerAttack ìŠ¤í¬ë¦½íŠ¸ì˜ ì°¸ì¡° ë³€ìˆ˜ì…ë‹ˆë‹¤.
     private PlayerAttack playerAttack;
 
-    [Header("½Ã°¢Àû ÀåÂø ¼³Á¤")]
-    [Tooltip("¹«±â ÇÁ¸®ÆÕÀÌ ÀåÂøµÉ ÇÃ·¹ÀÌ¾î ¸ğµ¨ÀÇ À§Ä¡ÀÔ´Ï´Ù.")]
+    [Header("ì‹œê°ì  ì¥ì°© ì„¤ì •")]
+    [Tooltip("ë¬´ê¸° í”„ë¦¬íŒ¹ì´ ì¥ì°©ë  í”Œë ˆì´ì–´ ëª¨ë¸ì˜ ìœ„ì¹˜ì…ë‹ˆë‹¤.")]
     public Transform weaponSocket;
     private GameObject equippedWeaponGameObject;
 
-    // === MonoBehaviour ¸Ş¼­µå ===
+    // === MonoBehaviour ë©”ì„œë“œ ===
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            // Awake¿¡¼­ PlayerAttack ÄÄÆ÷³ÍÆ®¸¦ Ã£¾Æ¼­ ÂüÁ¶¸¦ °¡Á®¿É´Ï´Ù.
+            // Awakeì—ì„œ PlayerAttack ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì•„ì„œ ì°¸ì¡°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
             playerAttack = GetComponent<PlayerAttack>();
             if (playerAttack == null)
             {
-                Debug.LogError("PlayerAttack ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù! PlayerEquipmentManager¿Í °°Àº °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ PlayerAttackÀ» Ãß°¡Çß´ÂÁö È®ÀÎÇØÁÖ¼¼¿ä.");
+                Debug.LogError("PlayerAttack ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! PlayerEquipmentManagerì™€ ê°™ì€ ê²Œì„ ì˜¤ë¸Œì íŠ¸ì— PlayerAttackì„ ì¶”ê°€í–ˆëŠ”ì§€ í™•ì¸í•´ì£¼ì„¸ìš”.");
             }
         }
         else
@@ -55,9 +55,9 @@ public class PlayerEquipmentManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Àåºñ ¾ÆÀÌÅÛÀ» Âø¿ëÇÏ°Å³ª ±³Ã¼ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ì¥ë¹„ ì•„ì´í…œì„ ì°©ìš©í•˜ê±°ë‚˜ êµì²´í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="itemToEquip">ÀåÂøÇÒ Àåºñ ¾ÆÀÌÅÛ µ¥ÀÌÅÍ</param>
+    /// <param name="itemToEquip">ì¥ì°©í•  ì¥ë¹„ ì•„ì´í…œ ë°ì´í„°</param>
     public void EquipItem(EquipmentItemSO itemToEquip)
     {
         if (itemToEquip == null) return;
@@ -68,65 +68,62 @@ public class PlayerEquipmentManager : MonoBehaviour
         if (equippedItems.TryGetValue(slot, out oldItem))
         {
             InventoryManager.Instance.AddItem(oldItem);
-            Debug.Log($"<color=yellow>Àåºñ ÇØÁ¦ (±³Ã¼):</color> {oldItem.itemName}À»(¸¦) ÀÎº¥Åä¸®·Î ¹İÈ¯.");
         }
 
         if (InventoryManager.Instance.RemoveItem(itemToEquip, 1))
         {
             equippedItems[slot] = itemToEquip;
-            Debug.Log($"<color=lime>Àåºñ Âø¿ë:</color> {itemToEquip.itemName}À»(¸¦) {slot} ½½·Ô¿¡ ÀåÂø.");
 
-            // === ¼öÁ¤µÈ ·ÎÁ÷: ÀåÂøµÈ ¾ÆÀÌÅÛÀÌ ¹«±âÀÏ °æ¿ì ½Ã°¢Àû ÀåÂø ¹× PlayerAttack¿¡ µ¥ÀÌÅÍ Àü´Ş ===
+            // === ìˆ˜ì •ëœ ë¡œì§: ì¥ì°©ëœ ì•„ì´í…œì´ ë¬´ê¸°ì¼ ê²½ìš° ì‹œê°ì  ì¥ì°© ë° PlayerAttackì— ë°ì´í„° ì „ë‹¬ ===
             if (itemToEquip is WeaponItemSO weapon)
             {
-                // ±âÁ¸ ¹«±â ÇÁ¸®ÆÕÀÌ ÀÖ´Ù¸é ÆÄ±«ÇÕ´Ï´Ù.
+                // ê¸°ì¡´ ë¬´ê¸° í”„ë¦¬íŒ¹ì´ ìˆë‹¤ë©´ íŒŒê´´í•©ë‹ˆë‹¤.
                 if (equippedWeaponGameObject != null)
                 {
                     Destroy(equippedWeaponGameObject);
                 }
 
-                // ¹«±â ÇÁ¸®ÆÕÀ» »ı¼ºÇÏ°í, weaponSocketÀÇ ÀÚ½ÄÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+                // ë¬´ê¸° í”„ë¦¬íŒ¹ì„ ìƒì„±í•˜ê³ , weaponSocketì˜ ìì‹ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
                 if (weapon.weaponPrefab != null && weaponSocket != null)
                 {
                     equippedWeaponGameObject = Instantiate(weapon.weaponPrefab, weaponSocket);
-                    // === Æ®·£½ºÆû ÃÊ±âÈ­ ÄÚµå Á¦°Å ===
-                    // equippedWeaponGameObject.transform.localPosition = Vector3.zero;
-                    // equippedWeaponGameObject.transform.localRotation = Quaternion.identity;
-                    // equippedWeaponGameObject.transform.localScale = Vector3.one;
                 }
 
                 if (playerAttack != null)
                 {
                     playerAttack.UpdateEquippedWeapon(weapon);
-                    Debug.Log($"<color=cyan>¹«±â µ¥ÀÌÅÍ Àü´Ş:</color> {weapon.itemName}ÀÇ µ¥ÀÌÅÍ¸¦ PlayerAttack¿¡ Àü´ŞÇß½À´Ï´Ù.");
                 }
             }
         }
         else
         {
-            Debug.LogWarning($"<color=red>Àåºñ Âø¿ë ½ÇÆĞ:</color> ÀÎº¥Åä¸®¿¡ {itemToEquip.itemName} ¾ÆÀÌÅÛÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"<color=red>ì¥ë¹„ ì°©ìš© ì‹¤íŒ¨:</color> ì¸ë²¤í† ë¦¬ì— {itemToEquip.itemName} ì•„ì´í…œì´ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
         onEquipmentChanged?.Invoke();
         UpdatePlayerStats();
+        //ì¶”ê°€í•  ì½”ë“œ: InventoryUIControllerì—ê²Œ UI ê°±ì‹ ì„ ìš”ì²­í•©ë‹ˆë‹¤.
+        if (InventoryUIController.Instance != null)
+        {
+            InventoryUIController.Instance.RefreshEquipmentUI();
+        }
     }
 
     /// <summary>
-    /// Æ¯Á¤ ½½·Ô¿¡ ÀåºñµÈ ¾ÆÀÌÅÛÀ» ÇØÁ¦ÇÕ´Ï´Ù.
+    /// íŠ¹ì • ìŠ¬ë¡¯ì— ì¥ë¹„ëœ ì•„ì´í…œì„ í•´ì œí•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="slot">ÇØÁ¦ÇÒ Àåºñ ½½·Ô</param>
+    /// <param name="slot">í•´ì œí•  ì¥ë¹„ ìŠ¬ë¡¯</param>
     public void UnEquipItem(EquipSlot slot)
     {
         if (equippedItems.TryGetValue(slot, out EquipmentItemSO itemToUnequip))
         {
             InventoryManager.Instance.AddItem(itemToUnequip);
-            Debug.Log($"<color=yellow>Àåºñ ÇØÁ¦:</color> {itemToUnequip.itemName}À»(¸¦) {slot} ½½·Ô¿¡¼­ ÇØÁ¦ÇÏ°í ÀÎº¥Åä¸®·Î ¹İÈ¯Çß½À´Ï´Ù.");
 
-            // === ¼öÁ¤µÈ ·ÎÁ÷: ÇØÁ¦µÈ ¾ÆÀÌÅÛÀÌ ¹«±âÀÏ °æ¿ì ÇÁ¸®ÆÕ ÆÄ±« ¹× PlayerAttack¿¡ null °ª Àü´Ş ===
+            // === ìˆ˜ì •ëœ ë¡œì§: í•´ì œëœ ì•„ì´í…œì´ ë¬´ê¸°ì¼ ê²½ìš° í”„ë¦¬íŒ¹ íŒŒê´´ ë° PlayerAttackì— null ê°’ ì „ë‹¬ ===
             if (itemToUnequip is WeaponItemSO)
             {
-                // ¹«±â ÇÁ¸®ÆÕÀ» ÆÄ±«ÇÕ´Ï´Ù.
+                // ë¬´ê¸° í”„ë¦¬íŒ¹ì„ íŒŒê´´í•©ë‹ˆë‹¤.
                 if (equippedWeaponGameObject != null)
                 {
                     Destroy(equippedWeaponGameObject);
@@ -135,7 +132,6 @@ public class PlayerEquipmentManager : MonoBehaviour
                 if (playerAttack != null)
                 {
                     playerAttack.UpdateEquippedWeapon(null);
-                    Debug.Log("<color=cyan>¹«±â µ¥ÀÌÅÍ Àü´Ş:</color> ¹«±â°¡ ÇØÁ¦µÇ¾î PlayerAttack µ¥ÀÌÅÍ¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.");
                 }
             }
 
@@ -145,11 +141,16 @@ public class PlayerEquipmentManager : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"<color=red>Àåºñ ÇØÁ¦ ½ÇÆĞ:</color> {slot} ½½·Ô¿¡ ÀåÂøµÈ ¾ÆÀÌÅÛÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"<color=red>ì¥ë¹„ í•´ì œ ì‹¤íŒ¨:</color> {slot} ìŠ¬ë¡¯ì— ì¥ì°©ëœ ì•„ì´í…œì´ ì—†ìŠµë‹ˆë‹¤.");
+        }
+        // ì¶”ê°€í•  ì½”ë“œ: InventoryUIControllerì—ê²Œ UI ê°±ì‹ ì„ ìš”ì²­í•©ë‹ˆë‹¤.
+        if (InventoryUIController.Instance != null)
+        {
+            InventoryUIController.Instance.RefreshEquipmentUI();
         }
     }
 
-    // === (ÀÌÇÏ ±âÁ¸ ¸Ş¼­µå µ¿ÀÏ) ===
+    // === (ì´í•˜ ê¸°ì¡´ ë©”ì„œë“œ ë™ì¼) ===
     public Dictionary<EquipSlot, EquipmentItemSO> GetEquippedItems()
     {
         return equippedItems;
@@ -209,11 +210,10 @@ public class PlayerEquipmentManager : MonoBehaviour
         if (PlayerStatSystem.Instance != null)
         {
             PlayerStatSystem.Instance.ApplyEquipmentBonuses(equipmentFlatBonuses, equipmentPercentageBonuses);
-            Debug.Log("<color=purple>´É·ÂÄ¡ °»½Å:</color> Àåºñ ¹× ¼¼Æ® ´É·ÂÄ¡ º¸³Ê½º¸¦ PlayerStatSystem¿¡ Àü´ŞÇß½À´Ï´Ù.");
         }
         else
         {
-            Debug.LogError("PlayerStatSystem ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. Àåºñ ´É·ÂÄ¡¸¦ °»½ÅÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("PlayerStatSystem ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ì¥ë¹„ ëŠ¥ë ¥ì¹˜ë¥¼ ê°±ì‹ í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 

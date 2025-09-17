@@ -112,7 +112,6 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
         if (currentEquippedItem != null)
         {
             // PlayerEquipmentManager에 장비 해제 로직을 요청합니다.
-            Debug.Log($"[EquipmentSlotUI] 장비 해제 요청: {currentEquippedItem.itemName} (Slot: {equipSlotType})");
             PlayerEquipmentManager.Instance.UnEquipItem(equipSlotType);
         }
     }

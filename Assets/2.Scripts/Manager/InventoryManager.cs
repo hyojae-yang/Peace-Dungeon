@@ -26,7 +26,7 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private InventoryData inventoryData;
 
     [Tooltip("인벤토리의 최대 슬롯 개수입니다.")]
-    [SerializeField] private int inventorySize = 20;
+    [SerializeField] private int inventorySize = 80;
 
     // === MonoBehaviour 메서드 ===
     private void Awake()
@@ -86,13 +86,11 @@ public class InventoryManager : MonoBehaviour
         {
             if (inventoryData.inventoryItems.Count >= inventorySize)
             {
-                Debug.LogWarning($"인벤토리가 가득 차서 아이템 '{item.itemName}'({amount}개)을(를) 추가할 수 없습니다.");
                 return false;
             }
             // 이 시점에서는 item 자체가 아니라 새로운 ItemData를 생성해야 합니다.
             // item이 복제된 인스턴스이므로, 원본 SO의 itemID를 사용하여 ItemData를 생성하는 것이 더 안전합니다.
             inventoryData.inventoryItems.Add(new ItemData(item, amount));
-            Debug.Log($"<color=green>아이템 추가:</color> {item.itemName} ({amount}개) 새 슬롯에 추가.");
         }
 
         onInventoryChanged?.Invoke(); // 인벤토리 변경 이벤트 호출
@@ -121,17 +119,11 @@ public class InventoryManager : MonoBehaviour
                     {
                         inventoryData.inventoryItems.RemoveAt(i);
                     }
-                    else
-                    {
-                        Debug.Log($"<color=red>아이템 제거:</color> {item.itemName} (-{amount}, 남은 수량: {inventoryData.inventoryItems[i].stackCount})");
-                    }
                     onInventoryChanged?.Invoke();
                     return true; // 성공적으로 제거
                 }
                 else
                 {
-                    // 이 경우, 요청된 개수만큼 제거할 수 없으므로 경고만 하고 종료합니다.
-                    Debug.LogWarning($"인벤토리에서 '{item.itemName}' 아이템을 {amount}개 제거하려 했으나, 현재 수량이 부족합니다. (현재: {inventoryData.inventoryItems[i].stackCount}개)");
                     return false; // 제거 실패
                 }
             }
@@ -165,7 +157,6 @@ public class InventoryManager : MonoBehaviour
     {
         RemoveItem(itemToRemove, amount);
         onInventoryChanged?.Invoke();
-        Debug.Log($"<color=red>아이템 버리기:</color> {itemToRemove.itemName} (수량: {amount})");
     }
 
     /// <summary>

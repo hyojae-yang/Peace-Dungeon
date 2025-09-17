@@ -91,8 +91,6 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 
         PlayerStats.Instance.health -= finalDamage;
 
-        Debug.Log($"플레이어가 {finalDamage}의 {type} 피해를 입었습니다! 남은 체력: {PlayerStats.Instance.health}");
-
         if (PlayerStats.Instance.health <= 0)
         {
             Die();
