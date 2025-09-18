@@ -3,17 +3,17 @@ using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
 
-// 이 스크립트는 스킬 등록을 위해 1~8번 슬롯을 선택하는 UI를 관리합니다.
+/// <summary>
+/// 이 스크립트는 스킬 등록을 위해 1~8번 슬롯을 선택하는 UI를 관리합니다.
+/// </summary>
 public class SlotSelectionPanel : MonoBehaviour
 {
     [Header("슬롯 선택 버튼")]
     [Tooltip("1~8번 슬롯 버튼들을 순서대로 할당하세요.")]
     public Button[] slotButtons;
 
-    // PlayerSkillController는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
-    // [Header("참조 스크립트")]
-    // [Tooltip("스킬 데이터를 관리하는 PlayerSkillController를 할당하세요.")]
-    // public PlayerSkillController playerSkillController;
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     // --- 내부 변수 ---
     private SkillData currentSkillData; // 현재 등록하려는 스킬 데이터를 임시로 저장
@@ -21,9 +21,18 @@ public class SlotSelectionPanel : MonoBehaviour
 
     private void Awake()
     {
-        if (PlayerSkillController.Instance == null)
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
         {
-            Debug.LogError("PlayerSkillController 인스턴스가 존재하지 않습니다. 씬에 해당 컴포넌트가 있는지 확인해 주세요.");
+            Debug.LogError("PlayerCharacter 인스턴스가 존재하지 않습니다. 씬에 해당 컴포넌트가 있는지 확인해 주세요.");
+            return;
+        }
+
+        // PlayerCharacter를 통해 PlayerSkillController에 접근합니다.
+        if (playerCharacter.playerSkillController == null)
+        {
+            Debug.LogError("PlayerSkillController가 PlayerCharacter에 할당되지 않았습니다.");
             return;
         }
 
@@ -56,14 +65,14 @@ public class SlotSelectionPanel : MonoBehaviour
     /// <param name="slotIndex">클릭된 슬롯의 인덱스</param>
     private void OnSlotButtonClick(int slotIndex)
     {
-        if (currentSkillData != null && parentSkillIcon != null)
+        if (currentSkillData != null && parentSkillIcon != null && playerCharacter.playerSkillController != null)
         {
-            // PlayerSkillController.Instance의 스킬 등록 메서드를 호출하여 데이터를 전달합니다.
-            PlayerSkillController.Instance.RegisterSkill(slotIndex, currentSkillData);
+            // PlayerCharacter를 통해 PlayerSkillController의 스킬 등록 메서드를 호출하여 데이터를 전달합니다.
+            playerCharacter.playerSkillController.RegisterSkill(slotIndex, currentSkillData);
         }
         else
         {
-            Debug.LogWarning("등록할 스킬 데이터 또는 부모 SkillIcon이 없습니다. 스킬 아이콘을 다시 선택해 주세요.");
+            Debug.LogWarning("등록할 스킬 데이터, 부모 SkillIcon, 또는 PlayerSkillController가 없습니다. 스킬 아이콘을 다시 선택해 주세요.");
         }
 
         // 스킬 등록이 완료되면 모든 관련 UI를 닫고 isPanelActive 플래그를 초기화합니다.

@@ -4,9 +4,11 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 
-// 이 스크립트는 스킬 포인트 시스템의 핵심 로직을 관리합니다.
-// 스킬 포인트를 올리고 내리는 기능, 변경 사항을 확정하거나 취소하는 기능을 담당합니다.
-// 싱글턴 패턴을 적용하여 어디서든 접근 가능하도록 변경합니다.
+/// <summary>
+/// 이 스크립트는 스킬 포인트 시스템의 핵심 로직을 관리합니다.
+/// 스킬 포인트를 올리고 내리는 기능, 변경 사항을 확정하거나 취소하는 기능을 담당합니다.
+/// 싱글턴 패턴을 적용하여 어디서든 접근 가능하도록 변경합니다.
+/// </summary>
 public class SkillPointManager : MonoBehaviour
 {
     // === 싱글턴 인스턴스 ===
@@ -29,6 +31,9 @@ public class SkillPointManager : MonoBehaviour
         }
     }
 
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
+
     // === 스크립트 초기화 ===
     void Awake()
     {
@@ -41,6 +46,9 @@ public class SkillPointManager : MonoBehaviour
             _instance = this;
         }
 
+        // 스크립트가 시작될 때 PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+
         // 스크립트가 시작될 때 임시 스킬 레벨을 초기화
         InitializePoints();
     }
@@ -49,12 +57,6 @@ public class SkillPointManager : MonoBehaviour
     [Header("UI 및 스크립트 참조")]
     [Tooltip("스킬 포인트를 표시할 TextMeshProUGUI 컴포넌트를 할당하세요.")]
     public TextMeshProUGUI skillPointText;
-
-    // 이 스크립트들은 이제 싱글턴으로 접근하므로 인스펙터 할당이 필요 없습니다.
-    // [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
-    // public PlayerStats playerStats;
-    // [Tooltip("패시브 스킬 효과를 업데이트할 PassiveSkillManager 컴포넌트를 할당하세요.")]
-    // public PassiveSkillManager passiveSkillManager;
 
     // 'currentSkillPoints'는 현재 플레이어가 보유한 스킬 포인트입니다.
     private int currentSkillPoints;
@@ -75,17 +77,17 @@ public class SkillPointManager : MonoBehaviour
     /// </summary>
     public void InitializePoints()
     {
-        // PlayerStats.Instance를 통해 데이터에 접근
-        if (PlayerStats.Instance == null)
+        // PlayerCharacter를 통해 PlayerStats 데이터에 접근
+        if (playerCharacter == null || playerCharacter.playerStats == null)
         {
             Debug.LogError("PlayerStats 인스턴스를 찾을 수 없습니다.");
             return;
         }
 
         // 최종 스킬 포인트와 스킬 레벨을 임시 데이터로 가져와 초기화합니다.
-        currentSkillPoints = PlayerStats.Instance.skillPoints;
+        currentSkillPoints = playerCharacter.playerStats.skillPoints;
         // 깊은 복사(Deep Copy)를 통해 원본 딕셔너리를 보호합니다.
-        tempSkillLevels = new Dictionary<int, int>(PlayerStats.Instance.skillLevels);
+        tempSkillLevels = new Dictionary<int, int>(playerCharacter.playerStats.skillLevels);
 
         // UI 업데이트
         UpdateSkillPointUI();
@@ -175,8 +177,10 @@ public class SkillPointManager : MonoBehaviour
     /// <returns>레벨 다운 가능 시 true, 아니면 false</returns>
     public bool CanLevelDown(int skillId)
     {
+        if (playerCharacter == null || playerCharacter.playerStats == null) return false;
+
         int tempLevel = GetTempSkillLevel(skillId);
-        int permanentLevel = PlayerStats.Instance.skillLevels.ContainsKey(skillId) ? PlayerStats.Instance.skillLevels[skillId] : 0;
+        int permanentLevel = playerCharacter.playerStats.skillLevels.ContainsKey(skillId) ? playerCharacter.playerStats.skillLevels[skillId] : 0;
 
         return tempLevel > permanentLevel;
     }
@@ -188,13 +192,13 @@ public class SkillPointManager : MonoBehaviour
     /// <returns>레벨 조건이 충족되면 true, 아니면 false</returns>
     public bool CanLearnSkill(SkillData skillData)
     {
-        if (PlayerStats.Instance == null || skillData == null)
+        if (playerCharacter == null || playerCharacter.playerStats == null || skillData == null)
         {
             Debug.LogError("PlayerStats 또는 SkillData가 유효하지 않습니다.");
             return false;
         }
 
-        return skillData.requiredLevel <= PlayerStats.Instance.level;
+        return skillData.requiredLevel <= playerCharacter.playerStats.level;
     }
 
     /// <summary>
@@ -202,12 +206,14 @@ public class SkillPointManager : MonoBehaviour
     /// </summary>
     public void ApplyChanges()
     {
+        if (playerCharacter == null || playerCharacter.playerStats == null) return;
+
         List<int> leveledUpSkillIds = new List<int>();
         foreach (var tempLevelPair in tempSkillLevels)
         {
             int skillId = tempLevelPair.Key;
             int tempLevel = tempLevelPair.Value;
-            int permanentLevel = PlayerStats.Instance.skillLevels.ContainsKey(skillId) ? PlayerStats.Instance.skillLevels[skillId] : 0;
+            int permanentLevel = playerCharacter.playerStats.skillLevels.ContainsKey(skillId) ? playerCharacter.playerStats.skillLevels[skillId] : 0;
 
             if (tempLevel > permanentLevel)
             {
@@ -215,8 +221,8 @@ public class SkillPointManager : MonoBehaviour
             }
         }
 
-        PlayerStats.Instance.skillLevels = new Dictionary<int, int>(tempSkillLevels);
-        PlayerStats.Instance.skillPoints = currentSkillPoints;
+        playerCharacter.playerStats.skillLevels = new Dictionary<int, int>(tempSkillLevels);
+        playerCharacter.playerStats.skillPoints = currentSkillPoints;
 
         foreach (int skillId in leveledUpSkillIds)
         {

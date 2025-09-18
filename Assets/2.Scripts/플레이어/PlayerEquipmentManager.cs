@@ -4,12 +4,13 @@ using System.Collections.Generic;
 
 /// <summary>
 /// 플레이어의 장비 착용 상태를 관리하는 스크립트입니다.
-/// 아이템을 장착하고, 해제하며, 장비 능력치를 업데이트합니다.
+/// 이 스크립트는 이제 더 이상 싱글턴이 아니며, PlayerCharacter 스크립트의 멤버로 포함되어 관리됩니다.
 /// </summary>
 public class PlayerEquipmentManager : MonoBehaviour
 {
-    // === 싱글턴 인스턴스 ===
-    public static PlayerEquipmentManager Instance { get; private set; }
+    // === PlayerCharacter 참조 ===
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     // === 이벤트 ===
     /// <summary>
@@ -21,36 +22,23 @@ public class PlayerEquipmentManager : MonoBehaviour
     private Dictionary<EquipSlot, EquipmentItemSO> equippedItems = new Dictionary<EquipSlot, EquipmentItemSO>();
     private Dictionary<string, int> equippedSetItemCounts = new Dictionary<string, int>();
 
-    // === PlayerAttack 및 시각적 장착 변수 ===
-    // 장착된 무기 데이터를 전달할 PlayerAttack 스크립트의 참조 변수입니다.
-    private PlayerAttack playerAttack;
-
     [Header("시각적 장착 설정")]
     [Tooltip("무기 프리팹이 장착될 플레이어 모델의 위치입니다.")]
     public Transform weaponSocket;
     private GameObject equippedWeaponGameObject;
 
     // === MonoBehaviour 메서드 ===
-    private void Awake()
-    {
-        if (Instance == null)
-        {
-            Instance = this;
-            // Awake에서 PlayerAttack 컴포넌트를 찾아서 참조를 가져옵니다.
-            playerAttack = GetComponent<PlayerAttack>();
-            if (playerAttack == null)
-            {
-                Debug.LogError("PlayerAttack 컴포넌트를 찾을 수 없습니다! PlayerEquipmentManager와 같은 게임 오브젝트에 PlayerAttack을 추가했는지 확인해주세요.");
-            }
-        }
-        else
-        {
-            Destroy(gameObject);
-        }
-    }
-
     private void Start()
     {
+        // PlayerCharacter의 인스턴스를 가져와서 모든 시스템에 대한 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다!");
+            return;
+        }
+
+        // 초기 스탯을 업데이트합니다.
         UpdatePlayerStats();
     }
 
@@ -61,20 +49,25 @@ public class PlayerEquipmentManager : MonoBehaviour
     public void EquipItem(EquipmentItemSO itemToEquip)
     {
         if (itemToEquip == null) return;
+        if (playerCharacter.inventoryManager == null)
+        {
+            Debug.LogError("InventoryManager가 PlayerCharacter에 할당되지 않았습니다.");
+            return;
+        }
 
         EquipSlot slot = itemToEquip.equipSlot;
         EquipmentItemSO oldItem = null;
 
         if (equippedItems.TryGetValue(slot, out oldItem))
         {
-            InventoryManager.Instance.AddItem(oldItem);
+            playerCharacter.inventoryManager.AddItem(oldItem);
         }
 
-        if (InventoryManager.Instance.RemoveItem(itemToEquip, 1))
+        if (playerCharacter.inventoryManager.RemoveItem(itemToEquip, 1))
         {
             equippedItems[slot] = itemToEquip;
 
-            // === 수정된 로직: 장착된 아이템이 무기일 경우 시각적 장착 및 PlayerAttack에 데이터 전달 ===
+            // 장착된 아이템이 무기일 경우 시각적 장착 및 PlayerAttack에 데이터 전달
             if (itemToEquip is WeaponItemSO weapon)
             {
                 // 기존 무기 프리팹이 있다면 파괴합니다.
@@ -89,9 +82,10 @@ public class PlayerEquipmentManager : MonoBehaviour
                     equippedWeaponGameObject = Instantiate(weapon.weaponPrefab, weaponSocket);
                 }
 
-                if (playerAttack != null)
+                // PlayerAttack 스크립트의 참조를 통해 무기 데이터를 업데이트합니다.
+                if (playerCharacter.playerAttack != null)
                 {
-                    playerAttack.UpdateEquippedWeapon(weapon);
+                    playerCharacter.playerAttack.UpdateEquippedWeapon(weapon);
                 }
             }
         }
@@ -103,7 +97,8 @@ public class PlayerEquipmentManager : MonoBehaviour
 
         onEquipmentChanged?.Invoke();
         UpdatePlayerStats();
-        //추가할 코드: InventoryUIController에게 UI 갱신을 요청합니다.
+
+        // InventoryUIController에 직접 접근합니다.
         if (InventoryUIController.Instance != null)
         {
             InventoryUIController.Instance.RefreshEquipmentUI();
@@ -116,11 +111,17 @@ public class PlayerEquipmentManager : MonoBehaviour
     /// <param name="slot">해제할 장비 슬롯</param>
     public void UnEquipItem(EquipSlot slot)
     {
+        if (playerCharacter.inventoryManager == null)
+        {
+            Debug.LogError("InventoryManager가 PlayerCharacter에 할당되지 않았습니다.");
+            return;
+        }
+
         if (equippedItems.TryGetValue(slot, out EquipmentItemSO itemToUnequip))
         {
-            InventoryManager.Instance.AddItem(itemToUnequip);
+            playerCharacter.inventoryManager.AddItem(itemToUnequip);
 
-            // === 수정된 로직: 해제된 아이템이 무기일 경우 프리팹 파괴 및 PlayerAttack에 null 값 전달 ===
+            // 해제된 아이템이 무기일 경우 프리팹 파괴 및 PlayerAttack에 null 값 전달
             if (itemToUnequip is WeaponItemSO)
             {
                 // 무기 프리팹을 파괴합니다.
@@ -129,9 +130,10 @@ public class PlayerEquipmentManager : MonoBehaviour
                     Destroy(equippedWeaponGameObject);
                 }
 
-                if (playerAttack != null)
+                // PlayerAttack 스크립트의 참조를 통해 무기 데이터를 null로 업데이트합니다.
+                if (playerCharacter.playerAttack != null)
                 {
-                    playerAttack.UpdateEquippedWeapon(null);
+                    playerCharacter.playerAttack.UpdateEquippedWeapon(null);
                 }
             }
 
@@ -143,7 +145,8 @@ public class PlayerEquipmentManager : MonoBehaviour
         {
             Debug.LogWarning($"<color=red>장비 해제 실패:</color> {slot} 슬롯에 장착된 아이템이 없습니다.");
         }
-        // 추가할 코드: InventoryUIController에게 UI 갱신을 요청합니다.
+
+        // InventoryUIController에 직접 접근합니다.
         if (InventoryUIController.Instance != null)
         {
             InventoryUIController.Instance.RefreshEquipmentUI();
@@ -163,6 +166,7 @@ public class PlayerEquipmentManager : MonoBehaviour
         }
         return 0;
     }
+
     private void UpdatePlayerStats()
     {
         Dictionary<StatType, float> equipmentFlatBonuses = new Dictionary<StatType, float>();
@@ -193,6 +197,12 @@ public class PlayerEquipmentManager : MonoBehaviour
             string setID = setEntry.Key;
             int equippedCount = setEntry.Value;
 
+            if (SetBonusDataManager.Instance == null)
+            {
+                Debug.LogError("SetBonusDataManager 인스턴스를 찾을 수 없습니다.");
+                continue;
+            }
+
             SetBonusDataSO setBonusData = SetBonusDataManager.Instance.GetSetBonusData(setID);
 
             if (setBonusData != null)
@@ -207,13 +217,13 @@ public class PlayerEquipmentManager : MonoBehaviour
             }
         }
 
-        if (PlayerStatSystem.Instance != null)
+        if (playerCharacter.playerStatSystem != null)
         {
-            PlayerStatSystem.Instance.ApplyEquipmentBonuses(equipmentFlatBonuses, equipmentPercentageBonuses);
+            playerCharacter.playerStatSystem.ApplyEquipmentBonuses(equipmentFlatBonuses, equipmentPercentageBonuses);
         }
         else
         {
-            Debug.LogError("PlayerStatSystem 인스턴스를 찾을 수 없습니다. 장비 능력치를 갱신할 수 없습니다.");
+            Debug.LogError("PlayerStatSystem이 PlayerCharacter에 할당되지 않았습니다. 장비 능력치를 갱신할 수 없습니다.");
         }
     }
 

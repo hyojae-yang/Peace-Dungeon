@@ -1,44 +1,14 @@
-// PlayerStatSystem.cs
 using UnityEngine;
 using System.Collections.Generic;
 
-// 플레이어 스탯 포인트 투자 및 최종 능력치 계산을 관리하는 스크립트입니다.
-// 싱글턴으로 변경하여 게임 내에서 유일한 인스턴스로 관리됩니다.
+/// <summary>
+/// 플레이어 스탯 포인트 투자 및 최종 능력치 계산을 관리하는 스크립트입니다.
+/// 이 스크립트는 더 이상 싱글턴이 아니며, PlayerCharacter의 멤버로 관리됩니다.
+/// </summary>
 public class PlayerStatSystem : MonoBehaviour
 {
-    // === 싱글턴 인스턴스 ===
-    private static PlayerStatSystem _instance;
-    public static PlayerStatSystem Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = FindFirstObjectByType<PlayerStatSystem>();
-
-                if (_instance == null)
-                {
-                    GameObject singletonObject = new GameObject("PlayerStatSystemSingleton");
-                    _instance = singletonObject.AddComponent<PlayerStatSystem>();
-                    Debug.Log("새로운 'PlayerStatSystemSingleton' 게임 오브젝트를 생성했습니다.");
-                }
-            }
-            return _instance;
-        }
-    }
-
-    // === 스크립트 초기화 ===
-    void Awake()
-    {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            _instance = this;
-        }
-    }
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     [Header("스탯 포인트")]
     [Tooltip("레벨업 시 획득하는 스탯 포인트입니다. 능력치에 투자하여 스탯을 올릴 수 있습니다.")]
@@ -74,9 +44,8 @@ public class PlayerStatSystem : MonoBehaviour
     [Tooltip("체질 1포인트당 최대 체력과 방어력 증가량")]
     [SerializeField] private float constitutionToMaxHealth = 10f;
     [SerializeField] private float constitutionToDefense = 1f;
-    [Tooltip("민첩 1포인트당 이동 속도와 회피율 증가량")]
+    [Tooltip("민첩 1포인트당 이동 속도 증가량")]
     [SerializeField] private float agilityToMoveSpeed = 0.2f;
-    [SerializeField] private float agilityToEvasionChance = 0.002f;
     [Tooltip("집중력 1포인트당 마법 공격력과 치명타 확률 증가량")]
     [SerializeField] private float focusToMagicAttackPower = 0.5f;
     [SerializeField] private float focusToCriticalChance = 0.001f;
@@ -113,14 +82,15 @@ public class PlayerStatSystem : MonoBehaviour
 
     void Start()
     {
-        // PlayerStats를 싱글턴으로 접근하도록 변경.
-        // 이 스크립트가 로드될 때 PlayerStats 인스턴스가 존재하는지 확인하는 것으로 충분합니다.
-        if (PlayerStats.Instance == null)
+        // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
         {
-            Debug.LogError("PlayerStats 인스턴스를 찾을 수 없습니다. 게임 시작 시 PlayerStats를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
+            Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다. 스크립트가 제대로 동작하지 않을 수 있습니다.");
             return;
         }
 
+        // 초기 스탯 계산 및 적용
         UpdateFinalStats();
     }
 
@@ -194,7 +164,13 @@ public class PlayerStatSystem : MonoBehaviour
     /// </summary>
     public void UpdateFinalStats()
     {
-        PlayerStats playerStats = PlayerStats.Instance;
+        if (playerCharacter == null || playerCharacter.playerStats == null)
+        {
+            Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. 최종 스탯을 계산할 수 없습니다.");
+            return;
+        }
+
+        PlayerStats playerStats = playerCharacter.playerStats;
 
         // 레벨에 따른 기본 스탯 증가량 계산
         float levelHealthBonus = (playerStats.level - 1) * 10f;
@@ -214,7 +190,6 @@ public class PlayerStatSystem : MonoBehaviour
         float baseCriticalChance = playerStats.baseCriticalChance;
         float baseCriticalDamageMultiplier = playerStats.baseCriticalDamageMultiplier;
         float baseMoveSpeed = playerStats.baseMoveSpeed;
-        float baseEvasionChance = playerStats.baseEvasionChance;
 
         // 최종 스탯 계산 (고정값 합산)
         float finalMaxHealth = baseMaxHealth
@@ -262,11 +237,6 @@ public class PlayerStatSystem : MonoBehaviour
                              + GetPassiveBonus(StatType.MoveSpeed, passiveFlatBonuses)
                              + GetEquipmentBonus(StatType.MoveSpeed, equipmentFlatBonuses);
 
-        float finalEvasionChance = baseEvasionChance
-                                 + (agility * agilityToEvasionChance)
-                                 + GetPassiveBonus(StatType.EvasionChance, passiveFlatBonuses)
-                                 + GetEquipmentBonus(StatType.EvasionChance, equipmentFlatBonuses);
-
         // 최종 값에 백분율 보너스를 적용합니다.
         playerStats.MaxHealth = finalMaxHealth * (1 + GetPassiveBonus(StatType.MaxHealth, passivePercentageBonuses) + GetEquipmentBonus(StatType.MaxHealth, equipmentPercentageBonuses));
         playerStats.MaxMana = finalMaxMana * (1 + GetPassiveBonus(StatType.MaxMana, passivePercentageBonuses) + GetEquipmentBonus(StatType.MaxMana, equipmentPercentageBonuses));
@@ -277,7 +247,6 @@ public class PlayerStatSystem : MonoBehaviour
         playerStats.criticalChance = finalCriticalChance * (1 + GetPassiveBonus(StatType.CriticalChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalChance, equipmentPercentageBonuses));
         playerStats.criticalDamageMultiplier = finalCriticalDamageMultiplier * (1 + GetPassiveBonus(StatType.CriticalDamage, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalDamage, equipmentPercentageBonuses));
         playerStats.moveSpeed = finalMoveSpeed * (1 + GetPassiveBonus(StatType.MoveSpeed, passivePercentageBonuses) + GetEquipmentBonus(StatType.MoveSpeed, equipmentPercentageBonuses));
-        playerStats.evasionChance = finalEvasionChance * (1 + GetPassiveBonus(StatType.EvasionChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.EvasionChance, equipmentPercentageBonuses));
 
         // 체력/마나가 최대치를 초과하지 않도록 보정합니다.
         if (playerStats.health > playerStats.MaxHealth)
@@ -324,7 +293,13 @@ public class PlayerStatSystem : MonoBehaviour
         int tempStrength, int tempIntelligence, int tempConstitution, int tempAgility,
         int tempFocus, int tempEndurance, int tempVitality)
     {
-        PlayerStats playerStats = PlayerStats.Instance; // PlayerStats 싱글턴 접근
+        if (playerCharacter == null || playerCharacter.playerStats == null)
+        {
+            Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. 미리보기 스탯을 계산할 수 없습니다.");
+            return 0f;
+        }
+
+        PlayerStats playerStats = playerCharacter.playerStats;
 
         // 레벨에 따른 기본 스탯 증가량 계산
         float levelHealthBonus = (playerStats.level - 1) * 10f;
@@ -344,7 +319,6 @@ public class PlayerStatSystem : MonoBehaviour
         float baseCriticalChance = playerStats.baseCriticalChance;
         float baseCriticalDamageMultiplier = playerStats.baseCriticalDamageMultiplier;
         float baseMoveSpeed = playerStats.baseMoveSpeed;
-        float baseEvasionChance = playerStats.baseEvasionChance;
 
         // 임시 스탯 보너스를 적용한 중간값 계산
         float tempMaxHealth = baseMaxHealth + (tempConstitution * constitutionToMaxHealth) + (tempVitality * vitalityToMaxHealth);
@@ -356,7 +330,6 @@ public class PlayerStatSystem : MonoBehaviour
         float tempCriticalChance = baseCriticalChance + (tempFocus * focusToCriticalChance);
         float tempCriticalDamageMultiplier = baseCriticalDamageMultiplier + (tempStrength * strengthToCriticalDamage);
         float tempMoveSpeed = baseMoveSpeed + (tempAgility * agilityToMoveSpeed) + (tempVitality * vitalityToMoveSpeed);
-        float tempEvasionChance = baseEvasionChance + (tempAgility * agilityToEvasionChance);
 
         // 최종 값에 패시브 보너스와 장비 보너스를 모두 적용하여 반환
         switch (statType)
@@ -379,16 +352,12 @@ public class PlayerStatSystem : MonoBehaviour
                 return (tempCriticalDamageMultiplier + GetPassiveBonus(StatType.CriticalDamage, passiveFlatBonuses) + GetEquipmentBonus(StatType.CriticalDamage, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.CriticalDamage, passivePercentageBonuses) + GetEquipmentBonus(StatType.CriticalDamage, equipmentPercentageBonuses));
             case StatType.MoveSpeed:
                 return (tempMoveSpeed + GetPassiveBonus(StatType.MoveSpeed, passiveFlatBonuses) + GetEquipmentBonus(StatType.MoveSpeed, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.MoveSpeed, passivePercentageBonuses) + GetEquipmentBonus(StatType.MoveSpeed, equipmentPercentageBonuses));
-            case StatType.EvasionChance:
-                return (tempEvasionChance + GetPassiveBonus(StatType.EvasionChance, passiveFlatBonuses) + GetEquipmentBonus(StatType.EvasionChance, equipmentFlatBonuses)) * (1 + GetPassiveBonus(StatType.EvasionChance, passivePercentageBonuses) + GetEquipmentBonus(StatType.EvasionChance, equipmentPercentageBonuses));
             default:
                 Debug.LogError($"지원되지 않는 스탯 타입: {statType}");
                 return 0f;
         }
     }
 
-    // 이 아래부터는 기존 IncreaseTempStat/DecreaseTempStat 메서드와 관련된 내용입니다.
-    // 기존 코드의 로직을 유지하면서 PlayerStats.Instance를 사용하도록 변경했습니다.
     public void IncreaseTempStrength() { IncreaseTempStat("strength"); }
     public void IncreaseTempIntelligence() { IncreaseTempStat("intelligence"); }
     public void IncreaseTempConstitution() { IncreaseTempStat("constitution"); }

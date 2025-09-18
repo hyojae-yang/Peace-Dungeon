@@ -27,9 +27,25 @@ public class ConfirmPanel : MonoBehaviour
     // === 내부 데이터 변수 ===
     private BaseItemSO currentItem;
     private int currentItemCount;
+    private PlayerCharacter playerCharacter;
 
     private void Awake()
     {
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("ConfirmPanel: PlayerCharacter 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
+        // PlayerCharacter를 통해 InventoryManager에 접근합니다.
+        if (playerCharacter.inventoryManager == null)
+        {
+            Debug.LogError("ConfirmPanel: InventoryManager가 PlayerCharacter에 할당되지 않았습니다.");
+            return;
+        }
+
         // 버튼에 클릭 이벤트 리스너를 추가합니다.
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
@@ -84,11 +100,18 @@ public class ConfirmPanel : MonoBehaviour
         // 유효성 검사: 0보다 크고 소지 개수보다 작거나 같은지 확인합니다.
         if (countToDiscard > 0 && countToDiscard <= currentItemCount)
         {
-            // InventoryManager에 아이템 제거를 요청합니다.
-            InventoryManager.Instance.RemoveItem(currentItem, countToDiscard);
+            if (playerCharacter != null && playerCharacter.inventoryManager != null)
+            {
+                // InventoryManager에 아이템 제거를 요청합니다.
+                playerCharacter.inventoryManager.RemoveItem(currentItem, countToDiscard);
 
-            // 작업 완료 후 확인창을 닫습니다.
-            gameObject.SetActive(false);
+                // 작업 완료 후 확인창을 닫습니다.
+                gameObject.SetActive(false);
+            }
+            else
+            {
+                Debug.LogError("플레이어 캐릭터 또는 인벤토리 관리자를 찾을 수 없어 아이템을 버릴 수 없습니다.");
+            }
         }
         else
         {

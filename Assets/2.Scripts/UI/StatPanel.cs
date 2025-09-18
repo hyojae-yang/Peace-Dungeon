@@ -94,7 +94,6 @@ public class StatPanel : MonoBehaviour
         criticalChanceText.text = $"치명타 확률: {(playerStats.criticalChance * 100).ToString("F1")}% (+{((playerStatSystem.tempFocus - playerStatSystem.focus) * 0.001f * 100).ToString("F1")}%)";
         criticalDamageMultiplierText.text = $"치명타 데미지: {(playerStats.criticalDamageMultiplier * 100).ToString("F0")}% (+{((playerStatSystem.tempStrength - playerStatSystem.strength) * 0.01f * 100).ToString("F0")}%)";
         moveSpeedText.text = $"이동 속도: {playerStats.moveSpeed.ToString("F1")} (+{((playerStatSystem.tempAgility - playerStatSystem.agility) * 0.2f + (playerStatSystem.tempVitality - playerStatSystem.vitality) * 0.1f).ToString("F1")})";
-        evasionChanceText.text = $"회피율: {(playerStats.evasionChance * 100).ToString("F1")}% (+{((playerStatSystem.tempAgility - playerStatSystem.agility) * 0.002f * 100).ToString("F1")}%)";
 
         // === 스탯 텍스트 업데이트 ===
         strengthText.text = "힘: " + playerStatSystem.tempStrength.ToString();

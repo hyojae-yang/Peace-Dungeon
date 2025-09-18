@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Text;
-using System.Collections.Generic; // List<T>를 사용하기 위해 추가
+using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
@@ -76,6 +76,7 @@ public class ItemTooltip : MonoBehaviour
             {
                 if (equipmentItem.baseStats != null && equipmentItem.baseStats.Count > 0)
                 {
+
                     baseStatsText.text = FormatStats(equipmentItem.baseStats);
                 }
                 else
@@ -87,6 +88,7 @@ public class ItemTooltip : MonoBehaviour
             // 추가 능력치 텍스트 4개에 각각 설정
             if (equipmentItem.additionalStats != null)
             {
+
                 if (additionalStat1Text != null) additionalStat1Text.text = equipmentItem.additionalStats.Count > 0 ? FormatStat(equipmentItem.additionalStats[0]) : string.Empty;
                 if (additionalStat2Text != null) additionalStat2Text.text = equipmentItem.additionalStats.Count > 1 ? FormatStat(equipmentItem.additionalStats[1]) : string.Empty;
                 if (additionalStat3Text != null) additionalStat3Text.text = equipmentItem.additionalStats.Count > 2 ? FormatStat(equipmentItem.additionalStats[2]) : string.Empty;
@@ -153,19 +155,37 @@ public class ItemTooltip : MonoBehaviour
         StringBuilder sb = new StringBuilder();
         foreach (var stat in stats)
         {
-            sb.AppendFormat("{0}: {1}{2}", GetStatName(stat.statType), stat.value, stat.isPercentage ? "%" : "");
+            sb.AppendLine(FormatStat(stat));
         }
-        return sb.ToString();
+        return sb.ToString().TrimEnd(); // 마지막 줄바꿈 제거
     }
 
     /// <summary>
     /// 단일 StatModifier의 정보를 포맷팅하여 반환합니다.
+    /// 이 메서드는 모든 스탯 포맷팅의 단일 책임 원칙을 가집니다.
     /// </summary>
     /// <param name="stat">StatModifier</param>
     /// <returns>포맷팅된 문자열</returns>
     private string FormatStat(StatModifier stat)
     {
-        return $"{GetStatName(stat.statType)}: {stat.value}{(stat.isPercentage ? "%" : "")}";
+
+        // 퍼센트로 표시할 특정 스탯들을 명시적으로 지정
+        bool isSpecialPercentageStat = stat.statType == StatType.CriticalChance ||
+                                       stat.statType == StatType.CriticalDamage ||
+                                       stat.statType == StatType.MoveSpeed;
+
+        if (isSpecialPercentageStat)
+        {
+            // 값에 100을 곱하고 소수점 첫째 자리까지 표시
+            float displayValue = stat.value * 100f;
+
+            return $"{GetStatName(stat.statType)}: {displayValue.ToString("F1")}%";
+        }
+        else
+        {
+            // 그 외의 스탯은 기존 방식대로 표시 (isPercentage 변수 활용)
+            return $"{GetStatName(stat.statType)}: {stat.value}{(stat.isPercentage ? "%" : "")}";
+        }
     }
 
     /// <summary>
@@ -221,7 +241,6 @@ public class ItemTooltip : MonoBehaviour
             case StatType.CriticalChance: return "치명타 확률";
             case StatType.CriticalDamage: return "치명타 피해량";
             case StatType.MoveSpeed: return "이동 속도";
-            case StatType.EvasionChance: return "회피 확률";
             case StatType.Strength: return "힘";
             case StatType.Intelligence: return "지능";
             case StatType.Constitution: return "체질";

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 /// <summary>
 /// 인벤토리와 장비 패널의 UI를 총괄적으로 관리하는 컨트롤러 클래스입니다.
@@ -8,8 +9,11 @@ using System.Collections.Generic;
 /// </summary>
 public class InventoryUIController : MonoBehaviour
 {
-    // === 싱글톤 인스턴스 ===
+    // === 싱글턴 인스턴스 ===
     public static InventoryUIController Instance { get; private set; }
+
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     // === 참조 변수 (유니티 인스펙터에서 할당) ===
     [Header("UI 패널 참조")]
@@ -60,14 +64,17 @@ public class InventoryUIController : MonoBehaviour
 
         InitializeSlotGroups();
 
-        // InventoryManager와 PlayerEquipmentManager의 이벤트에 구독합니다.
-        if (InventoryManager.Instance != null)
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+
+        // PlayerCharacter의 매니저들을 통해 이벤트에 구독합니다.
+        if (playerCharacter != null && playerCharacter.inventoryManager != null)
         {
-            InventoryManager.Instance.onInventoryChanged += RefreshInventoryUI;
+            playerCharacter.inventoryManager.onInventoryChanged += RefreshInventoryUI;
         }
-        if (PlayerEquipmentManager.Instance != null)
+        if (playerCharacter != null && playerCharacter.playerEquipmentManager != null)
         {
-            PlayerEquipmentManager.Instance.onEquipmentChanged += RefreshEquipmentUI;
+            playerCharacter.playerEquipmentManager.onEquipmentChanged += RefreshEquipmentUI;
         }
     }
 
@@ -81,13 +88,13 @@ public class InventoryUIController : MonoBehaviour
     private void OnDestroy()
     {
         // 메모리 누수를 방지하기 위해 씬이 파괴될 때 이벤트를 구독 해제합니다.
-        if (InventoryManager.Instance != null)
+        if (playerCharacter != null && playerCharacter.inventoryManager != null)
         {
-            InventoryManager.Instance.onInventoryChanged -= RefreshInventoryUI;
+            playerCharacter.inventoryManager.onInventoryChanged -= RefreshInventoryUI;
         }
-        if (PlayerEquipmentManager.Instance != null)
+        if (playerCharacter != null && playerCharacter.playerEquipmentManager != null)
         {
-            PlayerEquipmentManager.Instance.onEquipmentChanged -= RefreshEquipmentUI;
+            playerCharacter.playerEquipmentManager.onEquipmentChanged -= RefreshEquipmentUI;
         }
     }
 
@@ -97,11 +104,17 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     public void RefreshInventoryUI()
     {
+        if (playerCharacter == null || playerCharacter.inventoryManager == null)
+        {
+            Debug.LogError("PlayerCharacter 또는 InventoryManager가 누락되었습니다.");
+            return;
+        }
+
         // 1. 모든 인벤토리 슬롯을 비워줍니다.
         ClearAllInventorySlots();
 
         // 2. InventoryManager에서 최신 인벤토리 데이터를 가져옵니다.
-        List<ItemData> inventoryData = InventoryManager.Instance.GetInventoryItems();
+        List<ItemData> inventoryData = playerCharacter.inventoryManager.GetInventoryItems();
 
         // 3. 각 아이템 타입에 맞는 패널에 아이템을 배치합니다.
         foreach (var itemData in inventoryData)
@@ -140,7 +153,12 @@ public class InventoryUIController : MonoBehaviour
     /// </summary>
     public void RefreshEquipmentUI()
     {
-        UpdateEquipmentUI(PlayerEquipmentManager.Instance.GetEquippedItems());
+        if (playerCharacter == null || playerCharacter.playerEquipmentManager == null)
+        {
+            Debug.LogError("PlayerCharacter 또는 PlayerEquipmentManager가 누락되었습니다.");
+            return;
+        }
+        UpdateEquipmentUI(playerCharacter.playerEquipmentManager.GetEquippedItems());
     }
 
     /// <summary>

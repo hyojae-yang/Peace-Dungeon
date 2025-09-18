@@ -26,6 +26,25 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     // === 내부 데이터 ===
     private EquipmentItemSO currentEquippedItem;
     private GameObject instantiatedTooltip;
+    private PlayerCharacter playerCharacter;
+
+    private void Awake()
+    {
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("EquipmentSlotUI: PlayerCharacter 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
+        // PlayerCharacter를 통해 PlayerEquipmentManager에 접근합니다.
+        if (playerCharacter.playerEquipmentManager == null)
+        {
+            Debug.LogError("EquipmentSlotUI: PlayerEquipmentManager가 PlayerCharacter에 할당되지 않았습니다.");
+            return;
+        }
+    }
 
     /// <summary>
     /// 장비 슬롯에 아이템을 시각적으로 업데이트하는 메서드입니다.
@@ -109,10 +128,14 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     /// </summary>
     public void OnRightClick()
     {
-        if (currentEquippedItem != null)
+        if (currentEquippedItem != null && playerCharacter != null && playerCharacter.playerEquipmentManager != null)
         {
-            // PlayerEquipmentManager에 장비 해제 로직을 요청합니다.
-            PlayerEquipmentManager.Instance.UnEquipItem(equipSlotType);
+            // PlayerCharacter를 통해 PlayerEquipmentManager에 장비 해제 로직을 요청합니다.
+            playerCharacter.playerEquipmentManager.UnEquipItem(equipSlotType);
+        }
+        else
+        {
+            Debug.LogWarning("장착된 아이템이 없거나 PlayerEquipmentManager를 찾을 수 없습니다.");
         }
     }
 }

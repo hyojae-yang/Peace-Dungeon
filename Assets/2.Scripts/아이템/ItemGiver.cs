@@ -15,6 +15,26 @@ public class ItemGiver : MonoBehaviour
     [Tooltip("장비 아이템 생성 시 적용될 등급입니다. (장비 템플릿 할당 시에만 유효)")]
     [SerializeField] private ItemGrade itemGrade = ItemGrade.Common;
 
+    // === 내부 데이터 변수 ===
+    private PlayerCharacter playerCharacter;
+
+    private void Awake()
+    {
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("ItemGiver: PlayerCharacter 인스턴스를 찾을 수 없습니다.");
+            return;
+        }
+
+        // InventoryManager가 PlayerCharacter에 할당되었는지 확인합니다.
+        if (playerCharacter.inventoryManager == null)
+        {
+            Debug.LogError("ItemGiver: InventoryManager가 PlayerCharacter에 할당되지 않았습니다.");
+        }
+    }
+
     // === MonoBehaviour 메서드 ===
 
     /// <summary>
@@ -46,14 +66,13 @@ public class ItemGiver : MonoBehaviour
         // 템플릿이 장비 아이템인지 확인합니다.
         EquipmentItemSO equipTemplate = itemTemplate as EquipmentItemSO;
 
-        if (equipTemplate != null && InventoryManager.Instance != null && ItemGenerator.Instance != null)
+        if (equipTemplate != null && playerCharacter.inventoryManager != null && ItemGenerator.Instance != null)
         {
-            // ItemGenerator를 호출하여 새로운 장비 아이템 인스턴스를 생성합니다.
+            // ItemGenerator는 싱글톤이므로 Instance를 통해 접근합니다.
             EquipmentItemSO newItem = ItemGenerator.Instance.GenerateItem(equipTemplate, itemGrade);
 
             // 생성된 아이템을 인벤토리에 추가합니다.
-            InventoryManager.Instance.AddItem(newItem, 1);
-
+            playerCharacter.inventoryManager.AddItem(newItem, 1);
         }
         else
         {
@@ -70,14 +89,13 @@ public class ItemGiver : MonoBehaviour
         // 템플릿이 소모품 아이템인지 확인합니다.
         ConsumableItemSO consumeTemplate = itemTemplate as ConsumableItemSO;
 
-        if (consumeTemplate != null && InventoryManager.Instance != null)
+        if (consumeTemplate != null && playerCharacter.inventoryManager != null)
         {
             // 소모품 아이템은 별도의 생성 로직 없이 복제하여 인벤토리에 추가합니다.
             ConsumableItemSO newItem = Instantiate(consumeTemplate);
 
             // 생성된 아이템을 인벤토리에 추가합니다.
-            InventoryManager.Instance.AddItem(newItem, 1);
-
+            playerCharacter.inventoryManager.AddItem(newItem, 1);
         }
         else
         {

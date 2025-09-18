@@ -17,7 +17,8 @@ public class HealingItemSO : ConsumableItemSO
     public override void Use(PlayerCharacter player)
     {
         // 플레이어 또는 스탯 시스템이 유효한지 확인합니다.
-        if (player == null || player.PlayerStats == null)
+        // 이제 PlayerCharacter의 멤버 변수인 playerStats에 접근합니다.
+        if (player == null || player.playerStats == null)
         {
             Debug.LogError("플레이어 또는 플레이어의 스탯 시스템을 찾을 수 없습니다. 아이템을 사용할 수 없습니다.");
             return;
@@ -30,8 +31,8 @@ public class HealingItemSO : ConsumableItemSO
             {
                 case StatType.MaxHealth:
                     // 체력 회복 효과 적용
-                    float currentHealth = player.PlayerStats.health;
-                    float maxHealth = player.PlayerStats.MaxHealth;
+                    float currentHealth = player.playerStats.health;
+                    float maxHealth = player.playerStats.MaxHealth;
                     float healAmount = 0;
 
                     if (effect.isPercentage)
@@ -46,13 +47,13 @@ public class HealingItemSO : ConsumableItemSO
                     }
 
                     // 현재 체력을 회복량만큼 더하고, 최대 체력을 넘지 않도록 합니다.
-                    player.PlayerStats.health = Mathf.Min(currentHealth + healAmount, maxHealth);
+                    player.playerStats.health = Mathf.Min(currentHealth + healAmount, maxHealth);
                     break;
 
                 case StatType.MaxMana:
                     // 마나 회복 효과 적용
-                    float currentMana = player.PlayerStats.mana;
-                    float maxMana = player.PlayerStats.MaxMana;
+                    float currentMana = player.playerStats.mana;
+                    float maxMana = player.playerStats.MaxMana;
                     float restoreAmount = 0;
 
                     if (effect.isPercentage)
@@ -67,7 +68,7 @@ public class HealingItemSO : ConsumableItemSO
                     }
 
                     // 현재 마나를 회복량만큼 더하고, 최대 마나를 넘지 않도록 합니다.
-                    player.PlayerStats.mana = Mathf.Min(currentMana + restoreAmount, maxMana);
+                    player.playerStats.mana = Mathf.Min(currentMana + restoreAmount, maxMana);
                     break;
 
                 // 새로운 회복 스탯이 추가되면 여기에 case를 추가할 수 있습니다.

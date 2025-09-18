@@ -3,43 +3,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// 플레이어의 스킬 사용 및 관리를 담당하는 컨트롤러 스크립트입니다.
-// 싱글턴으로 변경하여 다른 스크립트에서 쉽게 접근할 수 있도록 합니다.
+/// <summary>
+/// 플레이어의 스킬 사용 및 관리를 담당하는 컨트롤러 스크립트입니다.
+/// 이 스크립트는 더 이상 싱글턴이 아니며, PlayerCharacter의 멤버로 관리됩니다.
+/// </summary>
 public class PlayerSkillController : MonoBehaviour
 {
-    // === 싱글턴 인스턴스 ===
-    private static PlayerSkillController _instance;
-    public static PlayerSkillController Instance
-    {
-        get
-        {
-            if (_instance == null)
-            {
-                _instance = FindFirstObjectByType<PlayerSkillController>();
-                if (_instance == null)
-                {
-                    GameObject singletonObject = new GameObject("PlayerSkillControllerSingleton");
-                    _instance = singletonObject.AddComponent<PlayerSkillController>();
-                    Debug.Log("새로운 'PlayerSkillControllerSingleton' 게임 오브젝트를 생성했습니다.");
-                }
-            }
-            return _instance;
-        }
-    }
-
-    // === 스크립트 초기화 ===
-    void Awake()
-    {
-        if (_instance != null && _instance != this)
-        {
-            Destroy(gameObject);
-        }
-        else
-        {
-            _instance = this;
-            // DontDestroyOnLoad(gameObject); // 이 부분은 요청하신 스크립트에 없으므로 추가하지 않습니다.
-        }
-    }
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     [Header("스킬 할당")]
     [Tooltip("1~8 키에 할당할 스킬 데이터를 드래그하여 할당하세요.")]
@@ -55,13 +26,20 @@ public class PlayerSkillController : MonoBehaviour
 
     void Start()
     {
+        // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다. 스크립트가 제대로 동작하지 않을 수 있습니다.");
+            return;
+        }
+
         if (skillSpawnPoint == null)
         {
             Debug.LogError("SkillSpawnPoint가 할당되지 않았습니다. 인스펙터에서 할당해 주세요.");
         }
 
-        // SkillPointManager의 스킬 레벨업 이벤트를 구독합니다.
-        // 이제 SkillPointManager.Instance를 통해 접근합니다.
+        // SkillPointManager의 스킬 레벨업 이벤트를 기존 방식대로 직접 구독합니다.
         if (SkillPointManager.Instance != null)
         {
             SkillPointManager.Instance.OnSkillLeveledUp += OnSkillLeveledUpHandler;
@@ -90,10 +68,10 @@ public class PlayerSkillController : MonoBehaviour
                 if (slotIndex != -1 && skillSlots[slotIndex] != null)
                 {
                     int currentLevel = 0;
-                    // PlayerStats.Instance를 통해 스킬 레벨 정보에 접근합니다.
-                    if (PlayerStats.Instance != null && PlayerStats.Instance.skillLevels.ContainsKey(skillSlots[slotIndex].skillId))
+                    // PlayerStats에 playerCharacter를 통해 접근합니다.
+                    if (playerCharacter.playerStats != null && playerCharacter.playerStats.skillLevels.ContainsKey(skillSlots[slotIndex].skillId))
                     {
-                        currentLevel = PlayerStats.Instance.skillLevels[skillSlots[slotIndex].skillId];
+                        currentLevel = playerCharacter.playerStats.skillLevels[skillSlots[slotIndex].skillId];
                     }
 
                     if (currentLevel > 0 && currentLevel <= skillSlots[slotIndex].levelInfo.Length)
@@ -159,8 +137,8 @@ public class PlayerSkillController : MonoBehaviour
             return;
         }
 
-        // PlayerStats 싱글턴 인스턴스에 접근
-        PlayerStats playerStatsInstance = PlayerStats.Instance;
+        // PlayerStats 인스턴스에 playerCharacter를 통해 접근
+        PlayerStats playerStatsInstance = playerCharacter.playerStats;
         if (playerStatsInstance == null)
         {
             Debug.LogError("PlayerStats 인스턴스가 존재하지 않습니다.");
@@ -219,9 +197,9 @@ public class PlayerSkillController : MonoBehaviour
     {
         // === 스킬 레벨 검사 로직 ===
         int realSkillLevel = 0;
-        if (PlayerStats.Instance != null && PlayerStats.Instance.skillLevels.ContainsKey(skillToRegister.skillId))
+        if (playerCharacter != null && playerCharacter.playerStats != null && playerCharacter.playerStats.skillLevels.ContainsKey(skillToRegister.skillId))
         {
-            realSkillLevel = PlayerStats.Instance.skillLevels[skillToRegister.skillId];
+            realSkillLevel = playerCharacter.playerStats.skillLevels[skillToRegister.skillId];
         }
 
         // 실제 스킬 레벨이 1 미만이면 등록을 거부합니다.

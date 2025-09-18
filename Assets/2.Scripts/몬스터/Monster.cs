@@ -1,69 +1,69 @@
 ﻿using UnityEngine;
-using System.Collections.Generic;
-using System.Linq;
-using TMPro;
 
-public class Monster : MonoBehaviour, IDamageable, IDetectable
+/// <summary>
+/// 몬스터의 AI 행동(감지, 추적, 상태 관리)을 담당하는 클래스입니다.
+/// MonsterBase를 상속받아 공통 기능을 구현합니다.
+/// </summary>
+public class Monster : MonsterBase, IDetectable
 {
-    // === 몬스터 기본 스탯 변수 ===
-    [Header("몬스터 기본 스탯")]
-    public float health; // 체력
-    public int mana; // 마나
-    public int attackPower; // 공격력
-    public int magicAttackPower; // 마법 공격력
-    public float moveSpeed; // 이동 속도 (int -> float으로 변경)
-    public int defense; // 방어력
-    public int magicDefense; // 마법 방어력
-    public float criticalChance; // 치명타 확률 (0.0 ~ 1.0)
-    public float criticalDamageMultiplier; // 치명타 데미지 배율
-    public float evasionChance; // 회피 확률 (0.0 ~ 1.0)
-
-    [Header("몬스터 공격 타입")]
-    [Tooltip("몬스터의 기본 공격 타입을 설정합니다.")]
-    public DamageType attackDamageType = DamageType.Physical;
-
-    [Header("보상 설정")]
-    public int maxExpReward; // 처치 시 주는 경험치
-    public int minExpReward;
-    public int maxGoldReward; // 처치 시 주는 골드
-    public int minGoldReward;
-
     // === 플레이어 감지 관련 변수 ===
     [Header("플레이어 감지 설정")]
     [Tooltip("플레이어를 감지하는 범위(반경)입니다.")]
     public float detectionRange = 10f;
     [Tooltip("플레이어를 감지하는 부채꼴 각도입니다. (총 각도)")]
     [Range(0, 360)]
-    public float detectionAngle = 120f; // 몬스터의 시야각 (부채꼴의 총 각도)
+    public float detectionAngle = 120f;
     [Tooltip("플레이어 레이어 마스크입니다.")]
     public LayerMask playerLayer;
 
-    // 플레이어를 감지했을 때 실행할 로직
-    protected bool isPlayerDetected = false;
-    protected IDetectable detectableTarget; // IDetectable 인터페이스 타입으로 변경
+    // === 종속성 ===
+    private MonsterCombat combat;
+    private MonsterLoot loot;
+    [HideInInspector]
+    public IDetectable detectableTarget;
 
-    protected virtual void Awake()
+    private void Awake()
     {
+        combat = GetComponent<MonsterCombat>();
+        if (combat == null) Debug.LogError("MonsterCombat 컴포넌트를 찾을 수 없습니다!");
+
+        loot = GetComponent<MonsterLoot>();
+        if (loot == null) Debug.LogError("MonsterLoot 컴포넌트를 찾을 수 없습니다!");
     }
 
-    protected virtual void Update()
+    private void Update()
     {
-        DetectPlayer();
-
-        if (isPlayerDetected && detectableTarget != null)
+        switch (currentState)
         {
-            transform.LookAt(detectableTarget.GetTransform(), Vector3.up);
-
-            Vector3 direction = (detectableTarget.GetTransform().position - transform.position).normalized;
-            transform.position += direction * moveSpeed * Time.deltaTime;
+            case MonsterState.Idle:
+                DetectPlayer();
+                break;
+            case MonsterState.Chase:
+                if (detectableTarget != null)
+                {
+                    MoveTowardsTarget(detectableTarget.GetTransform());
+                }
+                else
+                {
+                    ChangeState(MonsterState.Idle);
+                }
+                break;
+            case MonsterState.Attack:
+                break;
+            case MonsterState.Flee: // <--- Flee 상태일 때는 아무것도 하지 않습니다.
+                break;
+            case MonsterState.Dead:
+                break;
         }
     }
 
-    // 플레이어를 감지하는 메서드
-    protected void DetectPlayer()
+    /// <summary>
+    /// 플레이어를 감지하는 메서드.
+    /// 오버랩 스피어와 시야각 체크를 통해 타겟을 탐지합니다.
+    /// </summary>
+    private void DetectPlayer()
     {
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, detectionRange, playerLayer);
-        isPlayerDetected = false;
         detectableTarget = null;
 
         foreach (Collider hit in hitColliders)
@@ -75,82 +75,53 @@ public class Monster : MonoBehaviour, IDamageable, IDetectable
                 float angle = Vector3.Angle(transform.forward, directionToTarget);
                 if (angle < detectionAngle * 0.5f)
                 {
-                    isPlayerDetected = true;
                     detectableTarget = target;
+                    // 기존 ChangeState(MonsterState.Chase); 호출을 제거합니다.
                     return;
                 }
             }
         }
     }
 
-    // 공격 메서드 - virtual 키워드를 사용하여 자식 클래스에서 재정의 가능
-    public virtual void Attack()
+    /// <summary>
+    /// 감지된 대상을 향해 이동하는 메서드입니다.
+    /// </summary>
+    /// <param name="targetTransform">추적할 대상의 Transform</param>
+    private void MoveTowardsTarget(Transform targetTransform)
     {
-        if (detectableTarget == null) return;
-        IDamageable target = detectableTarget as IDamageable;
-        if (target != null)
-        {
-            target.TakeDamage(attackPower, attackDamageType);
-        }
+        Vector3 direction = (targetTransform.position - transform.position).normalized;
+        Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+        transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+
+        transform.position += direction * monsterData.moveSpeed * Time.deltaTime;
     }
 
-    // --- IDamageable 인터페이스 구현 (TakeDamage 메서드) ---
-    public virtual void TakeDamage(float damage)
+    /// <summary>
+    /// 외부에서 몬스터의 상태를 안전하게 변경하기 위한 메서드입니다.
+    /// </summary>
+    /// <param name="newState">변경할 몬스터의 새로운 상태</param>
+    public void ChangeState(MonsterState newState)
     {
-        TakeDamage(damage, DamageType.Physical);
+        SetState(newState);
     }
 
-    public virtual void TakeDamage(float damage, DamageType type)
+    // --- MonsterBase 가상 메서드 오버라이드 ---
+    public override void Die()
     {
-        float finalDamage = damage;
-        switch (type)
-        {
-            case DamageType.Physical:
-                finalDamage = Mathf.Max(damage - defense, 0);
-                break;
-            case DamageType.Magic:
-                finalDamage = Mathf.Max(damage - magicDefense, 0);
-                break;
-            case DamageType.True:
-                break;
-        }
-
-        health -= finalDamage;
-        if (health <= 0)
-        {
-            Die();
-        }
-    }
-
-    protected virtual void Die()
-    {
-        GiveRewardToPlayer();
+        ChangeState(MonsterState.Dead);
+        loot.GiveReward();
         Destroy(gameObject);
     }
 
-    private void GiveRewardToPlayer()
+    // --- IDetectable 인터페이스 구현 ---
+    public bool IsDetectable()
     {
-        GameObject playerObject = GameObject.FindWithTag("Player");
-        if (playerObject == null)
-        {
-            Debug.LogError("플레이어 오브젝트를 찾을 수 없습니다! 'Player' 태그를 확인해 주세요.");
-            return;
-        }
+        return currentState != MonsterState.Dead;
+    }
 
-        PlayerStats playerStats = playerObject.GetComponent<PlayerStats>();
-        PlayerLevelUp playerLevelUp = playerObject.GetComponent<PlayerLevelUp>();
-
-        if (playerStats == null || playerLevelUp == null)
-        {
-            Debug.LogError("플레이어에게 PlayerStats 또는 PlayerLevelUp 컴포넌트가 없습니다.");
-            return;
-        }
-
-        float expReward = Random.Range(minExpReward, maxExpReward);
-        int goldReward = Random.Range(minGoldReward, maxGoldReward + 1);
-
-        playerLevelUp.AddExperience(expReward);
-        playerStats.gold += goldReward;
+    public Transform GetTransform()
+    {
+        return transform;
     }
 
     private void OnDrawGizmosSelected()
@@ -162,16 +133,5 @@ public class Monster : MonoBehaviour, IDamageable, IDetectable
         Gizmos.DrawLine(transform.position, transform.position + leftLimit);
         Vector3 rightLimit = Quaternion.Euler(0, detectionAngle * 0.5f, 0) * transform.forward * detectionRange;
         Gizmos.DrawLine(transform.position, transform.position + rightLimit);
-    }
-
-    // IDetectable 인터페이스 구현
-    public bool IsDetectable()
-    {
-        return true;
-    }
-
-    public Transform GetTransform()
-    {
-        return transform;
     }
 }

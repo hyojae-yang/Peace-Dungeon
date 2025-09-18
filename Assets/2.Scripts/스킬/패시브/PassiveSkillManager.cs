@@ -1,15 +1,16 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-// 플레이어가 습득한 패시브 스킬의 효과를 관리하고 계산하는 스크립트입니다.
+/// <summary>
+/// 플레이어가 습득한 패시브 스킬의 효과를 관리하고 계산하는 스크립트입니다.
+/// 이 스크립트는 더 이상 싱글톤이 아니며, PlayerCharacter의 멤버로 관리됩니다.
+/// </summary>
 public class PassiveSkillManager : MonoBehaviour
 {
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
+
     [Header("참조 스크립트")]
-    // 이 스크립트들은 이제 싱글턴으로 접근하므로 인스펙터 할당이 필요 없습니다.
-    // [Tooltip("플레이어의 PlayerStatSystem 컴포넌트를 할당하세요.")]
-    // public PlayerStatSystem playerStatSystem;
-    // [Tooltip("플레이어의 PlayerStats 컴포넌트를 할당하세요.")]
-    // public PlayerStats playerStats;
     [Tooltip("모든 스킬 데이터를 담고 있는 ScriptableObject 배열을 할당하세요.")]
     public SkillData[] allSkills;
 
@@ -19,11 +20,13 @@ public class PassiveSkillManager : MonoBehaviour
 
     void Start()
     {
-        // PlayerStatSystem과 PlayerStats 컴포넌트를 싱글턴으로 접근합니다.
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+
         // 게임 시작 시 인스턴스가 존재하는지 확인합니다.
-        if (PlayerStatSystem.Instance == null || PlayerStats.Instance == null)
+        if (playerCharacter == null || playerCharacter.playerStatSystem == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("PlayerStatSystem 또는 PlayerStats 인스턴스가 존재하지 않습니다. 게임 시작 시 해당 컴포넌트를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
+            Debug.LogError("PlayerCharacter 또는 관련 컴포넌트가 누락되었습니다. 게임 시작 시 해당 컴포넌트를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
             return;
         }
 
@@ -56,8 +59,8 @@ public class PassiveSkillManager : MonoBehaviour
         activeDynamicEffects.Clear();
 
         // PlayerStats의 최종 스킬 레벨 데이터를 순회하며 보너스 값을 합산합니다.
-        // PlayerStats.Instance를 통해 데이터에 접근합니다.
-        foreach (var skillLevelPair in PlayerStats.Instance.skillLevels)
+        // PlayerCharacter를 통해 PlayerStats 데이터에 접근합니다.
+        foreach (var skillLevelPair in playerCharacter.playerStats.skillLevels)
         {
             int skillID = skillLevelPair.Key;
             int currentLevel = skillLevelPair.Value;
@@ -103,7 +106,7 @@ public class PassiveSkillManager : MonoBehaviour
             }
         }
         // 합산된 최종 보너스 값을 PlayerStatSystem에 전달합니다.
-        // PlayerStatSystem.Instance를 통해 메서드를 호출합니다.
-        PlayerStatSystem.Instance.ApplyPassiveBonuses(totalPassiveFlatBonuses, totalPassivePercentageBonuses);
+        // PlayerCharacter를 통해 PlayerStatSystem의 메서드를 호출합니다.
+        playerCharacter.playerStatSystem.ApplyPassiveBonuses(totalPassiveFlatBonuses, totalPassivePercentageBonuses);
     }
 }

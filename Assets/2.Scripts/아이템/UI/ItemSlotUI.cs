@@ -1,123 +1,124 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using TMPro;
+using System.Linq; // LINQ ì‚¬ìš©ì„ ìœ„í•´ ì¶”ê°€
 
 /// <summary>
-/// ÀÎº¥Åä¸® ¾ÆÀÌÅÛ ½½·Ô UI¸¦ °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ¾ÆÀÌÅÛ Á¤º¸¿Í °³¼ö¸¦ Ç¥½ÃÇÏ°í, ¸¶¿ì½º ÀÌº¥Æ®¸¦ Ã³¸®ÇÕ´Ï´Ù.
-/// Àåºñ ¾ÆÀÌÅÛÀÇ °æ¿ì PlayerEquipmentManager¿¡°Ô ÀåÂø ¿äÃ»À» Àü´ŞÇÏ´Â ¿ªÇÒÀ» ÇÕ´Ï´Ù.
+/// ì¸ë²¤í† ë¦¬ ì•„ì´í…œ ìŠ¬ë¡¯ UIë¥¼ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì•„ì´í…œ ì •ë³´ì™€ ê°œìˆ˜ë¥¼ í‘œì‹œí•˜ê³ , ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+/// ì¥ë¹„ ì•„ì´í…œì˜ ê²½ìš° PlayerEquipmentManagerì—ê²Œ ì¥ì°© ìš”ì²­ì„ ì „ë‹¬í•˜ëŠ” ì—­í• ì„ í•©ë‹ˆë‹¤.
 /// </summary>
 public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    // === ÀÎ½ºÆåÅÍ¿¡ ÇÒ´çÇÒ ÂüÁ¶ º¯¼ö ===
-    [Tooltip("¾ÆÀÌÅÛÀÇ ¾ÆÀÌÄÜÀ» Ç¥½ÃÇÒ Image ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+Â  Â  // === ì¸ìŠ¤í™í„°ì— í• ë‹¹í•  ì°¸ì¡° ë³€ìˆ˜ ===
+Â  Â  [Tooltip("ì•„ì´í…œì˜ ì•„ì´ì½˜ì„ í‘œì‹œí•  Image ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private Image iconImage;
 
-    [Tooltip("¾ÆÀÌÅÛÀÇ °³¼ö¸¦ Ç¥½ÃÇÒ TextMeshProUGUI ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("ì•„ì´í…œì˜ ê°œìˆ˜ë¥¼ í‘œì‹œí•  TextMeshProUGUI ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private TextMeshProUGUI countText;
 
-    [Header("UI µ¿Àû »ı¼º")]
-    [Tooltip("¾ÆÀÌÅÛ ¿ìÅ¬¸¯ ½Ã »ı¼ºÇÒ ¹öÆ° ÆĞ³Î ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+    [Header("UI ë™ì  ìƒì„±")]
+    [Tooltip("ì•„ì´í…œ ìš°í´ë¦­ ì‹œ ìƒì„±í•  ë²„íŠ¼ íŒ¨ë„ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
     [SerializeField] private GameObject buttonPanelPrefab;
 
-    [Tooltip("¾ÆÀÌÅÛ ÅøÆÁÀ» Ç¥½ÃÇÒ ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+    [Tooltip("ì•„ì´í…œ íˆ´íŒì„ í‘œì‹œí•  í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
     [SerializeField] private GameObject tooltipPrefab;
 
-    [Tooltip("¹öÆ° ÆĞ³ÎÀÌ ¸¶¿ì½º Æ÷ÀÎÅÍ·ÎºÎÅÍ ¾ó¸¶³ª ¶³¾îÁ®¼­ ³ªÅ¸³¯Áö ¼³Á¤ÇÕ´Ï´Ù.")]
+    [Tooltip("ë²„íŠ¼ íŒ¨ë„ì´ ë§ˆìš°ìŠ¤ í¬ì¸í„°ë¡œë¶€í„° ì–¼ë§ˆë‚˜ ë–¨ì–´ì ¸ì„œ ë‚˜íƒ€ë‚ ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
     private Vector3 buttonPanelOffset = new Vector3(-50, 0, 0);
 
-    [Tooltip("ÅøÆÁ ÆĞ³ÎÀÌ ¸¶¿ì½º Æ÷ÀÎÅÍ·ÎºÎÅÍ ¾ó¸¶³ª ¶³¾îÁ®¼­ ³ªÅ¸³¯Áö ¼³Á¤ÇÕ´Ï´Ù.")]
+    [Tooltip("íˆ´íŒ íŒ¨ë„ì´ ë§ˆìš°ìŠ¤ í¬ì¸í„°ë¡œë¶€í„° ì–¼ë§ˆë‚˜ ë–¨ì–´ì ¸ì„œ ë‚˜íƒ€ë‚ ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
     private Vector3 tooltipOffset = new Vector3(-200, 50, 0);
 
-    // === ³»ºÎ µ¥ÀÌÅÍ º¯¼ö ===
-    private ItemData currentItemData;
+Â  Â  // === ë‚´ë¶€ ë°ì´í„° ë³€ìˆ˜ ===
+Â  Â  private ItemData currentItemData;
 
-    // ÇöÀç ½½·Ô¿¡ »ı¼ºµÈ ¹öÆ° ÆĞ³Î ÀÎ½ºÅÏ½º¸¦ ÀúÀåÇÕ´Ï´Ù.
-    private static GameObject instantiatedButtonPanel;
-    // ÇöÀç ½½·Ô¿¡ »ı¼ºµÈ ÅøÆÁ ÀÎ½ºÅÏ½º¸¦ ÀúÀåÇÕ´Ï´Ù.
-    private GameObject instantiatedTooltip;
+Â  Â  // í˜„ì¬ ìŠ¬ë¡¯ì— ìƒì„±ëœ ë²„íŠ¼ íŒ¨ë„ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì €ì¥í•©ë‹ˆë‹¤.
+Â  Â  private static GameObject instantiatedButtonPanel;
+Â  Â  // í˜„ì¬ ìŠ¬ë¡¯ì— ìƒì„±ëœ íˆ´íŒ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì €ì¥í•©ë‹ˆë‹¤.
+Â  Â  private GameObject instantiatedTooltip;
 
-    /// <summary>
-    /// ¾ÆÀÌÅÛ ½½·ÔÀÇ ½Ã°¢Àû Á¤º¸¸¦ ¾÷µ¥ÀÌÆ®ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// InventoryUIController¿¡¼­ ItemData¸¦ ¹Ş¾Æ¿Í ½½·ÔÀ» °»½ÅÇÕ´Ï´Ù.
-    /// </summary>
-    /// <param name="itemData">½½·Ô¿¡ ÇÒ´çµÉ ItemData (nullÀÏ °æ¿ì ½½·ÔÀ» ºñ¿ó´Ï´Ù)</param>
-    public void UpdateSlot(ItemData itemData)
+Â  Â  /// <summary>
+Â  Â  /// ì•„ì´í…œ ìŠ¬ë¡¯ì˜ ì‹œê°ì  ì •ë³´ë¥¼ ì—…ë°ì´íŠ¸í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+Â  Â  /// InventoryUIControllerì—ì„œ ItemDataë¥¼ ë°›ì•„ì™€ ìŠ¬ë¡¯ì„ ê°±ì‹ í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <param name="itemData">ìŠ¬ë¡¯ì— í• ë‹¹ë  ItemData (nullì¼ ê²½ìš° ìŠ¬ë¡¯ì„ ë¹„ì›ë‹ˆë‹¤)</param>
+Â  Â  public void UpdateSlot(ItemData itemData)
     {
         currentItemData = itemData;
 
-        // ItemData°¡ À¯È¿ÇÑÁö(nullÀÌ ¾Æ´ÑÁö) È®ÀÎÇÕ´Ï´Ù.
-        if (currentItemData != null && currentItemData.itemSO != null)
+Â  Â  Â  Â  // ItemDataê°€ ìœ íš¨í•œì§€(nullì´ ì•„ë‹Œì§€) í™•ì¸í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  if (currentItemData != null && currentItemData.itemSO != null)
         {
-            // ¾ÆÀÌÄÜ ¹× ÅØ½ºÆ®¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-            iconImage.sprite = currentItemData.itemSO.itemIcon;
+Â  Â  Â  Â  Â  Â  // ì•„ì´ì½˜ ë° í…ìŠ¤íŠ¸ë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  iconImage.sprite = currentItemData.itemSO.itemIcon;
             iconImage.color = Color.white;
             iconImage.type = Image.Type.Simple;
             iconImage.enabled = true;
 
-            // ¾ÆÀÌÅÛÀÌ °ãÃÄÁú ¼ö ÀÖ´Â °æ¿ì¿¡¸¸ °³¼ö¸¦ Ç¥½ÃÇÕ´Ï´Ù.
-            if (currentItemData.itemSO.maxStack > 1)
+Â  Â  Â  Â  Â  Â  // ì•„ì´í…œì´ ê²¹ì³ì§ˆ ìˆ˜ ìˆëŠ” ê²½ìš°ì—ë§Œ ê°œìˆ˜ë¥¼ í‘œì‹œí•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  if (currentItemData.itemSO.maxStack > 1)
             {
                 countText.text = currentItemData.stackCount.ToString();
                 countText.gameObject.SetActive(true);
             }
             else
             {
-                // °ãÃÄÁöÁö ¾Ê´Â ¾ÆÀÌÅÛÀº °³¼ö¸¦ Ç¥½ÃÇÏÁö ¾Ê½À´Ï´Ù.
-                countText.gameObject.SetActive(false);
+Â  Â  Â  Â  Â  Â  Â  Â  // ê²¹ì³ì§€ì§€ ì•ŠëŠ” ì•„ì´í…œì€ ê°œìˆ˜ë¥¼ í‘œì‹œí•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  Â  Â  countText.gameObject.SetActive(false);
             }
         }
         else
         {
-            // ¾ÆÀÌÅÛÀÌ nullÀÌ¸é ½½·ÔÀ» ºñ¿ó´Ï´Ù.
-            iconImage.sprite = null;
+Â  Â  Â  Â  Â  Â  // ì•„ì´í…œì´ nullì´ë©´ ìŠ¬ë¡¯ì„ ë¹„ì›ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  iconImage.sprite = null;
             iconImage.color = new Color(1, 1, 1, 0);
             iconImage.enabled = false;
             countText.gameObject.SetActive(false);
         }
     }
 
-    /// <summary>
-    /// ÇöÀç ½½·Ô¿¡ ÇÒ´çµÈ ¾ÆÀÌÅÛ Á¤º¸¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
-    /// </summary>
-    /// <returns>BaseItemSO °´Ã¼. ºñ¾îÀÖÀ» °æ¿ì null.</returns>
-    public BaseItemSO GetItem()
+Â  Â  /// <summary>
+Â  Â  /// í˜„ì¬ ìŠ¬ë¡¯ì— í• ë‹¹ëœ ì•„ì´í…œ ì •ë³´ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <returns>BaseItemSO ê°ì²´. ë¹„ì–´ìˆì„ ê²½ìš° null.</returns>
+Â  Â  public BaseItemSO GetItem()
     {
         return currentItemData?.itemSO;
     }
 
-    /// <summary>
-    /// ÇöÀç ½½·Ô¿¡ ÀÖ´Â ¾ÆÀÌÅÛÀÇ °³¼ö¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
-    /// </summary>
-    /// <returns>¾ÆÀÌÅÛ °³¼ö</returns>
-    public int GetItemCount()
+Â  Â  /// <summary>
+Â  Â  /// í˜„ì¬ ìŠ¬ë¡¯ì— ìˆëŠ” ì•„ì´í…œì˜ ê°œìˆ˜ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <returns>ì•„ì´í…œ ê°œìˆ˜</returns>
+Â  Â  public int GetItemCount()
     {
         return currentItemData?.stackCount ?? 0;
     }
 
-    // === ¸¶¿ì½º ÀÌº¥Æ® Ã³¸® ===
+Â  Â  // === ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ì²˜ë¦¬ ===
 
-    /// <summary>
-    /// ¸¶¿ì½º Æ÷ÀÎÅÍ°¡ UI ½½·Ô¿¡ ÁøÀÔÇßÀ» ¶§ È£ÃâµË´Ï´Ù.
-    /// ÅøÆÁ ÇÁ¸®ÆÕÀ» »ı¼ºÇÏ°í À§Ä¡¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-    /// </summary>
-    /// <param name="eventData">¸¶¿ì½º ÀÌº¥Æ® µ¥ÀÌÅÍ</param>
-    public void OnPointerEnter(PointerEventData eventData)
+Â  Â  /// <summary>
+Â  Â  /// ë§ˆìš°ìŠ¤ í¬ì¸í„°ê°€ UI ìŠ¬ë¡¯ì— ì§„ì…í–ˆì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+Â  Â  /// íˆ´íŒ í”„ë¦¬íŒ¹ì„ ìƒì„±í•˜ê³  ìœ„ì¹˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <param name="eventData">ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ë°ì´í„°</param>
+Â  Â  public void OnPointerEnter(PointerEventData eventData)
     {
-        // ½½·Ô¿¡ ¾ÆÀÌÅÛ Á¤º¸°¡ ÀÖ°í, ÅøÆÁ ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇ¾î ÀÖÀ¸¸ç, ÅøÆÁÀÌ ¾ÆÁ÷ »ı¼ºµÇÁö ¾Ê¾Ò´Ù¸é
-        if (currentItemData != null && currentItemData.itemSO != null && tooltipPrefab != null && instantiatedTooltip == null)
+Â  Â  Â  Â  // ìŠ¬ë¡¯ì— ì•„ì´í…œ ì •ë³´ê°€ ìˆê³ , íˆ´íŒ í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì–´ ìˆìœ¼ë©°, íˆ´íŒì´ ì•„ì§ ìƒì„±ë˜ì§€ ì•Šì•˜ë‹¤ë©´
+Â  Â  Â  Â  if (currentItemData != null && currentItemData.itemSO != null && tooltipPrefab != null && instantiatedTooltip == null)
         {
             Canvas canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
             {
-                instantiatedTooltip = Instantiate(tooltipPrefab, canvas.transform);
+Â  Â  Â  Â  Â  Â  Â  Â  instantiatedTooltip = Instantiate(tooltipPrefab, canvas.transform);
 
-                // ¸¶¿ì½º À§Ä¡¿¡ ¿ÀÇÁ¼ÂÀ» Àû¿ëÇÏ¿© ÅøÆÁ À§Ä¡¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-                instantiatedTooltip.transform.position = Input.mousePosition + tooltipOffset;
+Â  Â  Â  Â  Â  Â  Â  Â  // ë§ˆìš°ìŠ¤ ìœ„ì¹˜ì— ì˜¤í”„ì…‹ì„ ì ìš©í•˜ì—¬ íˆ´íŒ ìœ„ì¹˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  Â  Â  instantiatedTooltip.transform.position = Input.mousePosition + tooltipOffset;
 
-                // »ı¼ºµÈ ÅøÆÁ ½ºÅ©¸³Æ®¸¦ Ã£¾Æ ¾ÆÀÌÅÛ Á¤º¸¸¦ Àü´ŞÇÕ´Ï´Ù.
-                ItemTooltip tooltip = instantiatedTooltip.GetComponent<ItemTooltip>();
+Â  Â  Â  Â  Â  Â  Â  Â  // ìƒì„±ëœ íˆ´íŒ ìŠ¤í¬ë¦½íŠ¸ë¥¼ ì°¾ì•„ ì•„ì´í…œ ì •ë³´ë¥¼ ì „ë‹¬í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  Â  Â  ItemTooltip tooltip = instantiatedTooltip.GetComponent<ItemTooltip>();
                 if (tooltip != null)
                 {
                     tooltip.SetupTooltip(currentItemData.itemSO);
@@ -126,12 +127,12 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
-    /// <summary>
-    /// ¸¶¿ì½º Æ÷ÀÎÅÍ°¡ UI ½½·Ô¿¡¼­ ¹ş¾î³µÀ» ¶§ È£ÃâµË´Ï´Ù.
-    /// »ı¼ºµÈ ÅøÆÁÀ» ÆÄ±«ÇÕ´Ï´Ù.
-    /// </summary>
-    /// <param name="eventData">¸¶¿ì½º ÀÌº¥Æ® µ¥ÀÌÅÍ</param>
-    public void OnPointerExit(PointerEventData eventData)
+Â  Â  /// <summary>
+Â  Â  /// ë§ˆìš°ìŠ¤ í¬ì¸í„°ê°€ UI ìŠ¬ë¡¯ì—ì„œ ë²—ì–´ë‚¬ì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+Â  Â  /// ìƒì„±ëœ íˆ´íŒì„ íŒŒê´´í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <param name="eventData">ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ë°ì´í„°</param>
+Â  Â  public void OnPointerExit(PointerEventData eventData)
     {
         if (instantiatedTooltip != null)
         {
@@ -140,60 +141,60 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         }
     }
 
-    /// <summary>
-    /// ¸¶¿ì½º Å¬¸¯ ÀÌº¥Æ®¸¦ Ã³¸®ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// </summary>
-    /// <param name="eventData">¸¶¿ì½º ÀÌº¥Æ® µ¥ÀÌÅÍ</param>
-    public void OnPointerClick(PointerEventData eventData)
+Â  Â  /// <summary>
+Â  Â  /// ë§ˆìš°ìŠ¤ í´ë¦­ ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <param name="eventData">ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ë°ì´í„°</param>
+Â  Â  public void OnPointerClick(PointerEventData eventData)
     {
-        // 1. ¿ìÅ¬¸¯ ½Ã, ¹öÆ° ÆĞ³ÎÀ» Ç¥½ÃÇÕ´Ï´Ù.
-        if (eventData.button == PointerEventData.InputButton.Right)
+Â  Â  Â  Â  // 1. ìš°í´ë¦­ ì‹œ, ë²„íŠ¼ íŒ¨ë„ì„ í‘œì‹œí•©ë‹ˆë‹¤.
+Â  Â  Â  Â  if (eventData.button == PointerEventData.InputButton.Right)
         {
             OnRightClick();
         }
-        // 2. ÁÂÅ¬¸¯ ½Ã, ¹öÆ° ÆĞ³ÎÀ» ¼û±é´Ï´Ù.
-        else if (eventData.button == PointerEventData.InputButton.Left)
+Â  Â  Â  Â  // 2. ì¢Œí´ë¦­ ì‹œ, ë²„íŠ¼ íŒ¨ë„ì„ ìˆ¨ê¹ë‹ˆë‹¤.
+Â  Â  Â  Â  else if (eventData.button == PointerEventData.InputButton.Left)
         {
             if (instantiatedButtonPanel != null)
             {
                 Destroy(instantiatedButtonPanel);
-                instantiatedButtonPanel = null; // ÂüÁ¶ ÇØÁ¦
-            }
+                instantiatedButtonPanel = null; // ì°¸ì¡° í•´ì œ
+Â  Â  Â  Â  Â  Â  }
         }
     }
 
-    /// <summary>
-    /// ¾ÆÀÌÅÛ ¿ìÅ¬¸¯ ½Ã ¹öÆ° ÆĞ³ÎÀ» È°¼ºÈ­ÇÏ°í À§Ä¡¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-    /// ¾ÆÀÌÅÛ Å¸ÀÔ¿¡ µû¶ó ¹öÆ°ÀÇ ±â´ÉÀ» ¼³Á¤ÇÕ´Ï´Ù.
-    /// </summary>
-    private void OnRightClick()
+Â  Â  /// <summary>
+Â  Â  /// ì•„ì´í…œ ìš°í´ë¦­ ì‹œ ë²„íŠ¼ íŒ¨ë„ì„ í™œì„±í™”í•˜ê³  ìœ„ì¹˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  /// ì•„ì´í…œ íƒ€ì…ì— ë”°ë¼ ë²„íŠ¼ì˜ ê¸°ëŠ¥ì„ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void OnRightClick()
     {
         if (currentItemData != null && currentItemData.itemSO != null)
         {
-            // ±âÁ¸¿¡ »ı¼ºµÈ ¹öÆ° ÆĞ³ÎÀÌ ÀÖ´Ù¸é ÆÄ±«ÇÕ´Ï´Ù.
-            if (instantiatedButtonPanel != null)
+Â  Â  Â  Â  Â  Â  // ê¸°ì¡´ì— ìƒì„±ëœ ë²„íŠ¼ íŒ¨ë„ì´ ìˆë‹¤ë©´ íŒŒê´´í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  if (instantiatedButtonPanel != null)
             {
                 Destroy(instantiatedButtonPanel);
             }
 
-            // ¸¶¿ì½º À§Ä¡¿¡ ¹öÆ° ÆĞ³ÎÀ» »õ·Î »ı¼ºÇÕ´Ï´Ù.
-            Canvas canvas = GetComponentInParent<Canvas>();
+Â  Â  Â  Â  Â  Â  // ë§ˆìš°ìŠ¤ ìœ„ì¹˜ì— ë²„íŠ¼ íŒ¨ë„ì„ ìƒˆë¡œ ìƒì„±í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  Canvas canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
             {
                 instantiatedButtonPanel = Instantiate(buttonPanelPrefab, canvas.transform);
             }
 
-            // ¸¶¿ì½º Æ÷ÀÎÅÍ À§Ä¡¿¡ ¿ÀÇÁ¼ÂÀ» Àû¿ëÇÕ´Ï´Ù.
-            instantiatedButtonPanel.transform.position = Input.mousePosition + buttonPanelOffset;
+Â  Â  Â  Â  Â  Â  // ë§ˆìš°ìŠ¤ í¬ì¸í„° ìœ„ì¹˜ì— ì˜¤í”„ì…‹ì„ ì ìš©í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  instantiatedButtonPanel.transform.position = Input.mousePosition + buttonPanelOffset;
             instantiatedButtonPanel.SetActive(true);
 
-            // ¹öÆ° ÆĞ³Î ½ºÅ©¸³Æ®ÀÇ Initialize ¸Ş¼­µå¸¦ È£ÃâÇÏ¿© ¹öÆ°À» ¼³Á¤ÇÕ´Ï´Ù.
-            // ¾ÆÀÌÅÛ Å¸ÀÔ¿¡ µû¶ó ´Ù¸¥ ±â´ÉÀ» ¿¬°áÇÕ´Ï´Ù.
-            ButtonPanel buttonPanel = instantiatedButtonPanel.GetComponent<ButtonPanel>();
+Â  Â  Â  Â  Â  Â  // ë²„íŠ¼ íŒ¨ë„ ìŠ¤í¬ë¦½íŠ¸ì˜ Initialize ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ë²„íŠ¼ì„ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  // ì•„ì´í…œ íƒ€ì…ì— ë”°ë¼ ë‹¤ë¥¸ ê¸°ëŠ¥ì„ ì—°ê²°í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  ButtonPanel buttonPanel = instantiatedButtonPanel.GetComponent<ButtonPanel>();
             if (buttonPanel != null)
             {
-                // ButtonPanelÀÇ Initialize ¸Ş¼­µå¸¦ È£ÃâÇÏ¿© ¹öÆ° ±â´ÉÀ» ¼³Á¤ÇÕ´Ï´Ù.
-                buttonPanel.Initialize(currentItemData.itemSO, currentItemData.stackCount);
+Â  Â  Â  Â  Â  Â  Â  Â  // ButtonPanelì˜ Initialize ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ë²„íŠ¼ ê¸°ëŠ¥ì„ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  Â  Â  buttonPanel.Initialize(currentItemData.itemSO, currentItemData.stackCount);
             }
         }
     }

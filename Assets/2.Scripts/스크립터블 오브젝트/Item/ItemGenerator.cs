@@ -1,46 +1,46 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Linq;
 
 /// <summary>
-/// ¾ÆÀÌÅÛ µî±Ş¿¡ µû¸¥ »ı¼º ±ÔÄ¢À» Á¤ÀÇÇÏ´Â ±¸Á¶Ã¼ÀÔ´Ï´Ù.
+/// ì•„ì´í…œ ë“±ê¸‰ì— ë”°ë¥¸ ìƒì„± ê·œì¹™ì„ ì •ì˜í•˜ëŠ” êµ¬ì¡°ì²´ì…ë‹ˆë‹¤.
 /// </summary>
 [Serializable]
 public struct ItemGradeRule
 {
     public ItemGrade itemGrade;
-    [Tooltip("±âº» ´É·ÂÄ¡¿¡ Àû¿ëÇÒ ¹èÀ²ÀÇ ÃÖ¼Ú°ª(x)°ú ÃÖ´ñ°ª(y)ÀÔ´Ï´Ù.")]
+    [Tooltip("ê¸°ë³¸ ëŠ¥ë ¥ì¹˜ì— ì ìš©í•  ë°°ìœ¨ì˜ ìµœì†Ÿê°’(x)ê³¼ ìµœëŒ“ê°’(y)ì…ë‹ˆë‹¤.")]
     public Vector2 baseStatMultiplierRange;
-    [Tooltip("¹«ÀÛÀ§·Î ºÎ¿©ÇÒ Ãß°¡ ´É·ÂÄ¡ÀÇ °³¼öÀÔ´Ï´Ù.")]
+    [Tooltip("ë¬´ì‘ìœ„ë¡œ ë¶€ì—¬í•  ì¶”ê°€ ëŠ¥ë ¥ì¹˜ì˜ ê°œìˆ˜ì…ë‹ˆë‹¤.")]
     public int additionalStatCount;
-    [Tooltip("Ãß°¡ ´É·ÂÄ¡ÀÇ °ª¿¡ Àû¿ëÇÒ ¹èÀ²ÀÇ ÃÖ¼Ú°ª(x)°ú ÃÖ´ñ°ª(y)ÀÔ´Ï´Ù.")]
+    [Tooltip("ì¶”ê°€ ëŠ¥ë ¥ì¹˜ì˜ ê°’ì— ì ìš©í•  ë°°ìœ¨ì˜ ìµœì†Ÿê°’(x)ê³¼ ìµœëŒ“ê°’(y)ì…ë‹ˆë‹¤.")]
     public Vector2 additionalStatMultiplierRange;
 }
 
 /// <summary>
-/// Àåºñ ¾ÆÀÌÅÛÀ» µî±Ş¿¡ µû¶ó µ¿ÀûÀ¸·Î »ı¼ºÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
+/// ì¥ë¹„ ì•„ì´í…œì„ ë“±ê¸‰ì— ë”°ë¼ ë™ì ìœ¼ë¡œ ìƒì„±í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
 /// </summary>
 public class ItemGenerator : MonoBehaviour
 {
-    // === ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ===
-    public static ItemGenerator Instance { get; private set; }
+Â  Â  // === ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ===
+Â  Â  public static ItemGenerator Instance { get; private set; }
 
-    [Header("µî±Şº° ¾ÆÀÌÅÛ »ı¼º ±ÔÄ¢")]
-    [Tooltip("°¢ µî±Ş¿¡ ¸Â´Â ±ÔÄ¢À» ¼³Á¤ÇØ ÁÖ¼¼¿ä.")]
+    [Header("ë“±ê¸‰ë³„ ì•„ì´í…œ ìƒì„± ê·œì¹™")]
+    [Tooltip("ê° ë“±ê¸‰ì— ë§ëŠ” ê·œì¹™ì„ ì„¤ì •í•´ ì£¼ì„¸ìš”.")]
     public List<ItemGradeRule> gradeRules = new List<ItemGradeRule>();
 
-    // ÀÌ µñ¼Å³Ê¸®´Â ÀÎ½ºÆåÅÍ ¸®½ºÆ®¸¦ ·è¾÷ Å×ÀÌºí·Î º¯È¯ÇÏ¿© ¼º´ÉÀ» ÃÖÀûÈ­ÇÕ´Ï´Ù.
-    private Dictionary<ItemGrade, ItemGradeRule> gradeRuleMap;
+Â  Â  // ì´ ë”•ì…”ë„ˆë¦¬ëŠ” ì¸ìŠ¤í™í„° ë¦¬ìŠ¤íŠ¸ë¥¼ ë£©ì—… í…Œì´ë¸”ë¡œ ë³€í™˜í•˜ì—¬ ì„±ëŠ¥ì„ ìµœì í™”í•©ë‹ˆë‹¤.
+Â  Â  private Dictionary<ItemGrade, ItemGradeRule> gradeRuleMap;
 
     private void Awake()
     {
-        // ½Ì±ÛÅÏ ÆĞÅÏ ±¸Çö (DontDestroyOnLoad Á¦°Å)
-        if (Instance == null)
+Â  Â  Â  Â  // ì‹±ê¸€í„´ íŒ¨í„´ êµ¬í˜„ (DontDestroyOnLoad ì œê±°)
+Â  Â  Â  Â  if (Instance == null)
         {
             Instance = this;
-            // ±ÔÄ¢ µñ¼Å³Ê¸®¸¦ ÃÊ±âÈ­ÇÏ¿© O(1) ½Ã°£ º¹Àâµµ·Î ±ÔÄ¢À» Ã£À» ¼ö ÀÖ°Ô ÇÕ´Ï´Ù.
-            gradeRuleMap = gradeRules.ToDictionary(rule => rule.itemGrade);
+Â  Â  Â  Â  Â  Â  // ê·œì¹™ ë”•ì…”ë„ˆë¦¬ë¥¼ ì´ˆê¸°í™”í•˜ì—¬ O(1) ì‹œê°„ ë³µì¡ë„ë¡œ ê·œì¹™ì„ ì°¾ì„ ìˆ˜ ìˆê²Œ í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  gradeRuleMap = gradeRules.ToDictionary(rule => rule.itemGrade);
         }
         else
         {
@@ -48,67 +48,94 @@ public class ItemGenerator : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// ÁöÁ¤µÈ µî±Ş°ú ±âº» ÅÛÇÃ¸´À¸·Î »õ·Î¿î Àåºñ ¾ÆÀÌÅÛÀ» »ı¼ºÇÕ´Ï´Ù.
-    /// </summary>
-    /// <param name="templateItem">±âº» µ¥ÀÌÅÍ¸¦ °¡Áø EquipmentItemSO ÅÛÇÃ¸´</param>
-    /// <param name="itemGrade">»ı¼ºÇÒ ¾ÆÀÌÅÛÀÇ µî±Ş</param>
-    /// <returns>¹«ÀÛÀ§ ¿É¼ÇÀÌ ºÎ¿©µÈ »õ·Î¿î EquipmentItemSO ÀÎ½ºÅÏ½º</returns>
-    public EquipmentItemSO GenerateItem(EquipmentItemSO templateItem, ItemGrade itemGrade)
+Â  Â  /// <summary>
+Â  Â  /// ì§€ì •ëœ ë“±ê¸‰ê³¼ ê¸°ë³¸ í…œí”Œë¦¿ìœ¼ë¡œ ìƒˆë¡œìš´ ì¥ë¹„ ì•„ì´í…œì„ ìƒì„±í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  /// <param name="templateItem">ê¸°ë³¸ ë°ì´í„°ë¥¼ ê°€ì§„ EquipmentItemSO í…œí”Œë¦¿</param>
+Â  Â  /// <param name="itemGrade">ìƒì„±í•  ì•„ì´í…œì˜ ë“±ê¸‰</param>
+Â  Â  /// <returns>ë¬´ì‘ìœ„ ì˜µì…˜ì´ ë¶€ì—¬ëœ ìƒˆë¡œìš´ EquipmentItemSO ì¸ìŠ¤í„´ìŠ¤</returns>
+Â  Â  public EquipmentItemSO GenerateItem(EquipmentItemSO templateItem, ItemGrade itemGrade)
     {
-        if (templateItem == null)
+Â  Â  Â  Â  // 1. ìœ íš¨ì„± ê²€ì‚¬ ë° ê·œì¹™ í™•ì¸
+Â  Â  Â  Â  if (templateItem == null)
         {
-            Debug.LogError("¾ÆÀÌÅÛ ÅÛÇÃ¸´ÀÌ nullÀÌ¹Ç·Î ¾ÆÀÌÅÛÀ» »ı¼ºÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("ì•„ì´í…œ í…œí”Œë¦¿ì´ nullì´ë¯€ë¡œ ì•„ì´í…œì„ ìƒì„±í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return null;
         }
 
-        if (!gradeRuleMap.ContainsKey(itemGrade))
+        if (!gradeRuleMap.TryGetValue(itemGrade, out ItemGradeRule rule))
         {
-            Debug.LogWarning($"µî±Ş '{itemGrade}'¿¡ ´ëÇÑ ±ÔÄ¢ÀÌ ItemGenerator¿¡ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. ±âº» °ªÀ¸·Î ¾ÆÀÌÅÛÀ» »ı¼ºÇÕ´Ï´Ù.");
-            return Instantiate(templateItem); // ±ÔÄ¢ÀÌ ¾øÀ¸¸é ÅÛÇÃ¸´À» ±×´ë·Î º¹Á¦
+            Debug.LogWarning($"ë“±ê¸‰ '{itemGrade}'ì— ëŒ€í•œ ê·œì¹™ì´ ItemGeneratorì— ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê¸°ë³¸ ê°’ìœ¼ë¡œ ì•„ì´í…œì„ ìƒì„±í•©ë‹ˆë‹¤.");
+            return Instantiate(templateItem);
         }
 
-        // 1. ¿øº» ÅÛÇÃ¸´À» º¹Á¦ÇÏ¿© »õ·Î¿î ÀÎ½ºÅÏ½º¸¦ ¸¸µì´Ï´Ù.
-        EquipmentItemSO newItem = Instantiate(templateItem);
-        newItem.itemGrade = itemGrade; // ¾ÆÀÌÅÛÀÇ µî±ŞÀ» ¼³Á¤ÇÕ´Ï´Ù.
+Â  Â  Â  Â  // 2. ì›ë³¸ í…œí”Œë¦¿ì„ ë³µì œí•˜ì—¬ ìƒˆë¡œìš´ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë§Œë“­ë‹ˆë‹¤.
+Â  Â  Â  Â  //    InstantiateëŠ” ScriptableObjectì˜ ë¦¬ìŠ¤íŠ¸ë¥¼ ê¹Šì€ ë³µì‚¬í•˜ì§€ ì•Šìœ¼ë¯€ë¡œ, ì•„ë˜ì—ì„œ ìƒˆë¡œ ìƒì„±í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  EquipmentItemSO newItem = Instantiate(templateItem);
+        newItem.itemGrade = itemGrade;
 
-        // 2. µî±Ş¿¡ ¸Â´Â ±ÔÄ¢À» °¡Á®¿É´Ï´Ù.
-        ItemGradeRule rule = gradeRuleMap[itemGrade];
+Â  Â  Â  Â  // 3. ëŠ¥ë ¥ì¹˜ ë¦¬ìŠ¤íŠ¸ë¥¼ ìƒˆë¡œ í• ë‹¹í•˜ì—¬ ì›ë³¸ SOì™€ì˜ ì°¸ì¡°ë¥¼ ëŠê³ , ë°ì´í„° ì†ì‹¤ì„ ë°©ì§€í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  newItem.baseStats = new List<StatModifier>(templateItem.baseStats);
+        newItem.additionalStats = new List<StatModifier>(templateItem.additionalStats);
 
-        // 3. ±âº» ´É·ÂÄ¡¿¡ Àû¿ëÇÒ ¹«ÀÛÀ§ ¹èÀ²À» °è»êÇÏ°í Çâ»ó½ÃÅµ´Ï´Ù.
-        float baseStatMultiplier = UnityEngine.Random.Range(rule.baseStatMultiplierRange.x, rule.baseStatMultiplierRange.y);
+Â  Â  Â  Â  // 4. ê¸°ë³¸ ëŠ¥ë ¥ì¹˜ë¥¼ ë“±ê¸‰ ê·œì¹™ì— ë”°ë¼ í–¥ìƒì‹œí‚µë‹ˆë‹¤.
+Â  Â  Â  Â  UpgradeStats(newItem.baseStats, rule.baseStatMultiplierRange);
 
-        List<StatModifier> newBaseStats = new List<StatModifier>();
-        foreach (var stat in newItem.baseStats)
+Â  Â  Â  Â  // 5. ì¶”ê°€ ëŠ¥ë ¥ì¹˜ë¥¼ ë¬´ì‘ìœ„ë¡œ ì„ íƒí•˜ê³  ë“±ê¸‰ ê·œì¹™ì— ë”°ë¼ í–¥ìƒì‹œí‚µë‹ˆë‹¤.
+Â  Â  Â  Â  SelectAndUpgradeAdditionalStats(newItem.additionalStats, rule);
+
+        return newItem;
+    }
+
+    // ---
+
+    /// <summary>
+    /// StatModifier ë¦¬ìŠ¤íŠ¸ì˜ ê°’ë“¤ì„ ë“±ê¸‰ ê·œì¹™ì— ë”°ë¼ ë¬´ì‘ìœ„ë¡œ í–¥ìƒì‹œí‚µë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="stats">í–¥ìƒì‹œí‚¬ StatModifier ë¦¬ìŠ¤íŠ¸</param>
+    /// <param name="multiplierRange">ì ìš©í•  ë°°ìœ¨ ë²”ìœ„</param>
+    private void UpgradeStats(List<StatModifier> stats, Vector2 multiplierRange)
+    {
+        float multiplier = UnityEngine.Random.Range(multiplierRange.x, multiplierRange.y);
+        for (int i = 0; i < stats.Count; i++)
         {
-            // --- ¼öÁ¤µÈ ºÎºĞ: ¼Ò¼öÁ¡ Ã¹Â° ÀÚ¸®·Î ¹İ¿Ã¸² ·ÎÁ÷ Ãß°¡ ---
-            float roundedValue = Mathf.Round(stat.value * baseStatMultiplier * 10f) / 10f;
-            StatModifier upgradedStat = new StatModifier(stat.statType, roundedValue, stat.isPercentage);
-            // --------------------------------------------------------
-            newBaseStats.Add(upgradedStat);
-        }
-        newItem.baseStats = newBaseStats;
+            StatModifier originalStat = stats[i];
+            float upgradedValue = originalStat.value * multiplier;
+            // ì†Œìˆ˜ì  ì²«ì§¸ ìë¦¬ë¡œ ë°˜ì˜¬ë¦¼í•˜ì—¬ ë¶€ë™ ì†Œìˆ˜ì  ì˜¤ì°¨ë¥¼ ì¤„ì…ë‹ˆë‹¤.
+            float roundedValue = Mathf.Round(upgradedValue * 100f) / 100f;
 
-        // 4. Ãß°¡ ´É·ÂÄ¡¸¦ ¹«ÀÛÀ§·Î ¼±ÅÃÇÏ°í µî±Ş ±ÔÄ¢¿¡ µû¶ó Çâ»ó½ÃÅµ´Ï´Ù.
+            stats[i] = new StatModifier(originalStat.statType, roundedValue, originalStat.isPercentage);
+        }
+    }
+
+    /// <summary>
+    /// ì¶”ê°€ ëŠ¥ë ¥ì¹˜ ë¦¬ìŠ¤íŠ¸ì—ì„œ ê·œì¹™ì— ë§ëŠ” ê°œìˆ˜ë§Œí¼ ë¬´ì‘ìœ„ë¡œ ì„ íƒí•˜ê³  ê°’ì„ í–¥ìƒì‹œí‚µë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="additionalStats">ì¶”ê°€ ëŠ¥ë ¥ì¹˜ ë¦¬ìŠ¤íŠ¸</param>
+    /// <param name="rule">ì ìš©í•  ë“±ê¸‰ ê·œì¹™</param>
+    private void SelectAndUpgradeAdditionalStats(List<StatModifier> additionalStats, ItemGradeRule rule)
+    {
         List<StatModifier> newAdditionalStats = new List<StatModifier>();
-        // ÅÛÇÃ¸´ÀÇ Ãß°¡ ¿É¼Ç ¸®½ºÆ®¸¦ º¹»çÇÏ¿© ¼¯½À´Ï´Ù.
-        List<StatModifier> shuffledOptions = newItem.additionalStats.OrderBy(x => Guid.NewGuid()).ToList();
+        // í˜„ì¬ ì¶”ê°€ ëŠ¥ë ¥ì¹˜ ë¦¬ìŠ¤íŠ¸ë¥¼ ì„ìŠµë‹ˆë‹¤.
+        List<StatModifier> shuffledOptions = additionalStats.OrderBy(x => Guid.NewGuid()).ToList();
 
-        // Ãß°¡ ´É·ÂÄ¡¿¡ Àû¿ëÇÒ ¹«ÀÛÀ§ ¹èÀ²À» °è»êÇÕ´Ï´Ù.
+        // ì¶”ê°€ ëŠ¥ë ¥ì¹˜ì— ì ìš©í•  ë¬´ì‘ìœ„ ë°°ìœ¨ì„ ê³„ì‚°í•©ë‹ˆë‹¤.
         float additionalStatMultiplier = UnityEngine.Random.Range(rule.additionalStatMultiplierRange.x, rule.additionalStatMultiplierRange.y);
 
         int statsToSelect = Math.Min(rule.additionalStatCount, shuffledOptions.Count);
         for (int i = 0; i < statsToSelect; i++)
         {
             StatModifier selectedStat = shuffledOptions[i];
-            // --- ¼öÁ¤µÈ ºÎºĞ: ¼Ò¼öÁ¡ Ã¹Â° ÀÚ¸®·Î ¹İ¿Ã¸² ·ÎÁ÷ Ãß°¡ ---
-            float roundedValue = Mathf.Round(selectedStat.value * additionalStatMultiplier * 10f) / 10f;
+            float upgradedValue = selectedStat.value * additionalStatMultiplier;
+            // ì†Œìˆ˜ì  ì²«ì§¸ ìë¦¬ë¡œ ë°˜ì˜¬ë¦¼
+            float roundedValue = Mathf.Round(upgradedValue * 100f) / 100f;
+
             StatModifier upgradedStat = new StatModifier(selectedStat.statType, roundedValue, selectedStat.isPercentage);
-            // --------------------------------------------------------
             newAdditionalStats.Add(upgradedStat);
         }
-        newItem.additionalStats = newAdditionalStats;
 
-        return newItem;
+        // ìƒˆë¡œìš´ ë¦¬ìŠ¤íŠ¸ë¡œ ë®ì–´ì”Œì›ë‹ˆë‹¤.
+        additionalStats.Clear();
+        additionalStats.AddRange(newAdditionalStats);
     }
 }

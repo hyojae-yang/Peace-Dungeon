@@ -1,19 +1,23 @@
 using UnityEngine;
+using System.Collections;
 using System.Collections.Generic;
 
-// IDetectable과 IDamageable 인터페이스를 구현합니다.
+/// <summary>
+/// IDetectable과 IDamageable 인터페이스를 구현하며, 플레이어의 체력 및 방어 로직을 관리합니다.
+/// 이 스크립트는 더 이상 싱글턴이 아니며, PlayerCharacter의 멤버로 관리됩니다.
+/// </summary>
 public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 {
-    // PlayerStats 스크립트는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
-    // private PlayerStats playerStats;
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     void Start()
     {
-        // 게임 시작 시, PlayerStats 싱글턴 인스턴스가 존재하는지 확인합니다.
-        // GetComponent를 통해 가져올 필요가 없습니다.
-        if (PlayerStats.Instance == null)
+        // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("PlayerStats 인스턴스가 존재하지 않습니다. 게임 시작 시 PlayerStats를 가진 게임 오브젝트가 씬에 있는지 확인해 주세요.");
+            Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. PlayerHealth 스크립트가 제대로 동작하지 않을 수 있습니다.");
         }
     }
 
@@ -24,10 +28,11 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     /// </summary>
     public bool IsDetectable()
     {
-        // 플레이어가 살아있다면 감지 가능하도록 true를 반환합니다.
-        if (PlayerStats.Instance != null)
+        // PlayerCharacter 및 playerStats가 유효한지 먼저 확인합니다.
+        if (playerCharacter != null && playerCharacter.playerStats != null)
         {
-            return PlayerStats.Instance.health > 0;
+            // 플레이어가 살아있다면 감지 가능하도록 true를 반환합니다.
+            return playerCharacter.playerStats.health > 0;
         }
         return false;
     }
@@ -43,21 +48,24 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     // IDamageable 인터페이스의 메서드 구현 (오버로딩)
 
     /// <summary>
-    /// 순수 데미지 값을 받는 메서드입니다. (추후 사용 가능)
+    /// 순수 데미지 값을 받는 메서드입니다.
     /// </summary>
     /// <param name="amount">입을 데미지량</param>
     public void TakeDamage(float amount)
     {
-        // PlayerStats 인스턴스가 유효한지 다시 한번 확인합니다.
-        if (PlayerStats.Instance == null) return;
+        if (playerCharacter == null || playerCharacter.playerStats == null)
+        {
+            Debug.LogError("플레이어 스탯에 접근할 수 없습니다. TakeDamage(float amount) 실패.");
+            return;
+        }
 
         // PlayerStats의 health 변수에 직접 접근하여 데미지를 적용합니다.
-        PlayerStats.Instance.health -= amount;
+        playerCharacter.playerStats.health -= amount;
 
-        Debug.Log("플레이어가 데미지를 입었습니다! 남은 체력: " + PlayerStats.Instance.health);
+        Debug.Log("플레이어가 데미지를 입었습니다! 남은 체력: " + playerCharacter.playerStats.health);
 
         // 체력이 0보다 작거나 같아지면 죽음 처리
-        if (PlayerStats.Instance.health <= 0)
+        if (playerCharacter.playerStats.health <= 0)
         {
             Die();
         }
@@ -70,8 +78,11 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     /// <param name="type">데미지 타입 (물리, 마법, 고정 피해 등)</param>
     public void TakeDamage(float amount, DamageType type)
     {
-        // PlayerStats 인스턴스가 유효한지 다시 한번 확인합니다.
-        if (PlayerStats.Instance == null) return;
+        if (playerCharacter == null || playerCharacter.playerStats == null)
+        {
+            Debug.LogError("플레이어 스탯에 접근할 수 없습니다. TakeDamage(float amount, DamageType type) 실패.");
+            return;
+        }
 
         float finalDamage = amount;
 
@@ -79,19 +90,19 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         switch (type)
         {
             case DamageType.Physical:
-                finalDamage = Mathf.Max(amount - PlayerStats.Instance.defense, 0);
+                finalDamage = Mathf.Max(amount - playerCharacter.playerStats.defense, 0);
                 break;
             case DamageType.Magic:
-                finalDamage = Mathf.Max(amount - PlayerStats.Instance.magicDefense, 0);
+                finalDamage = Mathf.Max(amount - playerCharacter.playerStats.magicDefense, 0);
                 break;
             case DamageType.True:
                 // 고정 피해는 방어력을 무시합니다.
                 break;
         }
 
-        PlayerStats.Instance.health -= finalDamage;
+        playerCharacter.playerStats.health -= finalDamage;
 
-        if (PlayerStats.Instance.health <= 0)
+        if (playerCharacter.playerStats.health <= 0)
         {
             Die();
         }

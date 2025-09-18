@@ -44,7 +44,6 @@ public enum StatType
     MoveSpeed,
     CriticalChance,
     CriticalDamage,
-    EvasionChance,
 
     // 스탯 포인트 투자와 관련된 StatType 추가
     Strength,

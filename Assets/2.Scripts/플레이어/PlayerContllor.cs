@@ -1,10 +1,13 @@
 using UnityEngine;
+using System;
+using System.Collections.Generic;
 
 // 플레이어의 이동 및 점프를 제어하는 스크립트입니다.
+// 이 스크립트는 PlayerCharacter의 멤버로 관리됩니다.
 public class PlayerController : MonoBehaviour
 {
-    // PlayerStats 스크립트는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
-    // PlayerStats PlayerStats;
+    // PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     // 속도 관련 변수
     [Header("속도 설정")]
@@ -25,6 +28,14 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
+        // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
+        {
+            Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다. 스크립트가 제대로 동작하지 않을 수 있습니다.");
+            return;
+        }
+
         // Rigidbody 컴포넌트를 가져옵니다.
         playerRigidbody = GetComponent<Rigidbody>();
         if (playerRigidbody == null)
@@ -36,14 +47,14 @@ public class PlayerController : MonoBehaviour
         // 캐릭터가 넘어지지 않도록 회전을 고정합니다.
         playerRigidbody.freezeRotation = true;
 
-        // PlayerStats.Instance를 통해 기본 이동 속도 값을 가져와 초기화합니다.
-        if (PlayerStats.Instance != null)
+        // PlayerCharacter를 통해 PlayerStats의 이동 속도 값을 가져와 초기화합니다.
+        if (playerCharacter.playerStats != null)
         {
-            walkSpeed = PlayerStats.Instance.moveSpeed;
+            walkSpeed = playerCharacter.playerStats.moveSpeed;
         }
         else
         {
-            Debug.LogError("PlayerStats 인스턴스를 찾을 수 없습니다. 기본 walkSpeed를 사용합니다.");
+            Debug.LogError("PlayerStats가 PlayerCharacter에 할당되지 않았습니다. 기본 walkSpeed를 사용합니다.");
         }
     }
 
@@ -60,16 +71,14 @@ public class PlayerController : MonoBehaviour
     // 물리학 업데이트는 FixedUpdate에서 처리하는 것이 좋습니다.
     void FixedUpdate()
     {
-        // PlayerStats.Instance의 moveSpeed 값이 런타임에 변경될 수 있으므로 매 프레임 업데이트합니다.
-        if (PlayerStats.Instance != null)
+        if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            walkSpeed = PlayerStats.Instance.moveSpeed;
-        }
-        else
-        {
-            Debug.LogError("PlayerStats 인스턴스가 존재하지 않습니다. 이동 속도를 업데이트할 수 없습니다.");
+            Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. 이동 속도를 업데이트할 수 없습니다.");
             return;
         }
+
+        // PlayerStats의 moveSpeed 값이 런타임에 변경될 수 있으므로 매 프레임 업데이트합니다.
+        walkSpeed = playerCharacter.playerStats.moveSpeed;
 
         // 입력 값 받기
         float xInput = Input.GetAxis("Horizontal");

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d328dd5789f33ea48afd191d6eba63b1, type: 3}
-  m_Name: SmallMpPotion 1
+  m_Name: SmallMpPotion
   m_EditorClassIdentifier: 
   itemID: 6004
   itemName: "\uB9C8\uB098\uD3EC\uC158(\uC18C)"

@@ -19,8 +19,9 @@ public class RegistrationPanelHandler : MonoBehaviour
     [Header("참조 스크립트")]
     [Tooltip("부모 SkillIcon 스크립트를 할당하세요.")]
     private SkillIcon parentSkillIcon; // 부모 스킬 아이콘 스크립트 참조
-    // PlayerSkillController는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
-    // public PlayerSkillController playerSkillController;
+
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     void Awake()
     {
@@ -32,10 +33,18 @@ public class RegistrationPanelHandler : MonoBehaviour
             return;
         }
 
-        // PlayerSkillController 싱글턴 인스턴스가 존재하는지 확인합니다.
-        if (PlayerSkillController.Instance == null)
+        // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
         {
-            Debug.LogError("PlayerSkillController 인스턴스가 존재하지 않습니다. 씬에 PlayerSkillController를 가진 게임 오브젝트가 있는지 확인해 주세요.");
+            Debug.LogError("PlayerCharacter 인스턴스가 존재하지 않습니다. 씬에 해당 컴포넌트가 있는지 확인해 주세요.");
+            return;
+        }
+
+        // PlayerCharacter를 통해 PlayerSkillController에 접근합니다.
+        if (playerCharacter.playerSkillController == null)
+        {
+            Debug.LogError("PlayerSkillController가 PlayerCharacter에 할당되지 않았습니다.");
             return;
         }
 
@@ -64,8 +73,6 @@ public class RegistrationPanelHandler : MonoBehaviour
     {
         // 등록/해제 패널은 그대로 둔 채, SlotSelectionPanel 활성화를 SkillIcon에 요청합니다.
         parentSkillIcon.ShowSlotSelectionPanel();
-
-        // 기존: parentSkillIcon.HideRegistrationPanel(); <-- 이 줄 제거
     }
 
     /// <summary>
@@ -74,14 +81,14 @@ public class RegistrationPanelHandler : MonoBehaviour
     /// </summary>
     private void OnUnregisterButtonClick()
     {
-        if (parentSkillIcon.skillData != null)
+        if (parentSkillIcon.skillData != null && playerCharacter.playerSkillController != null)
         {
-            // PlayerSkillController.Instance를 통해 UnregisterSkill 메서드를 호출하여 스킬 데이터로 해제 요청
-            PlayerSkillController.Instance.UnregisterSkill(parentSkillIcon.skillData);
+            // PlayerCharacter를 통해 PlayerSkillController의 UnregisterSkill 메서드를 호출하여 스킬 데이터로 해제 요청
+            playerCharacter.playerSkillController.UnregisterSkill(parentSkillIcon.skillData);
         }
         else
         {
-            Debug.LogWarning("이 아이콘에 할당된 스킬 데이터가 없어 해제할 수 없습니다.");
+            Debug.LogWarning("이 아이콘에 할당된 스킬 데이터 또는 PlayerSkillController가 없어 해제할 수 없습니다.");
         }
 
         // 스킬 해제 후 모든 관련 UI를 닫고 isPanelActive 플래그를 초기화합니다.

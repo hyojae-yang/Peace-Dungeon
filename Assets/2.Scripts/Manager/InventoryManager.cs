@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
-using Debug = UnityEngine.Debug; // StackTrace를 사용하기 위해 추가
+using Debug = UnityEngine.Debug;
 
 /// <summary>
 /// 플레이어의 인벤토리 아이템 관리를 담당하는 스크립트입니다.
@@ -11,8 +11,8 @@ using Debug = UnityEngine.Debug; // StackTrace를 사용하기 위해 추가
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
-    // === 싱글턴 인스턴스 ===
-    public static InventoryManager Instance { get; private set; }
+    // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
+    private PlayerCharacter playerCharacter;
 
     // === 이벤트 ===
     /// <summary>
@@ -29,24 +29,23 @@ public class InventoryManager : MonoBehaviour
     [SerializeField] private int inventorySize = 80;
 
     // === MonoBehaviour 메서드 ===
-    private void Awake()
+    private void Start()
     {
-        // 싱글톤 패턴 구현
-        if (Instance == null)
+        // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
+        playerCharacter = PlayerCharacter.Instance;
+        if (playerCharacter == null)
         {
-            Instance = this;
-            if (inventoryData != null)
-            {
-                inventoryData.Initialize(); // 데이터를 초기화합니다.
-            }
-            else
-            {
-                Debug.LogError("InventoryData SO가 InventoryManager에 할당되지 않았습니다!");
-            }
+            Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다. 스크립트가 제대로 동작하지 않을 수 있습니다.");
+            return;
+        }
+
+        if (inventoryData != null)
+        {
+            inventoryData.Initialize(); // 데이터를 초기화합니다.
         }
         else
         {
-            Destroy(gameObject);
+            Debug.LogError("InventoryData SO가 InventoryManager에 할당되지 않았습니다!");
         }
     }
 
@@ -61,7 +60,6 @@ public class InventoryManager : MonoBehaviour
         if (item == null || amount <= 0) return false;
 
         // 1. 겹칠 수 있는 아이템을 찾습니다.
-        // 문제 해결: itemID로 동일한 아이템인지 확인합니다.
         for (int i = 0; i < inventoryData.inventoryItems.Count; i++)
         {
             if (inventoryData.inventoryItems[i].itemSO.itemID == item.itemID && inventoryData.inventoryItems[i].stackCount < item.maxStack)
@@ -88,8 +86,6 @@ public class InventoryManager : MonoBehaviour
             {
                 return false;
             }
-            // 이 시점에서는 item 자체가 아니라 새로운 ItemData를 생성해야 합니다.
-            // item이 복제된 인스턴스이므로, 원본 SO의 itemID를 사용하여 ItemData를 생성하는 것이 더 안전합니다.
             inventoryData.inventoryItems.Add(new ItemData(item, amount));
         }
 
@@ -135,15 +131,16 @@ public class InventoryManager : MonoBehaviour
     /// <summary>
     /// 소모 아이템을 사용하고 인벤토리에서 제거합니다.
     /// </summary>
-    public void UseItem(ConsumableItemSO itemToUse, PlayerCharacter playerCharacter)
+    public void UseItem(ConsumableItemSO itemToUse)
     {
-
         if (itemToUse == null || playerCharacter == null)
         {
             Debug.LogError("아이템 또는 플레이어 캐릭터가 유효하지 않습니다.");
             return;
         }
 
+        // 플레이어 캐릭터의 스탯 시스템에 접근하여 아이템을 사용합니다.
+        // 기존 Use 메서드의 매개변수가 변경되었으므로, 해당 부분도 수정합니다.
         itemToUse.Use(playerCharacter);
         RemoveItem(itemToUse, 1);
     }
@@ -174,9 +171,13 @@ public class InventoryManager : MonoBehaviour
     /// <returns>장착 아이템 딕셔너리</returns>
     public Dictionary<EquipSlot, EquipmentItemSO> GetEquippedItems()
     {
-        // InventoryManager가 직접 장착 아이템 정보를 관리하지 않지만,
-        // PlayerEquipmentManager가 필요할 때 호출할 수 있도록 참조를 제공합니다.
-        // 실제 장비 정보는 PlayerEquipmentManager가 관리합니다.
-        return PlayerEquipmentManager.Instance.GetEquippedItems();
+        if (playerCharacter == null || playerCharacter.playerEquipmentManager == null)
+        {
+            Debug.LogError("PlayerEquipmentManager에 접근할 수 없습니다.");
+            return null;
+        }
+
+        // PlayerEquipmentManager가 PlayerCharacter에 종속되어 있다는 가정하에 변경
+        return playerCharacter.playerEquipmentManager.GetEquippedItems();
     }
 }

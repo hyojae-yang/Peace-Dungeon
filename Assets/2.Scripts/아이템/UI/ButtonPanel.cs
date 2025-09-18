@@ -114,20 +114,18 @@ public class ButtonPanel : MonoBehaviour
 
     /// <summary>
     /// '장착' 버튼 클릭 시 호출됩니다.
-    /// PlayerEquipmentManager에게 장착을 요청합니다.
+    /// PlayerCharacter를 통해 PlayerEquipmentManager에게 장착을 요청합니다.
     /// </summary>
     public void OnEquipButtonClicked()
     {
         // 장비 아이템인지 확인하고 캐스팅합니다.
         EquipmentItemSO equipItem = currentItem as EquipmentItemSO;
-        if (equipItem != null && playerCharacter != null)
+        if (equipItem != null && playerCharacter != null && playerCharacter.playerEquipmentManager != null)
         {
             // PlayerEquipmentManager에게 장착 요청을 합니다.
             // EquipItem 메서드 내부에서 아이템 수량 감소 및 인벤토리 업데이트 로직을 처리합니다.
-            // PlayerEquipmentManager.Instance.EquipItem(equipItem, currentItemCount); // currentItemCount도 함께 전달할 수 있다면 좋습니다.
-            // 현재는 EquipItem 메서드가 단일 장비 아이템만 처리한다고 가정하고 equipItem만 전달합니다.
             // 만약 스택 가능한 장비라면 해당 로직은 별도 처리 필요.
-            PlayerEquipmentManager.Instance.EquipItem(equipItem);
+            playerCharacter.playerEquipmentManager.EquipItem(equipItem);
 
             // 버튼 클릭 후 패널을 파괴합니다.
             Destroy(gameObject);
@@ -136,24 +134,24 @@ public class ButtonPanel : MonoBehaviour
         {
             Debug.LogWarning("장착하려는 아이템이 EquipmentItemSO 타입이 아닙니다.");
         }
-        else if (playerCharacter == null)
+        else if (playerCharacter == null || playerCharacter.playerEquipmentManager == null)
         {
-            Debug.LogError("PlayerCharacter 인스턴스가 없어 장착할 수 없습니다.");
+            Debug.LogError("PlayerCharacter 인스턴스 또는 PlayerEquipmentManager 컴포넌트가 없어 장착할 수 없습니다.");
         }
     }
 
     /// <summary>
     /// '사용' 버튼 클릭 시 호출됩니다.
-    /// InventoryManager에 사용을 요청합니다.
+    /// PlayerCharacter를 통해 InventoryManager에 사용을 요청합니다.
     /// </summary>
     public void OnUseButtonClicked()
     {
         // 소모품 아이템인지 확인하고 캐스팅합니다.
         ConsumableItemSO consumeItem = currentItem as ConsumableItemSO;
-        if (consumeItem != null && playerCharacter != null)
+        if (consumeItem != null && playerCharacter != null && playerCharacter.inventoryManager != null)
         {
             // InventoryManager의 UseItem 메서드를 호출하며 PlayerCharacter를 전달합니다.
-            InventoryManager.Instance.UseItem(consumeItem, playerCharacter);
+            playerCharacter.inventoryManager.UseItem(consumeItem);
             // 버튼 클릭 후 패널을 파괴합니다.
             Destroy(gameObject);
         }
@@ -161,9 +159,9 @@ public class ButtonPanel : MonoBehaviour
         {
             Debug.LogWarning("사용하려는 아이템이 ConsumableItemSO 타입이 아닙니다.");
         }
-        else if (playerCharacter == null)
+        else if (playerCharacter == null || playerCharacter.inventoryManager == null)
         {
-            Debug.LogError("PlayerCharacter 인스턴스가 없어 아이템을 사용할 수 없습니다.");
+            Debug.LogError("PlayerCharacter 인스턴스 또는 InventoryManager 컴포넌트가 없어 아이템을 사용할 수 없습니다.");
         }
     }
 
@@ -173,21 +171,21 @@ public class ButtonPanel : MonoBehaviour
     /// </summary>
     public void OnDiscardButtonClicked()
     {
-        if (currentItem != null && currentItemCount > 0 && playerCharacter != null)
+        if (currentItem != null && currentItemCount > 0 && InventoryUIController.Instance != null)
         {
-            // InventoryUIController에 확인창을 띄우도록 요청합니다.
+            // InventoryUIController는 싱글톤이므로 직접 접근합니다.
             // 실제 버리기 로직은 ConfirmPanel에서 처리됩니다.
             InventoryUIController.Instance.ShowDiscardConfirmPanel(currentItem, currentItemCount);
             // 버튼 클릭 후 패널을 파괴합니다.
             Destroy(gameObject);
         }
-        else if (currentItem == null)
+        else if (currentItem == null || currentItemCount <= 0)
         {
-            Debug.LogWarning("버릴 아이템이 없습니다.");
+            Debug.LogWarning("버릴 아이템이 없거나 수량이 유효하지 않습니다.");
         }
-        else if (playerCharacter == null)
+        else if (InventoryUIController.Instance == null)
         {
-            Debug.LogError("PlayerCharacter 인스턴스가 없어 아이템을 버릴 수 없습니다.");
+            Debug.LogError("InventoryUIController 인스턴스가 없어 아이템을 버릴 수 없습니다.");
         }
     }
 }
