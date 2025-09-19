@@ -23,7 +23,6 @@ public class TownMap : MonoBehaviour
     [SerializeField] private Vector3 tileSize = new Vector3(100f, 1f, 100f);
 
     private Color validGizmoColor = Color.cyan;
-    private Color invalidGizmoColor = Color.red;
 
     private void Awake()
     {
@@ -134,9 +133,5 @@ public class TownMap : MonoBehaviour
                 Gizmos.DrawWireCube(gizmoPosition, tileSize);
             }
         }
-        // 중심 타일의 위치를 빨간색 큐브로 표시
-        Gizmos.color = Color.red;
-        Vector3 rotatedOriginTile = transform.rotation * originTile;
-        Gizmos.DrawSphere(transform.position + rotatedOriginTile, 10f);
     }
 }

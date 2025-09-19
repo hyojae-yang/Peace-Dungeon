@@ -12,9 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5886562ec1f792647af1815154bc9feb, type: 3}
   m_Name: "\uB358\uC804UI 4"
   m_EditorClassIdentifier: 
-  itemID: O
+  itemID: 11
   itemName: "\uB358\uC804\uC870\uAC014"
   itemImage: {fileID: 21300000, guid: fddde90af161ca646a233a68c7194356, type: 3}
   backgroundColor: {r: 0.40272367, g: 0.6037736, b: 0.24207903, a: 1}
   smallMapPrefab: {fileID: 6432926698920982829, guid: ade1b0f79816c3549bdeeba1db8102ce, type: 3}
   uiItemPrefab: {fileID: 2750190332938198540, guid: 6a9086f301850184b9e19f12c1380ea1, type: 3}
+  description: 
+  price: 5
+  currencyType: 3

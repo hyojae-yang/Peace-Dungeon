@@ -74,10 +74,6 @@ public class ItemGiver : MonoBehaviour
             // 생성된 아이템을 인벤토리에 추가합니다.
             playerCharacter.inventoryManager.AddItem(newItem, 1);
         }
-        else
-        {
-            Debug.LogError("<color=red>장비 아이템을 지급할 수 없습니다! 유효한 장비 템플릿이 할당되지 않았거나, 필요한 관리자를 찾을 수 없습니다.</color>");
-        }
     }
 
     /// <summary>
@@ -96,10 +92,6 @@ public class ItemGiver : MonoBehaviour
 
             // 생성된 아이템을 인벤토리에 추가합니다.
             playerCharacter.inventoryManager.AddItem(newItem, 1);
-        }
-        else
-        {
-            Debug.LogError("<color=red>소모품 아이템을 지급할 수 없습니다! 유효한 소모품 템플릿이 할당되지 않았거나, 필요한 관리자를 찾을 수 없습니다.</color>");
         }
     }
 }

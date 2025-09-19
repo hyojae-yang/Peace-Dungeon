@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 670d9726321f0054c99e5763332ebb59, type: 3}
+  m_Name: 2
+  m_EditorClassIdentifier: 
+  npcName: "\uC774\uC21C\uB355"
+  npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uC5B4\uBA38\uB2C8,\uB9C8\uC744
+    \uC18C\uBB38\uC5D0 \uBE60\uC0AD\uD558\uBA70 \uBC15\uC694\uB9AC\uC640 \uC808\uCE5C"
+  relationships:
+  - targetNPCName: "\uC7A5\uBCF4\uB78C"
+    relationshipType: "\uB538"
+  - targetNPCName: "\uC7A5\uD544\uC218"
+    relationshipType: "\uB0A8\uD3B8"
+  playerAffection: 0
+  dialogueGroups:
+  - questState: 0
+    questID: 0
+    interactionDialogue:
+    - minAffection: 0
+      maxAffection: 0
+      dialogueTexts:
+      - "\uB204\uAD6C\uC138\uC694?"
+    generalDialogues: []
+  - questState: 2
+    questID: 0
+    interactionDialogue:
+    - minAffection: 0
+      maxAffection: 0
+      dialogueTexts:
+      - 
+    generalDialogues: []
+  - questState: 3
+    questID: 0
+    interactionDialogue: []
+    generalDialogues: []
+  - questState: 4
+    questID: 0
+    interactionDialogue: []
+    generalDialogues: []

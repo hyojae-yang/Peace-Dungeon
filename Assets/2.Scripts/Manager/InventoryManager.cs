@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Diagnostics;
 using Debug = UnityEngine.Debug;
+using System.Linq;
 
 /// <summary>
 /// 플레이어의 인벤토리 아이템 관리를 담당하는 스크립트입니다.
@@ -17,8 +18,21 @@ public class InventoryManager : MonoBehaviour
     // === 이벤트 ===
     /// <summary>
     /// 인벤토리 내용이 변경될 때마다 호출되는 이벤트입니다.
+    /// UI 갱신에 사용됩니다.
     /// </summary>
     public event Action onInventoryChanged;
+
+    /// <summary>
+    /// 아이템이 인벤토리에 추가될 때 호출되는 이벤트입니다.
+    /// QuestManager에 퀘스트 진행 상황을 알립니다.
+    /// </summary>
+    public event Action<int, int> OnItemAdded; // string -> int 변경
+
+    /// <summary>
+    /// 아이템이 인벤토리에서 제거될 때 호출되는 이벤트입니다.
+    /// QuestManager에 퀘스트 진행 상황을 알립니다.
+    /// </summary>
+    public event Action<int, int> OnItemRemoved; // string -> int 변경
 
     // === 데이터 저장용 변수 ===
     [Header("인벤토리 데이터")]
@@ -31,7 +45,6 @@ public class InventoryManager : MonoBehaviour
     // === MonoBehaviour 메서드 ===
     private void Start()
     {
-        // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
@@ -41,7 +54,7 @@ public class InventoryManager : MonoBehaviour
 
         if (inventoryData != null)
         {
-            inventoryData.Initialize(); // 데이터를 초기화합니다.
+            inventoryData.Initialize();
         }
         else
         {
@@ -52,80 +65,102 @@ public class InventoryManager : MonoBehaviour
     /// <summary>
     /// 아이템을 인벤토리에 추가하는 메서드입니다.
     /// </summary>
-    /// <param name="item">추가할 아이템 데이터</param>
-    /// <param name="amount">추가할 아이템의 개수</param>
-    /// <returns>아이템이 모두 추가되었는지 여부</returns>
     public bool AddItem(BaseItemSO item, int amount = 1)
     {
         if (item == null || amount <= 0) return false;
 
-        // 1. 겹칠 수 있는 아이템을 찾습니다.
-        for (int i = 0; i < inventoryData.inventoryItems.Count; i++)
+        int remainingAmount = amount;
+
+        var existingItems = inventoryData.inventoryItems.Where(i => i.itemSO.itemID == item.itemID && i.stackCount < item.maxStack);
+        foreach (var existingItem in existingItems)
         {
-            if (inventoryData.inventoryItems[i].itemSO.itemID == item.itemID && inventoryData.inventoryItems[i].stackCount < item.maxStack)
-            {
-                int spaceLeft = item.maxStack - inventoryData.inventoryItems[i].stackCount;
-                int addAmount = Mathf.Min(amount, spaceLeft);
-                inventoryData.inventoryItems[i].stackCount += addAmount;
+            int spaceLeft = item.maxStack - existingItem.stackCount;
+            int addAmount = Mathf.Min(remainingAmount, spaceLeft);
+            existingItem.stackCount += addAmount;
+            remainingAmount -= addAmount;
 
-                // 남은 수량이 있다면, 재귀 호출하여 빈 슬롯에 추가합니다.
-                if (addAmount < amount)
-                {
-                    return AddItem(item, amount - addAmount);
-                }
-
-                onInventoryChanged?.Invoke(); // 인벤토리 변경 이벤트 호출
-                return true;
-            }
+            if (remainingAmount <= 0) break;
         }
 
-        // 2. 남은 수량이 있다면, 빈 슬롯을 찾아 새로 추가합니다.
-        if (amount > 0)
+        while (remainingAmount > 0)
         {
             if (inventoryData.inventoryItems.Count >= inventorySize)
             {
+                Debug.LogWarning("인벤토리가 가득 찼습니다. 모든 아이템을 추가할 수 없습니다.");
+                onInventoryChanged?.Invoke();
                 return false;
             }
-            inventoryData.inventoryItems.Add(new ItemData(item, amount));
+            int newStackAmount = Mathf.Min(remainingAmount, item.maxStack);
+            inventoryData.inventoryItems.Add(new ItemData(item, newStackAmount));
+            remainingAmount -= newStackAmount;
         }
 
-        onInventoryChanged?.Invoke(); // 인벤토리 변경 이벤트 호출
+        OnItemAdded?.Invoke(item.itemID, amount); // int ID 사용
+
+        onInventoryChanged?.Invoke();
         return true;
     }
 
     /// <summary>
     /// 인벤토리에서 아이템을 제거하는 메서드입니다.
     /// </summary>
-    /// <param name="item">제거할 아이템 SO</param>
-    /// <param name="amount">제거할 개수</param>
-    /// <returns>아이템 제거 성공 여부</returns>
     public bool RemoveItem(BaseItemSO item, int amount)
     {
         if (item == null || amount <= 0) return false;
 
-        // 제거할 아이템을 인벤토리에서 찾습니다. (가장 마지막에 추가된 동일 아이템부터 처리)
-        for (int i = inventoryData.inventoryItems.Count - 1; i >= 0; i--)
+        int totalCount = GetItemCount(item.itemID); // int ID 사용
+        if (totalCount < amount)
         {
-            if (inventoryData.inventoryItems[i].itemSO == item)
+            Debug.LogWarning($"인벤토리에 '{item.itemName}' 아이템이 부족합니다. (필요: {amount}, 현재: {totalCount})");
+            return false;
+        }
+
+        int remainingAmount = amount;
+
+        for (int i = inventoryData.inventoryItems.Count - 1; i >= 0 && remainingAmount > 0; i--)
+        {
+            if (inventoryData.inventoryItems[i].itemSO.itemID == item.itemID) // int ID 사용
             {
-                if (inventoryData.inventoryItems[i].stackCount >= amount)
+                int removeAmount = Mathf.Min(remainingAmount, inventoryData.inventoryItems[i].stackCount);
+                inventoryData.inventoryItems[i].stackCount -= removeAmount;
+                remainingAmount -= removeAmount;
+
+                if (inventoryData.inventoryItems[i].stackCount <= 0)
                 {
-                    inventoryData.inventoryItems[i].stackCount -= amount;
-                    if (inventoryData.inventoryItems[i].stackCount <= 0)
-                    {
-                        inventoryData.inventoryItems.RemoveAt(i);
-                    }
-                    onInventoryChanged?.Invoke();
-                    return true; // 성공적으로 제거
-                }
-                else
-                {
-                    return false; // 제거 실패
+                    inventoryData.inventoryItems.RemoveAt(i);
                 }
             }
         }
-        Debug.LogWarning($"인벤토리에 '{item.itemName}' 아이템이 없습니다. 제거할 수 없습니다.");
-        return false; // 제거 실패
+
+        OnItemRemoved?.Invoke(item.itemID, amount); // int ID 사용
+
+        onInventoryChanged?.Invoke();
+        return true;
+    }
+
+    /// <summary>
+    /// 인벤토리에 특정 아이템이 필요한 개수만큼 있는지 확인합니다.
+    /// QuestManager에서 퀘스트 완료 조건 확인 시 사용됩니다.
+    /// </summary>
+    public bool HasItem(int itemID, int requiredAmount) // string -> int 변경
+    {
+        return GetItemCount(itemID) >= requiredAmount;
+    }
+
+    /// <summary>
+    /// 인벤토리에서 특정 아이템의 총 개수를 계산합니다.
+    /// </summary>
+    public int GetItemCount(int itemID) // string -> int 변경
+    {
+        int totalCount = 0;
+        foreach (var itemData in inventoryData.inventoryItems)
+        {
+            if (itemData.itemSO.itemID == itemID) // int ID 사용
+            {
+                totalCount += itemData.stackCount;
+            }
+        }
+        return totalCount;
     }
 
     /// <summary>
@@ -139,8 +174,6 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
-        // 플레이어 캐릭터의 스탯 시스템에 접근하여 아이템을 사용합니다.
-        // 기존 Use 메서드의 매개변수가 변경되었으므로, 해당 부분도 수정합니다.
         itemToUse.Use(playerCharacter);
         RemoveItem(itemToUse, 1);
     }
@@ -148,8 +181,6 @@ public class InventoryManager : MonoBehaviour
     /// <summary>
     /// 아이템을 인벤토리에서 버립니다.
     /// </summary>
-    /// <param name="itemToRemove">버릴 아이템 데이터</param>
-    /// <param name="amount">버릴 아이템 개수</param>
     public void DiscardItem(BaseItemSO itemToRemove, int amount)
     {
         RemoveItem(itemToRemove, amount);
@@ -159,7 +190,6 @@ public class InventoryManager : MonoBehaviour
     /// <summary>
     /// 현재 인벤토리의 아이템 리스트를 반환합니다.
     /// </summary>
-    /// <returns>인벤토리 아이템 데이터 리스트</returns>
     public List<ItemData> GetInventoryItems()
     {
         return inventoryData.inventoryItems;
@@ -168,7 +198,6 @@ public class InventoryManager : MonoBehaviour
     /// <summary>
     /// 현재 장착된 아이템 데이터를 가져옵니다. (PlayerEquipmentManager에서 참조할 때 사용)
     /// </summary>
-    /// <returns>장착 아이템 딕셔너리</returns>
     public Dictionary<EquipSlot, EquipmentItemSO> GetEquippedItems()
     {
         if (playerCharacter == null || playerCharacter.playerEquipmentManager == null)
@@ -176,8 +205,6 @@ public class InventoryManager : MonoBehaviour
             Debug.LogError("PlayerEquipmentManager에 접근할 수 없습니다.");
             return null;
         }
-
-        // PlayerEquipmentManager가 PlayerCharacter에 종속되어 있다는 가정하에 변경
         return playerCharacter.playerEquipmentManager.GetEquippedItems();
     }
 }

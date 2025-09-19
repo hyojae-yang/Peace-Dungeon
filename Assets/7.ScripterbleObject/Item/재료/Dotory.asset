@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09c921d4aeb548b40bfefa0cbe9359bc, type: 3}
   m_Name: Dotory
   m_EditorClassIdentifier: 
-  itemID: 6001
+  itemID: 7001
   itemName: "\uB3C4\uD1A0\uB9AC"
   itemDescription: "\uC232\uC5D0\uC11C \uB098\uB294 \uC791\uC740 \uC5F4\uB9E4"
   itemIcon: {fileID: 0}
