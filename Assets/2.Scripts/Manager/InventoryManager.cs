@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System;
 using System.Diagnostics;
@@ -6,49 +6,50 @@ using Debug = UnityEngine.Debug;
 using System.Linq;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾îÀÇ ÀÎº¥Åä¸® ¾ÆÀÌÅÛ °ü¸®¸¦ ´ã´çÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ¾ÆÀÌÅÛ Ãß°¡, Á¦°Å, ¼Ò¸ğÇ° »ç¿ë, ¹ö¸®±â µîÀÇ ·ÎÁ÷À» Ã³¸®ÇÏ¸ç,
-/// PlayerEquipmentManager¿Í Çù·ÂÇÏ¿© Àåºñ ÇØÁ¦ ½Ã ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®·Î µÇµ¹¸³´Ï´Ù.
+/// í”Œë ˆì´ì–´ì˜ ì¸ë²¤í† ë¦¬ ì•„ì´í…œ ê´€ë¦¬ë¥¼ ë‹´ë‹¹í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì•„ì´í…œ ì¶”ê°€, ì œê±°, ì†Œëª¨í’ˆ ì‚¬ìš©, ë²„ë¦¬ê¸° ë“±ì˜ ë¡œì§ì„ ì²˜ë¦¬í•˜ë©°,
+/// PlayerEquipmentManagerì™€ í˜‘ë ¥í•˜ì—¬ ì¥ë¹„ í•´ì œ ì‹œ ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ë¡œ ë˜ëŒë¦½ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (ì¸ë²¤í† ë¦¬ ì•„ì´í…œ ê´€ë¦¬).
 /// </summary>
 public class InventoryManager : MonoBehaviour
 {
-    // Áß¾Ó Çãºê ¿ªÇÒÀ» ÇÏ´Â PlayerCharacter ÀÎ½ºÅÏ½º¿¡ ´ëÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
+    // ì¤‘ì•™ í—ˆë¸Œ ì—­í• ì„ í•˜ëŠ” PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ì— ëŒ€í•œ ì°¸ì¡°ì…ë‹ˆë‹¤.
     private PlayerCharacter playerCharacter;
 
-    // === ÀÌº¥Æ® ===
+    // === ì´ë²¤íŠ¸ ===
     /// <summary>
-    /// ÀÎº¥Åä¸® ³»¿ëÀÌ º¯°æµÉ ¶§¸¶´Ù È£ÃâµÇ´Â ÀÌº¥Æ®ÀÔ´Ï´Ù.
-    /// UI °»½Å¿¡ »ç¿ëµË´Ï´Ù.
+    /// ì¸ë²¤í† ë¦¬ ë‚´ìš©ì´ ë³€ê²½ë  ë•Œë§ˆë‹¤ í˜¸ì¶œë˜ëŠ” ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
+    /// UI ê°±ì‹ ì— ì‚¬ìš©ë©ë‹ˆë‹¤.
     /// </summary>
     public event Action onInventoryChanged;
 
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÌ ÀÎº¥Åä¸®¿¡ Ãß°¡µÉ ¶§ È£ÃâµÇ´Â ÀÌº¥Æ®ÀÔ´Ï´Ù.
-    /// QuestManager¿¡ Äù½ºÆ® ÁøÇà »óÈ²À» ¾Ë¸³´Ï´Ù.
+    /// ì•„ì´í…œì´ ì¸ë²¤í† ë¦¬ì— ì¶”ê°€ë  ë•Œ í˜¸ì¶œë˜ëŠ” ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
+    /// QuestManagerì— í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™©ì„ ì•Œë¦½ë‹ˆë‹¤.
     /// </summary>
-    public event Action<int, int> OnItemAdded; // string -> int º¯°æ
+    public event Action<int, int> OnItemAdded; // string -> int ë³€ê²½
 
     /// <summary>
-    /// ¾ÆÀÌÅÛÀÌ ÀÎº¥Åä¸®¿¡¼­ Á¦°ÅµÉ ¶§ È£ÃâµÇ´Â ÀÌº¥Æ®ÀÔ´Ï´Ù.
-    /// QuestManager¿¡ Äù½ºÆ® ÁøÇà »óÈ²À» ¾Ë¸³´Ï´Ù.
+    /// ì•„ì´í…œì´ ì¸ë²¤í† ë¦¬ì—ì„œ ì œê±°ë  ë•Œ í˜¸ì¶œë˜ëŠ” ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
+    /// QuestManagerì— í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™©ì„ ì•Œë¦½ë‹ˆë‹¤.
     /// </summary>
-    public event Action<int, int> OnItemRemoved; // string -> int º¯°æ
+    public event Action<int, int> OnItemRemoved; // string -> int ë³€ê²½
 
-    // === µ¥ÀÌÅÍ ÀúÀå¿ë º¯¼ö ===
-    [Header("ÀÎº¥Åä¸® µ¥ÀÌÅÍ")]
-    [Tooltip("¿¡¼Â ÆÄÀÏ·Î ÀúÀåµÈ ÀÎº¥Åä¸® µ¥ÀÌÅÍ¸¦ ÇÒ´çÇÕ´Ï´Ù.")]
+    // === ë°ì´í„° ì €ì¥ìš© ë³€ìˆ˜ ===
+    [Header("ì¸ë²¤í† ë¦¬ ë°ì´í„°")]
+    [Tooltip("ì—ì…‹ íŒŒì¼ë¡œ ì €ì¥ëœ ì¸ë²¤í† ë¦¬ ë°ì´í„°ë¥¼ í• ë‹¹í•©ë‹ˆë‹¤.")]
     [SerializeField] private InventoryData inventoryData;
 
-    [Tooltip("ÀÎº¥Åä¸®ÀÇ ÃÖ´ë ½½·Ô °³¼öÀÔ´Ï´Ù.")]
+    [Tooltip("ì¸ë²¤í† ë¦¬ì˜ ìµœëŒ€ ìŠ¬ë¡¯ ê°œìˆ˜ì…ë‹ˆë‹¤.")]
     [SerializeField] private int inventorySize = 80;
 
-    // === MonoBehaviour ¸Ş¼­µå ===
+    // === MonoBehaviour ë©”ì„œë“œ ===
     private void Start()
     {
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ½ºÅ©¸³Æ®°¡ Á¦´ë·Î µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ìŠ¤í¬ë¦½íŠ¸ê°€ ì œëŒ€ë¡œ ë™ì‘í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -58,12 +59,12 @@ public class InventoryManager : MonoBehaviour
         }
         else
         {
-            Debug.LogError("InventoryData SO°¡ InventoryManager¿¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù!");
+            Debug.LogError("InventoryData SOê°€ InventoryManagerì— í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤!");
         }
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®¿¡ Ãß°¡ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ì— ì¶”ê°€í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
     public bool AddItem(BaseItemSO item, int amount = 1)
     {
@@ -86,7 +87,7 @@ public class InventoryManager : MonoBehaviour
         {
             if (inventoryData.inventoryItems.Count >= inventorySize)
             {
-                Debug.LogWarning("ÀÎº¥Åä¸®°¡ °¡µæ Ã¡½À´Ï´Ù. ¸ğµç ¾ÆÀÌÅÛÀ» Ãß°¡ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+                Debug.LogWarning("ì¸ë²¤í† ë¦¬ê°€ ê°€ë“ ì°¼ìŠµë‹ˆë‹¤. ëª¨ë“  ì•„ì´í…œì„ ì¶”ê°€í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
                 onInventoryChanged?.Invoke();
                 return false;
             }
@@ -95,23 +96,37 @@ public class InventoryManager : MonoBehaviour
             remainingAmount -= newStackAmount;
         }
 
-        OnItemAdded?.Invoke(item.itemID, amount); // int ID »ç¿ë
+        OnItemAdded?.Invoke(item.itemID, amount); // int ID ì‚¬ìš©
 
         onInventoryChanged?.Invoke();
         return true;
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀ» Á¦°ÅÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ì¸ë²¤í† ë¦¬ì—ì„œ BaseItemSO ê°ì²´ë¥¼ ì‚¬ìš©í•˜ì—¬ ì•„ì´í…œì„ ì œê±°í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” BaseItemSO ê°ì²´ë¥¼ ì¸ìë¡œ ë°›ìœ¼ë©°, ë‚´ë¶€ì ìœ¼ë¡œ ì•„ì´í…œ IDë¥¼ ì‚¬ìš©í•˜ëŠ” ë‹¤ë¥¸ ì˜¤ë²„ë¡œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ì¤‘ë³µ ì½”ë“œë¥¼ ì¤„ì…ë‹ˆë‹¤.
     /// </summary>
     public bool RemoveItem(BaseItemSO item, int amount)
     {
         if (item == null || amount <= 0) return false;
 
-        int totalCount = GetItemCount(item.itemID); // int ID »ç¿ë
+        // BaseItemSOì˜ IDë¥¼ ì‚¬ìš©í•˜ì—¬ ë‹¤ë¥¸ ì˜¤ë²„ë¡œë“œ ë©”ì„œë“œë¥¼ í˜¸ì¶œí•©ë‹ˆë‹¤.
+        return RemoveItem(item.itemID, amount);
+    }
+
+    /// <summary>
+    /// ì¸ë²¤í† ë¦¬ì—ì„œ íŠ¹ì • ì•„ì´í…œ IDë¡œ ì•„ì´í…œì„ ì œê±°í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// QuestManagerì™€ ê°™ì€ ì™¸ë¶€ ë¡œì§ì—ì„œ ì•„ì´í…œì„ ì°¨ê°í•  ë•Œ ì‚¬ìš©ë©ë‹ˆë‹¤.
+    /// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ì— ë”°ë¼ QuestManagerê°€ ì•„ë‹Œ InventoryManagerê°€ ì‹¤ì œ ì•„ì´í…œì„ ì œê±°í•©ë‹ˆë‹¤.
+    /// </summary>
+    public bool RemoveItem(int itemID, int amount)
+    {
+        if (amount <= 0) return false;
+
+        int totalCount = GetItemCount(itemID);
         if (totalCount < amount)
         {
-            Debug.LogWarning($"ÀÎº¥Åä¸®¿¡ '{item.itemName}' ¾ÆÀÌÅÛÀÌ ºÎÁ·ÇÕ´Ï´Ù. (ÇÊ¿ä: {amount}, ÇöÀç: {totalCount})");
+            Debug.LogWarning($"ì¸ë²¤í† ë¦¬ì— ì•„ì´í…œ ID '{itemID}'ê°€ ë¶€ì¡±í•©ë‹ˆë‹¤. (í•„ìš”: {amount}, í˜„ì¬: {totalCount})");
             return false;
         }
 
@@ -119,7 +134,7 @@ public class InventoryManager : MonoBehaviour
 
         for (int i = inventoryData.inventoryItems.Count - 1; i >= 0 && remainingAmount > 0; i--)
         {
-            if (inventoryData.inventoryItems[i].itemSO.itemID == item.itemID) // int ID »ç¿ë
+            if (inventoryData.inventoryItems[i].itemSO.itemID == itemID)
             {
                 int removeAmount = Mathf.Min(remainingAmount, inventoryData.inventoryItems[i].stackCount);
                 inventoryData.inventoryItems[i].stackCount -= removeAmount;
@@ -132,30 +147,31 @@ public class InventoryManager : MonoBehaviour
             }
         }
 
-        OnItemRemoved?.Invoke(item.itemID, amount); // int ID »ç¿ë
+        OnItemRemoved?.Invoke(itemID, amount);
 
         onInventoryChanged?.Invoke();
         return true;
     }
 
+
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡ Æ¯Á¤ ¾ÆÀÌÅÛÀÌ ÇÊ¿äÇÑ °³¼ö¸¸Å­ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-    /// QuestManager¿¡¼­ Äù½ºÆ® ¿Ï·á Á¶°Ç È®ÀÎ ½Ã »ç¿ëµË´Ï´Ù.
+    /// ì¸ë²¤í† ë¦¬ì— íŠ¹ì • ì•„ì´í…œì´ í•„ìš”í•œ ê°œìˆ˜ë§Œí¼ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+    /// QuestManagerì—ì„œ í€˜ìŠ¤íŠ¸ ì™„ë£Œ ì¡°ê±´ í™•ì¸ ì‹œ ì‚¬ìš©ë©ë‹ˆë‹¤.
     /// </summary>
-    public bool HasItem(int itemID, int requiredAmount) // string -> int º¯°æ
+    public bool HasItem(int itemID, int requiredAmount) // string -> int ë³€ê²½
     {
         return GetItemCount(itemID) >= requiredAmount;
     }
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡¼­ Æ¯Á¤ ¾ÆÀÌÅÛÀÇ ÃÑ °³¼ö¸¦ °è»êÇÕ´Ï´Ù.
+    /// ì¸ë²¤í† ë¦¬ì—ì„œ íŠ¹ì • ì•„ì´í…œì˜ ì´ ê°œìˆ˜ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
     /// </summary>
-    public int GetItemCount(int itemID) // string -> int º¯°æ
+    public int GetItemCount(int itemID) // string -> int ë³€ê²½
     {
         int totalCount = 0;
         foreach (var itemData in inventoryData.inventoryItems)
         {
-            if (itemData.itemSO.itemID == itemID) // int ID »ç¿ë
+            if (itemData.itemSO.itemID == itemID) // int ID ì‚¬ìš©
             {
                 totalCount += itemData.stackCount;
             }
@@ -164,13 +180,13 @@ public class InventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¼Ò¸ğ ¾ÆÀÌÅÛÀ» »ç¿ëÇÏ°í ÀÎº¥Åä¸®¿¡¼­ Á¦°ÅÇÕ´Ï´Ù.
+    /// ì†Œëª¨ ì•„ì´í…œì„ ì‚¬ìš©í•˜ê³  ì¸ë²¤í† ë¦¬ì—ì„œ ì œê±°í•©ë‹ˆë‹¤.
     /// </summary>
     public void UseItem(ConsumableItemSO itemToUse)
     {
         if (itemToUse == null || playerCharacter == null)
         {
-            Debug.LogError("¾ÆÀÌÅÛ ¶Ç´Â ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ°¡ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù.");
+            Debug.LogError("ì•„ì´í…œ ë˜ëŠ” í”Œë ˆì´ì–´ ìºë¦­í„°ê°€ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -179,7 +195,7 @@ public class InventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®¿¡¼­ ¹ö¸³´Ï´Ù.
+    /// ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ì—ì„œ ë²„ë¦½ë‹ˆë‹¤.
     /// </summary>
     public void DiscardItem(BaseItemSO itemToRemove, int amount)
     {
@@ -188,7 +204,7 @@ public class InventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ÀÎº¥Åä¸®ÀÇ ¾ÆÀÌÅÛ ¸®½ºÆ®¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+    /// í˜„ì¬ ì¸ë²¤í† ë¦¬ì˜ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public List<ItemData> GetInventoryItems()
     {
@@ -196,13 +212,13 @@ public class InventoryManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ÀåÂøµÈ ¾ÆÀÌÅÛ µ¥ÀÌÅÍ¸¦ °¡Á®¿É´Ï´Ù. (PlayerEquipmentManager¿¡¼­ ÂüÁ¶ÇÒ ¶§ »ç¿ë)
+    /// í˜„ì¬ ì¥ì°©ëœ ì•„ì´í…œ ë°ì´í„°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤. (PlayerEquipmentManagerì—ì„œ ì°¸ì¡°í•  ë•Œ ì‚¬ìš©)
     /// </summary>
     public Dictionary<EquipSlot, EquipmentItemSO> GetEquippedItems()
     {
         if (playerCharacter == null || playerCharacter.playerEquipmentManager == null)
         {
-            Debug.LogError("PlayerEquipmentManager¿¡ Á¢±ÙÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("PlayerEquipmentManagerì— ì ‘ê·¼í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return null;
         }
         return playerCharacter.playerEquipmentManager.GetEquippedItems();

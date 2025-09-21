@@ -4,6 +4,7 @@ using TMPro;
 /// <summary>
 /// 퀘스트 목록 UI에 표시되는 개별 항목을 관리하는 스크립트입니다.
 /// 퀘스트 이름과 현재 상태를 표시하고, 버튼 클릭 이벤트를 처리합니다.
+/// SOLID: 단일 책임 원칙 (UI 항목 표시).
 /// </summary>
 public class QuestListItem : MonoBehaviour
 {
@@ -40,7 +41,6 @@ public class QuestListItem : MonoBehaviour
 
         if (questStatusText != null)
         {
-            // 퀘스트 상태에 따라 다른 텍스트와 색상을 적용합니다.
             string statusText = GetStatusText(state);
             questStatusText.text = statusText;
             questStatusText.color = GetStatusColor(state);
@@ -60,6 +60,9 @@ public class QuestListItem : MonoBehaviour
                 return "진행 가능";
             case QuestState.Accepted:
                 return "진행 중";
+            // 새로 추가된 상태
+            case QuestState.ReadyToComplete:
+                return "완료 가능";
             case QuestState.Completed:
                 return "완료";
             default:
@@ -80,8 +83,11 @@ public class QuestListItem : MonoBehaviour
                 return Color.green; // 진행 가능
             case QuestState.Accepted:
                 return Color.yellow; // 진행 중
+            // 새로 추가된 상태
+            case QuestState.ReadyToComplete:
+                return Color.cyan; // 완료 가능 (완료 상태와 다른 색상)
             case QuestState.Completed:
-                return Color.cyan; // 완료
+                return Color.gray; // 완료 (회색으로 비활성화 느낌)
             default:
                 return Color.white;
         }

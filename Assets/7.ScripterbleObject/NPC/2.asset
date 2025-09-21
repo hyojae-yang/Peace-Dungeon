@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 670d9726321f0054c99e5763332ebb59, type: 3}
   m_Name: 2
   m_EditorClassIdentifier: 
+  npcID: 2
   npcName: "\uC774\uC21C\uB355"
   npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uC5B4\uBA38\uB2C8,\uB9C8\uC744
     \uC18C\uBB38\uC5D0 \uBE60\uC0AD\uD558\uBA70 \uBC15\uC694\uB9AC\uC640 \uC808\uCE5C"
@@ -20,29 +21,72 @@ MonoBehaviour:
     relationshipType: "\uB538"
   - targetNPCName: "\uC7A5\uD544\uC218"
     relationshipType: "\uB0A8\uD3B8"
-  playerAffection: 0
+  playerAffection: -100
   dialogueGroups:
   - questState: 0
     questID: 0
     interactionDialogue:
-    - minAffection: 0
-      maxAffection: 0
+    - minAffection: -100
+      maxAffection: -90
       dialogueTexts:
       - "\uB204\uAD6C\uC138\uC694?"
-    generalDialogues: []
-  - questState: 2
-    questID: 0
-    interactionDialogue:
-    - minAffection: 0
-      maxAffection: 0
+    - minAffection: -90
+      maxAffection: -80
       dialogueTexts:
-      - 
-    generalDialogues: []
+      - "\uBC18\uAC00\uC6CC\uC694 \uC232\uC740 \uC548\uC804\uD55C\uAC00\uC694?"
+    - minAffection: -40
+      maxAffection: -25
+      dialogueTexts:
+      - "\uC5B4\uB514 \uB2E4\uCE5C\uACF3\uC740 \uC5C6\uB098\uC694?"
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: -90
+      dialogueTexts:
+      - "\uB0A0\uC528\uAC00 \uC88B\uB124\uC694 \uC774\uB7F0 \uB0A0\uC740 \uC232\uC5D0\uC11C
+        \uC0B0\uCC45\uC774\uB77C\uB3C4 \uD574\uC57C\uD558\uB294\uB370..."
+      - "\uC5B4\uCA4C\uB2E4 \uC6B0\uB9AC\uB9C8\uC744\uC774 \uC774\uB807\uAC8C \uB41C\uAC74\uC9C0..."
+  - questState: 2
+    questID: 1
+    interactionDialogue: []
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uD639\uC2DC \uBC14\uC058\uC2E0\uAC00\uC694?"
+      - "\uB2E4\uB984\uC774 \uC544\uB2C8\uB77C \uC7A1\uD654\uC810\uC5D0 \uB3C4\uD1A0\uB9AC\uC7AC\uACE0\uAC00
+        \uBD80\uC871\uD55C\uB370 \uAD6C\uD574\uC8FC\uC2E4 \uC218 \uC788\uC744\uAE4C\uC694?"
+      - "\uC81C\uAC00 \uAC00\uBA74 \uC88B\uACA0\uC9C0\uB9CC \uC544\uC2DC\uB2E4\uC2DC\uD53C
+        \uC232\uC774 \uC704\uD5D8\uD574\uC838\uC11C \uC27D\uC9C0\uC54A\uB124\uC694"
+      - "\uB9CE\uC774\uB294 \uC544\uB2C8\uACE0 10\uAC1C \uC815\uB3C4\uB9CC \uC788\uC73C\uBA74
+        \uC801\uB2F9\uD560 \uAC83 \uAC19\uC544\uC694"
   - questState: 3
-    questID: 0
+    questID: 1
     interactionDialogue: []
-    generalDialogues: []
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uC5ED\uC2DC \uBC14\uC058\uC168\uB358 \uAC74\uAC00\uC694..."
+      - "\uC5B4\uCA54 \uC218 \uC5C6\uC8E0 \uB2E4\uC74C\uC5D0 \uC2DC\uAC04 \uB0A0\uB54C
+        \uB3C4\uC640\uC8FC\uC2DC\uBA74 \uC88B\uC744 \uAC83 \uAC19\uC544\uC694"
   - questState: 4
-    questID: 0
+    questID: 1
     interactionDialogue: []
-    generalDialogues: []
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uAD6C\uD574\uC624\uC2E0\uAC74\uAC00\uC694??\uBC14\uC058\uC2E4\uD150\uB370
+        \uAC10\uC0AC\uD569\uB2C8\uB2E4!"
+      - "\uBCC4\uAC74 \uC544\uB2C8\uC9C0\uB9CC \uC131\uC758\uB77C\uACE0 \uC0DD\uAC01\uD558\uACE0
+        \uBC1B\uC544\uC8FC\uC138\uC694"
+  - questState: 5
+    questID: 1
+    interactionDialogue: []
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uB3C4\uD1A0\uB9AC\uB294 \uAC10\uC0AC\uD588\uC2B5\uB2C8\uB2E4."
+      - "\uD639\uC2DC\uB77C\uB3C4 \uC2DC\uAC04\uB098\uBA74 \uB610 \uBD80\uD0C1\uB4DC\uB9B4\uAC8C\uC694.\uB3C4\uD1A0\uB9AC\uB294
+        \uC5B8\uC81C\uB098 \uD658\uC601\uC774\uC5D0\uC694!"

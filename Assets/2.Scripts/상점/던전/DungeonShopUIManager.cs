@@ -92,7 +92,7 @@ public class DungeonShopUIManager : MonoBehaviour
         if (dungeonCoinText != null)
         {
             int currentCoins = dungeonShopManager.GetDungeonCoinCount();
-            dungeonCoinText.text = currentCoins.ToString();
+            dungeonCoinText.text = $"ÄÚÀÎ{currentCoins.ToString()}°³";
         }
     }
 }

@@ -83,12 +83,12 @@ public class ItemGiver : MonoBehaviour
     private void GiveConsumableItem()
     {
         // 템플릿이 소모품 아이템인지 확인합니다.
-        ConsumableItemSO consumeTemplate = itemTemplate as ConsumableItemSO;
+        BaseItemSO consumeTemplate = itemTemplate as BaseItemSO;
 
         if (consumeTemplate != null && playerCharacter.inventoryManager != null)
         {
             // 소모품 아이템은 별도의 생성 로직 없이 복제하여 인벤토리에 추가합니다.
-            ConsumableItemSO newItem = Instantiate(consumeTemplate);
+            BaseItemSO newItem = Instantiate(consumeTemplate);
 
             // 생성된 아이템을 인벤토리에 추가합니다.
             playerCharacter.inventoryManager.AddItem(newItem, 1);

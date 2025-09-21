@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 670d9726321f0054c99e5763332ebb59, type: 3}
   m_Name: 3
   m_EditorClassIdentifier: 
+  npcID: 3
   npcName: "\uC7A5\uBCF4\uB78C"
   npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uB538,\uD638\uAE30\uC2EC\uC774
     \uB9CE\uC544\uC11C \uB358\uC804\uC5D0 \uAD00\uC2EC\uC774 \uB9CE\uB2E4."
@@ -20,4 +21,13 @@ MonoBehaviour:
     relationshipType: "\uC5B4\uBA38\uB2C8"
   - targetNPCName: "\uC7A5\uD544\uC218"
     relationshipType: "\uC544\uBC84\uC9C0"
-  playerAffection: 0
+  playerAffection: -100
+  dialogueGroups:
+  - questState: 0
+    questID: 0
+    interactionDialogue:
+    - minAffection: -100
+      maxAffection: -80
+      dialogueTexts:
+      - "\uB108\uB294 \uB204\uAD6C\uC57C?"
+    generalDialogues: []

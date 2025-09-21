@@ -24,4 +24,7 @@ public class QuestItemSO : BaseItemSO
     {
         return questID;
     }
+    [Tooltip("한 슬롯에 쌓을 수 있는 최대 개수입니다.")]
+    public int maxStackCount = 99;
+    public override int maxStack => maxStackCount;
 }

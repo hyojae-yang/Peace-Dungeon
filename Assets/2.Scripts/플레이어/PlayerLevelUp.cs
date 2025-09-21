@@ -111,7 +111,5 @@ public class PlayerLevelUp : MonoBehaviour
         // 체력 및 마나 회복 (기존 로직 유지)
         playerCharacter.playerStats.health = playerCharacter.playerStats.MaxHealth;
         playerCharacter.playerStats.mana = playerCharacter.playerStats.MaxMana;
-
-        Debug.Log($"축하합니다! 레벨 {playerCharacter.playerStats.level}로 레벨업했습니다!");
     }
 }

@@ -11,6 +11,7 @@ TagManager:
   - DungeonUIItem
   - Door
   - Monster
+  - NPC
   layers:
   - Default
   - TransparentFX

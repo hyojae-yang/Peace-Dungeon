@@ -39,6 +39,10 @@ public class TownMap : MonoBehaviour
 
     private void Update()
     {
+        if (MainSceneManager.Instance != null && !MainSceneManager.Instance.isDungeonCanvasActive)
+        {
+            return; // 던전 캔버스가 활성화된 경우 드래그 및 회전 기능 활성화
+        }
         if (isDragging)
         {
             if (Input.GetMouseButtonDown(1))

@@ -1,32 +1,33 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 /// <summary>
-/// ½ÇÁ¦ NPC °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÎÂøµÇ´Â ¸ŞÀÎ ½ºÅ©¸³Æ®.
-/// NPCData¸¦ ÂüÁ¶ÇÏ¿© °íÀ¯ÇÑ Á¤º¸¸¦ °¡Áö°í, ´Ù¸¥ ÄÄÆ÷³ÍÆ®(ÀÌµ¿, »óÈ£ÀÛ¿ë)¿Í ¿¬µ¿ÇÕ´Ï´Ù.
-/// NPCManager¸¦ ÅëÇØ µ¿Àû µ¥ÀÌÅÍ¿¡ Á¢±ÙÇÏ°í, ±â´É ÄÄÆ÷³ÍÆ® À¯¹«¸¦ È®ÀÎÇÏ´Â ±â´ÉÀ» Á¦°øÇÕ´Ï´Ù.
+/// ì‹¤ì œ NPC ê²Œì„ ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©ë˜ëŠ” ë©”ì¸ ìŠ¤í¬ë¦½íŠ¸.
+/// NPCDataë¥¼ ì°¸ì¡°í•˜ì—¬ ê³ ìœ í•œ ì •ë³´ë¥¼ ê°€ì§€ê³ , ë‹¤ë¥¸ ì»´í¬ë„ŒíŠ¸(ì´ë™, ìƒí˜¸ì‘ìš©)ì™€ ì—°ë™í•©ë‹ˆë‹¤.
+/// NPCManagerë¥¼ í†µí•´ ë™ì  ë°ì´í„°ì— ì ‘ê·¼í•˜ê³ , ê¸°ëŠ¥ ì»´í¬ë„ŒíŠ¸ ìœ ë¬´ë¥¼ í™•ì¸í•˜ëŠ” ê¸°ëŠ¥ì„ ì œê³µí•©ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™(NPCì˜ í•µì‹¬ ë°ì´í„° ë° ì»´í¬ë„ŒíŠ¸ ê´€ë¦¬), ê°œë°©-íì‡„ ì›ì¹™(ê¸°ëŠ¥ í™•ì¥)
 /// </summary>
 public class NPC : MonoBehaviour
 {
-    // ÀÌ NPCÀÇ °íÀ¯ µ¥ÀÌÅÍ¸¦ ´ã´Â ScriptableObject.
-    [Tooltip("ÀÌ NPC¿¡ ´ëÇÑ °íÀ¯ µ¥ÀÌÅÍ(ScriptableObject)¸¦ ÇÒ´çÇÕ´Ï´Ù.")]
+    // ì´ NPCì˜ ê³ ìœ  ë°ì´í„°ë¥¼ ë‹´ëŠ” ScriptableObject.
+    [Tooltip("ì´ NPCì— ëŒ€í•œ ê³ ìœ  ë°ì´í„°(ScriptableObject)ë¥¼ í• ë‹¹í•©ë‹ˆë‹¤.")]
     [SerializeField]
     private NPCData npcData;
 
-    // NPCÀÇ ÀÌµ¿À» ´ã´çÇÏ´Â ÄÄÆ÷³ÍÆ®.
+    // NPCì˜ ì´ë™ì„ ë‹´ë‹¹í•˜ëŠ” ì»´í¬ë„ŒíŠ¸.
     private NPCMovement npcMovement;
-
-    // NPC¿Í ÇÃ·¹ÀÌ¾î °£ÀÇ »óÈ£ÀÛ¿ëÀ» ´ã´çÇÏ´Â ÄÄÆ÷³ÍÆ®.
+    // NPCì™€ í”Œë ˆì´ì–´ ê°„ì˜ ìƒí˜¸ì‘ìš©ì„ ë‹´ë‹¹í•˜ëŠ” ì»´í¬ë„ŒíŠ¸.
     private NPCInteraction npcInteraction;
-
-    // Äù½ºÆ® ±â´ÉÀ» ´ã´çÇÏ´Â ÄÄÆ÷³ÍÆ®.
+    // í€˜ìŠ¤íŠ¸ ê¸°ëŠ¥ì„ ë‹´ë‹¹í•˜ëŠ” ì»´í¬ë„ŒíŠ¸.
     private QuestGiver questGiver;
 
-    // »óÁ¡ ±â´ÉÀ» ´ã´çÇÏ´Â ÄÄÆ÷³ÍÆ®.
-    private ShopManager shopManager;
+    // íŠ¹ìˆ˜ ê¸°ëŠ¥ ë¦¬ìŠ¤íŠ¸ëŠ” ì´ì œ NPCManagerê°€ ê´€ë¦¬í•˜ë¯€ë¡œ ì œê±°í•©ë‹ˆë‹¤.
+    // private List<INPCFunction> specialFunctions;
+
 
     /// <summary>
-    /// NPCÀÇ °íÀ¯ µ¥ÀÌÅÍ¸¦ °¡Á®¿À´Â ÇÁ·ÎÆÛÆ¼. ¿ÜºÎ¿¡¼­ ÀĞ±â Àü¿ëÀ¸·Î »ç¿ëÇÕ´Ï´Ù.
+    /// NPCì˜ ê³ ìœ  ë°ì´í„°ë¥¼ ê°€ì ¸ì˜¤ëŠ” í”„ë¡œí¼í‹°. ì™¸ë¶€ì—ì„œ ì½ê¸° ì „ìš©ìœ¼ë¡œ ì‚¬ìš©í•©ë‹ˆë‹¤.
     /// </summary>
     public NPCData Data
     {
@@ -34,7 +35,7 @@ public class NPC : MonoBehaviour
     }
 
     /// <summary>
-    /// NPCÀÇ Äù½ºÆ® Á¦°øÀÚ ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿À´Â ÇÁ·ÎÆÛÆ¼. ¿ÜºÎ¿¡¼­ ÀĞ±â Àü¿ëÀ¸·Î »ç¿ëÇÕ´Ï´Ù.
+    /// NPCì˜ í€˜ìŠ¤íŠ¸ ì œê³µì ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜¤ëŠ” í”„ë¡œí¼í‹°. ì™¸ë¶€ì—ì„œ ì½ê¸° ì „ìš©ìœ¼ë¡œ ì‚¬ìš©í•©ë‹ˆë‹¤.
     /// </summary>
     public QuestGiver QuestGiver
     {
@@ -42,26 +43,30 @@ public class NPC : MonoBehaviour
     }
 
     /// <summary>
-    /// MonoBehaviourÀÇ Awake ¸Ş¼­µå. ½ºÅ©¸³Æ®°¡ ·ÎµåµÉ ¶§ ÄÄÆ÷³ÍÆ®µéÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// MonoBehaviourì˜ Awake ë©”ì„œë“œ. ìŠ¤í¬ë¦½íŠ¸ê°€ ë¡œë“œë  ë•Œ ì»´í¬ë„ŒíŠ¸ë“¤ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     private void Awake()
     {
+        // ê¸°ì¡´ ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°ëŠ” ìœ ì§€í•©ë‹ˆë‹¤.
         npcMovement = GetComponent<NPCMovement>();
         npcInteraction = GetComponent<NPCInteraction>();
         questGiver = GetComponent<QuestGiver>();
-        shopManager = GetComponent<ShopManager>();
 
+        // NPCDataê°€ í• ë‹¹ë˜ì—ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (npcData == null)
         {
-            Debug.LogError("NPCData°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù! NPC: " + this.gameObject.name);
+            Debug.LogError("NPCDataê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤! NPC: " + this.gameObject.name);
         }
+
+        // NPCManagerê°€ íŠ¹ìˆ˜ ê¸°ëŠ¥ì„ ê´€ë¦¬í•˜ë¯€ë¡œ ì´ ë¡œì§ì€ ì œê±°í•©ë‹ˆë‹¤.
+        // specialFunctions = GetComponentsInChildren<INPCFunction>().ToList();
     }
 
     /// <summary>
-    /// NPCÀÇ ÇöÀç È£°¨µµ¿¡ Á¢±ÙÇÏ´Â ¸Ş¼­µå.
-    /// NPCManager¸¦ ÅëÇØ µ¿Àû µ¥ÀÌÅÍ¸¦ °¡Á®¿É´Ï´Ù.
+    /// NPCì˜ í˜„ì¬ í˜¸ê°ë„ì— ì ‘ê·¼í•˜ëŠ” ë©”ì„œë“œ.
+    /// NPCManagerë¥¼ í†µí•´ ë™ì  ë°ì´í„°ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
     /// </summary>
-    /// <returns>ÇöÀç ÇÃ·¹ÀÌ¾î¿¡ ´ëÇÑ È£°¨µµ °ª</returns>
+    /// <returns>í˜„ì¬ í”Œë ˆì´ì–´ì— ëŒ€í•œ í˜¸ê°ë„ ê°’</returns>
     public int GetAffection()
     {
         if (NPCManager.Instance != null && Data != null)
@@ -72,10 +77,10 @@ public class NPC : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾îÀÇ Çàµ¿¿¡ µû¶ó È£°¨µµ¸¦ º¯°æÇÏ´Â ¸Ş¼­µå.
-    /// NPCManager¸¦ ÅëÇØ µ¿Àû µ¥ÀÌÅÍ¸¦ º¯°æÇÕ´Ï´Ù.
+    /// í”Œë ˆì´ì–´ì˜ í–‰ë™ì— ë”°ë¼ í˜¸ê°ë„ë¥¼ ë³€ê²½í•˜ëŠ” ë©”ì„œë“œ.
+    /// NPCManagerë¥¼ í†µí•´ ë™ì  ë°ì´í„°ë¥¼ ë³€ê²½í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="value">º¯°æÇÒ È£°¨µµ °ª (Áõ°¡: ¾ç¼ö, °¨¼Ò: À½¼ö)</param>
+    /// <param name="value">ë³€ê²½í•  í˜¸ê°ë„ ê°’ (ì¦ê°€: ì–‘ìˆ˜, ê°ì†Œ: ìŒìˆ˜)</param>
     public void ChangeAffection(int value)
     {
         if (NPCManager.Instance != null && Data != null)
@@ -85,44 +90,48 @@ public class NPC : MonoBehaviour
     }
 
     /// <summary>
-    /// NPC°¡ Æ¯Á¤ ÄÄÆ÷³ÍÆ®¸¦ °¡Áö°í ÀÖ´ÂÁö È®ÀÎÇÏ´Â Á¦³×¸¯ ¸Ş¼­µå.
+    /// NPCê°€ íŠ¹ì • ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì§€ê³  ìˆëŠ”ì§€ í™•ì¸í•˜ëŠ” ì œë„¤ë¦­ ë©”ì„œë“œ.
     /// </summary>
-    /// <typeparam name="T">È®ÀÎÇÒ ÄÄÆ÷³ÍÆ® Å¸ÀÔ</typeparam>
-    /// <returns>ÄÄÆ÷³ÍÆ®°¡ Á¸ÀçÇÏ¸é true, ¾Æ´Ï¸é false.</returns>
+    /// <typeparam name="T">í™•ì¸í•  ì»´í¬ë„ŒíŠ¸ íƒ€ì…</typeparam>
+    /// <returns>ì»´í¬ë„ŒíŠ¸ê°€ ì¡´ì¬í•˜ë©´ true, ì•„ë‹ˆë©´ false.</returns>
     public bool HasComponent<T>() where T : Component
     {
         return GetComponent<T>() != null;
     }
 
     /// <summary>
-    /// NPC°¡ Äù½ºÆ® ±â´ÉÀ» °¡Áö°í ÀÖ´ÂÁö È®ÀÎÇÏ´Â ¸Ş¼­µå.
+    /// NPCê°€ í€˜ìŠ¤íŠ¸ ê¸°ëŠ¥ì„ ê°€ì§€ê³  ìˆëŠ”ì§€ í™•ì¸í•˜ëŠ” ë©”ì„œë“œ.
     /// </summary>
-    /// <returns>Äù½ºÆ® ±â´É ÄÄÆ÷³ÍÆ®°¡ Á¸ÀçÇÏ¸é true, ¾Æ´Ï¸é false.</returns>
+    /// <returns>í€˜ìŠ¤íŠ¸ ê¸°ëŠ¥ ì»´í¬ë„ŒíŠ¸ê°€ ì¡´ì¬í•˜ë©´ true, ì•„ë‹ˆë©´ false.</returns>
     public bool HasQuestGiver()
     {
         return questGiver != null;
     }
 
     /// <summary>
-    /// NPC°¡ Æ¯¼ö ±â´ÉÀ» °¡Áö°í ÀÖ´ÂÁö È®ÀÎÇÏ´Â ¸Ş¼­µå.
+    /// ì´ NPCê°€ íŠ¹ìˆ˜ ê¸°ëŠ¥ì„ ê°€ì§€ê³  ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+    /// ì´ì œ NPCManagerì—ê²Œ íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ì´ ìˆëŠ”ì§€ ìš”ì²­í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <returns>ÇÏ³ª ÀÌ»óÀÇ Æ¯¼ö ±â´É ÄÄÆ÷³ÍÆ®°¡ Á¸ÀçÇÏ¸é true, ¾Æ´Ï¸é false.</returns>
+    /// <returns>í•˜ë‚˜ ì´ìƒì˜ íŠ¹ìˆ˜ ê¸°ëŠ¥ ì»´í¬ë„ŒíŠ¸ê°€ ì¡´ì¬í•˜ë©´ true, ì•„ë‹ˆë©´ false.</returns>
     public bool HasSpecialFunction()
     {
-        // »óÁ¡, ´ëÀå°£ µî Æ¯¼ö ±â´É ÄÄÆ÷³ÍÆ®µéÀ» ¿©±â¿¡ Ãß°¡
-        return shopManager != null;
+        // NPCManagerì— íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ì´ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        List<INPCFunction> functions = GetSpecialFunctions();
+        return functions != null && functions.Count > 0;
     }
 
     /// <summary>
-    /// Æ¯¼ö ¹öÆ°¿¡ Ç¥½ÃµÉ ÀÌ¸§À» ¹İÈ¯ÇÏ´Â ¸Ş¼­µå.
+    /// NPCê°€ ê°€ì§„ ëª¨ë“  íŠ¹ìˆ˜ ê¸°ëŠ¥ ì»´í¬ë„ŒíŠ¸ì˜ ëª©ë¡ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// ì´ì œ NPCManagerì—ê²Œ ìš”ì²­í•˜ì—¬ ê°€ì ¸ì˜µë‹ˆë‹¤.
     /// </summary>
-    /// <returns>NPC°¡ °¡Áø Æ¯¼ö ±â´É¿¡ ÇØ´çÇÏ´Â ÀÌ¸§. ±â´ÉÀÌ ¾øÀ¸¸é ºó ¹®ÀÚ¿­ ¹İÈ¯.</returns>
-    public string GetSpecialButtonName()
+    /// <returns>INPCFunction ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í•˜ëŠ” ëª¨ë“  ì»´í¬ë„ŒíŠ¸ì˜ ë¦¬ìŠ¤íŠ¸.</returns>
+    public List<INPCFunction> GetSpecialFunctions()
     {
-        if (shopManager != null)
+        // NPCManager ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸í•˜ê³ , NPCManagerë¡œë¶€í„° íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
+        if (NPCManager.Instance != null && Data != null)
         {
-            return "»óÁ¡";
+            return NPCManager.Instance.GetSpecialFunctions(Data.npcName);
         }
-        return "";
+        return new List<INPCFunction>();
     }
 }

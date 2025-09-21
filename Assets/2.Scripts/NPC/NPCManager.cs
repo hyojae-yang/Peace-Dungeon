@@ -1,27 +1,35 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// ¸ğµç NPCµéÀÇ µ¿Àû µ¥ÀÌÅÍ¸¦ Áß¾Ó¿¡¼­ °ü¸®ÇÏ´Â ½Ì±ÛÅÏ Å¬·¡½ºÀÔ´Ï´Ù.
-/// °ÔÀÓ ·Îµù ¹× ÀúÀå ½Ã µ¥ÀÌÅÍ Ã³¸®¸¦ ´ã´çÇÕ´Ï´Ù.
+/// ëª¨ë“  NPCë“¤ì˜ ë™ì  ë°ì´í„°ë¥¼ ì¤‘ì•™ì—ì„œ ê´€ë¦¬í•˜ëŠ” ì‹±ê¸€í„´ í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// ê²Œì„ ë¡œë”© ë° ì €ì¥ ì‹œ ë°ì´í„° ì²˜ë¦¬ë¥¼ ë‹´ë‹¹í•˜ë©°, NPCì˜ íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ë„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (ëª¨ë“  NPC ë°ì´í„°ì˜ ì¤‘ì•™ ê´€ë¦¬)
 /// </summary>
 public class NPCManager : MonoBehaviour
 {
-    // NPCManagerÀÇ ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º
+    // NPCManagerì˜ ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤
     public static NPCManager Instance { get; private set; }
 
-    // ¸ğµç NPCÀÇ ½ºÅ©¸³ÅÍºí ¿ÀºêÁ§Æ® ¸ñ·Ï
-    [Tooltip("¸ğµç NPC µ¥ÀÌÅÍ ScriptableObject¸¦ ¿©±â¿¡ ÇÒ´çÇÏ¼¼¿ä.")]
+    // ëª¨ë“  NPCì˜ ìŠ¤í¬ë¦½í„°ë¸” ì˜¤ë¸Œì íŠ¸ ëª©ë¡
+    [Tooltip("ëª¨ë“  NPC ë°ì´í„° ScriptableObjectë¥¼ ì—¬ê¸°ì— í• ë‹¹í•˜ì„¸ìš”.")]
     [SerializeField]
     private List<NPCData> allNPCsData;
 
-    // °ÔÀÓ ¼¼¼Ç µ¿¾È º¯°æµÇ´Â NPCµéÀÇ µ¿Àû µ¥ÀÌÅÍ
-    // Key: NPCÀÇ °íÀ¯ ID (npcName), Value: ÇØ´ç NPCÀÇ µ¿Àû µ¥ÀÌÅÍ ÀÎ½ºÅÏ½º
+    // ê²Œì„ ì„¸ì…˜ ë™ì•ˆ ë³€ê²½ë˜ëŠ” NPCë“¤ì˜ ë™ì  ë°ì´í„°
+    // Key: NPCì˜ ê³ ìœ  ID (npcName), Value: í•´ë‹¹ NPCì˜ ë™ì  ë°ì´í„° ì¸ìŠ¤í„´ìŠ¤
     private Dictionary<string, NPCSessionData> npcSessionDataMap = new Dictionary<string, NPCSessionData>();
+
+    //----------------------------------------------------------------------------------------------------------------
+    // ìƒˆë¡œìš´ ê¸°ëŠ¥: NPC íŠ¹ìˆ˜ ê¸°ëŠ¥ ê´€ë¦¬
+    //----------------------------------------------------------------------------------------------------------------
+
+    // NPCì˜ ì´ë¦„(ê³ ìœ  ID)ì„ í‚¤ë¡œ, í•´ë‹¹ NPCê°€ ê°€ì§„ íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ì„ ê°’ìœ¼ë¡œ ì €ì¥í•˜ëŠ” ë”•ì…”ë„ˆë¦¬ì…ë‹ˆë‹¤.
+    private Dictionary<string, List<INPCFunction>> specialFunctionMap = new Dictionary<string, List<INPCFunction>>();
 
     private void Awake()
     {
-        // ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ÃÊ±âÈ­
+        // ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ì´ˆê¸°í™”
         if (Instance == null)
         {
             Instance = this;
@@ -34,8 +42,8 @@ public class NPCManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ¸ğµç NPC µ¥ÀÌÅÍ·ÎºÎÅÍ ¼¼¼Ç µ¥ÀÌÅÍ¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
-    /// °ÔÀÓ ½ÃÀÛ ½Ã ÇÑ ¹ø È£ÃâµÇ¾î ¸ğµç NPCÀÇ µ¿Àû µ¥ÀÌÅÍ ÀÎ½ºÅÏ½º¸¦ »ı¼ºÇÕ´Ï´Ù.
+    /// ëª¨ë“  NPC ë°ì´í„°ë¡œë¶€í„° ì„¸ì…˜ ë°ì´í„°ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
+    /// ê²Œì„ ì‹œì‘ ì‹œ í•œ ë²ˆ í˜¸ì¶œë˜ì–´ ëª¨ë“  NPCì˜ ë™ì  ë°ì´í„° ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
     /// </summary>
     private void InitializeSessionData()
     {
@@ -43,49 +51,85 @@ public class NPCManager : MonoBehaviour
         {
             if (data != null && !npcSessionDataMap.ContainsKey(data.npcName))
             {
-                // NPCData·ÎºÎÅÍ ÃÊ±â È£°¨µµ °ªÀ» °¡Á®¿Í »õ ÀÎ½ºÅÏ½º¸¦ »ı¼ºÇÕ´Ï´Ù.
+                // NPCDataë¡œë¶€í„° ì´ˆê¸° í˜¸ê°ë„ ê°’ì„ ê°€ì ¸ì™€ ìƒˆ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
                 NPCSessionData sessionData = new NPCSessionData(data.npcName, data.playerAffection);
                 npcSessionDataMap[data.npcName] = sessionData;
             }
         }
-        Debug.Log("¸ğµç NPC ¼¼¼Ç µ¥ÀÌÅÍ°¡ ÃÊ±âÈ­µÇ¾ú½À´Ï´Ù.");
     }
 
     /// <summary>
-    /// Æ¯Á¤ NPCÀÇ ÇöÀç È£°¨µµ °ªÀ» °¡Á®¿É´Ï´Ù.
+    /// íŠ¹ì • NPCì˜ í˜„ì¬ í˜¸ê°ë„ ê°’ì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
     /// </summary>
-    /// <param name="npcID">È£°¨µµ¸¦ °¡Á®¿Ã NPCÀÇ °íÀ¯ ID (npcName)</param>
-    /// <returns>ÇØ´ç NPCÀÇ ÇöÀç È£°¨µµ. µ¥ÀÌÅÍ°¡ ¾øÀ¸¸é ±âº»°ªÀÎ 0À» ¹İÈ¯ÇÕ´Ï´Ù.</returns>
+    /// <param name="npcID">í˜¸ê°ë„ë¥¼ ê°€ì ¸ì˜¬ NPCì˜ ê³ ìœ  ID (npcName)</param>
+    /// <returns>í•´ë‹¹ NPCì˜ í˜„ì¬ í˜¸ê°ë„. ë°ì´í„°ê°€ ì—†ìœ¼ë©´ ê¸°ë³¸ê°’ì¸ 0ì„ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
     public int GetAffection(string npcID)
     {
         if (npcSessionDataMap.TryGetValue(npcID, out NPCSessionData data))
         {
             return data.playerAffection;
         }
-        Debug.LogWarning($"NPC ID '{npcID}'¿¡ ´ëÇÑ ¼¼¼Ç µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù.");
         return 0;
     }
 
     /// <summary>
-    /// Æ¯Á¤ NPCÀÇ È£°¨µµ¸¦ º¯°æÇÕ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â °ÔÀÓ ÇÃ·¹ÀÌ Áß È£°¨µµ¸¦ Á¶ÀÛÇÒ ¶§ »ç¿ëµË´Ï´Ù.
+    /// íŠ¹ì • NPCì˜ í˜¸ê°ë„ë¥¼ ë³€ê²½í•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” ê²Œì„ í”Œë ˆì´ ì¤‘ í˜¸ê°ë„ë¥¼ ì¡°ì‘í•  ë•Œ ì‚¬ìš©ë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="npcID">È£°¨µµ¸¦ º¯°æÇÒ NPCÀÇ °íÀ¯ ID (npcName)</param>
-    /// <param name="value">º¯°æÇÒ È£°¨µµ °ª (Áõ°¡: ¾ç¼ö, °¨¼Ò: À½¼ö)</param>
+    /// <param name="npcID">í˜¸ê°ë„ë¥¼ ë³€ê²½í•  NPCì˜ ê³ ìœ  ID (npcName)</param>
+    /// <param name="value">ë³€ê²½í•  í˜¸ê°ë„ ê°’ (ì¦ê°€: ì–‘ìˆ˜, ê°ì†Œ: ìŒìˆ˜)</param>
     public void ChangeAffection(string npcID, int value)
     {
         if (npcSessionDataMap.TryGetValue(npcID, out NPCSessionData data))
         {
             data.playerAffection = Mathf.Clamp(data.playerAffection + value, -100, 100);
-            Debug.Log($"NPC '{npcID}'ÀÇ È£°¨µµ°¡ {value}¸¸Å­ º¯°æµÇ¾î ÇöÀç È£°¨µµ´Â {data.playerAffection}ÀÔ´Ï´Ù.");
+            Debug.Log($"NPC '{npcID}'ì˜ í˜¸ê°ë„ê°€ {value}ë§Œí¼ ë³€ê²½ë˜ì–´ í˜„ì¬ í˜¸ê°ë„ëŠ” {data.playerAffection}ì…ë‹ˆë‹¤.");
         }
         else
         {
-            Debug.LogWarning($"NPC ID '{npcID}'¸¦ Ã£À» ¼ö ¾ø¾î È£°¨µµ¸¦ º¯°æÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"NPC ID '{npcID}'ë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ í˜¸ê°ë„ë¥¼ ë³€ê²½í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 
-    // ÀÌ ¿Ü¿¡ ÀúÀå ¹× ·Îµù °ü·Ã ¸Ş¼­µå Ãß°¡ ¿¹Á¤
+    /// <summary>
+    /// ê° íŠ¹ìˆ˜ ê¸°ëŠ¥ ì»´í¬ë„ŒíŠ¸ê°€ ìŠ¤ìŠ¤ë¡œë¥¼ NPCManagerì— ë“±ë¡í•  ë•Œ ì‚¬ìš©í•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” NPCê°€ í™œì„±í™”ë  ë•Œë§ˆë‹¤ í˜¸ì¶œë˜ì–´ ë°ì´í„°ë¥¼ ì•ˆì „í•˜ê²Œ ì €ì¥í•©ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="npcName">ê¸°ëŠ¥ì„ ê°€ì§„ NPCì˜ ê³ ìœ  ì´ë¦„ì…ë‹ˆë‹¤.</param>
+    /// <param name="function">ë“±ë¡í•  INPCFunction ì¸í„°í˜ì´ìŠ¤ ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.</param>
+    public void RegisterSpecialFunction(string npcName, INPCFunction function)
+    {
+        // ë”•ì…”ë„ˆë¦¬ì— í•´ë‹¹ NPC ì´ë¦„ì´ ì•„ì§ ë“±ë¡ë˜ì§€ ì•Šì•˜ë‹¤ë©´, ìƒˆë¡œìš´ ë¦¬ìŠ¤íŠ¸ë¥¼ ë§Œë“­ë‹ˆë‹¤.
+        if (!specialFunctionMap.ContainsKey(npcName))
+        {
+            specialFunctionMap[npcName] = new List<INPCFunction>();
+        }
+
+        // ì´ë¯¸ ë“±ë¡ëœ ê¸°ëŠ¥ì¸ì§€ í™•ì¸í•˜ì—¬ ì¤‘ë³µ ë“±ë¡ì„ ë°©ì§€í•©ë‹ˆë‹¤.
+        if (!specialFunctionMap[npcName].Contains(function))
+        {
+            specialFunctionMap[npcName].Add(function);
+            Debug.Log($"NPC '{npcName}'ì— íŠ¹ìˆ˜ ê¸°ëŠ¥ '{function.FunctionButtonName}'ì´(ê°€) ë“±ë¡ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        }
+    }
+
+    /// <summary>
+    /// íŠ¹ì • NPCì˜ ëª¨ë“  íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// NPC ìŠ¤í¬ë¦½íŠ¸ê°€ ì´ ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ íŠ¹ìˆ˜ ê¸°ëŠ¥ ì •ë³´ë¥¼ ê°€ì ¸ê°‘ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="npcName">ê¸°ëŠ¥ ëª©ë¡ì„ ìš”ì²­í•  NPCì˜ ì´ë¦„ì…ë‹ˆë‹¤.</param>
+    /// <returns>í•´ë‹¹ NPCì˜ INPCFunction ëª©ë¡ì„ ë°˜í™˜í•©ë‹ˆë‹¤. ì—†ë‹¤ë©´ ë¹„ì–´ìˆëŠ” ë¦¬ìŠ¤íŠ¸ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
+    public List<INPCFunction> GetSpecialFunctions(string npcName)
+    {
+        if (specialFunctionMap.ContainsKey(npcName))
+        {
+            return specialFunctionMap[npcName];
+        }
+        // NPCì— ê¸°ëŠ¥ì´ ì—†ë‹¤ë©´ ë¹ˆ ë¦¬ìŠ¤íŠ¸ë¥¼ ë°˜í™˜í•˜ì—¬ NullReferenceExceptionì„ ë°©ì§€í•©ë‹ˆë‹¤.
+        return new List<INPCFunction>();
+    }
+
+    // ì´ ì™¸ì— ì €ì¥ ë° ë¡œë”© ê´€ë ¨ ë©”ì„œë“œ ì¶”ê°€ ì˜ˆì •
     // public void SaveNPCData() { ... }
     // public void LoadNPCData() { ... }
 }

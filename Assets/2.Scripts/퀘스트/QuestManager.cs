@@ -1,35 +1,40 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
+using System;
 using System.Linq;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾îÀÇ Äù½ºÆ® ÁøÇà »óÅÂ¸¦ °ü¸®ÇÏ´Â ½Ì±ÛÅÏ Å¬·¡½ºÀÔ´Ï´Ù.
-/// QuestManager´Â Äù½ºÆ® ¼ö¶ô, ¿Ï·á, ±×¸®°í ÁøÇà »óÈ² ÃßÀûÀ» ´ã´çÇÕ´Ï´Ù.
+/// í”Œë ˆì´ì–´ì˜ í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒíƒœë¥¼ ê´€ë¦¬í•˜ëŠ” ì‹±ê¸€í„´ í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// QuestManagerëŠ” í€˜ìŠ¤íŠ¸ ìˆ˜ë½, ì™„ë£Œ, ê·¸ë¦¬ê³  ì§„í–‰ ìƒí™© ì¶”ì ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒíƒœ ê´€ë¦¬).
 /// </summary>
+
+// QuestManager.Instance.UpdateQuestProgress(acceptedQuestID, monsterID); // ëª¬ìŠ¤í„° ì²˜ì¹˜ ì‹œ í˜¸ì¶œ ì˜ˆì‹œ
+
 public class QuestManager : MonoBehaviour
 {
     public static QuestManager Instance { get; private set; }
 
-    // ÇÃ·¹ÀÌ¾î°¡ ¼ö¶ôÇÑ Äù½ºÆ® ¸ñ·Ï
+    // í”Œë ˆì´ì–´ê°€ ìˆ˜ë½í•œ í€˜ìŠ¤íŠ¸ ëª©ë¡
     private List<int> acceptedQuests = new List<int>();
-    // ÇÃ·¹ÀÌ¾î°¡ ¿Ï·áÇÑ Äù½ºÆ® ¸ñ·Ï
+    // í”Œë ˆì´ì–´ê°€ ì™„ë£Œí•œ í€˜ìŠ¤íŠ¸ ëª©ë¡
     private List<int> completedQuests = new List<int>();
-    // Äù½ºÆ® ÁøÇà »óÈ²À» ÃßÀûÇÏ´Â µñ¼Å³Ê¸®.
-    // Å°: Äù½ºÆ® ID, °ª: Äù½ºÆ® ¸ñÇ¥ ´Ş¼º »óÈ²
+    // í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™©ì„ ì¶”ì í•˜ëŠ” ë”•ì…”ë„ˆë¦¬.
+    // í‚¤: í€˜ìŠ¤íŠ¸ ID, ê°’: í€˜ìŠ¤íŠ¸ ëª©í‘œ ë‹¬ì„± ìƒí™©
     private Dictionary<int, QuestProgress> questProgress = new Dictionary<int, QuestProgress>();
 
-    // Äù½ºÆ® µ¥ÀÌÅÍµéÀ» Ä³½ÌÇÏ´Â µñ¼Å³Ê¸®.
-    // Å°: Äù½ºÆ® ID, °ª: QuestData ScriptableObject
+    // í€˜ìŠ¤íŠ¸ ë°ì´í„°ë“¤ì„ ìºì‹±í•˜ëŠ” ë”•ì…”ë„ˆë¦¬.
+    // í‚¤: í€˜ìŠ¤íŠ¸ ID, ê°’: QuestData ScriptableObject
     private Dictionary<int, QuestData> questDataCache = new Dictionary<int, QuestData>();
 
     /// <summary>
-    /// Äù½ºÆ®ÀÇ ÁøÇà »óÈ²À» ÀúÀåÇÏ±â À§ÇÑ ³»ºÎ Å¬·¡½º.
+    /// í€˜ìŠ¤íŠ¸ì˜ ì§„í–‰ ìƒí™©ì„ ì €ì¥í•˜ê¸° ìœ„í•œ ë‚´ë¶€ í´ë˜ìŠ¤.
     /// </summary>
     [System.Serializable]
     public class QuestProgress
     {
-        // Äù½ºÆ® ¿Ï·á Á¶°ÇÀ» ÃßÀûÇÏ´Â µñ¼Å³Ê¸®.
-        // Å°: Á¶°ÇÀÇ Å¸°Ù ID (¸ó½ºÅÍ ID, ¾ÆÀÌÅÛ ID µî), °ª: ÇöÀç ´Ş¼º È½¼ö
+        // í€˜ìŠ¤íŠ¸ ì™„ë£Œ ì¡°ê±´ì„ ì¶”ì í•˜ëŠ” ë”•ì…”ë„ˆë¦¬.
+        // í‚¤: ì¡°ê±´ì˜ íƒ€ê²Ÿ ID (ëª¬ìŠ¤í„° ID, ì•„ì´í…œ ID ë“±), ê°’: í˜„ì¬ ë‹¬ì„± íšŸìˆ˜
         public Dictionary<int, int> progress = new Dictionary<int, int>();
     }
 
@@ -38,7 +43,7 @@ public class QuestManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
+            LoadAllQuestData();
         }
         else
         {
@@ -47,7 +52,7 @@ public class QuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¯Á¤ Äù½ºÆ®°¡ ÇöÀç ¼ö¶ôµÈ »óÅÂÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+    /// íŠ¹ì • í€˜ìŠ¤íŠ¸ê°€ í˜„ì¬ ìˆ˜ë½ëœ ìƒíƒœì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     public bool IsQuestAccepted(int questID)
     {
@@ -55,7 +60,7 @@ public class QuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¯Á¤ Äù½ºÆ®°¡ ÀÌ¹Ì ¿Ï·áµÈ »óÅÂÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+    /// íŠ¹ì • í€˜ìŠ¤íŠ¸ê°€ ì´ë¯¸ ì™„ë£Œëœ ìƒíƒœì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     public bool IsQuestCompleted(int questID)
     {
@@ -63,7 +68,7 @@ public class QuestManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Äù½ºÆ®¸¦ ¼ö¶ôÇÕ´Ï´Ù. Äù½ºÆ® ÁøÇà »óÈ²À» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ë¥¼ ìˆ˜ë½í•©ë‹ˆë‹¤. í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™©ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     public void AcceptQuest(int questID)
     {
@@ -71,12 +76,11 @@ public class QuestManager : MonoBehaviour
         {
             acceptedQuests.Add(questID);
             questProgress[questID] = new QuestProgress();
-            Debug.Log($"Äù½ºÆ® '{questID}'°¡ ¼ö¶ôµÇ¾ú½À´Ï´Ù.");
         }
     }
 
     /// <summary>
-    /// Äù½ºÆ®¸¦ Ãë¼ÒÇÕ´Ï´Ù. Äù½ºÆ® ÁøÇà »óÈ²À» Á¦°ÅÇÕ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ë¥¼ ì·¨ì†Œí•©ë‹ˆë‹¤. í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™©ì„ ì œê±°í•©ë‹ˆë‹¤.
     /// </summary>
     public void CancelQuest(int questID)
     {
@@ -87,80 +91,138 @@ public class QuestManager : MonoBehaviour
             {
                 questProgress.Remove(questID);
             }
-            Debug.Log($"Äù½ºÆ® '{questID}'°¡ Ãë¼ÒµÇ¾ú½À´Ï´Ù.");
         }
     }
 
     /// <summary>
-    /// Äù½ºÆ®¸¦ ¿Ï·á Ã³¸®ÇÏ°í º¸»óÀ» Áö±ŞÇÕ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ë¥¼ ì™„ë£Œ ì²˜ë¦¬í•˜ê³  ë³´ìƒì„ ì§€ê¸‰í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="questID">¿Ï·áÇÒ Äù½ºÆ®ÀÇ ID.</param>
-    /// <param name="questData">¿Ï·áÇÒ Äù½ºÆ®ÀÇ µ¥ÀÌÅÍ.</param>
+    /// <param name="questID">ì™„ë£Œí•  í€˜ìŠ¤íŠ¸ì˜ ID.</param>
+    /// <param name="questData">ì™„ë£Œí•  í€˜ìŠ¤íŠ¸ì˜ ë°ì´í„°.</param>
     public void CompleteQuest(int questID, QuestData questData)
     {
-        // À¯È¿¼º °Ë»ç: Äù½ºÆ®°¡ ¼ö¶ôµÈ »óÅÂÀÌ°í, ¾ÆÁ÷ ¿Ï·áµÇÁö ¾Ê¾Ò´ÂÁö È®ÀÎ
+        // ìœ íš¨ì„± ê²€ì‚¬: í€˜ìŠ¤íŠ¸ê°€ ìˆ˜ë½ëœ ìƒíƒœì´ê³ , ì•„ì§ ì™„ë£Œë˜ì§€ ì•Šì•˜ëŠ”ì§€ í™•ì¸
         if (IsQuestAccepted(questID) && !IsQuestCompleted(questID))
         {
-            // Äù½ºÆ® ¿Ï·á Ã³¸®
-            completedQuests.Add(questID);
+            // í€˜ìŠ¤íŠ¸ ì™„ë£Œ ì²˜ë¦¬
             acceptedQuests.Remove(questID);
             questProgress.Remove(questID);
 
-            Debug.Log($"Äù½ºÆ® '{questID}'°¡ ¿Ï·áµÇ¾ú½À´Ï´Ù!");
+            // ğŸ’¡ ì¶”ê°€ëœ ë¡œì§: ì•„ì´í…œ ìˆ˜ì§‘ í€˜ìŠ¤íŠ¸ì˜ ì•„ì´í…œ ì°¨ê°
+            // ì™„ë£Œ ì¡°ê±´ ì¤‘ ì•„ì´í…œ ìˆ˜ì§‘ ì¡°ê±´ì´ ìˆë‹¤ë©´ ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œì„ ì œê±°í•©ë‹ˆë‹¤.
+            foreach (var condition in questData.conditions)
+            {
+                if (condition.conditionType == QuestCondition.ConditionType.CollectItems)
+                {
+                    if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.inventoryManager != null)
+                    {
+                        // InventoryManagerì˜ RemoveItem ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ì•„ì´í…œì„ ì°¨ê°í•©ë‹ˆë‹¤.
+                        PlayerCharacter.Instance.inventoryManager.RemoveItem(condition.targetID, condition.requiredAmount);
+                    }
+                    else
+                    {
+                        Debug.LogError("í”Œë ˆì´ì–´ ë˜ëŠ” ì¸ë²¤í† ë¦¬ ë§¤ë‹ˆì €ê°€ ì—†ì–´ í€˜ìŠ¤íŠ¸ ì•„ì´í…œì„ ì°¨ê°í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+                    }
+                }
+            }
 
-            // º¸»ó Áö±Ş
+            // ë°˜ë³µ í€˜ìŠ¤íŠ¸ ê¸°ëŠ¥ ì¶”ê°€:
+            // í€˜ìŠ¤íŠ¸ê°€ ë°˜ë³µ ê°€ëŠ¥í•˜ì§€ ì•Šë‹¤ë©´ completedQuestsì— ì¶”ê°€í•˜ì—¬ ë‹¤ì‹œ ìˆ˜ë½í•  ìˆ˜ ì—†ê²Œ ë§Œë“­ë‹ˆë‹¤.
+            if (!questData.isRepeatable)
+            {
+                completedQuests.Add(questID);
+            }
+
+            // ğŸ’¡ í˜¸ê°ë„ ë³´ìƒ ì§€ê¸‰ ë¡œì§ ì¶”ê°€
+            // í€˜ìŠ¤íŠ¸ ë°ì´í„°ì— í˜¸ê°ë„ ë³´ìƒ ê°’ì´ ì„¤ì •ë˜ì–´ ìˆê³ , NPC ë§¤ë‹ˆì €ê°€ ì¡´ì¬í•  ê²½ìš°
+            if (questData.affectionReward > 0)
+            {
+                if (NPCManager.Instance != null)
+                {
+                    // í€˜ìŠ¤íŠ¸ë¥¼ ì¤€ NPCì—ê²Œ í˜¸ê°ë„ ë³´ìƒì„ ì§€ê¸‰í•˜ë„ë¡ ìš”ì²­í•©ë‹ˆë‹¤.
+                    // SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ì— ë”°ë¼ í˜¸ê°ë„ ë³€ê²½ ë¡œì§ì€ NPCManagerì— ìœ„ì„í•©ë‹ˆë‹¤.
+                    NPCManager.Instance.ChangeAffection(questData.questGiverName, questData.affectionReward);
+                }
+                else
+                {
+                    Debug.LogWarning("NPCManager ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ í˜¸ê°ë„ ë³´ìƒì„ ì§€ê¸‰í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+                }
+            }
+
+            // ë³´ìƒ ì§€ê¸‰
             GiveQuestRewards(questData);
         }
     }
 
     /// <summary>
-    /// Äù½ºÆ® º¸»óÀ» ÇÃ·¹ÀÌ¾î¿¡°Ô Áö±ŞÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ ë³´ìƒì„ í”Œë ˆì´ì–´ì—ê²Œ ì§€ê¸‰í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// ì¥ë¹„ ì•„ì´í…œì˜ ê²½ìš° ë“±ê¸‰ì„ ë¶€ì—¬í•˜ì—¬ ìƒì„±í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="questData">º¸»ó Á¤º¸°¡ ´ã±ä Äù½ºÆ® µ¥ÀÌÅÍ.</param>
+    /// <param name="questData">ë³´ìƒ ì •ë³´ê°€ ë‹´ê¸´ í€˜ìŠ¤íŠ¸ ë°ì´í„°.</param>
     private void GiveQuestRewards(QuestData questData)
     {
         if (questData == null)
         {
-            Debug.LogError("Äù½ºÆ® µ¥ÀÌÅÍ°¡ ¾ø¾î º¸»óÀ» Áö±ŞÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("í€˜ìŠ¤íŠ¸ ë°ì´í„°ê°€ ì—†ì–´ ë³´ìƒì„ ì§€ê¸‰í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ ÀÎ½ºÅÏ½º¿¡ Á¢±Ù
+        // í”Œë ˆì´ì–´ ìºë¦­í„° ì¸ìŠ¤í„´ìŠ¤ì— ì ‘ê·¼
         var player = PlayerCharacter.Instance;
         if (player == null)
         {
-            Debug.LogError("ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("í”Œë ˆì´ì–´ ìºë¦­í„° ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // °æÇèÄ¡ Áö±Ş
+        // ê²½í—˜ì¹˜ ì§€ê¸‰
         if (questData.experienceReward > 0)
         {
             player.playerLevelUp.AddExperience(questData.experienceReward);
-            Debug.Log($"{questData.experienceReward} °æÇèÄ¡¸¦ ¾ò¾ú½À´Ï´Ù.");
         }
 
-        // °ñµå Áö±Ş
+        // ê³¨ë“œ ì§€ê¸‰
         if (questData.goldReward > 0)
         {
             player.playerStats.gold += questData.goldReward;
-            Debug.Log($"{questData.goldReward} °ñµå¸¦ ¾ò¾ú½À´Ï´Ù.");
         }
 
-        // ¾ÆÀÌÅÛ Áö±Ş (TODO: InventoryManager¿¡ ¾ÆÀÌÅÛ Ãß°¡ÇÏ´Â ·ÎÁ÷ ±¸Çö ÇÊ¿ä)
+        // ì•„ì´í…œ ì§€ê¸‰ (ì¥ë¹„ ì•„ì´í…œì€ ë“±ê¸‰ì„ ë¶€ì—¬í•˜ì—¬ ìƒì„±)
         if (questData.rewardItems != null && questData.rewardItems.Count > 0)
         {
             foreach (var reward in questData.rewardItems)
             {
-                // player.inventoryManager.AddItem(reward.itemID, reward.itemCount);
-                Debug.Log($"{reward.itemCount}°³ÀÇ ¾ÆÀÌÅÛ ID '{reward.itemID}'¸¦ ¾ò¾ú½À´Ï´Ù.");
+                // ë³´ìƒ ì•„ì´í…œì´ ì¥ë¹„ ì•„ì´í…œì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+                EquipmentItemSO equipItem = reward.itemSO as EquipmentItemSO;
+                if (equipItem != null)
+                {
+                    // ì¥ë¹„ ì•„ì´í…œì¸ ê²½ìš°, ItemGeneratorë¥¼ í†µí•´ í€˜ìŠ¤íŠ¸ ë°ì´í„°ì— ëª…ì‹œëœ ë“±ê¸‰ìœ¼ë¡œ ìƒì„±í•©ë‹ˆë‹¤.
+                    if (ItemGenerator.Instance != null)
+                    {
+                        EquipmentItemSO newEquipItem = ItemGenerator.Instance.GenerateItem(equipItem, questData.rewardEquipmentGrade);
+                        if (newEquipItem != null)
+                        {
+                            player.inventoryManager.AddItem(newEquipItem, reward.itemCount);
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("ItemGenerator ì¸ìŠ¤í„´ìŠ¤ê°€ ì—†ì–´ ë³´ìƒ ì¥ë¹„ë¥¼ ìƒì„±í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+                    }
+                }
+                else
+                {
+                    // ì¥ë¹„ ì•„ì´í…œì´ ì•„ë‹Œ ê²½ìš°, ê¸°ì¡´ ë¡œì§ëŒ€ë¡œ ì•„ì´í…œì„ ë³µì œí•˜ì—¬ ì¶”ê°€í•©ë‹ˆë‹¤.
+                    BaseItemSO newItem = Instantiate(reward.itemSO);
+                    player.inventoryManager.AddItem(newItem, reward.itemCount);
+                }
             }
         }
     }
 
     /// <summary>
-    /// Äù½ºÆ®ÀÇ ÁøÇà »óÈ²À» ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-    /// ¸ó½ºÅÍ Ã³Ä¡, ¾ÆÀÌÅÛ È¹µæ µîÀÇ ÀÌº¥Æ®¿¡¼­ È£ÃâµË´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ì˜ ì§„í–‰ ìƒí™©ì„ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
+    /// ëª¬ìŠ¤í„° ì²˜ì¹˜, ì•„ì´í…œ íšë“ ë“±ì˜ ì´ë²¤íŠ¸ì—ì„œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
     public void UpdateQuestProgress(int questID, int targetID, int amount = 1)
     {
@@ -172,15 +234,14 @@ public class QuestManager : MonoBehaviour
                 progress.progress[targetID] = 0;
             }
             progress.progress[targetID] += amount;
-            Debug.Log($"Äù½ºÆ® '{questID}'ÀÇ '{targetID}' ¸ñÇ¥ ÁøÇà »óÈ²: {progress.progress[targetID]}");
         }
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ Äù½ºÆ®ÀÇ ¸ğµç ¿Ï·á Á¶°ÇÀ» ÃæÁ·Çß´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// í”Œë ˆì´ì–´ê°€ í€˜ìŠ¤íŠ¸ì˜ ëª¨ë“  ì™„ë£Œ ì¡°ê±´ì„ ì¶©ì¡±í–ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="questData">È®ÀÎÇÒ Äù½ºÆ® µ¥ÀÌÅÍ.</param>
-    /// <returns>¸ğµç Á¶°ÇÀÌ ÃæÁ·µÇ¸é true, ¾Æ´Ï¸é false.</returns>
+    /// <param name="questData">í™•ì¸í•  í€˜ìŠ¤íŠ¸ ë°ì´í„°.</param>
+    /// <returns>ëª¨ë“  ì¡°ê±´ì´ ì¶©ì¡±ë˜ë©´ true, ì•„ë‹ˆë©´ false.</returns>
     public bool CheckQuestCompletion(QuestData questData)
     {
         if (questData == null) return false;
@@ -202,7 +263,7 @@ public class QuestManager : MonoBehaviour
             switch (condition.conditionType)
             {
                 case QuestCondition.ConditionType.CollectItems:
-                    // PlayerCharacter¸¦ ÅëÇØ InventoryManager¿¡ Á¢±Ù
+                    // PlayerCharacterë¥¼ í†µí•´ InventoryManagerì— ì ‘ê·¼
                     if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.inventoryManager != null)
                     {
                         if (!PlayerCharacter.Instance.inventoryManager.HasItem(condition.targetID, condition.requiredAmount))
@@ -212,7 +273,7 @@ public class QuestManager : MonoBehaviour
                     }
                     else
                     {
-                        Debug.LogError("PlayerCharacter ¶Ç´Â InventoryManager¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+                        Debug.LogError("PlayerCharacter ë˜ëŠ” InventoryManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
                         return false;
                     }
                     break;
@@ -229,67 +290,82 @@ public class QuestManager : MonoBehaviour
     }
 
     //----------------------------------------------------------------------------------------------------------------
-    // ½Å±Ô Ãß°¡µÈ ¸Ş¼­µå
+    // ì‹ ê·œ ì¶”ê°€ëœ ë©”ì„œë“œ ë° ìˆ˜ì •
     //----------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// ÁÖ¾îÁø Äù½ºÆ® IDÀÇ ÇöÀç »óÅÂ¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ì£¼ì–´ì§„ í€˜ìŠ¤íŠ¸ IDì˜ í˜„ì¬ ìƒíƒœë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="questID">È®ÀÎÇÒ Äù½ºÆ®ÀÇ ID.</param>
+    /// <param name="questID">í™•ì¸í•  í€˜ìŠ¤íŠ¸ì˜ ID.</param>
+    /// <param name="currentAffection">í˜„ì¬ NPCì˜ í˜¸ê°ë„.</param> // ğŸ’¡ì¶”ê°€ëœ ë§¤ê°œë³€ìˆ˜
     /// <returns>
-    /// QuestState ¿­°ÅÇü °ª (Available, Accepted, Complete, Completed, None µî).
+    /// QuestState ì—´ê±°í˜• ê°’ (Available, Accepted, ReadyToComplete, Completed, None ë“±).
     /// </returns>
-    public QuestState GetQuestState(int questID)
+    public QuestState GetQuestState(int questID, int currentAffection) // ğŸ’¡ìˆ˜ì •: ë§¤ê°œë³€ìˆ˜ ì¶”ê°€
     {
-        // Äù½ºÆ® µ¥ÀÌÅÍ Ä³½Ã°¡ ºñ¾îÀÖÀ¸¸é ÃÊ±âÈ­ÇÕ´Ï´Ù.
+        // í€˜ìŠ¤íŠ¸ ë°ì´í„° ìºì‹œê°€ ë¹„ì–´ìˆìœ¼ë©´ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
         if (questDataCache.Count == 0)
         {
             LoadAllQuestData();
         }
 
-        // ÇØ´ç IDÀÇ Äù½ºÆ® µ¥ÀÌÅÍ°¡ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+        // í•´ë‹¹ IDì˜ í€˜ìŠ¤íŠ¸ ë°ì´í„°ê°€ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (!questDataCache.ContainsKey(questID))
         {
-            Debug.LogWarning($"QuestID '{questID}'¿¡ ÇØ´çÇÏ´Â Äù½ºÆ® µ¥ÀÌÅÍ°¡ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning($"QuestID '{questID}'ì— í•´ë‹¹í•˜ëŠ” í€˜ìŠ¤íŠ¸ ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤.");
             return QuestState.None;
         }
 
-        // Äù½ºÆ® µ¥ÀÌÅÍ °¡Á®¿À±â
+        // í€˜ìŠ¤íŠ¸ ë°ì´í„° ê°€ì ¸ì˜¤ê¸°
         QuestData data = questDataCache[questID];
 
-        // 1. ÀÌ¹Ì ¿Ï·áÇÑ Äù½ºÆ®ÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+        // 1. ì´ë¯¸ ì™„ë£Œí•œ í€˜ìŠ¤íŠ¸ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (completedQuests.Contains(questID))
         {
-            return QuestState.Completed; // ÀÌ¹Ì ¿Ï·áµÈ Äù½ºÆ®
+            // ë°˜ë³µ í€˜ìŠ¤íŠ¸ ê¸°ëŠ¥ ì¶”ê°€:
+            // í€˜ìŠ¤íŠ¸ê°€ ë°˜ë³µ ê°€ëŠ¥í•˜ë‹¤ë©´ 'Available' ìƒíƒœë¡œ ë°˜í™˜í•˜ì—¬ ë‹¤ì‹œ ìˆ˜ë½í•  ìˆ˜ ìˆê²Œ í•©ë‹ˆë‹¤.
+            if (data.isRepeatable)
+            {
+                return QuestState.Available;
+            }
+            return QuestState.Completed; // ì¼ë°˜ í€˜ìŠ¤íŠ¸ëŠ” ì™„ë£Œ ìƒíƒœ ìœ ì§€
         }
 
-        // 2. ¼ö¶ôÇÑ Äù½ºÆ®ÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+        // 2. ìˆ˜ë½í•œ í€˜ìŠ¤íŠ¸ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (acceptedQuests.Contains(questID))
         {
-            // Äù½ºÆ® ¿Ï·á Á¶°ÇÀ» ¸ğµÎ ÃæÁ·Çß´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+            // í€˜ìŠ¤íŠ¸ ì™„ë£Œ ì¡°ê±´ì„ ëª¨ë‘ ì¶©ì¡±í–ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
             if (CheckQuestCompletion(data))
             {
-                return QuestState.Complete; // ¿Ï·á °¡´ÉÇÑ Äù½ºÆ®
+                return QuestState.ReadyToComplete;
             }
             else
             {
-                return QuestState.Accepted; // ÁøÇà ÁßÀÎ Äù½ºÆ®
+                return QuestState.Accepted;
             }
         }
 
-        // 3. ¼ö¶ôÇÏÁö ¾ÊÀº Äù½ºÆ®¶ó¸é, Äù½ºÆ® ¼ö¶ô Á¶°Ç(¼±Çà Äù½ºÆ®)ÀÌ ÃæÁ·µÇ¾ú´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-        // ¼±Çà Äù½ºÆ®°¡ ¾ø°Å³ª, ¼±Çà Äù½ºÆ®°¡ ¸ğµÎ ¿Ï·á »óÅÂ¶ó¸é 'Available'ÀÔ´Ï´Ù.
+        // 3. ìˆ˜ë½í•˜ì§€ ì•Šì€ í€˜ìŠ¤íŠ¸ë¼ë©´, í€˜ìŠ¤íŠ¸ ìˆ˜ë½ ì¡°ê±´(ì„ í–‰ í€˜ìŠ¤íŠ¸, í˜¸ê°ë„)ì´ ì¶©ì¡±ë˜ì—ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        // ì„ í–‰ í€˜ìŠ¤íŠ¸ê°€ ëª¨ë‘ ì™„ë£Œ ìƒíƒœë¼ë©´ í˜¸ê°ë„ ì¡°ê±´ì„ í™•ì¸í•©ë‹ˆë‹¤.
         if (data.prerequisiteQuests.All(prereqID => completedQuests.Contains(prereqID)))
         {
-            return QuestState.Available; // ¼ö¶ô °¡´ÉÇÑ Äù½ºÆ®
+            // ì¶”ê°€ëœ ë¡œì§: í˜¸ê°ë„ ì¡°ê±´ í™•ì¸
+            if (currentAffection >= data.requiredAffection)
+            {
+                return QuestState.Available;
+            }
+            else
+            {
+                return QuestState.Unavailable; // ğŸ’¡ ë³€ê²½: í˜¸ê°ë„ ë¶€ì¡± ì‹œ 'Unavailable' ë°˜í™˜
+            }
         }
 
-        // ¸ğµç Á¶°Ç¿¡ ÇØ´çÇÏÁö ¾ÊÀ¸¸é Äù½ºÆ®´Â Á¸ÀçÇÏÁö ¾Ê°Å³ª, ¾ÆÁ÷ ÁøÇà ºÒ°¡´ÉÇÑ »óÅÂÀÔ´Ï´Ù.
+        // ëª¨ë“  ì¡°ê±´ì— í•´ë‹¹í•˜ì§€ ì•Šìœ¼ë©´ í€˜ìŠ¤íŠ¸ëŠ” ì¡´ì¬í•˜ì§€ ì•Šê±°ë‚˜, ì•„ì§ ì§„í–‰ ë¶ˆê°€ëŠ¥í•œ ìƒíƒœì…ë‹ˆë‹¤.
         return QuestState.None;
     }
 
     /// <summary>
-    /// ¸ğµç QuestData ScriptableObject¸¦ ¸®¼Ò½º Æú´õ¿¡¼­ Ã£¾Æ Ä³½ÃÇÕ´Ï´Ù.
+    /// ëª¨ë“  QuestData ScriptableObjectë¥¼ ë¦¬ì†ŒìŠ¤ í´ë”ì—ì„œ ì°¾ì•„ ìºì‹œí•©ë‹ˆë‹¤.
     /// </summary>
     private void LoadAllQuestData()
     {
@@ -301,5 +377,95 @@ public class QuestManager : MonoBehaviour
                 questDataCache.Add(data.questID, data);
             }
         }
+    }
+    // ì¶”ê°€ëœ ë©”ì„œë“œ
+    /// <summary>
+    /// íŠ¹ì • í€˜ìŠ¤íŠ¸ì˜ í˜„ì¬ ì§„í–‰ ìƒí™©ì„ ìš”ì•½í•˜ì—¬ ë¬¸ìì—´ë¡œ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// ëª¬ìŠ¤í„° ì²˜ì¹˜, ì•„ì´í…œ ìˆ˜ì§‘ ë“± ëª¨ë“  ìœ í˜•ì˜ ì¡°ê±´ì„ í†µí•© ì²˜ë¦¬í•©ë‹ˆë‹¤.
+    /// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (ì§„í–‰ ìƒí™© ë°ì´í„° ì œê³µ).
+    /// </summary>
+    /// <param name="questID">í™•ì¸í•  í€˜ìŠ¤íŠ¸ì˜ ID.</param>
+    /// <returns>í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™©ì„ ë‹´ì€ ë¬¸ìì—´ (ì˜ˆ: "ëª¬ìŠ¤í„° ì²˜ì¹˜ (5/10)").</returns>
+    public string GetQuestProgressText(int questID)
+    {
+        // í€˜ìŠ¤íŠ¸ ë°ì´í„°ê°€ ìºì‹œì— ì—†ìœ¼ë©´ null ë°˜í™˜
+        if (!questDataCache.ContainsKey(questID))
+        {
+            return "í€˜ìŠ¤íŠ¸ ë°ì´í„° ì—†ìŒ";
+        }
+
+        QuestData data = questDataCache[questID];
+        string progressSummary = "";
+
+        // í€˜ìŠ¤íŠ¸ ì™„ë£Œ ì¡°ê±´ì„ ëª¨ë‘ ë§Œì¡±í–ˆëŠ”ì§€ í™•ì¸
+        bool isCompleted = CheckQuestCompletion(data);
+
+        // ì™„ë£Œ ìƒíƒœì— ë”°ë¼ ì ‘ë‘ì‚¬ ì¶”ê°€
+        progressSummary += isCompleted ? "[ì™„ë£Œ ê°€ëŠ¥] " : "[ì§„í–‰ ì¤‘] ";
+
+        // í€˜ìŠ¤íŠ¸ ì§„í–‰ ìƒí™© í…ìŠ¤íŠ¸ ìƒì„±
+        if (questProgress.TryGetValue(questID, out var currentProgress))
+        {
+            // í€˜ìŠ¤íŠ¸ì˜ ëª¨ë“  ì¡°ê±´ì„ ìˆœíšŒí•˜ë©° ì§„í–‰ ìƒí™©ì„ ì¡°í•©
+            foreach (var condition in data.conditions)
+            {
+                int currentAmount = 0;
+                if (currentProgress.progress.ContainsKey(condition.targetID))
+                {
+                    currentAmount = currentProgress.progress[condition.targetID];
+                }
+
+                // ì¡°ê±´ ìœ í˜•ì— ë”°ë¼ í…ìŠ¤íŠ¸ë¥¼ ì¡°í•©í•©ë‹ˆë‹¤.
+                switch (condition.conditionType)
+                {
+                    case QuestCondition.ConditionType.DefeatMonsters:
+                        progressSummary += $"ëª¬ìŠ¤í„° ì²˜ì¹˜ ({currentAmount}/{condition.requiredAmount})";
+                        break;
+                    case QuestCondition.ConditionType.CollectItems:
+                        // ì•„ì´í…œ í€˜ìŠ¤íŠ¸ëŠ” ì¸ë²¤í† ë¦¬ì—ì„œ ì§ì ‘ ìˆ˜ëŸ‰ì„ í™•ì¸í•´ì•¼ í•©ë‹ˆë‹¤.
+                        int itemCount = PlayerCharacter.Instance.inventoryManager.GetItemCount(condition.targetID);
+                        progressSummary += $"ì•„ì´í…œ ìˆ˜ì§‘ ({itemCount}/{condition.requiredAmount})";
+                        break;
+                    case QuestCondition.ConditionType.TalkToNPC:
+                        // ëŒ€í™” í€˜ìŠ¤íŠ¸ëŠ” ë³´í†µ í•œ ë²ˆë§Œ ìˆ˜í–‰í•˜ë¯€ë¡œ ì™„ë£Œ/ë¯¸ì™„ë£Œë§Œ í‘œì‹œ
+                        progressSummary += $"NPCì™€ ëŒ€í™” ({currentAmount}/{condition.requiredAmount})";
+                        break;
+                }
+                // ì—¬ëŸ¬ ì¡°ê±´ì´ ìˆì„ ê²½ìš° ì¤„ë°”ê¿ˆ
+                if (data.conditions.Count > 1 && data.conditions.Last() != condition)
+                {
+                    progressSummary += "\n";
+                }
+            }
+        }
+        else
+        {
+            // ì§„í–‰ ë°ì´í„°ê°€ ì—†ì„ ê²½ìš°
+            progressSummary += "ì§„í–‰ ë°ì´í„°ê°€ ì—†ìŠµë‹ˆë‹¤.";
+        }
+
+        return progressSummary;
+    }
+    // ì¶”ê°€ëœ ë©”ì„œë“œ
+    /// <summary>
+    /// íŠ¹ì • IDì˜ QuestDataë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="questID">ì°¾ì„ í€˜ìŠ¤íŠ¸ì˜ ID.</param>
+    /// <returns>í•´ë‹¹ QuestData ê°ì²´, ì—†ìœ¼ë©´ null.</returns>
+    public QuestData GetQuestData(int questID)
+    {
+        if (questDataCache.ContainsKey(questID))
+        {
+            return questDataCache[questID];
+        }
+        return null;
+    }
+    // ì¶”ê°€ë  ë©”ì„œë“œ
+    /// <summary>
+    /// í”Œë ˆì´ì–´ê°€ í˜„ì¬ ìˆ˜ë½í•œ ëª¨ë“  í€˜ìŠ¤íŠ¸ì˜ ID ëª©ë¡ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// </summary>
+    public List<int> GetAcceptedQuests()
+    {
+        return acceptedQuests;
     }
 }

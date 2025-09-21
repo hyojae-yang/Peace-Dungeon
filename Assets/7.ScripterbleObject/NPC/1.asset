@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 670d9726321f0054c99e5763332ebb59, type: 3}
   m_Name: 1
   m_EditorClassIdentifier: 
+  npcID: 1
   npcName: "\uC7A5\uD544\uC218"
   npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uAC00\uC7A5,\uC0C1\uC810
     \uC6B4\uC601,\uAE30\uBCF8\uC544\uC774\uD15C \uD310\uB9E4"
@@ -20,14 +21,45 @@ MonoBehaviour:
     relationshipType: "\uB538"
   - targetNPCName: "\uC774\uC21C\uB355"
     relationshipType: "\uC544\uB0B4"
-  playerAffection: 0
+  playerAffection: -100
   dialogueGroups:
   - questState: 0
+    questID: 0
+    interactionDialogue:
+    - minAffection: -100
+      maxAffection: -90
+      dialogueTexts:
+      - "\uC790\uB124\uB294 \uB204\uAD6C\uC778\uAC00?"
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: -90
+      dialogueTexts:
+      - "\uC7A1\uD654\uC811\uC758 \uC7AC\uACE0\uB294 \uD56D\uC0C1 \uBD80\uC871\uD574"
+      - "\uC790\uB124\uAC00 \uC880 \uCC44\uC6CC"
+  - questState: 2
+    questID: 2
     interactionDialogue: []
     generalDialogues:
-    - minAffection: 0
-      maxAffection: 0
-      dialogueTexts: []
-  - questState: 0
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uB2E4\uB78C\uC950\uAC00 \uC18D\uC744 \uC369\uC5EC"
+      - "\uB2E4\uB78C\uC950 10\uB9C8\uB9AC\uB9CC \uC7A1\uC544\uC918"
+  - questState: 3
+    questID: 2
     interactionDialogue: []
-    generalDialogues: []
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uB2E4\uB78C\uC950 \uBABB\uC7A1\uC544?"
+      - "\uB2E4\uB78C\uC950\uBCF4\uB2E4 \uC57D\uD558\uB2E4\uB2C8..."
+  - questState: 4
+    questID: 2
+    interactionDialogue: []
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: 100
+      dialogueTexts:
+      - "\uAE08\uBC29 \uC7A1\uC544\uC654\uB124"
+      - "\uBCF4\uC0C1\uC73C\uB860 \uC774\uAC70\uB77C\uB3C4 \uBC1B\uC544\uC918"

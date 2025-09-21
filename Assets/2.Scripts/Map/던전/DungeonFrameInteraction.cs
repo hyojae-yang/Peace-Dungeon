@@ -133,8 +133,9 @@ public class DungeonFrameInteraction : MonoBehaviour
         {
             playerController.enabled = true;
         }
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //마우스 커서 잠금
+        //Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.visible = false;
 
         if (dungeonCamera != null)
         {

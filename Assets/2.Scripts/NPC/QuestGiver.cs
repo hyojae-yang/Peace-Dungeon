@@ -1,78 +1,108 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// Æ¯Á¤ Äù½ºÆ®¸¦ ÇÃ·¹ÀÌ¾î¿¡°Ô Á¦°øÇÏ´Â NPC¿¡ ºÎÂøµÇ´Â ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.
-/// QuestGiver´Â Äù½ºÆ® µ¥ÀÌÅÍ ¿¡¼ÂµéÀ» ÂüÁ¶ÇÏ°í, ÇÃ·¹ÀÌ¾îÀÇ Äù½ºÆ® »óÅÂ¿¡ µû¶ó
-/// ¾î¶² Äù½ºÆ®¸¦ Á¦°øÇÒÁö ÆÇ´ÜÇÏ´Â ·ÎÁ÷À» ´ã´çÇÕ´Ï´Ù.
+/// íŠ¹ì • í€˜ìŠ¤íŠ¸ë¥¼ í”Œë ˆì´ì–´ì—ê²Œ ì œê³µí•˜ëŠ” NPCì— ë¶€ì°©ë˜ëŠ” ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.
+/// QuestGiverëŠ” í€˜ìŠ¤íŠ¸ ë°ì´í„° ì—ì…‹ë“¤ì„ ì°¸ì¡°í•˜ê³ , í”Œë ˆì´ì–´ì˜ í€˜ìŠ¤íŠ¸ ìƒíƒœì— ë”°ë¼
+/// ì–´ë–¤ í€˜ìŠ¤íŠ¸ë¥¼ ì œê³µí• ì§€ íŒë‹¨í•˜ëŠ” ë¡œì§ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
 /// </summary>
 public class QuestGiver : MonoBehaviour
 {
-    // === Äù½ºÆ® µ¥ÀÌÅÍ ===
-    [Tooltip("ÀÌ NPC°¡ Á¦°øÇÏ´Â Äù½ºÆ® µ¥ÀÌÅÍ ¸ñ·ÏÀÔ´Ï´Ù. ¿¡µğÅÍ¿¡¼­ ÇÒ´çÇÕ´Ï´Ù.")]
+    // === í€˜ìŠ¤íŠ¸ ë°ì´í„° ===
+    [Tooltip("ì´ NPCê°€ ì œê³µí•˜ëŠ” í€˜ìŠ¤íŠ¸ ë°ì´í„° ëª©ë¡ì…ë‹ˆë‹¤. ì—ë””í„°ì—ì„œ í• ë‹¹í•©ë‹ˆë‹¤.")]
     [SerializeField]
     private List<QuestData> questDatas = new List<QuestData>();
 
-    // === NPC °ü·Ã ÂüÁ¶ ===
+    // === NPC ê´€ë ¨ ì°¸ì¡° ===
     private NPC npc;
 
     /// <summary>
-    /// MonoBehaviourÀÇ Awake ¸Ş¼­µå.
+    /// MonoBehaviourì˜ Awake ë©”ì„œë“œ.
     /// </summary>
     private void Awake()
     {
-        // µ¿ÀÏ °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÎÂøµÈ NPC ÄÄÆ÷³ÍÆ® ÂüÁ¶
+        // ë™ì¼ ê²Œì„ ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©ëœ NPC ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
         npc = GetComponent<NPC>();
         if (npc == null)
         {
-            Debug.LogError("QuestGiver ½ºÅ©¸³Æ®´Â °°Àº ¿ÀºêÁ§Æ®¿¡ NPC ½ºÅ©¸³Æ®°¡ ÇÊ¿äÇÕ´Ï´Ù!");
+            Debug.LogError("QuestGiver ìŠ¤í¬ë¦½íŠ¸ëŠ” ê°™ì€ ì˜¤ë¸Œì íŠ¸ì— NPC ìŠ¤í¬ë¦½íŠ¸ê°€ í•„ìš”í•©ë‹ˆë‹¤!");
         }
     }
 
     /// <summary>
-    /// ÀÌ NPC°¡ Á¦°øÇÏ´Â ¸ğµç Äù½ºÆ® µ¥ÀÌÅÍ¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ì´ NPCê°€ ì œê³µí•˜ëŠ” ëª¨ë“  í€˜ìŠ¤íŠ¸ ë°ì´í„°ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <returns>NPC°¡ Á¦°øÇÏ´Â Äù½ºÆ® µ¥ÀÌÅÍ ¸ñ·Ï.</returns>
+    /// <returns>NPCê°€ ì œê³µí•˜ëŠ” í€˜ìŠ¤íŠ¸ ë°ì´í„° ëª©ë¡.</returns>
     public List<QuestData> GetQuestDatas()
     {
         return questDatas;
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ ÇöÀç ÀÌ NPC¿Í »óÈ£ÀÛ¿ëÇßÀ» ¶§ º¸¿©ÁÙ Äù½ºÆ®ÀÇ »óÅÂ¸¦ °áÁ¤ÇÕ´Ï´Ù.
-    /// Äù½ºÆ® »óÅÂ ¿ì¼±¼øÀ§: Complete > Accepted > Available
+    /// (ì¶”ê°€/ìˆ˜ì •) í”Œë ˆì´ì–´ì—ê²Œ ë³´ì—¬ì¤„ ìˆ˜ ìˆëŠ” í€˜ìŠ¤íŠ¸ ëª©ë¡ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// í€˜ìŠ¤íŠ¸ ë§¤ë‹ˆì €ì˜ ìƒíƒœì™€ NPCì˜ í˜¸ê°ë„ ì¡°ê±´ì„ ëª¨ë‘ ë§Œì¡±í•´ì•¼ í•©ë‹ˆë‹¤.
+    /// SOLID: ê°œë°©-íì‡„ ì›ì¹™. í€˜ìŠ¤íŠ¸ë¥¼ í•„í„°ë§í•˜ëŠ” ì±…ì„ì„ QuestGiverì— ë¶€ì—¬.
     /// </summary>
-    /// <returns>°¡Àå ³ôÀº ¿ì¼±¼øÀ§ÀÇ Äù½ºÆ® »óÅÂ (¾øÀ¸¸é QuestState.None)</returns>
+    /// <returns>í”Œë ˆì´ì–´ê°€ ìˆ˜ë½ ê°€ëŠ¥í•œ í€˜ìŠ¤íŠ¸ ëª©ë¡.</returns>
+    public List<QuestData> GetAvailableQuests()
+    {
+        // NPCê°€ ì—†ìœ¼ë©´ ë¹ˆ ëª©ë¡ ë°˜í™˜
+        if (npc == null) return new List<QuestData>();
+
+        int currentAffection = npc.GetAffection();
+
+        // LINQë¥¼ ì‚¬ìš©í•˜ì—¬ í€˜ìŠ¤íŠ¸ ëª©ë¡ì„ í•„í„°ë§
+        return questDatas.Where(quest =>
+            // ìˆ˜ì •ëœ ë¡œì§: QuestManagerì˜ GetQuestState()ì— í˜¸ê°ë„ ê°’ì„ ë„˜ê²¨ì£¼ì–´,
+            // ëª¨ë“  ì¡°ê±´ì„ í†µí•©ì ìœ¼ë¡œ íŒë‹¨í•˜ê²Œ í•©ë‹ˆë‹¤.
+            QuestManager.Instance.GetQuestState(quest.questID, currentAffection) == QuestState.Available
+        ).ToList();
+    }
+
+    /// <summary>
+    /// (ì¶”ê°€/ìˆ˜ì •) í”Œë ˆì´ì–´ê°€ í˜„ì¬ ì§„í–‰ ì¤‘ì¸ í€˜ìŠ¤íŠ¸ ëª©ë¡ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// </summary>
+    public List<QuestData> GetAcceptedQuests()
+    {
+        return questDatas.Where(quest =>
+            // ë³€ê²½: GetQuestStateì— í˜¸ê°ë„ ì¸ìë¥¼ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤.
+            QuestManager.Instance.GetQuestState(quest.questID, npc.GetAffection()) == QuestState.Accepted ||
+            QuestManager.Instance.GetQuestState(quest.questID, npc.GetAffection()) == QuestState.ReadyToComplete
+        ).ToList();
+    }
+
+    /// <summary>
+    /// í”Œë ˆì´ì–´ê°€ í˜„ì¬ ì´ NPCì™€ ìƒí˜¸ì‘ìš©í–ˆì„ ë•Œ ë³´ì—¬ì¤„ í€˜ìŠ¤íŠ¸ì˜ ìƒíƒœë¥¼ ê²°ì •í•©ë‹ˆë‹¤.
+    /// í€˜ìŠ¤íŠ¸ ìƒíƒœ ìš°ì„ ìˆœìœ„: Complete > Accepted > Available
+    /// </summary>
+    /// <returns>ê°€ì¥ ë†’ì€ ìš°ì„ ìˆœìœ„ì˜ í€˜ìŠ¤íŠ¸ ìƒíƒœ (ì—†ìœ¼ë©´ QuestState.None)</returns>
     public QuestState GetHighestPriorityQuestState()
     {
-        QuestData currentQuest = null;
+        // ì¶”ê°€ëœ ë³€ìˆ˜: í˜¸ê°ë„ë¥¼ í•œ ë²ˆë§Œ ê°€ì ¸ì™€ì„œ ì—¬ëŸ¬ ë²ˆ ì‚¬ìš©í•©ë‹ˆë‹¤.
+        int currentAffection = npc.GetAffection();
 
-        // 1. ¿Ï·á °¡´ÉÇÑ Äù½ºÆ®°¡ ÀÖ´ÂÁö È®ÀÎ
-        currentQuest = questDatas.FirstOrDefault(q =>
-            QuestManager.Instance.IsQuestAccepted(q.questID) && QuestManager.Instance.CheckQuestCompletion(q));
-        if (currentQuest != null)
+        // 1. ì™„ë£Œ ê°€ëŠ¥í•œ í€˜ìŠ¤íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
+        // ë³€ê²½: GetQuestStateì— í˜¸ê°ë„ ì¸ìë¥¼ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤.
+        if (questDatas.Any(q => QuestManager.Instance.GetQuestState(q.questID, currentAffection) == QuestState.ReadyToComplete))
         {
-            return QuestState.Complete;
+            return QuestState.ReadyToComplete;
         }
 
-        // 2. ÀÌ¹Ì ¼ö¶ôµÈ Äù½ºÆ®°¡ ÀÖ´ÂÁö È®ÀÎ
-        currentQuest = questDatas.FirstOrDefault(q => QuestManager.Instance.IsQuestAccepted(q.questID));
-        if (currentQuest != null)
+        // 2. ì´ë¯¸ ìˆ˜ë½ëœ í€˜ìŠ¤íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸
+        // ë³€ê²½: GetQuestStateì— í˜¸ê°ë„ ì¸ìë¥¼ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤.
+        if (questDatas.Any(q => QuestManager.Instance.GetQuestState(q.questID, currentAffection) == QuestState.Accepted))
         {
             return QuestState.Accepted;
         }
 
-        // 3. ¼ö¶ô °¡´ÉÇÑ Äù½ºÆ®°¡ ÀÖ´ÂÁö È®ÀÎ
-        int currentAffection = (npc != null) ? npc.GetAffection() : 0;
-        currentQuest = questDatas.FirstOrDefault(q =>
-            !QuestManager.Instance.IsQuestAccepted(q.questID) && !QuestManager.Instance.IsQuestCompleted(q.questID) && currentAffection >= q.requiredAffection);
-        if (currentQuest != null)
+        // 3. ìˆ˜ë½ ê°€ëŠ¥í•œ í€˜ìŠ¤íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸ (í˜¸ê°ë„ ì¡°ê±´ í¬í•¨)
+        if (GetAvailableQuests().Count > 0)
         {
             return QuestState.Available;
         }
 
-        // À§ÀÇ ¸ğµç Á¶°Ç¿¡ ÇØ´çÇÏÁö ¾ÊÀ¸¸é ±âº» »óÅÂ¸¦ ¹İÈ¯
+        // ìœ„ì˜ ëª¨ë“  ì¡°ê±´ì— í•´ë‹¹í•˜ì§€ ì•Šìœ¼ë©´ ê¸°ë³¸ ìƒíƒœë¥¼ ë°˜í™˜
         return QuestState.None;
     }
 }

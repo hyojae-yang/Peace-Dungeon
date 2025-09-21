@@ -1,9 +1,13 @@
 ﻿using UnityEngine;
 using System.Linq;
+using System.Collections.Generic; // List를 사용하기 위해 추가
 
 /// <summary>
 /// NPC의 이동 로직을 담당하는 스크립트.
 /// Rigidbody를 사용하여 물리적으로 이동하며, 지정된 구역 내에서 무작위로 움직입니다.
+/// 충돌 시 즉시 새로운 경로를 찾아 이동을 계속합니다.
+/// SOLID: 단일 책임 원칙 (물리적 이동 및 경로 탐색)
+/// 개방-폐쇄 원칙 (SetIsTalking 메서드로 외부에서 이동 제어 가능)
 /// </summary>
 [RequireComponent(typeof(Rigidbody))]
 public class NPCMovement : MonoBehaviour
@@ -22,6 +26,11 @@ public class NPCMovement : MonoBehaviour
     [SerializeField]
     private float waitTime = 3f;
 
+    // NPC의 회전 속도입니다. 값이 높을수록 더 빠르게 회전합니다.
+    [Tooltip("NPC의 회전 속도입니다. 값이 높을수록 더 빠르게 회전합니다.")]
+    [SerializeField]
+    private float rotationSpeed = 5f;
+
     // NPC가 이동할 수 있는 평면(Plane) 오브젝트들을 할당합니다.
     [Header("Movement Constraints")]
     [Tooltip("NPC가 이동할 수 있는 평면(Plane) 오브젝트들을 할당합니다. 이 오브젝트들의 Transform을 기준으로 이동합니다.")]
@@ -36,6 +45,10 @@ public class NPCMovement : MonoBehaviour
     // NPC가 현재 대화 중인지 상태를 추적하는 변수
     private bool isTalking = false;
 
+    //----------------------------------------------------------------------------------------------------------------
+    // MonoBehaviour 생명주기 메서드
+    //----------------------------------------------------------------------------------------------------------------
+
     /// <summary>
     /// MonoBehaviour의 Start 메서드. 게임 시작 시 한 번 호출됩니다.
     /// </summary>
@@ -43,17 +56,17 @@ public class NPCMovement : MonoBehaviour
     {
         // Rigidbody 컴포넌트를 가져옵니다.
         npcRigidbody = GetComponent<Rigidbody>();
-        // Rigidbody를 IsKinematic으로 설정하여 물리적인 힘에 영향을 받지 않도록 합니다.
-        npcRigidbody.isKinematic = true;
+        // Rigidbody를 isKinematic = false로 설정하여 물리적 힘에 영향을 받도록 합니다.
+        npcRigidbody.isKinematic = false;
 
         // 첫 번째 목표 위치를 설정합니다.
         SetNewTargetPosition();
     }
 
     /// <summary>
-    /// MonoBehaviour의 Update 메서드. 매 프레임 호출됩니다.
+    /// MonoBehaviour의 FixedUpdate 메서드. 물리 연산이 이루어지는 프레임마다 호출됩니다.
     /// </summary>
-    private void Update()
+    private void FixedUpdate()
     {
         // NPC가 대화 중이 아닐 때만 이동 로직을 실행합니다.
         if (!isTalking)
@@ -63,13 +76,38 @@ public class NPCMovement : MonoBehaviour
     }
 
     /// <summary>
-    /// NPC를 목표 위치로 이동시킵니다.
+    /// NPC의 Collider가 다른 Collider와 충돌했을 때 호출됩니다.
+    /// </summary>
+    /// <param name="collision">충돌에 대한 정보를 담고 있는 Collision 객체입니다.</param>
+    private void OnCollisionEnter(Collision collision)
+    {
+        // 충돌한 오브젝트가 NPC 자신이 아닌지 확인하여 무한 충돌 루프를 방지합니다.
+        // 또한 플레이어와의 충돌은 Interaction 스크립트에서 관리하므로 제외할 수 있습니다.
+        if (collision.gameObject.CompareTag("NPC") || collision.gameObject.CompareTag("Player"))
+        {
+            return;
+        }
+
+        // 1. 충돌 시 즉시 현재 목표 위치를 무시하고 새로운 목표를 설정합니다.
+        // 이를 통해 벽에 부딪혔을 때 멈추지 않고 즉시 방향을 전환하게 됩니다.
+        SetNewTargetPosition();
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
+    // 이동 로직 메서드
+    //----------------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// NPC를 목표 위치로 이동시키고, 방향을 바라보게 합니다.
     /// </summary>
     private void MoveToTarget()
     {
         // 현재 위치와 목표 위치의 거리가 매우 가까우면(거의 도착하면)
         if (Vector3.Distance(transform.position, targetPosition) < 0.1f)
         {
+            // NPC가 멈추도록 선형 속도를 0으로 설정합니다.
+            npcRigidbody.linearVelocity = Vector3.zero;
+
             // 대기 타이머를 줄입니다.
             waitTimer -= Time.deltaTime;
             // 대기 시간이 0보다 작거나 같아지면
@@ -81,10 +119,19 @@ public class NPCMovement : MonoBehaviour
         }
         else
         {
-            // 목표 위치로 부드럽게 이동합니다.
-            // Rigidbody를 사용해 물리적으로 이동합니다.
+            // 목표 위치로 이동할 방향 벡터를 계산합니다.
             Vector3 direction = (targetPosition - transform.position).normalized;
-            npcRigidbody.MovePosition(transform.position + direction * moveSpeed * Time.deltaTime);
+            // Rigidbody를 사용해 물리적으로 이동합니다.
+            // 물리 연산에 더 적합한 linearVelocity를 사용합니다.
+            npcRigidbody.linearVelocity = direction * moveSpeed;
+
+            // NPC가 이동하는 방향을 바라보도록 회전합니다.
+            // Y축을 기준으로 회전 방향을 설정하여 NPC가 기울어지지 않도록 합니다.
+            if (direction != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+            }
         }
     }
 
@@ -131,7 +178,6 @@ public class NPCMovement : MonoBehaviour
         // 대화가 시작되면 즉시 이동을 멈춥니다.
         if (isTalking)
         {
-            // Rigidbody의 속도를 0으로 설정해 즉시 멈춥니다.
             npcRigidbody.linearVelocity = Vector3.zero;
             // 현재 위치를 목표로 재설정하여 MoveToTarget 메서드가 실행되지 않도록 합니다.
             targetPosition = transform.position;

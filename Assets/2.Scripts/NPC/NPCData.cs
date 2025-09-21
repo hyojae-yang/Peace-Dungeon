@@ -9,9 +9,13 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "New NPC Data", menuName = "NPC/NPC Data", order = 1)]
 public class NPCData : ScriptableObject
 {
-    // NPC의 이름을 저장합니다. 이 이름이 NPC의 고유 ID로 사용됩니다.
+    // NPC의 고유 ID입니다.
     [Header("Basic Information")]
-    [Tooltip("NPC의 고유한 이름입니다. 이 이름은 NPC를 식별하는 ID로 사용됩니다.")]
+    [Tooltip("NPC의 고유한 식별자 ID입니다.")]
+    public int npcID;
+
+    // NPC의 이름을 저장합니다.
+    [Tooltip("NPC의 고유한 이름입니다.")]
     public string npcName;
 
     // NPC의 성격을 나타내는 문자열입니다.
@@ -77,7 +81,7 @@ public enum QuestState
     /// 퀘스트 목표를 모두 달성하고 보상을 받을 수 있는 상태.
     /// 완료된 퀘스트를 선택했을 때, NPC가 플레이어를 칭찬하고 보상을 주는 대화로 사용됩니다.
     /// </summary>
-    Complete,
+    ReadyToComplete,
 
     /// <summary>
     /// 퀘스트를 완료하고 보상까지 모두 받은 상태.
@@ -92,7 +96,7 @@ public enum QuestState
 [System.Serializable]
 public class DialogueGroup
 {
-    [Tooltip("이 대화 그룹이 활성화될 퀘스트 상태입니다. (None, Available, Accepted, Completed)")]
+    [Tooltip("이 대화 그룹이 활성화될 퀘스트 상태입니다. (None, Available, Accepted, ReadyToComplete, Completed)")]
     public QuestState questState;
 
     // --- 이 부분이 새로 추가됩니다.

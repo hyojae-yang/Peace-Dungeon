@@ -1,31 +1,32 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using System;
 using System.Linq;
 
 /// <summary>
-/// Äù½ºÆ® °ü·Ã UI(Äù½ºÆ® ¸ñ·Ï ÆĞ³Î)¸¦ °ü¸®ÇÏ´Â ½Ì±ÛÅÏ Å¬·¡½ºÀÔ´Ï´Ù.
-/// NPCUIManagerÀÇ 'Äù½ºÆ®' ¹öÆ°°ú ¿¬µ¿µË´Ï´Ù.
+/// í€˜ìŠ¤íŠ¸ ê´€ë ¨ UI(í€˜ìŠ¤íŠ¸ ëª©ë¡ íŒ¨ë„)ë¥¼ ê´€ë¦¬í•˜ëŠ” ì‹±ê¸€í„´ í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// NPCUIManagerì˜ 'í€˜ìŠ¤íŠ¸' ë²„íŠ¼ê³¼ ì—°ë™ë©ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (UI í•­ëª© í‘œì‹œ ë° ì •ë ¬).
 /// </summary>
 public class QuestUIManager : MonoBehaviour
 {
     public static QuestUIManager Instance { get; private set; }
 
     [Header("Quest List UI")]
-    [Tooltip("Äù½ºÆ® ¸ñ·ÏÀ» Ç¥½ÃÇÏ´Â ÆĞ³ÎÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ëª©ë¡ì„ í‘œì‹œí•˜ëŠ” íŒ¨ë„ì…ë‹ˆë‹¤.")]
     [SerializeField]
     private GameObject questListPanel;
-    [Tooltip("Äù½ºÆ® Ç×¸ñÀÇ ÇÁ¸®ÆÕÀÔ´Ï´Ù. ÀÌ ÇÁ¸®ÆÕÀ» ÀÎ½ºÅÏ½ºÈ­ÇÏ¿© ¸ñ·ÏÀ» ¸¸µì´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ í•­ëª©ì˜ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
     [SerializeField]
     private GameObject questListItemPrefab;
-    [Tooltip("µ¿ÀûÀ¸·Î »ı¼ºµÈ Äù½ºÆ® Ç×¸ñÀÌ ¹èÄ¡µÉ ºÎ¸ğ ¿ÀºêÁ§Æ®ÀÔ´Ï´Ù.")]
+    [Tooltip("ë™ì ìœ¼ë¡œ ìƒì„±ëœ í€˜ìŠ¤íŠ¸ í•­ëª©ì´ ë°°ì¹˜ë  ë¶€ëª¨ ì˜¤ë¸Œì íŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField]
     private Transform questListContent;
 
-    // ÇöÀç »óÈ£ÀÛ¿ë ÁßÀÎ NPCÀÇ QuestGiver ÄÄÆ÷³ÍÆ® ÂüÁ¶
+    // í˜„ì¬ ìƒí˜¸ì‘ìš© ì¤‘ì¸ NPCì˜ QuestGiver ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
     private QuestGiver currentQuestGiver;
-    // Äù½ºÆ® ¼±ÅÃ ÈÄ ½ÇÇàµÉ Äİ¹é ÇÔ¼ö
+    // í€˜ìŠ¤íŠ¸ ì„ íƒ í›„ ì‹¤í–‰ë  ì½œë°± í•¨ìˆ˜
     private Action<QuestData, QuestState> onQuestSelectedCallback;
 
     private void Awake()
@@ -33,7 +34,6 @@ public class QuestUIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(gameObject);
         }
         else
         {
@@ -42,54 +42,58 @@ public class QuestUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Äù½ºÆ® ¸ñ·Ï ÆĞ³ÎÀ» È°¼ºÈ­ÇÏ°í Äù½ºÆ® ¸ñ·ÏÀ» Ç¥½ÃÇÕ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â NPCUIManagerÀÇ 'Äù½ºÆ®' ¹öÆ°°ú ¿¬µ¿µË´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ ëª©ë¡ íŒ¨ë„ì„ í™œì„±í™”í•˜ê³  í€˜ìŠ¤íŠ¸ ëª©ë¡ì„ í‘œì‹œí•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” NPCUIManagerì˜ 'í€˜ìŠ¤íŠ¸' ë²„íŠ¼ê³¼ ì—°ë™ë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="questGiver">¸ñ·ÏÀ» Á¦°øÇÒ QuestGiver ÄÄÆ÷³ÍÆ®.</param>
-    /// <param name="callback">Äù½ºÆ® ¼±ÅÃ ÈÄ ½ÇÇàµÉ Äİ¹é ÇÔ¼ö.</param>
+    /// <param name="questGiver">ëª©ë¡ì„ ì œê³µí•  QuestGiver ì»´í¬ë„ŒíŠ¸.</param>
+    /// <param name="callback">í€˜ìŠ¤íŠ¸ ì„ íƒ í›„ ì‹¤í–‰ë  ì½œë°± í•¨ìˆ˜.</param>
     public void ShowQuestList(QuestGiver questGiver, Action<QuestData, QuestState> callback)
     {
         if (questGiver == null)
         {
-            Debug.LogError("QuestGiver ÄÄÆ÷³ÍÆ®°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("QuestGiver ì»´í¬ë„ŒíŠ¸ê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
         currentQuestGiver = questGiver;
         onQuestSelectedCallback = callback;
 
-        // ±âÁ¸ Äù½ºÆ® Ç×¸ñ ¸ğµÎ »èÁ¦
+        // ê¸°ì¡´ í€˜ìŠ¤íŠ¸ í•­ëª© ëª¨ë‘ ì‚­ì œ
         foreach (Transform child in questListContent)
         {
             Destroy(child.gameObject);
         }
 
-        // Äù½ºÆ® ¸ñ·ÏÀ» µ¿ÀûÀ¸·Î »ı¼º
+        // ğŸ’¡ ìˆ˜ì • ì‚¬í•­: NPCì˜ í˜„ì¬ í˜¸ê°ë„ë¥¼ ê°€ì ¸ì™€ GetQuestStateì— ì „ë‹¬
+        int currentAffection = currentQuestGiver.GetComponent<NPC>().GetAffection();
+
+        // í€˜ìŠ¤íŠ¸ ë°ì´í„°ë¥¼ ê°€ì ¸ì™€ ìƒíƒœì— ë”°ë¼ ì •ë ¬í•©ë‹ˆë‹¤.
         List<QuestData> questDatas = currentQuestGiver.GetQuestDatas();
-        foreach (QuestData data in questDatas)
+
+        // í€˜ìŠ¤íŠ¸ ìƒíƒœì— ë”°ë¼ ì˜¤ë¦„ì°¨ìˆœìœ¼ë¡œ ì •ë ¬í•©ë‹ˆë‹¤.
+        var sortedQuests = questDatas
+            // ğŸ’¡ ìˆ˜ì •: GetQuestState ë©”ì„œë“œì— currentAffection ì¸ì ì¶”ê°€
+            .Select(data => new { Data = data, State = QuestManager.Instance.GetQuestState(data.questID, currentAffection) })
+            .Where(q => q.State != QuestState.Unavailable && q.State != QuestState.None) // Unavailable, None ìƒíƒœëŠ” ì œì™¸
+            .OrderBy(q => q.State) // ìƒíƒœì— ë”°ë¼ ì •ë ¬
+            .ToList();
+
+        // ì •ë ¬ëœ í€˜ìŠ¤íŠ¸ ëª©ë¡ì„ ê¸°ë°˜ìœ¼ë¡œ UIë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+        foreach (var sortedQuest in sortedQuests)
         {
-            // QuestManager¸¦ ÅëÇØ Á÷Á¢ Äù½ºÆ® »óÅÂ¸¦ È®ÀÎÇÕ´Ï´Ù.
-            QuestState state = QuestManager.Instance.GetQuestState(data.questID);
+            GameObject listItem = Instantiate(questListItemPrefab, questListContent);
+            QuestListItem listItemScript = listItem.GetComponent<QuestListItem>();
 
-            // "ÁøÇà °¡´É" »óÅÂ, "ÁøÇà Áß" »óÅÂ, "¿Ï·á °¡´É" »óÅÂÀÇ Äù½ºÆ®¸¸ ¸ñ·Ï¿¡ Ç¥½ÃÇÕ´Ï´Ù.
-            if (state == QuestState.Available || state == QuestState.Accepted || state == QuestState.Complete)
-            {
-                GameObject listItem = Instantiate(questListItemPrefab, questListContent);
-                QuestListItem listItemScript = listItem.GetComponent<QuestListItem>();
+            listItemScript.SetQuestData(sortedQuest.Data, sortedQuest.State);
 
-                // Äù½ºÆ® Ç×¸ñ UI ¾÷µ¥ÀÌÆ®
-                listItemScript.SetQuestData(data, state);
-
-                // ¹öÆ° Å¬¸¯ ÀÌº¥Æ® ¿¬°á
-                listItem.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => OnQuestSelected(data, state));
-            }
+            listItem.GetComponent<UnityEngine.UI.Button>().onClick.AddListener(() => OnQuestSelected(sortedQuest.Data, sortedQuest.State));
         }
-        // Äù½ºÆ® ¸ñ·Ï UI È°¼ºÈ­
+
         questListPanel.SetActive(true);
     }
 
     /// <summary>
-    /// Äù½ºÆ® ¸ñ·Ï ÆĞ³ÎÀ» ºñÈ°¼ºÈ­ÇÏ°í Äİ¹éÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ ëª©ë¡ íŒ¨ë„ì„ ë¹„í™œì„±í™”í•˜ê³  ì½œë°±ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     public void HideQuestList()
     {
@@ -99,16 +103,17 @@ public class QuestUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Äù½ºÆ® ¸ñ·Ï¿¡¼­ Æ¯Á¤ Äù½ºÆ® Ç×¸ñÀ» ¼±ÅÃÇßÀ» ¶§ È£ÃâµÇ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ ëª©ë¡ì—ì„œ íŠ¹ì • í€˜ìŠ¤íŠ¸ í•­ëª©ì„ ì„ íƒí–ˆì„ ë•Œ í˜¸ì¶œë˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="questData">¼±ÅÃµÈ Äù½ºÆ®ÀÇ µ¥ÀÌÅÍ.</param>
-    /// <param name="state">¼±ÅÃµÈ Äù½ºÆ®ÀÇ ÇöÀç »óÅÂ.</param>
     private void OnQuestSelected(QuestData questData, QuestState state)
     {
-        // Äù½ºÆ® ¸ñ·Ï ÆĞ³ÎÀ» ¼û±é´Ï´Ù.
-        HideQuestList();
+        // 1. ì½œë°± í•¨ìˆ˜ë¥¼ ë¨¼ì € ì‹¤í–‰í•˜ì—¬ í€˜ìŠ¤íŠ¸ í•¸ë“¤ëŸ¬ì— ì œì–´ë¥¼ ë„˜ê¹ë‹ˆë‹¤.
+        if (onQuestSelectedCallback != null)
+        {
+            onQuestSelectedCallback.Invoke(questData, state);
+        }
 
-        // ¼±ÅÃµÈ Äù½ºÆ® Á¤º¸¿Í »óÅÂ¸¦ NPCUIManager·Î ´Ù½Ã Àü´ŞÇÕ´Ï´Ù.
-        onQuestSelectedCallback?.Invoke(questData, state);
+        // 2. ê·¸ ë‹¤ìŒ í€˜ìŠ¤íŠ¸ ëª©ë¡ íŒ¨ë„ì„ ìˆ¨ê¹ë‹ˆë‹¤.
+        HideQuestList();
     }
 }

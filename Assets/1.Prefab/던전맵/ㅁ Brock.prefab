@@ -28,8 +28,8 @@ Transform:
   m_GameObject: {fileID: 1024377101346030284}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -50, y: 25, z: 100}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: -50, y: 1.5, z: 100}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -126,7 +126,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8829202425922673555
 Transform:
   m_ObjectHideFlags: 0
@@ -136,8 +136,8 @@ Transform:
   m_GameObject: {fileID: 1165422161655806044}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: -50, y: 25, z: 0}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: -50, y: 1.5, z: 0}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -343,7 +343,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &5448281177148516587
 Transform:
   m_ObjectHideFlags: 0
@@ -353,8 +353,8 @@ Transform:
   m_GameObject: {fileID: 2083103940880011583}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 25, z: -50}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: -50}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -679,8 +679,8 @@ Transform:
   m_GameObject: {fileID: 4310330621798088985}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 25, z: 150}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: 0, y: 1.5, z: 150}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -777,7 +777,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &1568198415390305059
 Transform:
   m_ObjectHideFlags: 0
@@ -787,8 +787,8 @@ Transform:
   m_GameObject: {fileID: 6191600875053770461}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 100, y: 25, z: 150}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: 100, y: 1.5, z: 150}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -895,8 +895,8 @@ Transform:
   m_GameObject: {fileID: 6329421340764992322}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 150, y: 25, z: 0}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: 150, y: 1.5, z: 0}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -1201,7 +1201,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7979828035164203311
 Transform:
   m_ObjectHideFlags: 0
@@ -1211,8 +1211,8 @@ Transform:
   m_GameObject: {fileID: 8816949998275825379}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.7071068, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 150, y: 25, z: 100}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: 150, y: 1.5, z: 100}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}
@@ -1319,8 +1319,8 @@ Transform:
   m_GameObject: {fileID: 9177208313814096041}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 100, y: 25, z: -50}
-  m_LocalScale: {x: 100, y: 50, z: 1}
+  m_LocalPosition: {x: 100, y: 1.5, z: -50}
+  m_LocalScale: {x: 100, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8669935948340557475}

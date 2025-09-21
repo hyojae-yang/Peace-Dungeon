@@ -29,7 +29,7 @@ public class DungeonShopUIItem : MonoBehaviour
         // 2. UI 요소에 데이터 표시
         itemImage.sprite = itemData.itemImage;
         itemNameText.text = itemData.itemName;
-        itemPriceText.text = itemData.price.ToString(); // 가격을 문자열로 변환
+        itemPriceText.text = $"{ itemData.price.ToString()}코인"; // 가격을 문자열로 변환
         itemDescriptionText.text = itemData.description;
 
         // 3. 구매 버튼 리스너 연결
