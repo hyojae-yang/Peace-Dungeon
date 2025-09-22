@@ -1,4 +1,5 @@
 using UnityEngine;
+using System; // 이벤트 사용을 위해 System 네임스페이스 추가
 
 /// <summary>
 /// 몬스터의 전투 로직(피해 처리, 공격)을 담당하는 클래스입니다.
@@ -8,6 +9,10 @@ public class MonsterCombat : MonoBehaviour, IDamageable
 {
     private MonsterBase monsterBase;
     private float currentHealth;
+
+    // === 이벤트 ===
+    // 데미지를 입었을 때 다른 스크립트에 알리는 이벤트
+    public event Action<float> OnDamageTaken;
 
     private void Awake()
     {
@@ -45,6 +50,10 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         }
 
         currentHealth -= finalDamage;
+
+        // 이벤트 호출: 데미지 양을 인자로 전달합니다.
+        // 다른 스크립트들이 이 이벤트를 구독하여 필요한 행동을 수행할 수 있습니다.
+        OnDamageTaken?.Invoke(finalDamage);
 
         if (currentHealth <= 0)
         {

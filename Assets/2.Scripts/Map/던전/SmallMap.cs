@@ -58,6 +58,10 @@ public class SmallMap : MonoBehaviour
 
     private void OnMouseDown()
     {
+        if (MainSceneManager.Instance != null && !MainSceneManager.Instance.isDungeonCanvasActive)
+        {
+            return; // 던전 캔버스가 활성화된 경우 클릭 기능 활성화
+        }
         // 더블클릭을 먼저 감지
         if (Time.time - lastClickTime < doubleClickTime)
         {

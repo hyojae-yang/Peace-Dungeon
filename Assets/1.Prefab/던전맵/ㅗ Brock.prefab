@@ -230,6 +230,7 @@ GameObject:
   - component: {fileID: 297004652428080912}
   - component: {fileID: 1309254875820607817}
   - component: {fileID: 4130539503235663500}
+  - component: {fileID: 2268839333063198656}
   m_Layer: 0
   m_Name: "\u3157 Brock"
   m_TagString: SmallMap
@@ -319,6 +320,28 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemID: 12
+--- !u!114 &2268839333063198656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1226478986477158938}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6de90537d47c63346a7bbb806d966cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPlans:
+  - {fileID: 181515343550787174}
+  - {fileID: 5308718863425072911}
+  - {fileID: 5721053444246588114}
+  - {fileID: 238619898534132199}
+  monsterSpawnList:
+  - monsterPrefab: {fileID: 640720440684500291, guid: 9deee2a65cbf35241aa4fb304f7912a8, type: 3}
+    minSpawnCount: 50
+    maxSpawnCount: 100
+    score: 1
 --- !u!1 &1750962561434491522
 GameObject:
   m_ObjectHideFlags: 0
@@ -445,7 +468,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &314593748828965105
 Transform:
   m_ObjectHideFlags: 0
@@ -661,7 +684,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4672069666807373523
 Transform:
   m_ObjectHideFlags: 0
@@ -1311,7 +1334,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1257466066364667914
 Transform:
   m_ObjectHideFlags: 0
@@ -1527,7 +1550,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2188523277595488405
 Transform:
   m_ObjectHideFlags: 0

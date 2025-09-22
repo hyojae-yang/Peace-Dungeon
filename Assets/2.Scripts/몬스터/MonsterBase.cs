@@ -14,7 +14,8 @@ public abstract class MonsterBase : MonoBehaviour
         Patrol,
         Chase,
         Attack,
-        Flee, // <--- 새로운 도망 상태 추가
+        Flee,
+        Charge,// <--- 새로운 기모으기 상태 추가
         Dead
     }
 

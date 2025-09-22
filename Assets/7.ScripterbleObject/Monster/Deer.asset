@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
+  m_Name: Deer
+  m_EditorClassIdentifier: 
+  monsterID: 2
+  monsterName: "\uC0AC\uC2B4"
+  monsterLevel: 0
+  maxHealth: 50
+  maxMana: 10
+  attackPower: 8
+  magicAttackPower: 0
+  defense: 2
+  magicDefense: 2
+  moveSpeed: 4
+  criticalChance: 0
+  criticalDamageMultiplier: 0
+  attackDamageType: 0
+  minExpReward: 5
+  maxExpReward: 10
+  minGoldReward: 5
+  maxGoldReward: 10
+  lootTable:
+  - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
+    dropChance: 0.35
+  - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
+    dropChance: 0.35
+  - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
+    dropChance: 0.3
+  minItemDropCount: 1
+  maxItemDropCount: 2

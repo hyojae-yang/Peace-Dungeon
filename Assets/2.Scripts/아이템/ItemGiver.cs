@@ -39,19 +39,19 @@ public class ItemGiver : MonoBehaviour
 
     /// <summary>
     /// 매 프레임마다 키 입력을 확인하여 아이템을 생성하고 인벤토리에 지급합니다.
-    /// Q 키: 장비 아이템 생성 및 지급
-    /// E 키: 소모품 아이템 생성 및 지급
+    /// Z 키: 장비 아이템 생성 및 지급
+    /// C 키: 소모품 아이템 생성 및 지급
     /// </summary>
     private void Update()
     {
         // Q 키를 누르면 장비 아이템을 지급합니다.
-        if (Input.GetKeyDown(KeyCode.Q))
+        if (Input.GetKeyDown(KeyCode.Z))
         {
             GiveGeneratedItem();
         }
 
         // E 키를 누르면 소모품 아이템을 지급합니다.
-        if (Input.GetKeyDown(KeyCode.E))
+        if (Input.GetKeyDown(KeyCode.C))
         {
             GiveConsumableItem();
         }
@@ -59,7 +59,7 @@ public class ItemGiver : MonoBehaviour
 
     /// <summary>
     /// ItemGenerator를 통해 장비 아이템을 동적으로 생성하여 인벤토리에 추가합니다.
-    /// 이 메서드는 Q 키 입력 시 호출됩니다.
+    /// 이 메서드는 Z 키 입력 시 호출됩니다.
     /// </summary>
     private void GiveGeneratedItem()
     {
@@ -78,7 +78,7 @@ public class ItemGiver : MonoBehaviour
 
     /// <summary>
     /// 할당된 소모품 아이템을 인벤토리에 추가합니다.
-    /// 이 메서드는 E 키 입력 시 호출됩니다.
+    /// 이 메서드는 C 키 입력 시 호출됩니다.
     /// </summary>
     private void GiveConsumableItem()
     {
