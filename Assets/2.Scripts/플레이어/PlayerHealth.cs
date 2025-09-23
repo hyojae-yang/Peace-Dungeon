@@ -62,7 +62,6 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         // PlayerStats의 health 변수에 직접 접근하여 데미지를 적용합니다.
         playerCharacter.playerStats.health -= amount;
 
-        Debug.Log("플레이어가 데미지를 입었습니다! 남은 체력: " + playerCharacter.playerStats.health);
 
         // 체력이 0보다 작거나 같아지면 죽음 처리
         if (playerCharacter.playerStats.health <= 0)
@@ -116,6 +115,6 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         Debug.Log("플레이어가 사망했습니다!");
 
         // 여기에 게임 오버, 플레이어 오브젝트 파괴 등 추가 로직을 구현합니다.
-        Destroy(gameObject);
+        gameObject.SetActive(false);
     }
 }

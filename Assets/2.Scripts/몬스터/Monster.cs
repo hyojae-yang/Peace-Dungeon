@@ -16,6 +16,7 @@ public class Monster : MonsterBase, IDetectable
     [Tooltip("플레이어 레이어 마스크입니다.")]
     public LayerMask playerLayer;
 
+
     // === 종속성 ===
     private MonsterCombat combat;
     private MonsterLoot loot;
@@ -33,10 +34,10 @@ public class Monster : MonsterBase, IDetectable
 
     private void Update()
     {
+        DetectPlayer();
         switch (currentState)
         {
-            case MonsterState.Idle:
-                DetectPlayer();
+            case MonsterState.Patrol:
                 break;
             case MonsterState.Chase:
                 if (detectableTarget != null)
@@ -50,7 +51,8 @@ public class Monster : MonsterBase, IDetectable
                 break;
             case MonsterState.Attack:
                 break;
-            case MonsterState.Flee: // <--- Flee 상태일 때는 아무것도 하지 않습니다.
+            case MonsterState.Flee:
+                // Flee 상태는 SquirrelBehavior와 같은 전용 스크립트가 처리합니다.
                 break;
             case MonsterState.Dead:
                 break;
@@ -76,7 +78,8 @@ public class Monster : MonsterBase, IDetectable
                 if (angle < detectionAngle * 0.5f)
                 {
                     detectableTarget = target;
-                    // 기존 ChangeState(MonsterState.Chase); 호출을 제거합니다.
+                    // 플레이어 감지 시 Chase 상태로 즉시 변경
+                    ChangeState(MonsterState.Chase);
                     return;
                 }
             }

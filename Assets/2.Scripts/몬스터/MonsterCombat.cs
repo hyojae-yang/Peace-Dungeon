@@ -60,4 +60,8 @@ public class MonsterCombat : MonoBehaviour, IDamageable
             monsterBase.Die();
         }
     }
+    public float GetCurrentHealth()
+    { 
+     return currentHealth;
+    }
 }

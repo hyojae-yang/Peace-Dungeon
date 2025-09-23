@@ -16,6 +16,7 @@ public abstract class MonsterBase : MonoBehaviour
         Attack,
         Flee,
         Charge,// <--- 새로운 기모으기 상태 추가
+        Flocking, // <--- 추가: 무리 짓기 상태
         Dead
     }
 

@@ -16,10 +16,10 @@ GameObject:
   - component: {fileID: 3190024456266822041}
   - component: {fileID: 778637905177413353}
   - component: {fileID: 2878683486174659966}
-  - component: {fileID: 7343480194831563313}
   - component: {fileID: 7754573069694080020}
+  - component: {fileID: 6441855344361081604}
   m_Layer: 8
-  m_Name: Boar
+  m_Name: Wolf
   m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -35,7 +35,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_LocalScale: {x: 4, y: 4, z: 4}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
@@ -71,7 +71,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 7259980c6c4ed5641b3567f3ac11f78e, type: 2}
+  - {fileID: 2100000, guid: deba3d422dced0441bc459c4ef6e601a, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -153,9 +153,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 192657383c9985248a172b71231506df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monsterData: {fileID: 11400000, guid: 1553a9844da34124f974d7a04134f07e, type: 2}
+  monsterData: {fileID: 11400000, guid: 27cca1ec63d2220428edc338d5684f71, type: 2}
   currentState: 0
-  detectionRange: 10
+  detectionRange: 15
   detectionAngle: 120
   playerLayer:
     serializedVersion: 2
@@ -184,24 +184,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55593c4447704b4984aa48bf5fc272b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &7343480194831563313
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 640720440684500291}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab9d8d82ad42e374986e10fbdf2f3a2a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  chargeDistance: 8
-  chargeSpeed: 15
-  attackRange: 3
-  attackCooldown: 1.5
-  manaCostPerCharge: 5
-  manaRegenRate: 1
 --- !u!114 &7754573069694080020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,8 +197,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   homePoint: {x: 0, y: 0, z: 0}
-  patrolRadius: 20
-  patrolSpeedMultiplier: 1
+  patrolRadius: 10
+  patrolSpeedMultiplier: 0.8
   waitTimeBetweenPatrols: 1
   patrolPointChangeInterval: 5
-  homePointChangeInterval: 30
+  homePointChangeInterval: 1e+30
+--- !u!114 &6441855344361081604
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640720440684500291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a7678dc6772d474290304d53f955018, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  callForHelpHealthRatio: 0.5
+  flockDetectionRadius: 30
+  attackRange: 3
+  packAttackSpeed: 10
+  attackCooldown: 1.5

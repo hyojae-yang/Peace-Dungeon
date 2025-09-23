@@ -3,17 +3,19 @@ using System.Collections;
 
 /// <summary>
 /// 사슴 몬스터의 고유한 행동 로직(도망치기, 공격)을 담당하는 클래스입니다.
-/// MonsterBase의 상태를 관찰하며 특별한 행동을 실행합니다.
-/// 데미지 이벤트에 반응하여 행동을 바꿉니다.
+/// MonsterPatrol 컴포넌트를 제어하고, 데미지 이벤트에 반응하여 행동을 바꿉니다.
 /// </summary>
 [RequireComponent(typeof(Monster))]
-public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
+[RequireComponent(typeof(MonsterPatrol))] // MonsterPatrol 컴포넌트가 필요함을 명시
+public class DeerBehavior : MonoBehaviour
 {
     // === 종속성 ===
     private Monster monster;
     private MonsterCombat monsterCombat;
+    private MonsterPatrol monsterPatrol; // MonsterPatrol 컴포넌트 참조 추가
     private Transform playerTransform;
 
+    // === 사슴 행동 설정 ===
     [Header("사슴 행동 설정")]
     [Tooltip("플레이어 감지 시 도망치기 시작할 거리입니다.")]
     public float fleeDistance = 15f;
@@ -28,31 +30,18 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
     [Tooltip("도망치는 방향으로의 이동 속도 배율입니다.")]
     public float fleeSpeedMultiplier = 1.5f;
 
-    [Header("순찰 행동 설정")]
-    [Tooltip("순찰의 중심이 되는 지점입니다. 몬스터의 초기 위치를 사용하거나 별도 오브젝트를 지정할 수 있습니다.")]
-    public Transform homePoint;
-    [Tooltip("중심 지점을 기준으로 순찰할 반경입니다.")]
-    public float patrolRadius = 10f;
-    [Tooltip("순찰 시 이동 속도입니다.")]
-    public float patrolSpeed = 3f;
-
+    // === 내부 변수 ===
     private bool hasTakenDamage = false;
     private float lastAttackTime;
-    private Vector3 currentPatrolPoint;
 
     void Awake()
     {
         monster = GetComponent<Monster>();
-        if (monster == null)
-        {
-            Debug.LogError("DeerBehavior: Monster 컴포넌트를 찾을 수 없습니다.");
-            enabled = false;
-        }
-
         monsterCombat = GetComponent<MonsterCombat>();
-        if (monsterCombat == null)
+        monsterPatrol = GetComponent<MonsterPatrol>(); // MonsterPatrol 참조
+        if (monster == null || monsterCombat == null || monsterPatrol == null)
         {
-            Debug.LogError("DeerBehavior: MonsterCombat 컴포넌트를 찾을 수 없습니다.");
+            Debug.LogError("DeerBehavior: 필수 컴포넌트를 찾을 수 없습니다.");
             enabled = false;
         }
 
@@ -62,20 +51,15 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
             playerTransform = playerObject.transform;
         }
 
-        if (homePoint == null)
-        {
-            homePoint = this.transform;
-        }
-
-        SetNewPatrolPoint();
+        // 사슴 몬스터는 기본적으로 순찰 상태로 시작합니다.
+        monster.ChangeState(MonsterBase.MonsterState.Patrol);
     }
 
     /// <summary>
-    /// 스크립트가 활성화될 때 이벤트를 구독합니다.
+    /// 스크립트가 활성화될 때 데미지 이벤트를 구독합니다.
     /// </summary>
     private void OnEnable()
     {
-        // monsterCombat이 null이 아닐 때만 이벤트를 구독합니다.
         if (monsterCombat != null)
         {
             monsterCombat.OnDamageTaken += OnMonsterDamaged;
@@ -83,8 +67,7 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
     }
 
     /// <summary>
-    /// 스크립트가 비활성화될 때 이벤트를 구독 해제합니다.
-    /// 메모리 누수를 방지하기 위해 반드시 필요합니다.
+    /// 스크립트가 비활성화될 때 데미지 이벤트를 구독 해제합니다.
     /// </summary>
     private void OnDisable()
     {
@@ -95,13 +78,12 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
     }
 
     /// <summary>
-    /// MonsterCombat에서 데미지 이벤트가 발생했을 때 호출되는 메서드입니다.
+    /// MonsterCombat에서 데미지 이벤트가 발생했을 때 호출됩니다.
     /// </summary>
-    /// <param name="damage">입은 데미지 양 (현재는 사용되지 않음)</param>
     private void OnMonsterDamaged(float damage)
     {
-        // 데미지를 입었음을 알리고 공격 상태로 전환합니다.
         hasTakenDamage = true;
+        // 데미지를 입으면 즉시 공격 상태로 전환합니다.
         monster.ChangeState(MonsterBase.MonsterState.Attack);
     }
 
@@ -109,6 +91,8 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
     {
         if (playerTransform == null || monster.currentState == MonsterBase.MonsterState.Dead)
         {
+            // 몬스터가 죽으면 순찰도 멈춥니다.
+            monsterPatrol.StopPatrol();
             return;
         }
 
@@ -116,27 +100,30 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
 
         switch (monster.currentState)
         {
-            case MonsterBase.MonsterState.Idle:
+            case MonsterBase.MonsterState.Patrol:
+                // Patrol 상태일 때 순찰 시작
+                monsterPatrol.StartPatrol();
+
+                // 플레이어를 감지하면 도망 상태로 전환
                 if (distanceToPlayer < fleeDistance)
                 {
                     monster.ChangeState(MonsterBase.MonsterState.Flee);
-                }
-                else
-                {
-                    Patrol();
+                    monsterPatrol.StopPatrol();
                 }
                 break;
 
             case MonsterBase.MonsterState.Flee:
-                // 데미지를 받지 않았다면 계속 도망칩니다.
+                // 순찰을 멈추고 도망 로직 실행
+                monsterPatrol.StopPatrol();
                 if (!hasTakenDamage)
                 {
-                    FleeFromPlayer();
+                    FleeFromPlayer(distanceToPlayer);
                 }
-                // 데미지를 받았다면 MonsterCombat의 이벤트 핸들러에 의해 이미 상태가 전환되었을 것입니다.
                 break;
 
             case MonsterBase.MonsterState.Attack:
+                // 순찰을 멈추고 공격 로직 실행
+                monsterPatrol.StopPatrol();
                 AttackPlayer(distanceToPlayer);
                 break;
         }
@@ -145,10 +132,8 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
     /// <summary>
     /// 플레이어에게서 도망치는 로직을 실행합니다.
     /// </summary>
-    private void FleeFromPlayer()
+    private void FleeFromPlayer(float distanceToPlayer)
     {
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-
         if (distanceToPlayer < stopFleeDistance)
         {
             Vector3 fleeDirection = (transform.position - playerTransform.position).normalized;
@@ -158,61 +143,29 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
         }
         else
         {
-            monster.ChangeState(MonsterBase.MonsterState.Idle);
+            // 충분히 멀리 도망쳤으면 다시 Patrol 상태로 돌아갑니다.
+            monster.ChangeState(MonsterBase.MonsterState.Patrol);
         }
     }
 
     /// <summary>
     /// 플레이어를 공격하는 로직을 실행합니다.
     /// </summary>
-    /// <param name="distanceToPlayer">플레이어와의 현재 거리</param>
     private void AttackPlayer(float distanceToPlayer)
     {
         if (distanceToPlayer > attackDistance)
         {
+            // 공격 범위 밖이면 추격
             Vector3 direction = (playerTransform.position - transform.position).normalized;
             transform.position += direction * attackSpeed * Time.deltaTime;
-
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
         }
         else
         {
+            // 공격 범위 안이면 공격 실행
             PerformAttack();
         }
-    }
-
-    /// <summary>
-    /// 순찰 로직을 실행합니다.
-    /// </summary>
-    private void Patrol()
-    {
-        float distanceToTarget = Vector3.Distance(transform.position, currentPatrolPoint);
-
-        if (distanceToTarget < 1.0f)
-        {
-            SetNewPatrolPoint();
-        }
-
-        transform.position = Vector3.MoveTowards(transform.position, currentPatrolPoint, patrolSpeed * Time.deltaTime);
-
-        Vector3 direction = (currentPatrolPoint - transform.position).normalized;
-        if (direction != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-        }
-    }
-
-    /// <summary>
-    /// 순찰 범위 내에 새로운 랜덤 지점을 설정합니다.
-    /// </summary>
-    private void SetNewPatrolPoint()
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
-        randomDirection += homePoint.position;
-        randomDirection.y = transform.position.y;
-        currentPatrolPoint = randomDirection;
     }
 
     /// <summary>
@@ -234,10 +187,7 @@ public class DeerBehavior : MonoBehaviour // <-- IDamageable 인터페이스 제거
 
     private void OnDrawGizmosSelected()
     {
-        if (homePoint != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(homePoint.position, patrolRadius);
-        }
+        // 몬스터의 감지 범위 기즈모는 Monster 스크립트에서 그립니다.
+        // Flee 및 Attack 거리는 기즈모로 시각화하지 않습니다.
     }
 }

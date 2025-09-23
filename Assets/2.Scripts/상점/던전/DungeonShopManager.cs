@@ -33,7 +33,6 @@ public class DungeonShopManager : MonoBehaviour
         // 아이템의 재화 타입이 던전 코인이 맞는지 확인 (방어적 코드)
         if (itemData.currencyType != CurrencyType.DungeonCoin)
         {
-            Debug.LogWarning($"Warning: '{itemData.itemName}' 아이템은 던전 코인으로 구매할 수 없습니다.");
             return;
         }
 
@@ -42,7 +41,6 @@ public class DungeonShopManager : MonoBehaviour
         {
             // 구매 성공 시 인벤토리에 아이템 추가
             dungeonInventoryManager.AddPlayerItem(itemID);
-            Debug.Log($"'{itemData.itemName}' 아이템 구매 성공!");
 
             // UI를 갱신하여 현재 코인 개수를 즉시 반영합니다.
             DungeonShopUIManager uiManager = FindFirstObjectByType<DungeonShopUIManager>();

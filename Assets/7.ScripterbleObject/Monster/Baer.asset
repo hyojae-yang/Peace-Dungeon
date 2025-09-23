@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
-  m_Name: Boer
+  m_Name: Baer
   m_EditorClassIdentifier: 
-  monsterID: 3
-  monsterName: "\uBA67\uB3FC\uC9C0"
+  monsterID: 1001
+  monsterName: "\uACF0"
   monsterLevel: 0
-  maxHealth: 100
-  maxMana: 30
-  attackPower: 50
-  magicAttackPower: 0
-  defense: 5
-  magicDefense: 5
-  moveSpeed: 5
+  maxHealth: 500
+  maxMana: 0
+  attackPower: 100
+  magicAttackPower: 50
+  defense: 30
+  magicDefense: 30
+  moveSpeed: 6
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
-  minExpReward: 8
-  maxExpReward: 15
-  minGoldReward: 30
-  maxGoldReward: 50
+  minExpReward: 3
+  maxExpReward: 5
+  minGoldReward: 5
+  maxGoldReward: 10
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35

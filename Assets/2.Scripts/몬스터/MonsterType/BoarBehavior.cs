@@ -5,40 +5,36 @@ using System.Collections.Generic;
 /// <summary>
 /// 멧돼지 몬스터의 고유한 행동 로직(순찰, 돌진, 공격)을 담당하는 클래스입니다.
 /// MonsterBase의 상태를 관찰하며 특별한 행동을 실행합니다.
+/// MonsterPatrol 컴포넌트를 제어하여 순찰 기능을 수행합니다.
 /// </summary>
 [RequireComponent(typeof(Monster))]
+[RequireComponent(typeof(MonsterPatrol))] // MonsterPatrol 컴포넌트가 필요함을 명시
 public class BoarBehavior : MonoBehaviour
 {
     // === 종속성 ===
     private Monster monster;
     private MonsterCombat monsterCombat;
+    private MonsterPatrol monsterPatrol; // MonsterPatrol 컴포넌트 참조
     private Transform playerTransform;
 
+    // === 돌진 및 공격 설정 ===
     [Header("돌진 및 공격 설정")]
     [Tooltip("플레이어와 이 거리보다 멀리 떨어져 있을 때 돌진을 시작합니다.")]
-    public float chargeDistance = 10f;
+    public float chargeDistance = 8f;
     [Tooltip("돌진 시 이동 속도입니다.")]
     public float chargeSpeed = 15f;
     [Tooltip("일반 공격을 시작할 거리입니다. 돌진 후 이 거리에 들어오면 일반 공격을 시작합니다.")]
-    public float attackRange = 2f;
+    public float attackRange = 3f;
     [Tooltip("일반 공격 쿨타임입니다.")]
     public float attackCooldown = 1.5f;
     [Tooltip("돌진 한 번에 소모되는 마나 양입니다.")]
-    public float manaCostPerCharge = 20f;
+    public float manaCostPerCharge = 5f;
     [Tooltip("초당 회복되는 마나 양입니다.")]
-    public float manaRegenRate = 5f;
+    public float manaRegenRate = 1f;
 
-    [Header("순찰 행동 설정")]
-    [Tooltip("순찰의 중심이 되는 지점입니다. 몬스터의 초기 위치를 사용하거나 별도 오브젝트를 지정할 수 있습니다.")]
-    public Transform homePoint;
-    [Tooltip("중심 지점을 기준으로 순찰할 반경입니다.")]
-    public float patrolRadius = 10f;
-    [Tooltip("순찰 시 이동 속도입니다.")]
-    public float patrolSpeed = 3f;
-
+    // === 내부 변수 ===
     private float currentMana;
     private float lastAttackTime;
-    private Vector3 currentPatrolPoint;
     private Vector3 chargeDestination;
     private bool hasInitiatedCharge = false;
     private bool hasDealtChargeDamage = false; // 추가: 돌진 중 데미지를 입혔는지 여부
@@ -46,16 +42,11 @@ public class BoarBehavior : MonoBehaviour
     void Awake()
     {
         monster = GetComponent<Monster>();
-        if (monster == null)
-        {
-            Debug.LogError("BoarBehavior: Monster 컴포넌트를 찾을 수 없습니다.");
-            enabled = false;
-        }
-
         monsterCombat = GetComponent<MonsterCombat>();
-        if (monsterCombat == null)
+        monsterPatrol = GetComponent<MonsterPatrol>(); // MonsterPatrol 컴포넌트 참조
+        if (monster == null || monsterCombat == null || monsterPatrol == null)
         {
-            Debug.LogError("BoarBehavior: MonsterCombat 컴포넌트를 찾을 수 없습니다.");
+            Debug.LogError("BoarBehavior: 필수 컴포넌트를 찾을 수 없습니다.");
             enabled = false;
         }
 
@@ -64,17 +55,13 @@ public class BoarBehavior : MonoBehaviour
         {
             playerTransform = playerObject.transform;
         }
-
-        if (homePoint == null)
-        {
-            homePoint = this.transform;
-        }
     }
 
     void Start()
     {
         currentMana = monster.monsterData.maxMana;
-        SetNewPatrolPoint();
+        // 멧돼지 몬스터는 시작부터 순찰 상태로 설정
+        monster.ChangeState(MonsterBase.MonsterState.Patrol);
     }
 
     private void OnEnable()
@@ -95,7 +82,10 @@ public class BoarBehavior : MonoBehaviour
 
     private void OnMonsterDamaged(float damage)
     {
+        // 데미지를 입으면 즉시 공격 상태로 전환
         monster.ChangeState(MonsterBase.MonsterState.Attack);
+        // 순찰 중이었다면 순찰 중지
+        monsterPatrol.StopPatrol();
     }
 
     // 돌진 중 플레이어와 충돌하면 데미지를 입히는 콜백 함수
@@ -120,21 +110,29 @@ public class BoarBehavior : MonoBehaviour
     {
         if (playerTransform == null || monster.currentState == MonsterBase.MonsterState.Dead)
         {
+            // 몬스터가 죽으면 모든 행동 중지
+            monsterPatrol.StopPatrol();
             return;
         }
 
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-
+        // 마나 회복 로직
         if (currentMana < monster.monsterData.maxMana)
         {
             currentMana += manaRegenRate * Time.deltaTime;
         }
 
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
+
         switch (monster.currentState)
         {
-            case MonsterBase.MonsterState.Idle:
+            case MonsterBase.MonsterState.Patrol:
+                // Patrol 상태일 때 순찰 시작
+                monsterPatrol.StartPatrol();
+
+                // 플레이어를 감지하면 마나에 따라 공격 또는 돌진 상태로 전환
                 if (distanceToPlayer < monster.detectionRange)
                 {
+                    monsterPatrol.StopPatrol(); // 순찰 중지
                     if (currentMana >= manaCostPerCharge)
                     {
                         monster.ChangeState(MonsterBase.MonsterState.Charge);
@@ -144,18 +142,23 @@ public class BoarBehavior : MonoBehaviour
                         monster.ChangeState(MonsterBase.MonsterState.Attack);
                     }
                 }
-                else
-                {
-                    Patrol();
-                }
                 break;
 
             case MonsterBase.MonsterState.Charge:
+                // 순찰 중지 후 돌진 로직 실행
+                monsterPatrol.StopPatrol();
                 HandleCharge(distanceToPlayer);
                 break;
 
             case MonsterBase.MonsterState.Attack:
+                // 순찰 중지 후 공격 로직 실행
+                monsterPatrol.StopPatrol();
                 HandleAttack(distanceToPlayer);
+                break;
+
+            case MonsterBase.MonsterState.Idle:
+                // Idle 상태에서는 순찰 중지
+                monsterPatrol.StopPatrol();
                 break;
         }
     }
@@ -164,21 +167,25 @@ public class BoarBehavior : MonoBehaviour
     {
         if (!hasInitiatedCharge)
         {
+            // 돌진 목표 지점 설정
             chargeDestination = transform.position + (playerTransform.position - transform.position).normalized * chargeDistance;
             currentMana -= manaCostPerCharge;
             hasInitiatedCharge = true;
             hasDealtChargeDamage = false; // 새로운 돌진 시작 시 초기화
         }
 
+        // 돌진 지점까지 이동
         transform.position = Vector3.MoveTowards(transform.position, chargeDestination, chargeSpeed * Time.deltaTime);
 
-        Vector3 direction = (chargeDestination - transform.position).normalized;
+        // 플레이어 방향으로 시선 변경
+        Vector3 direction = (playerTransform.position - transform.position).normalized;
         if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
         }
 
+        // 목표 지점에 도착했거나 플레이어에게 근접하면 공격 상태로 전환
         if (Vector3.Distance(transform.position, chargeDestination) < 0.5f || distanceToPlayer <= attackRange)
         {
             hasInitiatedCharge = false;
@@ -190,6 +197,7 @@ public class BoarBehavior : MonoBehaviour
     {
         if (distanceToPlayer > attackRange)
         {
+            // 공격 범위 밖이면 마나에 따라 돌진 또는 추격
             if (currentMana >= manaCostPerCharge)
             {
                 monster.ChangeState(MonsterBase.MonsterState.Charge);
@@ -201,41 +209,14 @@ public class BoarBehavior : MonoBehaviour
         }
         else
         {
+            // 공격 범위 안이면 공격 실행
             PerformAttack();
         }
 
+        // 플레이어가 감지 범위를 벗어나면 Idle 상태로 전환
         if (distanceToPlayer > monster.detectionRange)
         {
-            monster.ChangeState(MonsterBase.MonsterState.Idle);
-        }
-    }
-
-    /// <summary>
-    /// 순찰 로직을 실행합니다.
-    /// </summary>
-    private void Patrol()
-    {
-        float distanceToTarget = Vector3.Distance(transform.position, currentPatrolPoint);
-
-        if (distanceToTarget < 1.0f)
-        {
-            SetNewPatrolPoint();
-        }
-
-        MoveTowardsTarget(currentPatrolPoint, patrolSpeed);
-    }
-
-    /// <summary>
-    /// 목표 지점을 향해 이동하고 회전하는 공통 로직
-    /// </summary>
-    private void MoveTowardsTarget(Vector3 targetPoint, float speed)
-    {
-        Vector3 direction = (targetPoint - transform.position).normalized;
-        if (direction != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-            transform.position = Vector3.MoveTowards(transform.position, targetPoint, speed * Time.deltaTime);
+            monster.ChangeState(MonsterBase.MonsterState.Patrol); // Idle 대신 Patrol 상태로 변경
         }
     }
 
@@ -254,17 +235,6 @@ public class BoarBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 순찰 범위 내에 새로운 랜덤 지점을 설정합니다.
-    /// </summary>
-    private void SetNewPatrolPoint()
-    {
-        Vector3 randomDirection = Random.insideUnitSphere * patrolRadius;
-        randomDirection += homePoint.position;
-        randomDirection.y = transform.position.y;
-        currentPatrolPoint = randomDirection;
-    }
-
-    /// <summary>
     /// 플레이어에게 데미지를 입히는 일반 공격 로직을 실행합니다.
     /// </summary>
     private void PerformAttack()
@@ -278,15 +248,6 @@ public class BoarBehavior : MonoBehaviour
                 lastAttackTime = Time.time;
                 Debug.Log($"멧돼지가 플레이어에게 {monster.monsterData.attackPower}의 데미지를 입혔습니다!");
             }
-        }
-    }
-
-    private void OnDrawGizmosSelected()
-    {
-        if (homePoint != null)
-        {
-            Gizmos.color = Color.yellow;
-            Gizmos.DrawWireSphere(homePoint.position, patrolRadius);
         }
     }
 }

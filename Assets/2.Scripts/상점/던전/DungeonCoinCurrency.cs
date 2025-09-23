@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DungeonCoinCurrency : MonoBehaviour
 {
-    public int currentDungeonCoins { get; private set; } = 0;
+    public int currentDungeonCoins { get; private set; } = 100;
 
     /// <summary>
     /// 던전 코인을 추가하는 메서드. (예: 몬스터 처치 시 호출)
@@ -13,7 +13,6 @@ public class DungeonCoinCurrency : MonoBehaviour
         if (amount > 0)
         {
             currentDungeonCoins += amount;
-            Debug.Log($"던전 코인 {amount}개 획득. 현재 코인: {currentDungeonCoins}");
         }
     }
 
@@ -27,7 +26,6 @@ public class DungeonCoinCurrency : MonoBehaviour
         if (amount > 0 && currentDungeonCoins >= amount)
         {
             currentDungeonCoins -= amount;
-            Debug.Log($"던전 코인 {amount}개 사용. 현재 코인: {currentDungeonCoins}");
             return true;
         }
         Debug.LogWarning("던전 코인이 부족합니다.");

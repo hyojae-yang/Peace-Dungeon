@@ -17,18 +17,18 @@ MonoBehaviour:
   monsterLevel: 0
   maxHealth: 50
   maxMana: 10
-  attackPower: 8
+  attackPower: 20
   magicAttackPower: 0
-  defense: 2
-  magicDefense: 2
+  defense: 3
+  magicDefense: 3
   moveSpeed: 4
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
   minExpReward: 5
   maxExpReward: 10
-  minGoldReward: 5
-  maxGoldReward: 10
+  minGoldReward: 10
+  maxGoldReward: 30
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35

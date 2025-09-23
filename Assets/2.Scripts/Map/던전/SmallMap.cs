@@ -72,7 +72,7 @@ public class SmallMap : MonoBehaviour
             // 더블클릭 시 드래그 로직은 실행하지 않음
             return;
         }
-
+        TestSenser.tt = false; //테스트모드;
         // 더블클릭이 아니면 기존 드래그 시작 로직 실행
         isDragging = true;
         transform.position += new Vector3(0, 1f, 0);
@@ -86,6 +86,7 @@ public class SmallMap : MonoBehaviour
         // 마우스를 떼면 DungeonMap에 스냅 및 유효성 검사 요청
         if (DungeonMap.Instance != null)
         {
+            TestSenser.tt = true; //테스트모드;
             DungeonMap.Instance.SnapAndPlace(this);
         }
     }

@@ -17,6 +17,7 @@ GameObject:
   - component: {fileID: 778637905177413353}
   - component: {fileID: 2878683486174659966}
   - component: {fileID: 9047037711247385210}
+  - component: {fileID: -7896522343613012077}
   m_Layer: 8
   m_Name: Deer
   m_TagString: Monster
@@ -201,6 +202,21 @@ MonoBehaviour:
   attackSpeed: 6
   attackCooldown: 1.5
   fleeSpeedMultiplier: 1.5
-  homePoint: {fileID: 0}
-  patrolRadius: 10
-  patrolSpeed: 3
+--- !u!114 &-7896522343613012077
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640720440684500291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a2acfc52c7005f343bc27d7ad6946a22, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  homePoint: {x: 0, y: 0, z: 0}
+  patrolRadius: 15
+  patrolSpeedMultiplier: 1
+  waitTimeBetweenPatrols: 2
+  patrolPointChangeInterval: 5
+  homePointChangeInterval: 30

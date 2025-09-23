@@ -221,7 +221,8 @@ GameObject:
   - component: {fileID: 5639198972062519985}
   - component: {fileID: 7721987766233252413}
   - component: {fileID: 4291356128946529587}
-  m_Layer: 0
+  - component: {fileID: 5842839228615631000}
+  m_Layer: 10
   m_Name: Door2
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -274,7 +275,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 1f2fd0fe3cca2964bb33e41f019c97f1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -317,6 +318,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &5842839228615631000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 757631258369163678}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6bddbe9991161a438e1c3af3943d0bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serchLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  _detectionXScale: 0.005
 --- !u!1 &939844521134200954
 GameObject:
   m_ObjectHideFlags: 0
@@ -329,7 +346,8 @@ GameObject:
   - component: {fileID: 5864117317307063103}
   - component: {fileID: 8499770751931567669}
   - component: {fileID: 5234062100710207927}
-  m_Layer: 0
+  - component: {fileID: 1686630314517731480}
+  m_Layer: 10
   m_Name: Door
   m_TagString: Door
   m_Icon: {fileID: 0}
@@ -382,7 +400,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 1f2fd0fe3cca2964bb33e41f019c97f1, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -425,6 +443,22 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &1686630314517731480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 939844521134200954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6bddbe9991161a438e1c3af3943d0bc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serchLayerMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  _detectionXScale: 0.005
 --- !u!1 &990623887347528134
 GameObject:
   m_ObjectHideFlags: 0
