@@ -1,8 +1,9 @@
 using UnityEngine;
+using System.Collections.Generic;
 
 /// <summary>
 /// 곰 몬스터의 특수 행동 로직을 관리하는 스크립트입니다.
-/// 일반 공격 중 일정 시간마다 마법 범위 공격을 실행합니다.
+/// 일반 공격과 특수 공격을 담당하며, 몬스터의 기본 상태 로직(감지, 추적)과는 분리되어 있습니다.
 /// </summary>
 [RequireComponent(typeof(Monster))]
 [RequireComponent(typeof(MonsterCombat))]
@@ -13,7 +14,6 @@ public class BearBehavior : MonoBehaviour
     private Monster monster;
     private MonsterCombat monsterCombat;
     private Rigidbody rb;
-    private Transform playerTransform; // 플레이어의 위치를 추적하기 위한 변수
 
     // === 일반 공격 설정 변수 ===
     [Header("일반 공격 설정")]
@@ -39,17 +39,9 @@ public class BearBehavior : MonoBehaviour
     private void Awake()
     {
         // 필요한 컴포넌트들을 가져옵니다.
-        // GetComponent<T>를 사용하여 종속성을 명확히 관리합니다.
         monster = GetComponent<Monster>();
         monsterCombat = GetComponent<MonsterCombat>();
         rb = GetComponent<Rigidbody>();
-
-        // 플레이어 오브젝트를 찾아 Transform을 저장합니다.
-        GameObject playerObject = GameObject.FindWithTag("Player");
-        if (playerObject != null)
-        {
-            playerTransform = playerObject.transform;
-        }
 
         // 특수 공격 쿨타임을 초기화하여 게임 시작 즉시 특수 공격이 가능하게 합니다.
         lastAoeAttackTime = -aoeAttackCooldown;
@@ -57,30 +49,17 @@ public class BearBehavior : MonoBehaviour
 
     private void Update()
     {
-        // 플레이어 트랜스폼이 없거나 몬스터가 죽었다면 로직을 실행하지 않습니다.
-        if (playerTransform == null || monster.currentState == Monster.MonsterState.Dead)
+        // 몬스터가 죽었다면 로직을 실행하지 않습니다.
+        if (monster.currentState == Monster.MonsterState.Dead)
         {
             return;
         }
 
-        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
-
         // 몬스터의 현재 상태에 따라 적절한 행동을 수행합니다.
-        // 상태 패턴을 활용하여 각 상태의 로직을 분리합니다.
         switch (monster.currentState)
         {
-            case Monster.MonsterState.Patrol:
-                // Monster 스크립트의 감지 로직에 의존하지 않고, 자체적으로 플레이어를 감지합니다.
-                if (distanceToPlayer <= monster.detectionRange)
-                {
-                    monster.ChangeState(Monster.MonsterState.Chase);
-                }
-                break;
-            case Monster.MonsterState.Chase:
-                HandleChaseState(distanceToPlayer);
-                break;
             case Monster.MonsterState.Attack:
-                HandleAttackState(distanceToPlayer);
+                HandleAttackState();
                 break;
             case Monster.MonsterState.Charge:
                 HandleChargeState();
@@ -89,32 +68,15 @@ public class BearBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 추적 상태 로직을 처리합니다.
-    /// 플레이어가 공격 범위에 들어오면 공격 상태로 전환합니다.
-    /// </summary>
-    private void HandleChaseState(float distanceToPlayer)
-    {
-        // 플레이어가 공격 범위에 들어오면 공격 상태로 전환합니다.
-        if (distanceToPlayer <= attackRange)
-        {
-            monster.ChangeState(Monster.MonsterState.Attack);
-        }
-        // 플레이어가 감지 범위를 벗어나면 다시 순찰 상태로 돌아갑니다.
-        else if (distanceToPlayer > monster.detectionRange)
-        {
-            monster.ChangeState(Monster.MonsterState.Patrol);
-        }
-    }
-
-    /// <summary>
     /// 공격 상태에서 일반 공격과 특수 공격 로직을 관리합니다.
-    /// 특수 공격 쿨타임이 지나면 Charge 상태로 전환합니다.
+    /// Monster 스크립트가 이미 플레이어 감지 및 상태 전환을 처리하므로,
+    /// 이 메서드는 오직 공격 로직만 담당합니다.
     /// </summary>
-    private void HandleAttackState(float distanceToPlayer)
+    private void HandleAttackState()
     {
-        // 플레이어와의 거리를 체크하여 공격 가능 여부를 판단합니다.
-        // 플레이어가 범위를 벗어나면 Chase 상태로 복귀합니다.
-        if (distanceToPlayer > attackRange)
+        // 플레이어 트랜스폼이 없을 경우, 추적 상태로 복귀합니다.
+        // 이는 Monster 스크립트에서 타겟을 잃었을 때 일어납니다.
+        if (monster.detectableTarget == null)
         {
             monster.ChangeState(Monster.MonsterState.Chase);
             return;
@@ -127,7 +89,6 @@ public class BearBehavior : MonoBehaviour
             monster.ChangeState(Monster.MonsterState.Charge);
             currentChargeTime = 0;
             // Charge 상태 진입 시, Rigidbody의 속도를 0으로 만들어 몬스터의 움직임을 멈춥니다.
-            // ScriptableObject의 원본 데이터(moveSpeed)를 변경하지 않아 SOLID 원칙에 부합합니다.
             rb.linearVelocity = Vector3.zero;
             return;
         }
@@ -135,9 +96,7 @@ public class BearBehavior : MonoBehaviour
         // 일반 공격 쿨타임 체크.
         if (Time.time >= lastAttackTime + attackCooldown)
         {
-            // 일반 공격 실행 로직.
-            // 몬스터의 일반 공격력을 가져와 물리 데미지를 입힙니다.
-            monsterCombat.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
+            PerformMeleeAttack();
             lastAttackTime = Time.time;
         }
     }
@@ -181,6 +140,22 @@ public class BearBehavior : MonoBehaviour
                 // MonsterCombat 스크립트가 알아서 마법 방어력을 적용합니다.
                 damageable.TakeDamage(magicDamage, DamageType.Magic);
             }
+        }
+    }
+
+    /// <summary>
+    /// 플레이어에게 근접 공격을 실행하고 데미지를 입히는 메서드입니다.
+    /// 이 메서드는 Attack 상태에서만 호출됩니다.
+    /// </summary>
+    private void PerformMeleeAttack()
+    {
+        // Monster 스크립트에서 타겟을 이미 감지했는지 확인합니다.
+        if (monster.detectableTarget == null) return;
+
+        // 플레이어에게만 데미지를 입히도록 명확히 지정합니다.
+        if (monster.detectableTarget.GetTransform().TryGetComponent(out IDamageable damageable))
+        {
+            monsterCombat.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
         }
     }
 

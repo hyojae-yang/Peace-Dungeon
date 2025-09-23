@@ -8,7 +8,6 @@ using System.Collections.Generic;
 public class MonsterLoot : MonoBehaviour
 {
     private MonsterBase monsterBase;
-    private PlayerCharacter playerCharacter;
 
     private void Awake()
     {
@@ -18,12 +17,6 @@ public class MonsterLoot : MonoBehaviour
             Debug.LogError("MonsterLoot: MonsterBase 컴포넌트를 찾을 수 없습니다.", this);
         }
 
-        // 씬에 존재하는 PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
-        playerCharacter = FindFirstObjectByType<PlayerCharacter>();
-        if (playerCharacter == null)
-        {
-            Debug.LogError("MonsterLoot: PlayerCharacter 인스턴스를 찾을 수 없습니다. 플레이어 게임 오브젝트에 PlayerCharacter 스크립트가 할당되어 있는지 확인하세요.", this);
-        }
     }
 
     /// <summary>
@@ -38,20 +31,14 @@ public class MonsterLoot : MonoBehaviour
             return;
         }
 
-        // 플레이어 캐릭터와 필요한 컴포넌트가 유효한지 확인합니다.
-        if (playerCharacter == null || playerCharacter.playerStats == null || playerCharacter.playerLevelUp == null)
-        {
-            Debug.LogError("플레이어 관련 컴포넌트를 찾을 수 없어 보상을 지급할 수 없습니다. PlayerCharacter 또는 하위 컴포넌트를 확인하세요.", this);
-            return;
-        }
 
         // 몬스터 사망 시 경험치와 골드를 랜덤하게 계산합니다.
         int expReward = Random.Range(monsterBase.monsterData.minExpReward, monsterBase.monsterData.maxExpReward + 1);
         int goldReward = Random.Range(monsterBase.monsterData.minGoldReward, monsterBase.monsterData.maxGoldReward + 1);
 
         // 경험치는 PlayerLevelUp의 메서드를 통해, 골드는 PlayerStats의 변수를 통해 추가합니다.
-        playerCharacter.playerLevelUp.AddExperience(expReward);
-        playerCharacter.playerStats.gold += goldReward;
+        PlayerCharacter.Instance.playerLevelUp.AddExperience(expReward);
+        PlayerCharacter.Instance.playerStats.gold += goldReward;
 
         // 아이템 드롭 기능 호출
         DropItem();
@@ -62,11 +49,6 @@ public class MonsterLoot : MonoBehaviour
     /// </summary>
     private void DropItem()
     {
-        if (playerCharacter == null || playerCharacter.inventoryManager == null)
-        {
-            Debug.LogError("InventoryManager를 찾을 수 없어 아이템을 드롭할 수 없습니다.", this);
-            return;
-        }
 
         var lootTable = monsterBase.monsterData.lootTable;
         int dropCount = Random.Range(monsterBase.monsterData.minItemDropCount, monsterBase.monsterData.maxItemDropCount + 1);
@@ -81,7 +63,7 @@ public class MonsterLoot : MonoBehaviour
                     if (Random.value <= lootItem.dropChance)
                     {
                         // InventoryManager의 AddItem() 메서드를 호출하여 아이템을 추가합니다.
-                        playerCharacter.inventoryManager.AddItem(lootItem.itemData, 1);
+                        PlayerCharacter.Instance.inventoryManager.AddItem(lootItem.itemData, 1);
                         break;
                     }
                 }
