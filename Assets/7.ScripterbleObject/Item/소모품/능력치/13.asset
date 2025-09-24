@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1067ffbcf33f2fa4386b4314b6695f42, type: 3}
+  m_Name: 13
+  m_EditorClassIdentifier: 
+  itemID: 7013
+  itemName: "\uB098\uBB34\uAECD\uC9C8 \uC8FD"
+  itemDescription: "\uBED1\uBED1\uD558\uC9C0\uB9CC \uBA39\uC744 \uC21C \uC788\uB2E4"
+  itemIcon: {fileID: 0}
+  itemPrice: 120
+  itemType: 1
+  consumptionEffects:
+  - statType: 10
+    value: 1
+    isPercentage: 0
+  - statType: 8
+    value: 1
+    isPercentage: 0
+  maxStackCount: 99
+  effectDuration: 60
+  isPermanentBuff: 0

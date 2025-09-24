@@ -257,6 +257,7 @@ public class PlayerStatSystem : MonoBehaviour
         {
             playerStats.mana = playerStats.MaxMana;
         }
+        playerCharacter.playerController.walkSpeed = playerStats.moveSpeed;
     }
 
     /// <summary>

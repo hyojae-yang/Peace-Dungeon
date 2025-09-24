@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
+  m_Name: TreeSpirit
+  m_EditorClassIdentifier: 
+  monsterID: 6
+  monsterName: "\uB098\uBB34\uC815\uB839"
+  monsterLevel: 0
+  maxHealth: 200
+  maxMana: 0
+  attackPower: 0
+  magicAttackPower: 20
+  defense: 5
+  magicDefense: 30
+  moveSpeed: 0
+  criticalChance: 0
+  criticalDamageMultiplier: 0
+  attackDamageType: 1
+  minExpReward: 10
+  maxExpReward: 20
+  minGoldReward: 20
+  maxGoldReward: 40
+  lootTable:
+  - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
+    dropChance: 0.35
+  - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
+    dropChance: 0.35
+  - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
+    dropChance: 0.3
+  minItemDropCount: 2
+  maxItemDropCount: 4

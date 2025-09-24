@@ -26,7 +26,7 @@ MonoBehaviour:
     requiredAmount: 10
   isRepeatable: 1
   rewardItems:
-  - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
+  - itemSO: {fileID: 11400000, guid: 0bf6d8fc660766e42a683f6f41225d24, type: 2}
     itemCount: 5
   experienceReward: 30
   goldReward: 50

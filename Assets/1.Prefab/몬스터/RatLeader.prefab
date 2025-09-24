@@ -160,6 +160,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  attackRange: 1
 --- !u!114 &778637905177413353
 MonoBehaviour:
   m_ObjectHideFlags: 0

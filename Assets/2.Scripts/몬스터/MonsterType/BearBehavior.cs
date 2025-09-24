@@ -1,99 +1,142 @@
-using UnityEngine;
-using System.Collections.Generic;
+ï»¿using UnityEngine;
+using System.Collections;
 
 /// <summary>
-/// °õ ¸ó½ºÅÍÀÇ Æ¯¼ö Çàµ¿ ·ÎÁ÷À» °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ÀÏ¹İ °ø°İ°ú Æ¯¼ö °ø°İÀ» ´ã´çÇÏ¸ç, ¸ó½ºÅÍÀÇ ±âº» »óÅÂ ·ÎÁ÷(°¨Áö, ÃßÀû)°ú´Â ºĞ¸®µÇ¾î ÀÖ½À´Ï´Ù.
+/// ê³° ëª¬ìŠ¤í„°ì˜ íŠ¹í™”ëœ í–‰ë™ ë¡œì§ì„ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// í”Œë ˆì´ì–´ ê°ì§€, ì¶”ì , ê³µê²©(ê·¼ì ‘/íŠ¹ìˆ˜), ìˆœì°° ë³µê·€ ë¡œì§ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
 /// </summary>
 [RequireComponent(typeof(Monster))]
 [RequireComponent(typeof(MonsterCombat))]
-[RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(MonsterPatrol))]
 public class BearBehavior : MonoBehaviour
 {
-    // === Á¾¼Ó¼º ===
-    private Monster monster;
+Â  Â  // === ì¢…ì†ì„± ===
+Â  Â  private Monster monster;
     private MonsterCombat monsterCombat;
-    private Rigidbody rb;
+    private MonsterPatrol monsterPatrol;
 
-    // === ÀÏ¹İ °ø°İ ¼³Á¤ º¯¼ö ===
-    [Header("ÀÏ¹İ °ø°İ ¼³Á¤")]
-    [Tooltip("ÀÏ¹İ °ø°İÀ» ½ÃÀÛÇÒ ÃÖ¼Ò °Å¸®ÀÔ´Ï´Ù.")]
-    [SerializeField] private float attackRange = 2f;
-    [Tooltip("ÀÏ¹İ °ø°İÀÇ ÄğÅ¸ÀÓÀÔ´Ï´Ù.")]
+Â  Â  // === í”Œë ˆì´ì–´ ê°ì§€ ë° ê³µê²© ë²”ìœ„ ì„¤ì • ===
+Â  Â  [Header("í–‰ë™ ì„¤ì •")]
+    [Tooltip("í”Œë ˆì´ì–´ ê°ì§€ ì‹œ ëª¬ìŠ¤í„°ê°€ ë©ˆì¶°ì„œ ê³µê²©ì„ ì‹œì‘í•  ìµœì†Œ ê±°ë¦¬ì…ë‹ˆë‹¤.")]
+    [SerializeField] private float attackRange = 2.5f;
+
+Â  Â  // === ì¼ë°˜ ê³µê²© ì„¤ì • ë³€ìˆ˜ ===
+Â  Â  [Header("ì¼ë°˜ ê³µê²© ì„¤ì •")]
+    [Tooltip("ì¼ë°˜ ê³µê²©ì˜ ì¿¨íƒ€ì„ì…ë‹ˆë‹¤.")]
     [SerializeField] private float attackCooldown = 2f;
-    private float lastAttackTime; // ¸¶Áö¸· ÀÏ¹İ °ø°İÀÌ ½ÇÇàµÈ ½Ã°£
+    private float lastAttackTime;
 
-    // === Æ¯¼ö °ø°İ ¼³Á¤ º¯¼ö ===
-    [Header("Æ¯¼ö °ø°İ ¼³Á¤")]
-    [Tooltip("Æ¯¼ö °ø°İÀÇ ¹üÀ§(¹İÁö¸§)ÀÔ´Ï´Ù.")]
+Â  Â  // === íŠ¹ìˆ˜ ê³µê²© ì„¤ì • ë³€ìˆ˜ ===
+Â  Â  [Header("íŠ¹ìˆ˜ ê³µê²© ì„¤ì •")]
+    [Tooltip("íŠ¹ìˆ˜ ê³µê²©ì˜ ë²”ìœ„(ë°˜ì§€ë¦„)ì…ë‹ˆë‹¤.")]
     [SerializeField] private float aoeAttackRadius = 5f;
-    [Tooltip("Æ¯¼ö °ø°İÀÇ ÄğÅ¸ÀÓÀÔ´Ï´Ù.")]
+    [Tooltip("íŠ¹ìˆ˜ ê³µê²©ì˜ ì¿¨íƒ€ì„ì…ë‹ˆë‹¤.")]
     [SerializeField] private float aoeAttackCooldown = 10f;
-    [Tooltip("Æ¯¼ö °ø°İ ÁØºñ ½Ã°£ÀÔ´Ï´Ù. (Â÷Â¡ ¾Ö´Ï¸ŞÀÌ¼Ç ±æÀÌ¿¡ ¸ÂÃß¾î Á¶Àı)")]
+    [Tooltip("íŠ¹ìˆ˜ ê³µê²© ì¤€ë¹„ ì‹œê°„ì…ë‹ˆë‹¤. (ì°¨ì§• ì• ë‹ˆë©”ì´ì…˜ ê¸¸ì´ì— ë§ì¶”ì–´ ì¡°ì ˆ)")]
     [SerializeField] private float aoeChargeTime = 1.5f;
 
-    // === »óÅÂ °ü¸® º¯¼ö ===
-    private float lastAoeAttackTime; // ¸¶Áö¸· Æ¯¼ö °ø°İÀÌ ½ÇÇàµÈ ½Ã°£
-    private float currentChargeTime; // ÇöÀç Â÷Â¡ÀÌ ÁøÇàµÈ ½Ã°£
+Â  Â  // === ë²”ìœ„ ì‹œê°í™” ì„¤ì • ë³€ìˆ˜ ===
+Â  Â  [Header("ì‹œê° íš¨ê³¼")]
+    [Tooltip("íŠ¹ìˆ˜ ê³µê²© ë²”ìœ„ë¥¼ ë³´ì—¬ì¤„ ì‹œê° íš¨ê³¼ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
+    [SerializeField] private GameObject aoeVisualPrefab;
+    private GameObject currentAoeVisual; // ìƒì„±ëœ ì‹œê° íš¨ê³¼ ì¸ìŠ¤í„´ìŠ¤
 
-    private void Awake()
+Â  Â  // === ë‚´ë¶€ ìƒíƒœ ê´€ë¦¬ ë³€ìˆ˜ ===
+Â  Â  private float lastAoeAttackTime;
+    private float currentChargeTime;
+    private bool isCharging = false;
+
+Â  Â  /// <summary>
+Â  Â  /// ì»´í¬ë„ŒíŠ¸ ì´ˆê¸°í™” ë° ì¢…ì†ì„± í™•ë³´ë¥¼ ë‹´ë‹¹í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void Awake()
     {
-        // ÇÊ¿äÇÑ ÄÄÆ÷³ÍÆ®µéÀ» °¡Á®¿É´Ï´Ù.
         monster = GetComponent<Monster>();
         monsterCombat = GetComponent<MonsterCombat>();
-        rb = GetComponent<Rigidbody>();
+        monsterPatrol = GetComponent<MonsterPatrol>();
+        if (monster == null) Debug.LogError("MonsterBehavior ìŠ¤í¬ë¦½íŠ¸ëŠ” Monster ì»´í¬ë„ŒíŠ¸ë¥¼ í•„ìš”ë¡œ í•©ë‹ˆë‹¤!", this);
+        if (monsterCombat == null) Debug.LogError("MonsterBehavior ìŠ¤í¬ë¦½íŠ¸ëŠ” MonsterCombat ì»´í¬ë„ŒíŠ¸ë¥¼ í•„ìš”ë¡œ í•©ë‹ˆë‹¤!", this);
+        if (monsterPatrol == null) Debug.LogError("MonsterBehavior ìŠ¤í¬ë¦½íŠ¸ëŠ” MonsterPatrol ì»´í¬ë„ŒíŠ¸ë¥¼ í•„ìš”ë¡œ í•©ë‹ˆë‹¤!", this);
 
-        // Æ¯¼ö °ø°İ ÄğÅ¸ÀÓÀ» ÃÊ±âÈ­ÇÏ¿© °ÔÀÓ ½ÃÀÛ Áï½Ã Æ¯¼ö °ø°İÀÌ °¡´ÉÇÏ°Ô ÇÕ´Ï´Ù.
+        lastAttackTime = -attackCooldown;
         lastAoeAttackTime = -aoeAttackCooldown;
     }
 
+    /// <summary>
+    /// ë§¤ í”„ë ˆì„ ì—…ë°ì´íŠ¸ ë¡œì§ì„ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+    /// í”Œë ˆì´ì–´ì˜ ì¡´ì¬ ì—¬ë¶€ì™€ ê±°ë¦¬ì— ë”°ë¼ ëª¬ìŠ¤í„°ì˜ ìƒíƒœë¥¼ ì „í™˜í•˜ê³  í–‰ë™ì„ ìˆ˜í–‰í•©ë‹ˆë‹¤.
+    /// </summary>
     private void Update()
     {
-        // ¸ó½ºÅÍ°¡ Á×¾ú´Ù¸é ·ÎÁ÷À» ½ÇÇàÇÏÁö ¾Ê½À´Ï´Ù.
-        if (monster.currentState == Monster.MonsterState.Dead)
+        if (monster.currentState == MonsterBase.MonsterState.Dead)
         {
+            monsterPatrol.StopPatrol();
             return;
         }
 
-        // ¸ó½ºÅÍÀÇ ÇöÀç »óÅÂ¿¡ µû¶ó ÀûÀıÇÑ Çàµ¿À» ¼öÇàÇÕ´Ï´Ù.
+        // --- í”Œë ˆì´ì–´ ê°ì§€ ë° ìƒíƒœ ì „í™˜ ë¡œì§ ---
+        // isCharging ìƒíƒœì¼ ë•ŒëŠ” í”Œë ˆì´ì–´ ìœ„ì¹˜ì™€ ê´€ê³„ì—†ì´ ìƒíƒœ ì „í™˜ ë¡œì§ì„ ì‹¤í–‰í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
+        if (isCharging)
+        {
+            // HandleChargeState()ê°€ Charge ìƒíƒœ ë¡œì§ì„ ì „ë‹´í•˜ê²Œ í•©ë‹ˆë‹¤.
+        }
+        else if (monster.detectableTarget != null) // í”Œë ˆì´ì–´ê°€ ê°ì§€ ë²”ìœ„ ë‚´ì— ìˆëŠ” ê²½ìš°
+        {
+            float distanceToTarget = Vector3.Distance(transform.position, monster.detectableTarget.GetTransform().position);
+
+            if (distanceToTarget > attackRange) // í”Œë ˆì´ì–´ì™€ ë©€ë¦¬ ë–¨ì–´ì ¸ ìˆìœ¼ë©´ ì¶”ì 
+            {
+                if (monster.currentState != MonsterBase.MonsterState.Chase)
+                {
+                    monsterPatrol.StopPatrol();
+                    monster.ChangeState(MonsterBase.MonsterState.Chase);
+                }
+            }
+            else // í”Œë ˆì´ì–´ì™€ ì¶©ë¶„íˆ ê°€ê¹Œìš°ë©´ ê³µê²©
+            {
+                if (monster.currentState != MonsterBase.MonsterState.Attack && monster.currentState != MonsterBase.MonsterState.Charge)
+                {
+                    monster.ChangeState(MonsterBase.MonsterState.Attack);
+                }
+            }
+        }
+        else // í”Œë ˆì´ì–´ë¥¼ ë†“ì³¤ê±°ë‚˜ ê°ì§€ ë²”ìœ„ ë‚´ì— ì—†ëŠ” ê²½ìš°
+        {
+            if (monster.currentState != MonsterBase.MonsterState.Patrol)
+            {
+                monster.ChangeState(MonsterBase.MonsterState.Patrol);
+                monsterPatrol.StartPatrol();
+            }
+        }
+
         switch (monster.currentState)
         {
-            case Monster.MonsterState.Attack:
+            case MonsterBase.MonsterState.Attack:
                 HandleAttackState();
                 break;
-            case Monster.MonsterState.Charge:
+            case MonsterBase.MonsterState.Charge:
                 HandleChargeState();
                 break;
         }
     }
 
-    /// <summary>
-    /// °ø°İ »óÅÂ¿¡¼­ ÀÏ¹İ °ø°İ°ú Æ¯¼ö °ø°İ ·ÎÁ÷À» °ü¸®ÇÕ´Ï´Ù.
-    /// Monster ½ºÅ©¸³Æ®°¡ ÀÌ¹Ì ÇÃ·¹ÀÌ¾î °¨Áö ¹× »óÅÂ ÀüÈ¯À» Ã³¸®ÇÏ¹Ç·Î,
-    /// ÀÌ ¸Ş¼­µå´Â ¿ÀÁ÷ °ø°İ ·ÎÁ÷¸¸ ´ã´çÇÕ´Ï´Ù.
-    /// </summary>
-    private void HandleAttackState()
+Â  Â  /// <summary>
+Â  Â  /// ê³µê²© ìƒíƒœì—ì„œ ì¼ë°˜ ê³µê²©ê³¼ íŠ¹ìˆ˜ ê³µê²© ë¡œì§ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void HandleAttackState()
     {
-        // ÇÃ·¹ÀÌ¾î Æ®·£½ºÆûÀÌ ¾øÀ» °æ¿ì, ÃßÀû »óÅÂ·Î º¹±ÍÇÕ´Ï´Ù.
-        // ÀÌ´Â Monster ½ºÅ©¸³Æ®¿¡¼­ Å¸°ÙÀ» ÀÒ¾úÀ» ¶§ ÀÏ¾î³³´Ï´Ù.
-        if (monster.detectableTarget == null)
-        {
-            monster.ChangeState(Monster.MonsterState.Chase);
-            return;
-        }
+        if (monster.detectableTarget == null) return;
 
-        // Æ¯¼ö °ø°İ ÄğÅ¸ÀÓ Ã¼Å©.
         if (Time.time >= lastAoeAttackTime + aoeAttackCooldown)
         {
-            // ÄğÅ¸ÀÓÀÌ Áö³ª¸é Æ¯¼ö °ø°İÀ» À§ÇØ Charge »óÅÂ·Î ÀüÈ¯ÇÕ´Ï´Ù.
-            monster.ChangeState(Monster.MonsterState.Charge);
+            monster.ChangeState(MonsterBase.MonsterState.Charge);
             currentChargeTime = 0;
-            // Charge »óÅÂ ÁøÀÔ ½Ã, RigidbodyÀÇ ¼Óµµ¸¦ 0À¸·Î ¸¸µé¾î ¸ó½ºÅÍÀÇ ¿òÁ÷ÀÓÀ» ¸ØÃä´Ï´Ù.
-            rb.linearVelocity = Vector3.zero;
+            isCharging = true;
+Â  Â  Â  Â  Â  Â  // Charge ìƒíƒœë¡œ ì§„ì…í•  ë•Œ ì‹œê° íš¨ê³¼ ìƒì„±
+Â  Â  Â  Â  Â  Â  SpawnAoeVisual();
             return;
         }
 
-        // ÀÏ¹İ °ø°İ ÄğÅ¸ÀÓ Ã¼Å©.
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             PerformMeleeAttack();
@@ -102,70 +145,103 @@ public class BearBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// Æ¯¼ö °ø°İÀ» ÁØºñÇÏ´Â Â÷Â¡ »óÅÂ¸¦ Ã³¸®ÇÕ´Ï´Ù.
-    /// ÀÏÁ¤ ½Ã°£ÀÌ Áö³ª¸é Æ¯¼ö °ø°İÀ» ½ÇÇàÇÏ°í ´Ù½Ã Attack »óÅÂ·Î µ¹¾Æ°©´Ï´Ù.
+    /// íŠ¹ìˆ˜ ê³µê²©ì„ ì¤€ë¹„í•˜ëŠ” ì°¨ì§• ìƒíƒœë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
     /// </summary>
     private void HandleChargeState()
     {
-        // Â÷Â¡ ½Ã°£À» ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
         currentChargeTime += Time.deltaTime;
 
-        // Â÷Â¡ ½Ã°£ÀÌ ¼³Á¤°ªÀ» ÃÊ°úÇÏ¸é Æ¯¼ö °ø°İÀ» ½ÇÇàÇÕ´Ï´Ù.
         if (currentChargeTime >= aoeChargeTime)
         {
-            PerformAOEAttack(); // Æ¯¼ö °ø°İ ½ÇÇà
-            monster.ChangeState(Monster.MonsterState.Attack); // Attack »óÅÂ·Î º¹±Í
-            lastAoeAttackTime = Time.time; // ¸¶Áö¸· Æ¯¼ö °ø°İ ½Ã°£ °»½Å
+            PerformAOEAttack();
+            monster.ChangeState(MonsterBase.MonsterState.Attack);
+            lastAoeAttackTime = Time.time;
+            isCharging = false;
+            DestroyAoeVisual(); // íŠ¹ìˆ˜ ê³µê²©ì´ ì™„ë£Œë˜ì—ˆì„ ë•Œë§Œ ì‹œê° íš¨ê³¼ë¥¼ ì œê±°í•©ë‹ˆë‹¤.
         }
     }
 
-    /// <summary>
-    /// ÁÖº¯ÀÇ ¸ğµç »ı¸íÃ¼¿¡°Ô ¸¶¹ı ÇÇÇØ¸¦ ÀÔÈ÷´Â Æ¯¼ö °ø°İ ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// </summary>
-    private void PerformAOEAttack()
+Â  Â  /// <summary>
+Â  Â  /// í”Œë ˆì´ì–´ì—ê²Œ ê·¼ì ‘ ê³µê²©ì„ ì‹¤í–‰í•˜ê³  ë°ë¯¸ì§€ë¥¼ ì…íˆëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void PerformMeleeAttack()
     {
-        // °õ ÁÖº¯¿¡ ÀÖ´Â ¸ğµç Äİ¶óÀÌ´õ¸¦ °¨ÁöÇÕ´Ï´Ù.
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, aoeAttackRadius);
+        if (monster.detectableTarget == null) return;
 
-        // °¨ÁöµÈ Äİ¶óÀÌ´õµéÀ» ¼øÈ¸ÇÏ¸ç µ¥¹ÌÁö¸¦ ÀÔÈü´Ï´Ù.
+        if (monster.detectableTarget.GetTransform().TryGetComponent(out IDamageable damageable))
+        {
+            damageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
+            Debug.Log($"ê³°ì´ {monster.detectableTarget.GetTransform().name}ì—ê²Œ {monster.monsterData.attackPower}ì˜ ë¬¼ë¦¬ í”¼í•´ë¥¼ ì…í˜”ìŠµë‹ˆë‹¤!");
+        }
+    }
+
+Â  Â  /// <summary>
+Â  Â  /// ì£¼ë³€ì˜ ëª¨ë“  ìƒëª…ì²´ì—ê²Œ ë§ˆë²• í”¼í•´ë¥¼ ì…íˆëŠ” íŠ¹ìˆ˜ ê³µê²© ë©”ì„œë“œì…ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void PerformAOEAttack()
+    {
+        Collider[] hitColliders = Physics.OverlapSphere(transform.position, aoeAttackRadius);
         foreach (var hitCollider in hitColliders)
         {
-            // IDamageable ÀÎÅÍÆäÀÌ½º¸¦ °¡Áø ÄÄÆ÷³ÍÆ®¸¦ Ã£°í, ÀÚ±â ÀÚ½ÅÀº °ø°İ ´ë»ó¿¡¼­ Á¦¿ÜÇÕ´Ï´Ù.
-            if (hitCollider.TryGetComponent(out IDamageable damageable) && hitCollider.gameObject != this.gameObject)
-            {
-                // MonsterData¿¡¼­ ¼³Á¤µÈ ¸¶¹ı °ø°İ·ÂÀ» °¡Á®¿É´Ï´Ù.
-                float magicDamage = monster.monsterData.magicAttackPower;
+            if (hitCollider.gameObject == this.gameObject) continue;
 
-                // TakeDamage ¸Ş¼­µå¸¦ È£ÃâÇÏ¿© ¸¶¹ı µ¥¹ÌÁö¸¦ ÀÔÈü´Ï´Ù.
-                // MonsterCombat ½ºÅ©¸³Æ®°¡ ¾Ë¾Æ¼­ ¸¶¹ı ¹æ¾î·ÂÀ» Àû¿ëÇÕ´Ï´Ù.
+            if (hitCollider.TryGetComponent(out IDamageable damageable))
+            {
+                float magicDamage = monster.monsterData.magicAttackPower;
                 damageable.TakeDamage(magicDamage, DamageType.Magic);
+                Debug.Log($"ê³°ì´ {hitCollider.name}ì—ê²Œ {magicDamage}ì˜ ë§ˆë²• ë²”ìœ„ í”¼í•´ë¥¼ ì…í˜”ìŠµë‹ˆë‹¤!");
             }
         }
     }
 
-    /// <summary>
-    /// ÇÃ·¹ÀÌ¾î¿¡°Ô ±ÙÁ¢ °ø°İÀ» ½ÇÇàÇÏ°í µ¥¹ÌÁö¸¦ ÀÔÈ÷´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â Attack »óÅÂ¿¡¼­¸¸ È£ÃâµË´Ï´Ù.
-    /// </summary>
-    private void PerformMeleeAttack()
+Â  Â  /// <summary>
+Â  Â  /// íŠ¹ìˆ˜ ê³µê²© ë²”ìœ„ë¥¼ ì‹œê°ì ìœ¼ë¡œ ë³´ì—¬ì£¼ëŠ” íš¨ê³¼ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void SpawnAoeVisual()
     {
-        // Monster ½ºÅ©¸³Æ®¿¡¼­ Å¸°ÙÀ» ÀÌ¹Ì °¨ÁöÇß´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-        if (monster.detectableTarget == null) return;
-
-        // ÇÃ·¹ÀÌ¾î¿¡°Ô¸¸ µ¥¹ÌÁö¸¦ ÀÔÈ÷µµ·Ï ¸íÈ®È÷ ÁöÁ¤ÇÕ´Ï´Ù.
-        if (monster.detectableTarget.GetTransform().TryGetComponent(out IDamageable damageable))
+        if (aoeVisualPrefab != null && currentAoeVisual == null)
         {
-            monsterCombat.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
+Â  Â  Â  Â  Â  Â  // ëª¬ìŠ¤í„° ìœ„ì¹˜ì— ì‹œê° íš¨ê³¼ë¥¼ ìƒì„±í•˜ê³  ë¶€ëª¨ë¥¼ ê³° ëª¬ìŠ¤í„°ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  currentAoeVisual = Instantiate(aoeVisualPrefab, transform);
+
+Â  Â  Â  Â  Â  Â  // ìƒì„±ëœ í”„ë¦¬íŒ¹ì˜ ë¡œì»¬ í¬ì§€ì…˜ì„ ì§ì ‘ ì„¤ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  // xì™€ zëŠ” 0ìœ¼ë¡œ ë‘ê³ , y í¬ì§€ì…˜ë§Œ ì›í•˜ëŠ” ê°’ìœ¼ë¡œ ë³€ê²½í•˜ì„¸ìš”.
+Â  Â  Â  Â  Â  Â  // ê³°ì˜ ìì‹ìœ¼ë¡œ ë“¤ì–´ê°€ë¯€ë¡œ ê³°ì˜ í”¼ë²—(pivot)ì„ ê¸°ì¤€ìœ¼ë¡œ ìœ„ì¹˜ê°€ ê²°ì •ë©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  currentAoeVisual.transform.localPosition = new Vector3(0, -0.5f, 0); // ì›í•˜ëŠ” Yê°’ìœ¼ë¡œ ë³€ê²½í•˜ì„¸ìš”.
+
+Â  Â  Â  Â  Â  Â  // ë¶€ëª¨(ê³°)ì˜ ìŠ¤ì¼€ì¼ì„ ê³ ë ¤í•˜ì—¬ ìì‹ í”„ë¦¬íŒ¹ì˜ ìŠ¤ì¼€ì¼ì„ ì¡°ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  float parentScaleX = transform.localScale.x;
+            float parentScaleZ = transform.localScale.z;
+
+Â  Â  Â  Â  Â  Â  // ì›í†µì˜ ì§€ë¦„ì„ aoeAttackRadius * 2ë¡œ ì„¤ì •í•˜ê³ , ê³°ì˜ ìŠ¤ì¼€ì¼ë¡œ ë‚˜ëˆ ì¤ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  float finalScaleX = (aoeAttackRadius * 2) / parentScaleX;
+            float finalScaleZ = (aoeAttackRadius * 2) / parentScaleZ;
+
+Â  Â  Â  Â  Â  Â  // Yì¶• ìŠ¤ì¼€ì¼ì€ ì›í†µì„ ë‚©ì‘í•˜ê²Œ ë§Œë“¤ì–´ ë°”ë‹¥ì— ë¶™ë„ë¡ ê³ ì •í•©ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  currentAoeVisual.transform.localScale = new Vector3(finalScaleX, 0.01f, finalScaleZ);
         }
     }
 
-    /// <summary>
-    /// µğ¹ö±ë ¹× ½Ã°¢È­¸¦ À§ÇØ ±âÁî¸ğ¸¦ ±×¸³´Ï´Ù.
-    /// ¿¡µğÅÍ¿¡¼­ Æ¯¼ö °ø°İ ¹üÀ§¸¦ »¡°£»ö ±¸Ã¼·Î Ç¥½ÃÇÕ´Ï´Ù.
-    /// </summary>
-    private void OnDrawGizmosSelected()
+Â  Â  /// <summary>
+Â  Â  /// íŠ¹ìˆ˜ ê³µê²© ì‹œê° íš¨ê³¼ë¥¼ ì œê±°í•©ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void DestroyAoeVisual()
+    {
+        if (currentAoeVisual != null)
+        {
+            Destroy(currentAoeVisual);
+            currentAoeVisual = null;
+        }
+    }
+
+Â  Â  /// <summary>
+Â  Â  /// ë””ë²„ê¹… ë° ì‹œê°í™”ë¥¼ ìœ„í•´ ê¸°ì¦ˆëª¨ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
+Â  Â  /// </summary>
+Â  Â  private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, aoeAttackRadius);
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }

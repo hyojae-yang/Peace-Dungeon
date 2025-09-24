@@ -10,7 +10,7 @@ public class PlayerStats : MonoBehaviour
 {
     // === 기존 스탯 변수들은 그대로 둡니다. ===
     // 이제 이 아래에 있는 기존 변수들은 모두 PlayerCharacter.Instance.playerStats.변수명으로 접근하게 됩니다.
-
+    public static Dictionary<StatType, float> TimedBuffs;
     // === 기본 능력치 ===
     [Header("기본 능력치")]
     [Tooltip("플레이어의 시작 체력입니다. PlayerStatSystem 스크립트에서 참조합니다.")]

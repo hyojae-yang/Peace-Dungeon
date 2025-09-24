@@ -160,6 +160,7 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  attackRange: 2.5
 --- !u!114 &778637905177413353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -196,8 +197,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab9d8d82ad42e374986e10fbdf2f3a2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chargeDistance: 8
-  chargeSpeed: 15
+  chargeDistance: 5
+  chargeSpeed: 20
   attackRange: 3
   attackCooldown: 1.5
   manaCostPerCharge: 5

@@ -155,11 +155,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterData: {fileID: 11400000, guid: ba72cd74611dc0d45a893d0733c3f530, type: 2}
   currentState: 0
-  detectionRange: 15
-  detectionAngle: 120
+  detectionRange: 10
+  detectionAngle: 180
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  attackRange: 4.5
 --- !u!114 &778637905177413353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -215,7 +216,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attackRange: 5
-  attackCooldown: 3
+  attackCooldown: 2
   aoeAttackRadius: 8
-  aoeAttackCooldown: 15
+  aoeAttackCooldown: 10
   aoeChargeTime: 1.5
+  aoeVisualPrefab: {fileID: 8156154013335961419, guid: ebdfba19d4f1e354cae9c76f38df2389, type: 3}

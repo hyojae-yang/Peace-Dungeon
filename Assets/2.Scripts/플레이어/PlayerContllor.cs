@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour
         }
 
         // PlayerStats의 moveSpeed 값이 런타임에 변경될 수 있으므로 매 프레임 업데이트합니다.
-        walkSpeed = playerCharacter.playerStats.moveSpeed;
+        //walkSpeed = playerCharacter.playerStats.moveSpeed;
 
         // 입력 값 받기
         float xInput = Input.GetAxis("Horizontal");

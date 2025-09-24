@@ -18,17 +18,17 @@ MonoBehaviour:
   maxHealth: 500
   maxMana: 0
   attackPower: 100
-  magicAttackPower: 50
+  magicAttackPower: 200
   defense: 30
   magicDefense: 30
   moveSpeed: 6
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
-  minExpReward: 3
-  maxExpReward: 5
-  minGoldReward: 5
-  maxGoldReward: 10
+  minExpReward: 30
+  maxExpReward: 50
+  minGoldReward: 50
+  maxGoldReward: 100
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35
@@ -36,5 +36,5 @@ MonoBehaviour:
     dropChance: 0.35
   - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
     dropChance: 0.3
-  minItemDropCount: 2
-  maxItemDropCount: 4
+  minItemDropCount: 3
+  maxItemDropCount: 5

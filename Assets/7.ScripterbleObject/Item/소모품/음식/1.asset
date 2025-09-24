@@ -10,17 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d328dd5789f33ea48afd191d6eba63b1, type: 3}
-  m_Name: SmallMpPotion
+  m_Name: 1
   m_EditorClassIdentifier: 
-  itemID: 6004
-  itemName: "\uB9C8\uB098\uD3EC\uC158(\uC18C)"
-  itemDescription: "\uB9C8\uB098\uB97C 50 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+  itemID: 6501
+  itemName: "\uBC84\uC12F"
+  itemDescription: "\uC232\uC5D0\uC11C \uB098\uB294 \uBC84\uC12F\uC785\uB2C8\uB2E4."
   itemIcon: {fileID: 0}
-  itemPrice: 30
+  itemPrice: 20
   itemType: 1
   consumptionEffects:
-  - statType: 13
-    value: 50
+  - statType: 12
+    value: 10
     isPercentage: 0
-  maxStackCount: 10
-  effectDuration: 0
+  maxStackCount: 99
+  effectDuration: 60

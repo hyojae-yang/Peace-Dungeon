@@ -16,7 +16,7 @@ public class Monster : MonsterBase, IDetectable
     [Tooltip("플레이어 레이어 마스크입니다.")]
     public LayerMask playerLayer;
 
-
+    public float attackRange;
     // === 종속성 ===
     private MonsterCombat combat;
     private MonsterLoot loot;
@@ -41,12 +41,19 @@ public class Monster : MonsterBase, IDetectable
                 break;
             case MonsterState.Chase:
                 if (detectableTarget != null)
-                {
-                    MoveTowardsTarget(detectableTarget.GetTransform());
-                }
-                else
-                {
-                    ChangeState(MonsterState.Idle);
+                {// 몬스터와 플레이어 사이의 거리를 계산합니다.
+                    float distance = Vector3.Distance(transform.position, detectableTarget.GetTransform().position);
+
+                    // 거리가 공격 사거리보다 멀면 계속 추적하고,
+                    // 가까워지면 Attack 상태로 변경합니다.
+                    if (distance > attackRange)
+                    {
+                        MoveTowardsTarget(detectableTarget.GetTransform());
+                    }
+                    else
+                    {
+                        ChangeState(MonsterState.Attack);
+                    }
                 }
                 break;
             case MonsterState.Attack:
@@ -79,7 +86,7 @@ public class Monster : MonsterBase, IDetectable
                 {
                     detectableTarget = target;
                     // 플레이어 감지 시 Chase 상태로 즉시 변경
-                    ChangeState(MonsterState.Chase);
+                   // ChangeState(MonsterState.Chase);
                     return;
                 }
             }

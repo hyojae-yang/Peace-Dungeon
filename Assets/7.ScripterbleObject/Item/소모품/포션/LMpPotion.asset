@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d328dd5789f33ea48afd191d6eba63b1, type: 3}
+  m_Name: LMpPotion
+  m_EditorClassIdentifier: 
+  itemID: 6006
+  itemName: "\uB9C8\uB098\uD3EC\uC158(\uB300)"
+  itemDescription: "\uB9C8\uB098\uB97C 300 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+  itemIcon: {fileID: 0}
+  itemPrice: 250
+  itemType: 1
+  consumptionEffects:
+  - statType: 13
+    value: 300
+    isPercentage: 0
+  maxStackCount: 999
+  effectDuration: 0

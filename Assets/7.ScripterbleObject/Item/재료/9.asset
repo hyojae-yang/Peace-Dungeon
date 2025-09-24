@@ -10,12 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 09c921d4aeb548b40bfefa0cbe9359bc, type: 3}
-  m_Name: Dotory
+  m_Name: 9
   m_EditorClassIdentifier: 
-  itemID: 7001
-  itemName: "\uB3C4\uD1A0\uB9AC"
-  itemDescription: "\uC232\uC5D0\uC11C \uB098\uB294 \uC791\uC740 \uC5F4\uB9E4"
+  itemID: 8009
+  itemName: "\uB098\uBB47\uAC00\uC9C0"
+  itemDescription: "\uC587\uC740 \uB098\uBB47\uAC00\uC9C0\uB2E4"
   itemIcon: {fileID: 0}
-  itemPrice: 15
+  itemPrice: 5
   itemType: 2
   recipeIDs: 
+  maxStackCount: 99

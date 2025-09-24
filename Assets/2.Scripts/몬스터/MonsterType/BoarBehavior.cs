@@ -20,9 +20,9 @@ public class BoarBehavior : MonoBehaviour
     // === 돌진 및 공격 설정 ===
     [Header("돌진 및 공격 설정")]
     [Tooltip("플레이어와 이 거리보다 멀리 떨어져 있을 때 돌진을 시작합니다.")]
-    public float chargeDistance = 8f;
+    public float chargeDistance = 5f;
     [Tooltip("돌진 시 이동 속도입니다.")]
-    public float chargeSpeed = 15f;
+    public float chargeSpeed = 20f;
     [Tooltip("일반 공격을 시작할 거리입니다. 돌진 후 이 거리에 들어오면 일반 공격을 시작합니다.")]
     public float attackRange = 3f;
     [Tooltip("일반 공격 쿨타임입니다.")]
