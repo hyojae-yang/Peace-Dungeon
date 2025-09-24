@@ -25,6 +25,7 @@ public class DungeonInventoryManager : MonoBehaviour
         }
 
         // 테스트용 초기 아이템 ID를 직접 리스트에 추가
+        playerItems.Add(new Tuple<string, int>("2", nextUniqueID++));
         playerItems.Add(new Tuple<string, int>("4", nextUniqueID++));
         playerItems.Add(new Tuple<string, int>("12", nextUniqueID++));
 

@@ -15,3 +15,13 @@ MonoBehaviour:
   itemsToSell:
   - {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
   - {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
+  - {fileID: 11400000, guid: 38ec64708ece91444bf1914e8c03fffa, type: 2}
+  - {fileID: 11400000, guid: b93ba4a13a9ef2a4bac504899117ac92, type: 2}
+  - {fileID: 11400000, guid: 23cc459a306a1244c97c2de6eefdf687, type: 2}
+  - {fileID: 11400000, guid: e77e59d55ef610548911b980ac3435e6, type: 2}
+  - {fileID: 11400000, guid: 29e0b8e018ea9d44bbd824300a0a7d66, type: 2}
+  - {fileID: 11400000, guid: c06a21996eef7464e9e69f4f23791efa, type: 2}
+  - {fileID: 11400000, guid: d25d95bb25d136a4aab8dd20ca4bf22b, type: 2}
+  - {fileID: 11400000, guid: e301537f7e4537440bb938869887bbdf, type: 2}
+  - {fileID: 11400000, guid: 22f6759a45ce9904d803658ef9a9193c, type: 2}
+  - {fileID: 11400000, guid: 87d408f0b93870c48bf0d4289ed48365, type: 2}

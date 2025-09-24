@@ -59,7 +59,7 @@ public class SkillPointManager : MonoBehaviour
     public TextMeshProUGUI skillPointText;
 
     // 'currentSkillPoints'는 현재 플레이어가 보유한 스킬 포인트입니다.
-    private int currentSkillPoints;
+    public int currentSkillPoints;
 
     // 'tempSkillLevels'는 패널에서 임시로 조작하는 스킬 레벨을 저장합니다.
     private Dictionary<int, int> tempSkillLevels;
@@ -70,6 +70,17 @@ public class SkillPointManager : MonoBehaviour
     // 스킬 레벨이 변경되었음을 외부에 알리는 새로운 이벤트
     public event System.Action<int> OnSkillLeveledUp;
 
+    void OnEnable()
+    {
+        // PlayerLevelUp 스크립트의 레벨업 이벤트를 구독합니다.
+        PlayerLevelUp.OnPlayerLeveledUp += OnLeveledUpHandler;
+    }
+
+    void OnDisable()
+    {
+        // 스크립트 비활성화 시 이벤트 구독을 해제합니다.
+        PlayerLevelUp.OnPlayerLeveledUp -= OnLeveledUpHandler;
+    }
     // === 외부에서 호출되는 메서드 ===
 
     /// <summary>
@@ -241,12 +252,26 @@ public class SkillPointManager : MonoBehaviour
     /// <summary>
     /// 스킬 포인트 UI를 업데이트하고 이벤트를 발생시킵니다.
     /// </summary>
-    private void UpdateSkillPointUI()
+    public void UpdateSkillPointUI()
     {
         if (skillPointText != null)
         {
             skillPointText.text = $"스킬포인트: \n{currentSkillPoints}";
         }
         OnSkillPointsChanged?.Invoke(currentSkillPoints);
+    }
+    /// <summary>
+    /// 레벨업 이벤트가 발생했을 때 호출될 핸들러 메서드입니다.
+    /// </summary>
+    private void OnLeveledUpHandler()
+    {
+        // 레벨업이 발생했으니, 스킬 포인트를 다시 초기화합니다.
+        InitializePoints();
+
+        // 혹시 모를 상황에 대비해 임시 스킬 레벨 딕셔너리를 다시 초기화
+        // playerCharacter.playerStats.skillLevels = new Dictionary<int, int>(); // 이 부분은 적용(ApplyChanges) 시점에만 변경되므로 필요 없음
+
+        // UI도 다시 업데이트합니다.
+        UpdateSkillPointUI();
     }
 }

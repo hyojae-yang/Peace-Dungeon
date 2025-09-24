@@ -74,7 +74,10 @@ public class DungeonDoor : MonoBehaviour
                 if (exitSpawnPoint != null)
                 {
                     player.transform.position = exitSpawnPoint.position;
-                    DungeonManager.Instance.IsInDungeon = false; // DungeonManager의 상태를 '던전 밖'으로 변경합니다.
+                    Debug.Log("플레이어가 던전 밖으로 이동했습니다.");
+                    // DungeonManager의 상태를 '던전 밖'으로 변경하고, 위치 이동이 완료된 후 ExitDungeon() 메서드를 호출합니다.
+                    DungeonManager.Instance.IsInDungeon = false;
+                    DungeonManager.Instance.ExitDungeon();
                 }
                 else
                 {
@@ -83,4 +86,5 @@ public class DungeonDoor : MonoBehaviour
             }
         }
     }
+
 }

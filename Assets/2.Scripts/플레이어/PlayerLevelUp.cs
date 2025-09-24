@@ -17,6 +17,11 @@ public class PlayerLevelUp : MonoBehaviour
     public float baseExp = 10f;
     [Tooltip("레벨이 오를수록 경험치가 증가하는 비율입니다.")]
     public float expGrowthFactor = 1.3f;
+    // === 이벤트 선언 ===
+    /// <summary>
+    /// 플레이어가 레벨업했을 때 외부에 알리는 이벤트입니다.
+    /// </summary>
+    public static event System.Action OnPlayerLeveledUp;
 
     void Start()
     {
@@ -111,5 +116,7 @@ public class PlayerLevelUp : MonoBehaviour
         // 체력 및 마나 회복 (기존 로직 유지)
         playerCharacter.playerStats.health = playerCharacter.playerStats.MaxHealth;
         playerCharacter.playerStats.mana = playerCharacter.playerStats.MaxMana;
+        // 레벨업이 완료되었음을 외부에 알리는 이벤트를 발생시킵니다.
+        OnPlayerLeveledUp?.Invoke();
     }
 }

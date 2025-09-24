@@ -16,9 +16,9 @@ GameObject:
   - component: {fileID: 3756422570131070319}
   - component: {fileID: 5631343964066522486}
   - component: {fileID: 8454505836832955619}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: TreeSpirit
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

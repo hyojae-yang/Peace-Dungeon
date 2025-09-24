@@ -13,7 +13,9 @@ MonoBehaviour:
   m_Name: 1
   m_EditorClassIdentifier: 
   recipeID: 1
-  resultItem: {fileID: 0}
+  resultItem: {fileID: 11400000, guid: e55a100330fc9944fa9b2020b32f37aa, type: 2}
   ingredients:
-  - item: {fileID: 0}
-    quantity: 0
+  - item: {fileID: 11400000, guid: 0e4ef8aa8d0215641b3225098583f2b5, type: 2}
+    quantity: 1
+  - item: {fileID: 11400000, guid: c88278317a5e87945b847c5ade47e082, type: 2}
+    quantity: 1

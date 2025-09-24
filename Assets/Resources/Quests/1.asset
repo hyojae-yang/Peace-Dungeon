@@ -18,11 +18,11 @@ MonoBehaviour:
     \uBD80\uC871\uD574\uC694.\uC232\uC5D0\uC11C \uB3C4\uD1A0\uB9AC 10\uAC1C\uB9CC
     \uAD6C\uD574\uB2E4\uC8FC\uC2DC\uBA74 \uAC10\uC0AC\uD558\uACA0\uC2B5\uB2C8\uB2E4."
   questGiverName: "\uC774\uC21C\uB355"
-  requiredAffection: -90
+  requiredAffection: -100
   prerequisiteQuests: 
   conditions:
   - conditionType: 0
-    targetID: 7001
+    targetID: 6502
     requiredAmount: 10
   isRepeatable: 1
   rewardItems:

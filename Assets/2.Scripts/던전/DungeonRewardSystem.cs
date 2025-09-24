@@ -145,6 +145,5 @@ public class DungeonRewardSystem : MonoBehaviour
             Debug.LogWarning("DungeonUIManager가 존재하지 않아 결과 화면을 표시할 수 없습니다.");
         }
 
-        Debug.Log($"획득한 골드: {finalGold} | 경험치: {finalExp} | 아이템: {string.Join(", ", acquiredItemNames)}");
     }
 }

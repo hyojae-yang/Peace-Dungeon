@@ -68,7 +68,7 @@ MonoBehaviour:
     - statType: 2
       value: 20
       isPercentage: 0
-    - statType: 0
+    - statType: 1
       value: 1.5
       isPercentage: 0
   - manaCost: 20

@@ -52,7 +52,6 @@ public class RootTrap : MonoBehaviour
         // 플레이어 이동 속도를 0으로 설정하여 이동 불가 상태로 만듭니다.
         controller.walkSpeed = 0f;
 
-        Debug.Log($"플레이어가 {immobilizeDuration}초 동안 뿌리에 묶였습니다!");
 
         // 설정된 시간만큼 기다립니다.
         yield return new WaitForSeconds(immobilizeDuration);
@@ -62,7 +61,6 @@ public class RootTrap : MonoBehaviour
         // 런타임에 속도가 변경되었더라도 최신 값을 적용합니다.
         controller.walkSpeed = PlayerCharacter.Instance.playerStats.moveSpeed;
 
-        Debug.Log("플레이어 이동 제약이 해제되었습니다.");
         isPlayerImmobilized = false;
     }
 

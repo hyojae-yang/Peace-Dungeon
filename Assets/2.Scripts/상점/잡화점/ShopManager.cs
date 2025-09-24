@@ -63,7 +63,6 @@ public class ShopManager : MonoBehaviour, INPCFunction
     /// </summary>
     public void ExecuteFunction()
     {
-        Debug.Log("상점 UI를 엽니다.");
         // ShopUIManager의 ShowShop 메서드를 호출하여 상점 UI를 엽니다.
         // NPC의 이름을 전달하여 UI에 표시할 수 있게 합니다.
         if (ShopUIManager.Instance != null)
