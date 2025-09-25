@@ -57,7 +57,7 @@ public class CookingUIManager : MonoBehaviour
     // 냄비에 투입된 재료를 저장할 리스트를 추가합니다.
     [Header("Current Cooking Ingredients")]
     [Tooltip("현재 냄비에 투입된 재료 목록입니다.")]
-    private List<ItemData> currentIngredients = new List<ItemData>();
+    public List<ItemData> currentIngredients = new List<ItemData>();
     // === MonoBehaviour 메서드 ===
     private void Awake()
     {

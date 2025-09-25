@@ -15,6 +15,8 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
     // 드래그 중인 아이템의 데이터를 저장합니다.
     private ItemData itemData;
 
+    // 드롭 성공 여부를 저장할 변수입니다.
+    public bool droppedOnSlot;
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
@@ -45,20 +47,22 @@ public class DraggableItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        // 1. 드래그가 끝난 후, 아이템의 새로운 부모를 찾습니다.
-        Transform dropTarget = eventData.pointerDrag.transform.parent;
-
-        // 2. 만약 드롭된 위치의 부모가 null이거나 드롭이 실패했다면 원래 위치로 돌아갑니다.
-        // 이 로직은 CookingPotDrop 스크립트에서 드롭 성공 시 부모를 바꾸는 로직과 함께 사용됩니다.
-        if (dropTarget == null)
+        // **수정된 부분: 드롭이 성공했는지 여부를 확인합니다.**
+        if (!droppedOnSlot)
         {
+            // 드롭이 실패했거나, 냄비 슬롯이 아닌 곳에 드롭했을 경우 원래 위치로 돌아갑니다.
             transform.SetParent(originalParent);
+            rectTransform.anchoredPosition = Vector2.zero; // 원래 위치로 이동 (앵커드 포지션 초기화)
         }
 
         // 3. 레이캐스트를 다시 활성화하여 정상적으로 UI와 상호작용할 수 있게 합니다.
         canvasGroup.blocksRaycasts = true;
     }
-
+    // 드롭 성공 여부를 외부에서 설정할 수 있는 메서드입니다.
+    public void SetDroppedOnSlot(bool value)
+    {
+        droppedOnSlot = value;
+    }
     public ItemData GetItemData()
     {
         return itemData;

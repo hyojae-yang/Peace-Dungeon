@@ -1697,6 +1697,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cookingData: {fileID: 11400000, guid: 6a7c0765005579640a854f060d085735, type: 2}
+  failResultItem: {fileID: 11400000, guid: bd8f96322c91bd3419a9868755ba7f94, type: 2}
 --- !u!1 &8183920161208969249
 GameObject:
   m_ObjectHideFlags: 0

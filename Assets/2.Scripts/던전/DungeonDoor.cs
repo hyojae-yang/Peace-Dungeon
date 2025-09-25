@@ -11,8 +11,7 @@ public class DungeonDoor : MonoBehaviour
     [SerializeField] private Transform dungeonSpawnPoint;
     [Tooltip("플레이어가 던전에서 나갈 때 스폰될 위치입니다.")]
     [SerializeField] private Transform exitSpawnPoint;
-
-
+ 
     /// <summary>
     /// 충돌이 시작되었을 때 한 번 호출됩니다.
     /// 플레이어가 "Player" 태그를 가지고 있다면 DungeonUIManager를 호출하여 알림창을 띄웁니다.
@@ -74,6 +73,8 @@ public class DungeonDoor : MonoBehaviour
                 if (exitSpawnPoint != null)
                 {
                     player.transform.position = exitSpawnPoint.position;
+                    Debug.Log("나간 플레이어위치"+player.transform.position);
+
                     Debug.Log("플레이어가 던전 밖으로 이동했습니다.");
                     // DungeonManager의 상태를 '던전 밖'으로 변경하고, 위치 이동이 완료된 후 ExitDungeon() 메서드를 호출합니다.
                     DungeonManager.Instance.IsInDungeon = false;

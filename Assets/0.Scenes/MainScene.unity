@@ -57065,6 +57065,7 @@ MonoBehaviour:
   - {fileID: 1060750478}
   inventoryContent: {fileID: 840654001}
   inventorySlotPrefab: {fileID: 7535852609900243245, guid: cb0a663c6230723479cbe5cc8cd9cb02, type: 3}
+  currentIngredients: []
 --- !u!1001 &1093458410
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -82088,7 +82089,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e389255678d62774db229f5b106dbb32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseMaxHealth: 100
+  baseMaxHealth: 10000
   baseMaxMana: 50
   baseAttackPower: 10
   baseMagicAttackPower: 5

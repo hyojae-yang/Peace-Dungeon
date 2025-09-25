@@ -74,6 +74,7 @@ public class PlayerController : MonoBehaviour
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
             Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. 이동 속도를 업데이트할 수 없습니다.");
+           
             return;
         }
 
