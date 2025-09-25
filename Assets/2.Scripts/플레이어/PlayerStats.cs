@@ -6,7 +6,7 @@ using System.Collections.Generic;
 /// 이 스크립트는 이제 더 이상 싱글턴이 아니며,
 /// PlayerCharacter 스크립트의 멤버로 포함되어 관리됩니다.
 /// </summary>
-public class PlayerStats : MonoBehaviour
+public class PlayerStats : MonoBehaviour, ISavable
 {
     // === 기존 스탯 변수들은 그대로 둡니다. ===
     // 이제 이 아래에 있는 기존 변수들은 모두 PlayerCharacter.Instance.playerStats.변수명으로 접근하게 됩니다.
@@ -60,4 +60,95 @@ public class PlayerStats : MonoBehaviour
     public int skillPoints;
     [Tooltip("플레이어가 습득한 스킬의 최종 레벨 데이터입니다. (스킬ID, 스킬레벨)")]
     public Dictionary<int, int> skillLevels = new Dictionary<int, int>();
+
+    private void Awake()
+    {
+        // ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
+        SaveManager.Instance.RegisterSavable(this);
+
+        // SaveManager에 로드된 데이터가 있는지 확인하고, 있으면 적용합니다.
+        if (SaveManager.Instance.HasLoadedData)
+        {
+            // SaveManager로부터 PlayerStats에 해당하는 데이터를 가져옵니다.
+            // TryGetData 메서드는 데이터를 찾았을 경우 true를 반환하고 loadedData 변수에 데이터를 담습니다.
+            if (SaveManager.Instance.TryGetData(this.GetType().Name, out object loadedData))
+            {
+                // 가져온 데이터를 PlayerStats에 적용합니다.
+                LoadData(loadedData);
+            }
+        }
+    }
+    // === ISavable 인터페이스 구현 ===
+    /// <summary>
+    /// 현재 스크립트의 데이터를 SaveData 객체로 변환하여 반환합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// </summary>
+    /// <returns>PlayerStatsSaveData 타입의 저장 가능한 데이터 객체</returns>
+    public object SaveData()
+    {
+        PlayerStatsSaveData data = new PlayerStatsSaveData
+        {
+            // === 실시간 핵심 능력치 ===
+            health = this.health,
+            mana = this.mana,
+            attackPower = this.attackPower,
+            magicAttackPower = this.magicAttackPower,
+            defense = this.defense,
+            magicDefense = this.magicDefense,
+            criticalChance = this.criticalChance,
+            criticalDamageMultiplier = this.criticalDamageMultiplier,
+            moveSpeed = this.moveSpeed,
+
+            // === 캐릭터 진행 상황 ===
+            characterName = this.characterName,
+            gold = this.gold,
+            level = this.level,
+            experience = this.experience,
+            skillPoints = this.skillPoints,
+
+            // === 스킬 딕셔너리 ===
+            skillLevels = this.skillLevels
+        };
+        return data;
+    }
+
+    /// <summary>
+    /// SaveData 객체의 데이터를 현재 스크립트에 적용합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// </summary>
+    /// <param name="data">로드할 데이터가 담긴 PlayerStatsSaveData 객체</param>
+    public void LoadData(object data)
+    {
+        // 로드된 데이터가 올바른 타입인지 확인합니다.
+        if (data is PlayerStatsSaveData loadedData)
+        {
+            // === 실시간 핵심 능력치 복구 ===
+            this.health = loadedData.health;
+            this.mana = loadedData.mana;
+            this.attackPower = loadedData.attackPower;
+            this.magicAttackPower = loadedData.magicAttackPower;
+            this.defense = loadedData.defense;
+            this.magicDefense = loadedData.magicDefense;
+            this.criticalChance = loadedData.criticalChance;
+            this.criticalDamageMultiplier = loadedData.criticalDamageMultiplier;
+            this.moveSpeed = loadedData.moveSpeed;
+
+            // === 캐릭터 진행 상황 복구 ===
+            this.characterName = loadedData.characterName;
+            this.gold = loadedData.gold;
+            this.level = loadedData.level;
+            this.experience = loadedData.experience;
+            this.skillPoints = loadedData.skillPoints;
+
+            // === 스킬 딕셔너리 복구 ===
+            this.skillLevels = loadedData.skillLevels;
+
+            // 체력/마나가 최대치를 초과하지 않도록 보정하는 로직을 추가하는 것도 고려할 수 있습니다.
+            // 예: this.health = Mathf.Min(loadedData.health, this.MaxHealth);
+        }
+        else
+        {
+            Debug.LogError("로드된 데이터 타입이 PlayerStatsSaveData와 일치하지 않습니다. (오류가 아닙니다. 다음 스크립트 데이터입니다.)");
+        }
+    }
 }

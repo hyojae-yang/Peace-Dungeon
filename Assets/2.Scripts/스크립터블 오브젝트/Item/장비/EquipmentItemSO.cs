@@ -8,6 +8,9 @@ using System.Collections.Generic;
 [CreateAssetMenu(fileName = "New Equipment Item", menuName = "Item/Equipment Item")]
 public class EquipmentItemSO : BaseItemSO
 {
+    [Tooltip("각 장비 아이템의 고유 ID입니다. 인벤토리 내에서 아이템을 구분하는 데 사용됩니다.")]
+    public string uniqueID; // 각 장비 아이템의 고유 ID (인벤토리 내 구분용)
+
     [Header("장비 속성")]
     [Tooltip("장비 아이템의 등급입니다. 등급에 따라 능력치 보너스가 달라집니다.")]
     public ItemGrade itemGrade;

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 /// 플레이어 스탯 포인트 투자 및 최종 능력치 계산을 관리하는 스크립트입니다.
 /// 이 스크립트는 더 이상 싱글턴이 아니며, PlayerCharacter의 멤버로 관리됩니다.
 /// </summary>
-public class PlayerStatSystem : MonoBehaviour
+public class PlayerStatSystem : MonoBehaviour, ISavable
 {
     // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
     private PlayerCharacter playerCharacter;
@@ -80,7 +80,7 @@ public class PlayerStatSystem : MonoBehaviour
     // 장비 아이템으로부터 받는 백분율 스탯 보너스
     private Dictionary<StatType, float> equipmentPercentageBonuses = new Dictionary<StatType, float>();
 
-    void Start()
+    private void Awake()
     {
         // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
         playerCharacter = PlayerCharacter.Instance;
@@ -89,9 +89,27 @@ public class PlayerStatSystem : MonoBehaviour
             Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다. 스크립트가 제대로 동작하지 않을 수 있습니다.");
             return;
         }
+        
+    }
+    void Start()
+    {
+        // ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
+        SaveManager.Instance.RegisterSavable(this);
+
+        // SaveManager에 로드된 데이터가 있는지 확인하고, 있으면 적용합니다.
+        if (SaveManager.Instance.HasLoadedData)
+        {
+            // SaveManager로부터 PlayerStatSystem에 해당하는 데이터를 가져옵니다.
+            // TryGetData 메서드는 데이터를 찾았을 경우 true를 반환하고 loadedData 변수에 데이터를 담습니다.
+            if (SaveManager.Instance.TryGetData(this.GetType().Name, out object loadedData))
+            {
+                // 가져온 데이터를 PlayerStatSystem에 적용합니다.
+                LoadData(loadedData);
+            }
+        }
 
         // 초기 스탯 계산 및 적용
-        UpdateFinalStats();
+        //UpdateFinalStats();
     }
 
     /// <summary>
@@ -427,5 +445,54 @@ public class PlayerStatSystem : MonoBehaviour
             case "vitality": tempVitality--; break;
         }
         tempStatPoints++;
+    }
+    // === ISavable 인터페이스 구현 ===
+    /// <summary>
+    /// 현재 스크립트의 데이터를 SaveData 객체로 변환하여 반환합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// </summary>
+    /// <returns>PlayerStatSystemSaveData 타입의 저장 가능한 데이터 객체</returns>
+    public object SaveData()
+    {
+        PlayerStatSystemSaveData data = new PlayerStatSystemSaveData
+        {
+            statPoints = this.statPoints,
+            strength = this.strength,
+            intelligence = this.intelligence,
+            constitution = this.constitution,
+            agility = this.agility,
+            focus = this.focus,
+            endurance = this.endurance,
+            vitality = this.vitality
+        };
+        return data;
+    }
+    /// <summary>
+    /// SaveData 객체의 데이터를 현재 스크립트에 적용합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// </summary>
+    /// <param name="data">로드할 데이터가 담긴 PlayerStatSystemSaveData 객체</param>
+    public void LoadData(object data)
+    {
+        if (data is PlayerStatSystemSaveData loadedData)
+        {
+            this.statPoints = loadedData.statPoints;
+            this.strength = loadedData.strength;
+            this.intelligence = loadedData.intelligence;
+            this.constitution = loadedData.constitution;
+            this.agility = loadedData.agility;
+            this.focus = loadedData.focus;
+            this.endurance = loadedData.endurance;
+            this.vitality = loadedData.vitality;
+
+            // 스탯 포인트를 로드한 후에는 최종 스탯을 다시 계산합니다.
+            // 이로써 저장된 스탯 포인트가 항상 최신 로직으로 최종 능력치를 갱신합니다.
+            UpdateFinalStats();
+        }
+        else
+        {
+            // 이 경고는 다른 스크립트 데이터가 로드될 때 발생합니다. 정상적인 동작입니다.
+            Debug.LogWarning("로드된 데이터 타입이 PlayerStatSystemSaveData와 일치하지 않습니다. (다른 스크립트 데이터입니다.)");
+        }
     }
 }

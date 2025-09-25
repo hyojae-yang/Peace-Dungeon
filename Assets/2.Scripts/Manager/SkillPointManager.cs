@@ -49,8 +49,6 @@ public class SkillPointManager : MonoBehaviour
         // 스크립트가 시작될 때 PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
         playerCharacter = PlayerCharacter.Instance;
 
-        // 스크립트가 시작될 때 임시 스킬 레벨을 초기화
-        InitializePoints();
     }
 
     // === UI 및 스크립트 참조 ===
@@ -70,6 +68,11 @@ public class SkillPointManager : MonoBehaviour
     // 스킬 레벨이 변경되었음을 외부에 알리는 새로운 이벤트
     public event System.Action<int> OnSkillLeveledUp;
 
+    private void Start()
+    {
+        // 스크립트가 시작될 때 임시 스킬 레벨을 초기화
+        InitializePoints();
+    }
     void OnEnable()
     {
         // PlayerLevelUp 스크립트의 레벨업 이벤트를 구독합니다.

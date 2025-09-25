@@ -63,7 +63,7 @@ public class PlayerEquipmentManager : MonoBehaviour
             playerCharacter.inventoryManager.AddItem(oldItem);
         }
 
-        if (playerCharacter.inventoryManager.RemoveItem(itemToEquip, 1))
+        if (playerCharacter.inventoryManager.RemoveItem(itemToEquip.uniqueID))
         {
             equippedItems[slot] = itemToEquip;
 
@@ -254,5 +254,86 @@ public class PlayerEquipmentManager : MonoBehaviour
                 }
             }
         }
+    }
+    /// <summary>
+    /// 저장된 데이터 로드 시, 장비 아이템을 직접 받아 착용시키는 메서드입니다.
+    /// 이 메서드는 인벤토리에서 아이템을 제거하는 로직을 포함하지 않습니다.
+    /// SOLID: 개방-폐쇄 원칙 (LoadData() 로직에 대한 확장).
+    /// </summary>
+    /// <param name="itemToEquip">장착할 장비 아이템 데이터</param>
+    /// <param name="slot">장착할 슬롯 위치</param>
+    public void EquipItem(EquipmentItemSO itemToEquip, EquipSlot slot)
+    {
+        if (itemToEquip == null)
+        {
+            Debug.LogWarning("장착할 아이템이 유효하지 않습니다.");
+            return;
+        }
+
+        // 해당 슬롯에 이미 아이템이 있는지 확인
+        if (equippedItems.TryGetValue(slot, out EquipmentItemSO oldItem))
+        {
+            // 기존 아이템이 있을 경우, 무기 프리팹을 파괴합니다.
+            if (oldItem is WeaponItemSO)
+            {
+                if (equippedWeaponGameObject != null)
+                {
+                    Destroy(equippedWeaponGameObject);
+                    equippedWeaponGameObject = null;
+                }
+            }
+        }
+
+        // 새로운 아이템을 장착합니다.
+        equippedItems[slot] = itemToEquip;
+
+        // 장착된 아이템이 무기일 경우 시각적 장착 및 PlayerAttack에 데이터 전달
+        if (itemToEquip is WeaponItemSO weapon)
+        {
+            // 무기 프리팹을 생성하고, weaponSocket의 자식으로 설정합니다.
+            if (weapon.weaponPrefab != null && weaponSocket != null)
+            {
+                equippedWeaponGameObject = Instantiate(weapon.weaponPrefab, weaponSocket);
+            }
+
+            // PlayerAttack 스크립트의 참조를 통해 무기 데이터를 업데이트합니다.
+            if (playerCharacter.playerAttack != null)
+            {
+                playerCharacter.playerAttack.UpdateEquippedWeapon(weapon);
+            }
+        }
+
+        onEquipmentChanged?.Invoke();
+        UpdatePlayerStats();
+
+        // InventoryUIController에 직접 접근합니다.
+        if (InventoryUIController.Instance != null)
+        {
+            InventoryUIController.Instance.RefreshEquipmentUI();
+        }
+    }
+
+    /// <summary>
+    /// 모든 장비 아이템을 해제하고 인벤토리로 되돌립니다.
+    /// 로드 시 기존 장비를 초기화할 때 사용됩니다.
+    /// SOLID: 단일 책임 원칙 (장비 해제 책임).
+    /// </summary>
+    public void UnequipAll()
+    {
+        // === 변경된 코드 ===
+        // Dictionary를 직접 순회하며 요소를 제거하면 오류가 발생하므로,
+        // 임시 리스트에 제거할 키를 담아두고 나중에 일괄 제거합니다.
+        List<EquipSlot> slotsToUnequip = new List<EquipSlot>();
+        foreach (var slot in equippedItems.Keys)
+        {
+            slotsToUnequip.Add(slot);
+        }
+
+        foreach (var slot in slotsToUnequip)
+        {
+            // 실제 장비 해제 로직
+            UnEquipItem(slot);
+        }
+        // ==================
     }
 }

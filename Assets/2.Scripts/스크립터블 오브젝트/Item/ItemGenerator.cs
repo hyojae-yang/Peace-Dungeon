@@ -73,7 +73,10 @@ public class ItemGenerator : MonoBehaviour
         //    Instantiate는 ScriptableObject의 리스트를 깊은 복사하지 않으므로, 아래에서 새로 생성합니다.
         EquipmentItemSO newItem = Instantiate(templateItem);
         newItem.itemGrade = itemGrade;
-
+        // === 새로운 코드: 유니크 ID 부여 ===
+        // 현재 시간을 기반으로 고유한 해시값을 생성하여 uniqueID에 할당합니다.
+        // 이는 게임 내 모든 아이템을 개별적으로 식별하는 데 사용됩니다.
+        newItem.uniqueID = Guid.NewGuid().ToString();
         // 3. 능력치 리스트를 새로 할당하여 원본 SO와의 참조를 끊고, 데이터 손실을 방지합니다.
         newItem.baseStats = new List<StatModifier>(templateItem.baseStats);
         newItem.additionalStats = new List<StatModifier>(templateItem.additionalStats);
