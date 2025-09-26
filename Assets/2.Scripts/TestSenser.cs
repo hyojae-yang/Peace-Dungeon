@@ -8,11 +8,13 @@ public class TestSenser : MonoBehaviour
     // 센서의 현재 활성화 상태를 추적하는 변수
     private bool _isSensorActive = false;
 
+        // 감지할 오브젝트가 속한 레이어 마스크
+    public LayerMask serchLayerMask;
+
     // 이 오브젝트의 콜라이더 컴포넌트
     private Collider _collider;
-
-    // 감지할 오브젝트가 속한 레이어 마스크
-    public LayerMask serchLayerMask;
+    // 이 스크립트가 붙은 오브젝트의 메시 렌더러
+    private MeshRenderer _ownMeshRenderer;
 
     // 감지된 오브젝트의 콜라이더
     private Collider _serchedCollider;
@@ -21,8 +23,7 @@ public class TestSenser : MonoBehaviour
     private MeshRenderer _serchedMeshRenderer;
     private Transform[] _serchedChildren;
 
-    // 이 스크립트가 붙은 오브젝트의 메시 렌더러
-    private MeshRenderer _ownMeshRenderer;
+    
 
     // 감지 범위를 x축 방향으로만 조절할 값 (1.0f는 원래 크기, 0.5f는 절반 크기)
     [SerializeField]
@@ -31,10 +32,11 @@ public class TestSenser : MonoBehaviour
     /// <summary>
     /// 스크립트 시작 시 필요한 컴포넌트들을 초기화합니다.
     /// </summary>
-    private void Start()
+    private void Awake()
     {
         _collider = GetComponent<Collider>();
         _ownMeshRenderer = GetComponent<MeshRenderer>();
+        //SerchAndDeactivateOnce();
     }
 
     /// <summary>
@@ -52,7 +54,7 @@ public class TestSenser : MonoBehaviour
             }
         }
         // tt가 false로 바뀌고 센서가 활성화 상태일 경우
-        else if (!tt && _isSensorActive)
+        else if (!tt&& _isSensorActive)
         {
             ReactivateComponents();
             _isSensorActive = false;
@@ -161,6 +163,52 @@ public class TestSenser : MonoBehaviour
                 foreach (Transform child in _serchedChildren)
                 {
                     child.gameObject.SetActive(true);
+                }
+            }
+        }
+    }
+    /// <summary>
+    /// 스크립트 시작 시 한 번만 실행되는 감지 및 비활성화 로직입니다.
+    /// </summary>
+    private void SerchAndDeactivateOnce()
+    {
+        // SerchDoor()와 동일한 로직을 재사용합니다.
+        if (serchLayerMask == 0)
+        {
+            Debug.LogWarning("레이어 마스크가 설정되지 않았습니다. [TestSenser]");
+            return;
+        }
+        Vector3 localScale = transform.localScale;
+        Vector3 newHalfExtents = new Vector3(localScale.x * _detectionXScale, localScale.y, localScale.z) * 0.5f;
+        Collider[] hitColliders = Physics.OverlapBox(transform.position, newHalfExtents, transform.rotation, serchLayerMask, QueryTriggerInteraction.Ignore);
+        if (hitColliders.Length > 0)
+        {
+            foreach (var collider in hitColliders)
+            {
+                if (collider.gameObject != this.gameObject)
+                {
+                    _serchedCollider = collider;
+                    if (_collider != null) _collider.enabled = false;
+                    if (_ownMeshRenderer != null) _ownMeshRenderer.enabled = false;
+                    foreach (Transform child in transform)
+                    {
+                        child.gameObject.SetActive(false);
+                    }
+                    _serchedMeshRenderer = _serchedCollider.GetComponent<MeshRenderer>();
+                    _serchedChildren = _serchedCollider.GetComponentsInChildren<Transform>(true);
+                    if (_serchedCollider != null) _serchedCollider.enabled = false;
+                    if (_serchedMeshRenderer != null) _serchedMeshRenderer.enabled = false;
+                    if (_serchedChildren != null)
+                    {
+                        foreach (Transform child in _serchedChildren)
+                        {
+                            if (child.gameObject != _serchedCollider.gameObject)
+                            {
+                                child.gameObject.SetActive(false);
+                            }
+                        }
+                    }
+                    return; // 한 번만 비활성화
                 }
             }
         }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System;
 
 public class DungeonSpawnManager : MonoBehaviour
 {
@@ -128,27 +129,35 @@ public class DungeonSpawnManager : MonoBehaviour
     /// </summary>
     public void DestroyAllMonsters()
     {
-        // 생성된 몬스터들을 모두 찾아 파괴합니다.
-        foreach (var monsterList in spawnedMonsters.Values)
+        try
         {
-            foreach (var monster in monsterList)
+
+            // 생성된 몬스터들을 모두 찾아 파괴합니다.
+            foreach (var monsterList in spawnedMonsters.Values)
             {
-                if (monster != null)
+                foreach (var monster in monsterList)
                 {
-                    Destroy(monster);
+                    if (monster != null)
+                    {
+                        Destroy(monster);
+                    }
                 }
             }
-        }
 
-        // 딕셔너리 내부의 리스트들을 모두 비웁니다.
-        foreach (var monsterList in spawnedMonsters.Values)
+            // 딕셔너리 내부의 리스트들을 모두 비웁니다.
+            foreach (var monsterList in spawnedMonsters.Values)
+            {
+                monsterList.Clear();
+            }
+
+            // 모든 몬스터 객체 참조를 초기화합니다.
+            spawnedMonsters.Clear();
+            monsterScores.Clear();
+
+        }
+        catch (Exception ex)
         {
-            monsterList.Clear();
+            Debug.LogError("DestroyAllMonsters 예외: " + ex);
         }
-
-        // 모든 몬스터 객체 참조를 초기화합니다.
-        spawnedMonsters.Clear();
-        monsterScores.Clear();
-
     }
 }

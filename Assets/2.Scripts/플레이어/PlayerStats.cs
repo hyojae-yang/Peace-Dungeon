@@ -63,20 +63,13 @@ public class PlayerStats : MonoBehaviour, ISavable
 
     private void Awake()
     {
-        // ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
+        // ①. ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
+        // SaveManager.RegisterSavable() 메서드 내에서 로드 로직을 처리하므로
+        // 이 스크립트에서는 등록만 하면 됩니다.
         SaveManager.Instance.RegisterSavable(this);
 
-        // SaveManager에 로드된 데이터가 있는지 확인하고, 있으면 적용합니다.
-        if (SaveManager.Instance.HasLoadedData)
-        {
-            // SaveManager로부터 PlayerStats에 해당하는 데이터를 가져옵니다.
-            // TryGetData 메서드는 데이터를 찾았을 경우 true를 반환하고 loadedData 변수에 데이터를 담습니다.
-            if (SaveManager.Instance.TryGetData(this.GetType().Name, out object loadedData))
-            {
-                // 가져온 데이터를 PlayerStats에 적용합니다.
-                LoadData(loadedData);
-            }
-        }
+        // ②. 기존에 Start()나 Awake()에 있던 로드 로직은 모두 제거합니다.
+        // SaveManager가 모든 로드 과정을 중앙에서 관리합니다.
     }
     // === ISavable 인터페이스 구현 ===
     /// <summary>

@@ -24,7 +24,7 @@ MonoBehaviour:
   - conditionType: 0
     targetID: 6502
     requiredAmount: 10
-  isRepeatable: 1
+  isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: 0bf6d8fc660766e42a683f6f41225d24, type: 2}
     itemCount: 5

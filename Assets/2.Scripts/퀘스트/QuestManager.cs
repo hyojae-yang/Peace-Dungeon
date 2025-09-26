@@ -11,7 +11,7 @@ using System.Linq;
 
 // QuestManager.Instance.UpdateQuestProgress(acceptedQuestID, monsterID); // 몬스터 처치 시 호출 예시
 
-public class QuestManager : MonoBehaviour
+public class QuestManager : MonoBehaviour, ISavable
 {
     public static QuestManager Instance { get; private set; }
 
@@ -51,6 +51,10 @@ public class QuestManager : MonoBehaviour
         }
     }
 
+    private void Start()
+    {
+        SaveManager.Instance.RegisterSavable(this);
+    }
     /// <summary>
     /// 특정 퀘스트가 현재 수락된 상태인지 확인합니다.
     /// </summary>
@@ -467,5 +471,63 @@ public class QuestManager : MonoBehaviour
     public List<int> GetAcceptedQuests()
     {
         return acceptedQuests;
+    }
+    // === ISavable 인터페이스 구현 ===
+
+    /// <summary>
+    /// 현재 퀘스트의 동적 데이터를 SaveData 객체로 변환하여 반환합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// SOLID: 단일 책임 원칙 (데이터 직렬화).
+    /// </summary>
+    public object SaveData()
+    {
+        QuestsSaveData data = new QuestsSaveData();
+        data.acceptedQuests = new List<int>(acceptedQuests);
+        data.completedQuests = new List<int>(completedQuests);
+
+        // Dictionary를 직렬화 가능한 List로 변환합니다.
+        foreach (var quest in questProgress)
+        {
+            QuestProgressSaveData progressData = new QuestProgressSaveData();
+            progressData.questID = quest.Key;
+
+            // 중첩된 Dictionary도 List로 변환합니다.
+            foreach (var target in quest.Value.progress)
+            {
+                progressData.progress.Add(new TargetProgress { targetID = target.Key, currentAmount = target.Value });
+            }
+            data.questProgressList.Add(progressData);
+        }
+
+        return data;
+    }
+
+    /// <summary>
+    /// SaveData 객체의 데이터를 현재 QuestManager에 적용합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// SOLID: 단일 책임 원칙 (데이터 역직렬화).
+    /// </summary>
+    /// <param name="data">로드할 데이터가 담긴 QuestsSaveData 객체</param>
+    public void LoadData(object data)
+    {
+        if (data is QuestsSaveData loadedData)
+        {
+            // 로드된 데이터를 기존 리스트에 적용합니다.
+            acceptedQuests = new List<int>(loadedData.acceptedQuests);
+            completedQuests = new List<int>(loadedData.completedQuests);
+
+            // 딕셔너리도 로드된 데이터로 다시 구성합니다.
+            questProgress.Clear();
+            foreach (var progressData in loadedData.questProgressList)
+            {
+                QuestProgress newProgress = new QuestProgress();
+                foreach (var target in progressData.progress)
+                {
+                    newProgress.progress[target.targetID] = target.currentAmount;
+                }
+                questProgress[progressData.questID] = newProgress;
+            }
+
+        }
     }
 }

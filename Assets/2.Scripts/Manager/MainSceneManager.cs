@@ -111,4 +111,13 @@ public class MainSceneManager : MonoBehaviour
         UIEventHandler.OnPanelActivated -= HandlePanelActivation;
         UIEventHandler.OnPanelDeactivated -= HandlePanelDeactivation;
     }
+    public void Exit()
+    {
+        //¾À¸Å´ÏÀú·Î ¾ÀÀüÈ¯
+        UnityEngine.SceneManagement.SceneManager.LoadScene("TitleScene");
+    }
+    public void save()
+    {
+        SaveManager.Instance.SaveGame();
+    }
 }

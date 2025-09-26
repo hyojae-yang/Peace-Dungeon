@@ -86,6 +86,7 @@ public class TitleSceneManager : MonoBehaviour
     public void OnNewGameButtonClick()
     {
         // TODO: 게임 데이터를 완전히 초기화하는 로직을 여기에 추가
+        SaveManager.Instance.ResetGameData();
         SceneManager.LoadScene("MainScene");
     }
 

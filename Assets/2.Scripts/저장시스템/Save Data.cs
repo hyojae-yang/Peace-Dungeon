@@ -176,3 +176,88 @@ public class SavableEquippedData
     public string uniqueID; // 어떤 아이템이 장착되었는지 고유하게 식별
     // ==================
 }
+
+/// <summary>
+/// 모든 NPC의 동적 데이터를 담는 컨테이너 클래스입니다.
+/// SaveManager가 이 객체를 통째로 저장하고 로드합니다.
+/// [Serializable] 속성을 추가하여 JSON으로 직렬화할 수 있도록 합니다.
+/// </summary>
+[Serializable]
+public class NPCsSaveData
+{
+    // 각 NPC의 동적 데이터(호감도 등) 리스트를 저장합니다.
+    public List<NPCSessionData> npcDataList = new List<NPCSessionData>();
+}
+
+/// <summary>
+/// 모든 퀘스트의 동적 데이터를 담는 컨테이너 클래스입니다.
+/// SaveManager가 이 객체를 통째로 저장하고 로드합니다.
+/// </summary>
+[Serializable]
+public class QuestsSaveData
+{
+    // 수락된 퀘스트 ID 목록
+    public List<int> acceptedQuests = new List<int>();
+    // 완료된 퀘스트 ID 목록
+    public List<int> completedQuests = new List<int>();
+    // 퀘스트 진행 상황 딕셔너리
+    // Dictionary는 직접 직렬화되지 않으므로, KeyValuePair 리스트로 변환합니다.
+    public List<QuestProgressSaveData> questProgressList = new List<QuestProgressSaveData>();
+}
+
+/// <summary>
+/// QuestProgress 딕셔너리를 저장하기 위한 직렬화 가능 클래스입니다.
+/// Dictionary는 Unity에서 직접 직렬화되지 않기 때문에 List로 변환해야 합니다.
+/// </summary>
+[Serializable]
+public class QuestProgressSaveData
+{
+    public int questID;
+    public List<TargetProgress> progress = new List<TargetProgress>();
+}
+
+/// <summary>
+/// 퀘스트 목표 달성 상황을 저장하기 위한 클래스입니다.
+/// Dictionary의 키-값 쌍을 직렬화하기 위해 사용됩니다.
+/// </summary>
+[Serializable]
+public class TargetProgress
+{
+    public int targetID;
+    public int currentAmount;
+}
+/// <summary>
+/// 던전 인벤토리 아이템의 저장 가능한 데이터를 나타내는 클래스입니다.
+/// (아이템 ID와 고유 ID만 저장)
+/// </summary>
+[System.Serializable]
+public class DungeonItemSaveData
+{
+    /// <summary>
+    /// 아이템의 종류를 식별하는 ID입니다.
+    /// </summary>
+    public string itemID;
+
+    /// <summary>
+    /// 인벤토리 내에서 각 아이템을 고유하게 식별하는 ID입니다.
+    /// 같은 종류의 아이템이라도 이 ID는 모두 다릅니다.
+    /// </summary>
+    public int uniqueID;
+}
+/// <summary>
+/// DungeonInventoryManager의 저장 데이터를 담는 컨테이너 클래스입니다.
+/// </summary>
+[System.Serializable]
+public class DungeonInventorySaveData
+{
+    /// <summary>
+    /// 플레이어가 현재 보유한 모든 아이템 데이터를 담는 리스트입니다.
+    /// </summary>
+    public List<DungeonItemSaveData> dungeonItems = new List<DungeonItemSaveData>();
+
+    /// <summary>
+    /// 다음에 아이템이 추가될 때 할당될 고유 ID를 추적하는 변수입니다.
+    /// 로드 후에도 이 번호가 유지되어야 아이디가 중복되지 않습니다.
+    /// </summary>
+    public int nextUniqueID;
+}

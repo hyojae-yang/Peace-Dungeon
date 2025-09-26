@@ -70,6 +70,10 @@ public class SkillPointManager : MonoBehaviour
 
     private void Start()
     {
+        // 최종 스킬 포인트와 스킬 레벨을 임시 데이터로 가져와 초기화합니다.
+        currentSkillPoints = playerCharacter.playerStats.skillPoints;
+        // 깊은 복사(Deep Copy)를 통해 원본 딕셔너리를 보호합니다.
+        tempSkillLevels = new Dictionary<int, int>(playerCharacter.playerStats.skillLevels);
         // 스크립트가 시작될 때 임시 스킬 레벨을 초기화
         InitializePoints();
     }

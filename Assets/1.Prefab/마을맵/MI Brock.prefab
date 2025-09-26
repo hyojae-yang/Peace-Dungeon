@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 819865970945790899}
   - component: {fileID: 424841027085785459}
   - component: {fileID: 7808082888315789159}
+  - component: {fileID: -5726476108932473581}
   m_Layer: 0
   m_Name: MI Brock
   m_TagString: SmallMap
@@ -101,6 +102,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 100, y: 50, z: 400}
   m_Center: {x: 0, y: 25, z: 150}
+--- !u!114 &-5726476108932473581
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 204499404657167872}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a756c7072babe40409b79cfcf63cbc94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: 
 --- !u!1 &456753750927162593
 GameObject:
   m_ObjectHideFlags: 0

@@ -80,12 +80,21 @@ public class SaveManager : MonoBehaviour
             saveData[key] = container;
         }
 
-        // 딕셔너리를 JSON 문자열로 변환합니다.
-        // TypeNameHandling.Auto를 사용하여 데이터 타입 정보를 포함시켜 역직렬화 시 정확한 타입으로 변환되도록 합니다.
-        string json = JsonConvert.SerializeObject(saveData, Formatting.Indented, new JsonSerializerSettings
+        // --- 여기부터 수정해야 할 코드입니다. ---
+        // Json 직렬화 설정을 위한 객체를 생성합니다.
+        // 이것이 'Self referencing loop' 에러를 해결하는 핵심입니다.
+        JsonSerializerSettings settings = new JsonSerializerSettings
         {
+            // 순환 참조가 발견되면 무시하도록 설정합니다.
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            // 데이터 타입 정보를 포함시켜 정확한 타입으로 역직렬화되도록 합니다.
             TypeNameHandling = TypeNameHandling.Auto
-        });
+        };
+
+        // 딕셔너리를 JSON 문자열로 변환할 때, settings 객체를 인자로 전달합니다.
+        string json = JsonConvert.SerializeObject(saveData, Formatting.Indented, settings);
+
+        // --- 여기까지 수정해야 할 코드입니다. ---
 
         // 지정된 경로에 JSON 파일을 작성합니다.
         File.WriteAllText(saveFilePath, json);
@@ -106,11 +115,19 @@ public class SaveManager : MonoBehaviour
 
         string json = File.ReadAllText(saveFilePath);
 
-        // LoadGame()이 호출될 때마다 임시 저장소를 새로 초기화합니다.
-        loadedSaveData = JsonConvert.DeserializeObject<Dictionary<string, SaveDataContainer>>(json, new JsonSerializerSettings
+        // --- 여기부터 수정해야 할 코드입니다. ---
+        // Json 역직렬화 설정을 위한 객체를 생성합니다.
+        JsonSerializerSettings settings = new JsonSerializerSettings
         {
+            // 저장할 때와 동일한 설정을 사용해야 합니다.
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
             TypeNameHandling = TypeNameHandling.Auto
-        });
+        };
+
+        // 로드된 게임 데이터를 임시 저장소에 역직렬화합니다.
+        // settings 객체를 인자로 전달합니다.
+        loadedSaveData = JsonConvert.DeserializeObject<Dictionary<string, SaveDataContainer>>(json, settings);
+        // --- 여기까지 수정해야 할 코드입니다. ---
         Debug.Log("게임 로드 완료!");
     }
     /// <summary>
@@ -123,21 +140,20 @@ public class SaveManager : MonoBehaviour
         return System.IO.File.Exists(saveFilePath);
     }
     /// <summary>
-    /// 새로 생성된 ISavable 객체를 등록하는 메서드입니다.
-    /// 씬이 로드된 후 각 ISavable 객체의 Awake()에서 호출됩니다.
+    /// 새로 생성된 ISavable 객체를 등록하고, 저장된 데이터가 있으면 로드합니다.
+    /// 이 메서드는 씬이 로드된 후 각 ISavable 객체의 Awake()나 Start()에서 호출됩니다.
     /// </summary>
-    /// <param name="savable">등록할 ISavable 스크립트</param>
     public void RegisterSavable(ISavable savable)
     {
         // 스크립트 타입을 키로 사용
         string key = ((MonoBehaviour)savable).GetType().Name;
 
-        // 이전에 저장된 데이터가 있는지 확인하고 로드
-        if (loadedSaveData != null && loadedSaveData.ContainsKey(key))
+        // 이전에 로드된 데이터가 있고, 해당 키에 데이터가 존재하는지 확인합니다.
+        // 이 로직은 씬에 있는 모든 ISavable 스크립트가 자신을 등록할 때 실행됩니다.
+        if (HasLoadedData && loadedSaveData.ContainsKey(key))
         {
             SaveDataContainer container = loadedSaveData[key];
             savable.LoadData(container.data);
-            Debug.Log($"'{key}' 스크립트의 데이터가 성공적으로 로드되었습니다.");
         }
     }
     /// <summary>
@@ -170,5 +186,36 @@ public class SaveManager : MonoBehaviour
             }
         }
         return false;
+    }
+    /// <summary>
+    /// 게임 데이터를 초기 상태로 리셋합니다.
+    /// '새 게임 시작' 버튼에 연결하여 사용합니다.
+    /// </summary>
+    public void ResetGameData()
+    {
+        // 1. 저장 파일 삭제
+        if (File.Exists(saveFilePath))
+        {
+            File.Delete(saveFilePath);
+            Debug.Log("기존 세이브 파일 삭제 완료!");
+        }
+
+        // 2. 메모리 내 데이터 초기화
+        loadedSaveData = null;
+
+        // 3. 씬의 저장 가능한 오브젝트 초기화
+        // 월드에 있는 모든 SavableEntity 오브젝트들을 제거합니다.
+        // 현재 씬에서 SavableEntity 컴포넌트를 가진 모든 오브젝트를 찾습니다.
+        // **에러 수정 지점:** FindObjectsSortMode.None 인자를 추가해야 합니다.
+        var savableObjects = FindObjectsByType<SavableEntity>(FindObjectsSortMode.None);
+
+
+        // 순회 중 리스트가 변경되는 것을 방지하기 위해 ToList()를 사용합니다.
+        foreach (var obj in savableObjects.ToList())
+        {
+            Destroy(obj.gameObject);
+        }
+
+        Debug.Log("게임 데이터 초기화 완료!");
     }
 }

@@ -11,7 +11,8 @@ public class DungeonDoor : MonoBehaviour
     [SerializeField] private Transform dungeonSpawnPoint;
     [Tooltip("플레이어가 던전에서 나갈 때 스폰될 위치입니다.")]
     [SerializeField] private Transform exitSpawnPoint;
- 
+    private GameObject cachedPlayer;
+    private PlayerController controller;
     /// <summary>
     /// 충돌이 시작되었을 때 한 번 호출됩니다.
     /// 플레이어가 "Player" 태그를 가지고 있다면 DungeonUIManager를 호출하여 알림창을 띄웁니다.
@@ -19,6 +20,9 @@ public class DungeonDoor : MonoBehaviour
     /// <param name="collision">충돌한 Collider의 정보.</param>
     private void OnCollisionEnter(Collision collision)
     {
+        //플레이어의 컨트롤러를 미리 받아둡니다.
+        controller = collision.gameObject.GetComponent<PlayerController>();
+
         if (collision.gameObject.CompareTag("Player"))
         {
             // DungeonManager의 isInDungeon 상태를 확인하여 알림창 텍스트를 결정합니다.
@@ -72,10 +76,19 @@ public class DungeonDoor : MonoBehaviour
                 // 이미 던전 안에 있다면, 던전 밖으로 내보냅니다.
                 if (exitSpawnPoint != null)
                 {
-                    player.transform.position = exitSpawnPoint.position;
-                    Debug.Log("나간 플레이어위치"+player.transform.position);
 
-                    Debug.Log("플레이어가 던전 밖으로 이동했습니다.");
+                    player.transform.position = exitSpawnPoint.position;
+                    if (controller != null)
+                    {
+                        controller.SetCanMove(false);
+                        cachedPlayer = player; // EnableMove에서 사용할 수 있도록 저장
+                        Invoke(nameof(EnableMove), 0.5f);
+                    }
+                    else
+                    {
+                        Debug.LogWarning("PlayerController 컴포넌트를 찾을 수 없습니다.");
+                    }
+
                     // DungeonManager의 상태를 '던전 밖'으로 변경하고, 위치 이동이 완료된 후 ExitDungeon() 메서드를 호출합니다.
                     DungeonManager.Instance.IsInDungeon = false;
                     DungeonManager.Instance.ExitDungeon();
@@ -87,5 +100,15 @@ public class DungeonDoor : MonoBehaviour
             }
         }
     }
-
+    // 반드시 클래스의 멤버로 선언!
+    private void EnableMove()
+    {
+        if (cachedPlayer != null)
+        {
+            var controller = cachedPlayer.GetComponent<PlayerController>();
+            if (controller != null)
+                controller.SetCanMove(true);
+            cachedPlayer = null;
+        }
+    }
 }

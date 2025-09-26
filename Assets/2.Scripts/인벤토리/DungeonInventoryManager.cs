@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DungeonInventoryManager : MonoBehaviour
+public class DungeonInventoryManager : MonoBehaviour, ISavable
 {
     // ObjectPool 의존성 제거
     [SerializeField] private ItemDatabase itemDatabase;
@@ -13,7 +13,7 @@ public class DungeonInventoryManager : MonoBehaviour
     private List<Tuple<string, int>> playerItems = new List<Tuple<string, int>>();
     private int nextUniqueID = 0; // 고유 ID를 생성하는 카운터
 
-    private void Start()
+    private void Awake()
     {
         if (itemDatabase != null)
         {
@@ -23,14 +23,23 @@ public class DungeonInventoryManager : MonoBehaviour
         {
             Debug.LogError("Error: ItemDatabase가 할당되지 않았습니다.");
         }
+    }
+    private void Start()
+    {
+        SaveManager.Instance.RegisterSavable(this);
 
-        // 테스트용 초기 아이템 ID를 직접 리스트에 추가
-        playerItems.Add(new Tuple<string, int>("2", nextUniqueID++));
+        // === 추가된 코드: 저장된 데이터가 없을 경우에만 초기 아이템을 추가합니다. ===
+        // SaveManager.Instance.HasLoadedData는 로드할 데이터가 있는지 알려주는 속성입니다.
+        if (!SaveManager.Instance.HasLoadedData)
+        {
+            // 테스트용 초기 아이템 ID를 직접 리스트에 추가
+            playerItems.Add(new Tuple<string, int>("2", nextUniqueID++));
         playerItems.Add(new Tuple<string, int>("4", nextUniqueID++));
         playerItems.Add(new Tuple<string, int>("12", nextUniqueID++));
 
         // 초기화 시에만 전체 새로고침
         RefreshInventoryUI();
+        }
     }
 
     public RectTransform GetInventoryRect()
@@ -77,22 +86,22 @@ public class DungeonInventoryManager : MonoBehaviour
     }
 
     // UI 아이템을 하나씩 추가하는 메서드
+    // DungeonInventoryManager.cs - AddUIItem() 메서드 수정
     private void AddUIItem(string itemID, int uniqueID)
     {
         DungeonItemData data = itemDatabase.GetItem(itemID);
-        if (data != null)
+
+        // 오브젝트 풀 대신 Instantiate()를 사용하여 오브젝트 생성
+        GameObject uiItemGO = Instantiate(data.uiItemPrefab);
+
+        if (uiItemGO != null)
         {
-            // 오브젝트 풀 대신 Instantiate()를 사용하여 오브젝트 생성
-            GameObject uiItemGO = Instantiate(data.uiItemPrefab);
-            if (uiItemGO != null)
+            uiItemGO.transform.SetParent(contentParent, false);
+            DungeonUIItem uiItem = uiItemGO.GetComponent<DungeonUIItem>();
+            if (uiItem != null)
             {
-                uiItemGO.transform.SetParent(contentParent, false);
-                DungeonUIItem uiItem = uiItemGO.GetComponent<DungeonUIItem>();
-                if (uiItem != null)
-                {
-                    uiItem.Setup(data);
-                    uiItem.uniqueID = uniqueID; // UI 아이템에 고유 ID 할당
-                }
+                uiItem.Setup(data);
+                uiItem.uniqueID = uniqueID; // UI 아이템에 고유 ID 할당
             }
         }
     }
@@ -127,6 +136,51 @@ public class DungeonInventoryManager : MonoBehaviour
         foreach (var itemTuple in playerItems)
         {
             AddUIItem(itemTuple.Item1, itemTuple.Item2);
+        }
+    }
+    // === ISavable 인터페이스 구현 ===
+    public object SaveData()
+    {
+        DungeonInventorySaveData data = new DungeonInventorySaveData();
+
+        foreach (var itemTuple in playerItems)
+        {
+            string itemID = itemTuple.Item1;
+            int uniqueID = itemTuple.Item2;
+
+            DungeonItemSaveData itemData = new DungeonItemSaveData
+            {
+                itemID = itemID,
+                uniqueID = uniqueID
+            };
+            data.dungeonItems.Add(itemData);
+        }
+
+        data.nextUniqueID = this.nextUniqueID;
+
+        return data;
+    }
+
+    public void LoadData(object data)
+    {
+        if (data is DungeonInventorySaveData loadedData)
+        {
+
+            playerItems.Clear();
+
+            foreach (var item in loadedData.dungeonItems)
+            {
+                playerItems.Add(new Tuple<string, int>(item.itemID, item.uniqueID));
+            }
+
+            this.nextUniqueID = loadedData.nextUniqueID;
+
+            RefreshInventoryUI();
+        }
+        else
+        {
+            // === 추가된 디버그 로그: 데이터 로드 실패 알림 ===
+            Debug.LogWarning($"<color=red>LoadData() 실패: 유효한 데이터가 없습니다.</color>");
         }
     }
 }

@@ -822,6 +822,7 @@ GameObject:
   - component: {fileID: -1426091120535970858}
   - component: {fileID: 7495620264199108974}
   - component: {fileID: 2542794676968001783}
+  - component: {fileID: 974630565669221845}
   m_Layer: 0
   m_Name: "M\u3131 Brock"
   m_TagString: SmallMap
@@ -912,6 +913,19 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 100, y: 50, z: 300}
   m_Center: {x: 0, y: 25, z: 0}
+--- !u!114 &974630565669221845
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3301678143447887137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a756c7072babe40409b79cfcf63cbc94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uniqueID: 
 --- !u!1 &3546687141720324060
 GameObject:
   m_ObjectHideFlags: 0

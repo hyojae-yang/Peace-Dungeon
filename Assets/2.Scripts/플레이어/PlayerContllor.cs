@@ -24,7 +24,7 @@ public class PlayerController : MonoBehaviour
     // 상태 변수
     [Tooltip("플레이어가 땅에 닿았는지 여부를 나타냅니다.")]
     private bool isGrounded = true;
-
+    private bool canMove = true;
 
     void Start()
     {
@@ -60,6 +60,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        //Debug.Log("위치 변경: " + transform.position + " by " + this.GetType().Name);
         // 땅에 닿았을 때만 점프 가능
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
@@ -71,6 +72,7 @@ public class PlayerController : MonoBehaviour
     // 물리학 업데이트는 FixedUpdate에서 처리하는 것이 좋습니다.
     void FixedUpdate()
     {
+        if (!canMove) return;
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
             Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. 이동 속도를 업데이트할 수 없습니다.");
@@ -107,6 +109,14 @@ public class PlayerController : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;
+        }
+    }
+    public void SetCanMove(bool value)
+    {
+        canMove = value;
+        if (!canMove && playerRigidbody != null)
+        {
+            playerRigidbody.linearVelocity = Vector3.zero;
         }
     }
 }

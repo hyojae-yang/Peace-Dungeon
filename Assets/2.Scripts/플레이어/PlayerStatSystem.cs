@@ -96,18 +96,6 @@ public class PlayerStatSystem : MonoBehaviour, ISavable
         // ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
         SaveManager.Instance.RegisterSavable(this);
 
-        // SaveManager에 로드된 데이터가 있는지 확인하고, 있으면 적용합니다.
-        if (SaveManager.Instance.HasLoadedData)
-        {
-            // SaveManager로부터 PlayerStatSystem에 해당하는 데이터를 가져옵니다.
-            // TryGetData 메서드는 데이터를 찾았을 경우 true를 반환하고 loadedData 변수에 데이터를 담습니다.
-            if (SaveManager.Instance.TryGetData(this.GetType().Name, out object loadedData))
-            {
-                // 가져온 데이터를 PlayerStatSystem에 적용합니다.
-                LoadData(loadedData);
-            }
-        }
-
         // 초기 스탯 계산 및 적용
         //UpdateFinalStats();
     }

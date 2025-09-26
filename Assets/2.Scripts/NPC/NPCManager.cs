@@ -6,7 +6,7 @@ using UnityEngine;
 /// 게임 로딩 및 저장 시 데이터 처리를 담당하며, NPC의 특수 기능 목록도 관리합니다.
 /// SOLID: 단일 책임 원칙 (모든 NPC 데이터의 중앙 관리)
 /// </summary>
-public class NPCManager : MonoBehaviour
+public class NPCManager : MonoBehaviour, ISavable
 {
     // NPCManager의 싱글턴 인스턴스
     public static NPCManager Instance { get; private set; }
@@ -40,7 +40,14 @@ public class NPCManager : MonoBehaviour
             Destroy(gameObject);
         }
     }
-
+    /// <summary>
+    /// ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
+    /// Start() 메서드에서 등록하여 다른 스크립트들이 먼저 Awake()에서 자신을 등록할 시간을 줍니다.
+    /// </summary>
+    private void Start()
+    {
+        SaveManager.Instance.RegisterSavable(this);
+    }
     /// <summary>
     /// 모든 NPC 데이터로부터 세션 데이터를 초기화합니다.
     /// 게임 시작 시 한 번 호출되어 모든 NPC의 동적 데이터 인스턴스를 생성합니다.
@@ -129,7 +136,39 @@ public class NPCManager : MonoBehaviour
         return new List<INPCFunction>();
     }
 
-    // 이 외에 저장 및 로딩 관련 메서드 추가 예정
-    // public void SaveNPCData() { ... }
-    // public void LoadNPCData() { ... }
+    // === ISavable 인터페이스 구현 ===
+
+    /// <summary>
+    /// 현재 NPC들의 동적 데이터를 SaveData 객체로 변환하여 반환합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// </summary>
+    /// <returns>NPCsSaveData 타입의 저장 가능한 데이터 객체</returns>
+    public object SaveData()
+    {
+        NPCsSaveData data = new NPCsSaveData();
+
+        // npcSessionDataMap의 모든 데이터를 npcDataList에 복사합니다.
+        // Dictionary의 Values 속성을 사용하여 NPCSessionData 인스턴스만 가져옵니다.
+        data.npcDataList.AddRange(npcSessionDataMap.Values);
+
+        return data;
+    }
+
+    /// <summary>
+    /// SaveData 객체의 데이터를 현재 NPCManager의 동적 데이터에 적용합니다.
+    /// 이 메서드는 SaveManager에 의해 호출됩니다.
+    /// </summary>
+    /// <param name="data">로드할 데이터가 담긴 NPCsSaveData 객체</param>
+    public void LoadData(object data)
+    {
+        if (data is NPCsSaveData loadedData)
+        {
+            // 기존 맵을 비우고, 로드된 데이터로 다시 채웁니다.
+            npcSessionDataMap.Clear();
+            foreach (var sessionData in loadedData.npcDataList)
+            {
+                npcSessionDataMap[sessionData.npcID] = sessionData;
+            }
+        }
+    }
 }
