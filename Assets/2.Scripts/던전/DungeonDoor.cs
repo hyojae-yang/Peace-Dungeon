@@ -3,16 +3,6 @@ using System;
 
 public class DungeonDoor : MonoBehaviour
 {
-    // SOLID 원칙 중 단일 책임 원칙(SRP)을 최대한 준수하려 노력했습니다.
-    // 이 클래스는 이제 '플레이어 충돌 감지'와 '위치 이동'의 두 가지 역할에 집중합니다.
-
-    [Header("스폰 포인트 설정")]
-    [Tooltip("플레이어가 처음 던전에 들어갈 때 스폰될 위치입니다.")]
-    [SerializeField] private Transform dungeonSpawnPoint;
-    [Tooltip("플레이어가 던전에서 나갈 때 스폰될 위치입니다.")]
-    [SerializeField] private Transform exitSpawnPoint;
-    private GameObject cachedPlayer;
-    private PlayerController controller;
     /// <summary>
     /// 충돌이 시작되었을 때 한 번 호출됩니다.
     /// 플레이어가 "Player" 태그를 가지고 있다면 DungeonUIManager를 호출하여 알림창을 띄웁니다.
@@ -20,30 +10,32 @@ public class DungeonDoor : MonoBehaviour
     /// <param name="collision">충돌한 Collider의 정보.</param>
     private void OnCollisionEnter(Collision collision)
     {
-        //플레이어의 컨트롤러를 미리 받아둡니다.
-        controller = collision.gameObject.GetComponent<PlayerController>();
 
+        // 단일 책임 원칙 (SRP): 충돌 감지 및 UI 호출 역할만 수행합니다.
+        // OCP: 태그 비교는 확장 가능성이 낮은 부분이므로 그대로 유지합니다.
         if (collision.gameObject.CompareTag("Player"))
         {
-            // DungeonManager의 isInDungeon 상태를 확인하여 알림창 텍스트를 결정합니다.
+            // DungeonManager의 인스턴스 유효성 검사 (의존성 관리)
             if (DungeonManager.Instance != null)
             {
+                // 현재 던전 상태에 따라 알림 메시지를 결정합니다.
                 string alertMessage = DungeonManager.Instance.IsInDungeon ? "던전에서 나가시겠습니까?" : "던전에 입장하시겠습니까?";
 
                 // DungeonUIManager의 인스턴스를 찾아 알림창을 띄웁니다.
-                // 확인 버튼을 누르면 HandleDungeonEntry 메서드가 실행되도록 Action을 넘겨줍니다.
                 if (DungeonUIManager.Instance != null)
                 {
+                    // 확인 버튼을 누르면 HandleDungeonEntry 메서드가 실행되도록 Action을 넘겨줍니다.
+                    // 'collision.gameObject' 대신 'collision.gameObject'를 전달하여 플레이어 객체를 처리합니다.
                     DungeonUIManager.Instance.ShowDungeonAlert(alertMessage, () => HandleDungeonEntry(collision.gameObject));
                 }
                 else
                 {
-                    Debug.LogWarning("DungeonUIManager 인스턴스를 찾을 수 없습니다!");
+                    Debug.LogWarning("DungeonUIManager 인스턴스를 찾을 수 없습니다! UI를 띄울 수 없습니다.");
                 }
             }
             else
             {
-                Debug.LogWarning("DungeonManager 인스턴스를 찾을 수 없습니다!");
+                Debug.LogWarning("DungeonManager 인스턴스를 찾을 수 없습니다! 던전 상태를 확인할 수 없습니다.");
             }
         }
     }
@@ -55,60 +47,43 @@ public class DungeonDoor : MonoBehaviour
     /// <param name="player">이동시킬 플레이어 GameObject.</param>
     private void HandleDungeonEntry(GameObject player)
     {
-        // DungeonManager의 isInDungeon 상태를 확인합니다.
-        if (DungeonManager.Instance != null)
+        // DungeonManager가 유효한지 확인합니다.
+        if (DungeonManager.Instance == null)
         {
-            if (DungeonManager.Instance.IsInDungeon == false)
-            {
-                // 아직 던전 안이 아니라면, 던전으로 진입시킵니다.
-                if (dungeonSpawnPoint != null)
-                {
-                    player.transform.position = dungeonSpawnPoint.position;
-                    DungeonManager.Instance.IsInDungeon = true; // DungeonManager의 상태를 '던전 안'으로 변경합니다.
-                }
-                else
-                {
-                    Debug.LogWarning("던전 스폰 포인트가 설정되지 않았습니다. 플레이어가 이동하지 않습니다.");
-                }
-            }
-            else
-            {
-                // 이미 던전 안에 있다면, 던전 밖으로 내보냅니다.
-                if (exitSpawnPoint != null)
-                {
-
-                    player.transform.position = exitSpawnPoint.position;
-                    if (controller != null)
-                    {
-                        controller.SetCanMove(false);
-                        cachedPlayer = player; // EnableMove에서 사용할 수 있도록 저장
-                        Invoke(nameof(EnableMove), 0.5f);
-                    }
-                    else
-                    {
-                        Debug.LogWarning("PlayerController 컴포넌트를 찾을 수 없습니다.");
-                    }
-
-                    // DungeonManager의 상태를 '던전 밖'으로 변경하고, 위치 이동이 완료된 후 ExitDungeon() 메서드를 호출합니다.
-                    DungeonManager.Instance.IsInDungeon = false;
-                    DungeonManager.Instance.ExitDungeon();
-                }
-                else
-                {
-                    Debug.LogWarning("던전 출구 스폰 포인트가 설정되지 않았습니다. 플레이어가 이동하지 않습니다.");
-                }
-            }
+            Debug.LogWarning("DungeonManager 인스턴스가 없어 던전 진입/퇴장 처리를 할 수 없습니다.");
+            return;
         }
-    }
-    // 반드시 클래스의 멤버로 선언!
-    private void EnableMove()
-    {
-        if (cachedPlayer != null)
+
+        // 플레이어 캐릭터 컨트롤러 인스턴스가 유효한지 확인합니다.
+        if (PlayerCharacter.Instance == null || PlayerCharacter.Instance.playerController == null)
         {
-            var controller = cachedPlayer.GetComponent<PlayerController>();
-            if (controller != null)
-                controller.SetCanMove(true);
-            cachedPlayer = null;
+            Debug.LogError("PlayerCharacter 또는 playerController 인스턴스를 찾을 수 없습니다. 플레이어 이동 처리가 불가능합니다.");
+            return;
+        }
+
+        // 던전 진입 로직
+        if (DungeonManager.Instance.IsInDungeon == false)
+        {
+            // 플레이어를 던전 안으로 이동시킵니다.
+            PlayerCharacter.Instance.playerController.inDungeon();
+
+            // DungeonManager의 상태를 '던전 안'으로 변경합니다.
+            // (DungeonManager 내부 IsInDungeon Setter에서 HandleDungeonEntry()가 호출됨)
+            DungeonManager.Instance.IsInDungeon = true;
+        }
+        // 던전 퇴장 로직 (여기가 수정되었습니다!)
+        else // DungeonManager.Instance.IsInDungeon == true
+        {
+            // 1. 플레이어를 던전 밖으로 이동시킵니다.
+            PlayerCharacter.Instance.playerController.outDungeon();
+
+            // 2. 몬스터 정리 및 보상 지급 로직을 담당하는 ExitDungeon()을 호출합니다.
+            // (ExitDungeon() 내부 로직이 IsInDungeon 상태에 의존하지 않지만, 호출 순서의 명확성을 위해 이 위치를 유지합니다.)
+            DungeonManager.Instance.ExitDungeon();
+
+            // 3. 마지막으로 DungeonManager의 상태를 '던전 밖'으로 변경합니다.
+            //    이 변경으로 DungeonManager의 IsInDungeon Setter 내부 로직(HandleDungeonEntry)은 실행되지 않습니다.
+            DungeonManager.Instance.IsInDungeon = false;
         }
     }
 }

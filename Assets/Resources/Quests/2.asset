@@ -16,7 +16,7 @@ MonoBehaviour:
   questTitle: "\uB2E4\uB78C\uC950 \uCC98\uCE58(\uBC18\uBCF5)"
   questDescription: "\uB2E4\uB78C\uC950\uB97C 10\uB9C8\uB9AC \uC7A1\uAE30"
   questGiverName: "\uC7A5\uD544\uC218"
-  requiredAffection: -100
+  requiredAffection: -90
   prerequisiteQuests: 
   conditions:
   - conditionType: 2
@@ -29,3 +29,4 @@ MonoBehaviour:
   experienceReward: 30
   goldReward: 50
   affectionReward: 1
+  rewardEquipmentGrade: 0

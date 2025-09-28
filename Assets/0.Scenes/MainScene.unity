@@ -63749,8 +63749,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 083a858b358c3ca49aecc050906ace05, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dungeonSpawnPoint: {fileID: 732189577}
-  exitSpawnPoint: {fileID: 1975641865}
 --- !u!1001 &1204597103
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -113208,6 +113206,8 @@ MonoBehaviour:
   walkSpeed: 10
   runSpeedMultiplier: 2
   jumpForce: 5
+  dungeonSpawnPoint: {fileID: 732189577}
+  exitSpawnPoint: {fileID: 1975641865}
 --- !u!114 &1589101845638085121
 MonoBehaviour:
   m_ObjectHideFlags: 0

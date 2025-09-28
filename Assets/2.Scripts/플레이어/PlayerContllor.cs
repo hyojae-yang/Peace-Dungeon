@@ -21,10 +21,15 @@ public class PlayerController : MonoBehaviour
     // 컴포넌트 변수
     private Rigidbody playerRigidbody;
 
+    [Header("스폰 포인트 설정")]
+    [Tooltip("플레이어가 처음 던전에 들어갈 때 스폰될 위치입니다.")]
+    [SerializeField] private Transform dungeonSpawnPoint;
+    [Tooltip("플레이어가 던전에서 나갈 때 스폰될 위치입니다.")]
+    [SerializeField] private Transform exitSpawnPoint;
     // 상태 변수
     [Tooltip("플레이어가 땅에 닿았는지 여부를 나타냅니다.")]
     private bool isGrounded = true;
-    private bool canMove = true;
+    public bool canMove = true;
 
     void Start()
     {
@@ -111,12 +116,16 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
     }
-    public void SetCanMove(bool value)
+    public void inDungeon()
     {
-        canMove = value;
-        if (!canMove && playerRigidbody != null)
-        {
-            playerRigidbody.linearVelocity = Vector3.zero;
-        }
+        canMove = false;
+        playerCharacter.transform.position = dungeonSpawnPoint.position;
+        canMove = true;
+    }
+    public void outDungeon()
+    {
+        canMove = false;
+        playerCharacter.transform.position = exitSpawnPoint.position;
+        canMove = true;
     }
 }
