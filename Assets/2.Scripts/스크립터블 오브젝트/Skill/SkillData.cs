@@ -45,6 +45,10 @@ public enum StatType
     CriticalChance,
     CriticalDamage,
 
+    // === NEW: 흡혈률 스탯 추가 ===
+    LifestealRate, // 데미지의 몇 %를 회복할지 정의합니다. (0.0 ~ 1.0)
+    ProjectileCount, // 투사체 발사 수
+
     // 스탯 포인트 투자와 관련된 StatType 추가
     Strength,
     Intelligence,

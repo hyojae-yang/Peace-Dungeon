@@ -89,12 +89,6 @@ public class DungeonManager : MonoBehaviour
     /// </summary>
     public void ExitDungeon()
     {
-        if (currentSpawnManager != null)
-        {
-            // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
-            currentSpawnManager.DestroyAllMonsters();
-        }
-
         if (DungeonScoreManager.Instance != null)
         {
             // 몬스터 파괴가 완료된 후 점수를 계산합니다.
@@ -113,6 +107,11 @@ public class DungeonManager : MonoBehaviour
         else
         {
             Debug.LogWarning("DungeonScoreManager가 존재하지 않습니다.");
+        }
+        if (currentSpawnManager != null)
+        {
+            // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
+            currentSpawnManager.DestroyAllMonsters();
         }
     }
 }

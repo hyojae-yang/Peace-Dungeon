@@ -246,6 +246,13 @@ public class SkillPointManager : MonoBehaviour
         {
             OnSkillLeveledUp?.Invoke(skillId);
         }
+        // === NEW: 패시브 스킬 효과 갱신 로직 추가 ===
+        // PlayerCharacter를 통해 PassiveSkillManager에 접근하여 효과를 갱신하도록 명령합니다.
+        if (playerCharacter.passiveSkillManager != null)
+        {
+            playerCharacter.passiveSkillManager.UpdatePassiveBonuses();
+        }
+        // ===========================================
     }
 
     /// <summary>

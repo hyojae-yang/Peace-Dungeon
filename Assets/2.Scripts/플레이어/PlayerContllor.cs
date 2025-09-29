@@ -18,6 +18,9 @@ public class PlayerController : MonoBehaviour
     [Tooltip("점프 시 적용될 힘의 크기입니다.")]
     public float jumpForce = 5f;
 
+    [Header("회전 설정")]
+    [Tooltip("플레이어가 이동 방향으로 회전하는 속도입니다. 값이 높을수록 더 빠르게 회전합니다.")]
+    public float rotationSpeed = 10f; // 부드러운 회전을 위한 변수
     // 컴포넌트 변수
     private Rigidbody playerRigidbody;
 
@@ -105,6 +108,18 @@ public class PlayerController : MonoBehaviour
         // Rigidbody에 속도 적용 (Y축 속도 유지)
         Vector3 newVelocity = new Vector3(movement.x, playerRigidbody.linearVelocity.y, movement.z);
         playerRigidbody.linearVelocity = newVelocity;
+        // 이동 입력이 있을 경우에만 회전을 처리합니다. (movement.magnitude > 0.1f로 공중에 있을 때의 미세한 움직임 방지)
+        if (movement.magnitude > 0.01f) // 실제로 움직이고 있을 때만 회전
+        {
+            // 이동 방향(movement) 벡터를 바라보는 회전(Quaternion)을 계산합니다.
+            // Quaternion.LookRotation은 Z축이 movement 방향을 바라보게 회전 값을 만들어 줍니다.
+            // movement.normalized를 사용하여 방향 정보만 가져옵니다.
+            Quaternion targetRotation = Quaternion.LookRotation(new Vector3(movement.x, 0, movement.z).normalized);
+
+            // 현재 회전(transform.rotation)을 목표 회전(targetRotation)으로 부드럽게 보간합니다.
+            // Time.fixedDeltaTime은 FixedUpdate 주기와 동기화되어 프레임 드롭에 관계없이 일정한 회전 속도를 보장합니다.
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
+        }
     }
 
     // 땅에 닿았는지 확인

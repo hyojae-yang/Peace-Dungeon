@@ -11,6 +11,7 @@ public struct DungeonRewardData
     public int finalGold;
     public int finalExp;
     public List<string> acquiredItemNames;
+    public int finalCoins;
 }
 
 // 이 스크립트는 던전 클리어 점수를 기반으로 보상을 지급하는 역할을 맡습니다.
@@ -28,7 +29,14 @@ public class DungeonRewardSystem : MonoBehaviour
         [Tooltip("해당 티어에서 적용될 경험치 배율입니다.")]
         public float expMultiplier;
     }
-
+    [System.Serializable]
+    public class CoinRewardTier
+    {
+        [Tooltip("해당 코인 보상을 받기 위한 최소 점수입니다.")]
+        public int minScore;
+        [Tooltip("이 점수 이상 달성 시 지급할 던전 코인 수량입니다. (최고 티어만 적용 권장)")]
+        public int coinAmount;
+    }
     [System.Serializable]
     public class ItemReward
     {
@@ -48,6 +56,9 @@ public class DungeonRewardSystem : MonoBehaviour
     [Tooltip("목표 점수 달성 시 지급할 아이템을 설정합니다.")]
     [SerializeField] private List<ItemReward> itemRewards;
 
+    [Header("던전 코인 보상 설정")]
+    [Tooltip("점수 구간별 지급할 던전 코인 수량을 설정합니다. 가장 높은 티어의 코인이 지급됩니다.")]
+    [SerializeField] private List<CoinRewardTier> coinRewardTiers;
     /// <summary>
     /// Awake 메서드는 스크립트 인스턴스가 로드될 때 호출됩니다.
     /// 싱글톤 패턴을 구현하여 DungeonRewardSystem의 유일한 인스턴스를 보장합니다.
@@ -135,14 +146,40 @@ public class DungeonRewardSystem : MonoBehaviour
         PlayerCharacter.Instance.playerStats.gold += finalGold;
         PlayerCharacter.Instance.playerLevelUp.AddExperience(finalExp);
 
-        // 5. 모든 보상 데이터를 UI 매니저로 전달하여 화면에 표시합니다.
+        // 5. 던전 코인 보상 계산
+        int finalCoins = 0;
+        // 코인 티어 목록이 설정되어 있을 경우에만 순회합니다.
+        if (coinRewardTiers != null)
+        {
+            foreach (var tier in coinRewardTiers)
+            {
+                if (finalScore >= tier.minScore)
+                {
+                    // 현재까지 찾은 코인 양보다 더 많거나 같으면 갱신합니다. (가장 높은 티어 우선)
+                    if (tier.coinAmount >= finalCoins)
+                    {
+                        finalCoins = tier.coinAmount;
+                    }
+                }
+            }
+        }
+        // 6. 모든 보상 데이터를 UI 매니저로 전달하여 화면에 표시합니다.
         if (DungeonUIManager.Instance != null)
         {
-            DungeonUIManager.Instance.ShowResultsScreen(finalScore, finalGold, finalExp, acquiredItemNames);
+            // [수정 전]: DungeonUIManager.Instance.ShowResultsScreen(finalScore, finalGold, finalExp, acquiredItemNames);
+
+            // [수정 후]: DungeonUIManager의 메서드 시그니처가 변경될 예정이므로, 
+            //            코인 인수를 추가하여 호출하도록 수정합니다.
+            DungeonUIManager.Instance.ShowResultsScreen(finalScore, finalGold, finalExp, finalCoins, acquiredItemNames);
         }
         else
         {
             Debug.LogWarning("DungeonUIManager가 존재하지 않아 결과 화면을 표시할 수 없습니다.");
+        }
+        // **[추가]** 4-1. 던전 코인 재화 지급 위임 (DungeonCoinCurrency에 단일 책임 위임)
+        if (DungeonCoinCurrency.Instance != null && finalCoins > 0)
+        {
+            DungeonCoinCurrency.Instance.AddCoins(finalCoins);
         }
 
     }

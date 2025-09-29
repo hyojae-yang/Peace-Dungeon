@@ -44,6 +44,8 @@ public class PlayerCharacter : MonoBehaviour
     [Tooltip("플레이어의 스킬 사용 및 관리를 담당하는 PlayerSkillController 컴포넌트입니다.")]
     public PlayerSkillController playerSkillController;
 
+    [Tooltip("플레이어가 습득한 패시브 스킬의 효과를 관리하는 PassiveSkillManager 컴포넌트입니다.")]
+    public PassiveSkillManager passiveSkillManager;
     // SkillPointManager는 싱글톤으로 유지됩니다.
     // 따라서 직접 참조 변수는 필요하지 않습니다.
 
@@ -77,7 +79,7 @@ public class PlayerCharacter : MonoBehaviour
         playerHealth = GetComponent<PlayerHealth>();
         playerLevelUp = GetComponent<PlayerLevelUp>();
         playerSkillController = GetComponent<PlayerSkillController>();
-
+        passiveSkillManager = GetComponent<PassiveSkillManager>();
         // 3. 필수 컴포넌트 누락 여부 확인 (디버깅 목적)
         ValidateSystemReferences();
     }

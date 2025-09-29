@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Text;
@@ -6,50 +6,50 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-// ÀÌ ½ºÅ©¸³Æ®´Â ½ºÅ³ ·¹º§¾÷/·¹º§´Ù¿îÀ» È®ÀÎÇÏ´Â UI ÆĞ³ÎÀ» °ü¸®ÇÕ´Ï´Ù.
-// ½ºÅ³ »ó¼¼ Á¤º¸¸¦ Ç¥½ÃÇÏ°í, ÀÓ½Ã ½ºÅ³ ·¹º§À» Á¶Á¤ÇÏ´Â ±â´ÉÀ» ´ã´çÇÕ´Ï´Ù.
+// ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” ìŠ¤í‚¬ ë ˆë²¨ì—…/ë ˆë²¨ë‹¤ìš´ì„ í™•ì¸í•˜ëŠ” UI íŒ¨ë„ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+// ìŠ¤í‚¬ ìƒì„¸ ì •ë³´ë¥¼ í‘œì‹œí•˜ê³ , ì„ì‹œ ìŠ¤í‚¬ ë ˆë²¨ì„ ì¡°ì •í•˜ëŠ” ê¸°ëŠ¥ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
 public class SkillConfirmationPanel : MonoBehaviour
 {
-    // === ¿ÜºÎ ÂüÁ¶ (ÀÎ½ºÆåÅÍ¿¡¼­ ÇÒ´ç) ===
-    [Header("UI ÄÄÆ÷³ÍÆ®")]
-    [Tooltip("½ºÅ³ ÀÌ¸§À» Ç¥½ÃÇÒ Text ÄÄÆ÷³ÍÆ®")]
+    // === ì™¸ë¶€ ì°¸ì¡° (ì¸ìŠ¤í™í„°ì—ì„œ í• ë‹¹) ===
+    [Header("UI ì»´í¬ë„ŒíŠ¸")]
+    [Tooltip("ìŠ¤í‚¬ ì´ë¦„ì„ í‘œì‹œí•  Text ì»´í¬ë„ŒíŠ¸")]
     public TextMeshProUGUI skillNameText;
-    [Tooltip("½ºÅ³ ·¹º§À» Ç¥½ÃÇÒ Text ÄÄÆ÷³ÍÆ®")]
+    [Tooltip("ìŠ¤í‚¬ ë ˆë²¨ì„ í‘œì‹œí•  Text ì»´í¬ë„ŒíŠ¸")]
     public TextMeshProUGUI skillLevelText;
-    [Tooltip("½ºÅ³ÀÇ ´É·ÂÄ¡¸¦ Ç¥½ÃÇÒ Text ÄÄÆ÷³ÍÆ®")]
+    [Tooltip("ìŠ¤í‚¬ì˜ ëŠ¥ë ¥ì¹˜ë¥¼ í‘œì‹œí•  Text ì»´í¬ë„ŒíŠ¸")]
     public TextMeshProUGUI skillStatText;
 
-    [Header("¹öÆ° ÄÄÆ÷³ÍÆ®")]
-    [Tooltip("½ºÅ³ ·¹º§À» ¿Ã¸®´Â ¹öÆ°")]
+    [Header("ë²„íŠ¼ ì»´í¬ë„ŒíŠ¸")]
+    [Tooltip("ìŠ¤í‚¬ ë ˆë²¨ì„ ì˜¬ë¦¬ëŠ” ë²„íŠ¼")]
     public Button levelUpButton;
-    [Tooltip("½ºÅ³ ·¹º§À» ³»¸®´Â ¹öÆ°")]
+    [Tooltip("ìŠ¤í‚¬ ë ˆë²¨ì„ ë‚´ë¦¬ëŠ” ë²„íŠ¼")]
     public Button levelDownButton;
-    [Tooltip("ÆĞ³ÎÀ» ´İ´Â ¹öÆ°")]
+    [Tooltip("íŒ¨ë„ì„ ë‹«ëŠ” ë²„íŠ¼")]
     public Button closeButton;
 
-    // === ³»ºÎ µ¥ÀÌÅÍ ===
-    [Header("µ¥ÀÌÅÍ ÂüÁ¶")]
-    [Tooltip("ÇöÀç ÆĞ³ÎÀÌ ´Ù·ç´Â ½ºÅ³ µ¥ÀÌÅÍ")]
+    // === ë‚´ë¶€ ë°ì´í„° ===
+    [Header("ë°ì´í„° ì°¸ì¡°")]
+    [Tooltip("í˜„ì¬ íŒ¨ë„ì´ ë‹¤ë£¨ëŠ” ìŠ¤í‚¬ ë°ì´í„°")]
     private SkillData currentSkillData;
-    [Tooltip("ÇöÀç ÆĞ³ÎÀÌ º¸¿©ÁÖ´Â ½ºÅ³ÀÇ ÀÓ½Ã ·¹º§")]
+    [Tooltip("í˜„ì¬ íŒ¨ë„ì´ ë³´ì—¬ì£¼ëŠ” ìŠ¤í‚¬ì˜ ì„ì‹œ ë ˆë²¨")]
     private int tempLevel;
 
-    // SkillPointManager´Â ÀÌÁ¦ ½Ì±ÛÅÏÀ¸·Î Á¢±ÙÇÏ¹Ç·Î º¯¼ö°¡ ÇÊ¿ä ¾ø½À´Ï´Ù.
-    // [Header("¸Å´ÏÀú ÂüÁ¶")]
-    // [Tooltip("½ºÅ³ Æ÷ÀÎÆ® ·ÎÁ÷À» °ü¸®ÇÏ´Â SkillPointManager ½ºÅ©¸³Æ®")]
+    // SkillPointManagerëŠ” ì´ì œ ì‹±ê¸€í„´ìœ¼ë¡œ ì ‘ê·¼í•˜ë¯€ë¡œ ë³€ìˆ˜ê°€ í•„ìš” ì—†ìŠµë‹ˆë‹¤.
+    // [Header("ë§¤ë‹ˆì € ì°¸ì¡°")]
+    // [Tooltip("ìŠ¤í‚¬ í¬ì¸íŠ¸ ë¡œì§ì„ ê´€ë¦¬í•˜ëŠ” SkillPointManager ìŠ¤í¬ë¦½íŠ¸")]
     // public SkillPointManager skillPointManager;
 
     void Awake()
     {
-        // SkillPointManager ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+        // SkillPointManager ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (SkillPointManager.Instance == null)
         {
-            Debug.LogError("SkillPointManager ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù. ¾À¿¡ SkillPointManager¸¦ °¡Áø °ÔÀÓ ¿ÀºêÁ§Æ®°¡ ÀÖ´ÂÁö È®ÀÎÇØ ÁÖ¼¼¿ä.");
-            // ¹öÆ° ÀÌº¥Æ® ¿¬°áÀ» Áß´ÜÇÕ´Ï´Ù.
+            Debug.LogError("SkillPointManager ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤. ì”¬ì— SkillPointManagerë¥¼ ê°€ì§„ ê²Œì„ ì˜¤ë¸Œì íŠ¸ê°€ ìˆëŠ”ì§€ í™•ì¸í•´ ì£¼ì„¸ìš”.");
+            // ë²„íŠ¼ ì´ë²¤íŠ¸ ì—°ê²°ì„ ì¤‘ë‹¨í•©ë‹ˆë‹¤.
             return;
         }
 
-        // ¹öÆ° Å¬¸¯ ÀÌº¥Æ®¸¦ ¿¬°áÇÕ´Ï´Ù.
+        // ë²„íŠ¼ í´ë¦­ ì´ë²¤íŠ¸ë¥¼ ì—°ê²°í•©ë‹ˆë‹¤.
         if (levelUpButton != null)
         {
             levelUpButton.onClick.AddListener(OnLevelUpButtonClick);
@@ -65,27 +65,27 @@ public class SkillConfirmationPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// ½ºÅ³ È®ÀÎ ÆĞ³ÎÀ» È°¼ºÈ­ÇÏ°í µ¥ÀÌÅÍ¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â SkillIcon.cs ½ºÅ©¸³Æ®¿¡¼­ È£ÃâµË´Ï´Ù.
+    /// ìŠ¤í‚¬ í™•ì¸ íŒ¨ë„ì„ í™œì„±í™”í•˜ê³  ë°ì´í„°ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” SkillIcon.cs ìŠ¤í¬ë¦½íŠ¸ì—ì„œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="data">Ç¥½ÃÇÒ ½ºÅ³ µ¥ÀÌÅÍ</param>
+    /// <param name="data">í‘œì‹œí•  ìŠ¤í‚¬ ë°ì´í„°</param>
     public void ShowPanel(SkillData data)
     {
-        // ÆĞ³Î È°¼ºÈ­
+        // íŒ¨ë„ í™œì„±í™”
         gameObject.SetActive(true);
 
-        // ÇöÀç ½ºÅ³ µ¥ÀÌÅÍ ÀúÀå
+        // í˜„ì¬ ìŠ¤í‚¬ ë°ì´í„° ì €ì¥
         currentSkillData = data;
 
-        // SkillPointManager.Instance¿¡¼­ ÇöÀç ½ºÅ³ÀÇ ÀÓ½Ã ·¹º§À» °¡Á®¿Í ÃÊ±âÈ­ÇÕ´Ï´Ù.
+        // SkillPointManager.Instanceì—ì„œ í˜„ì¬ ìŠ¤í‚¬ì˜ ì„ì‹œ ë ˆë²¨ì„ ê°€ì ¸ì™€ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
         tempLevel = SkillPointManager.Instance.GetTempSkillLevel(currentSkillData.skillId);
 
-        // UI ¾÷µ¥ÀÌÆ®
+        // UI ì—…ë°ì´íŠ¸
         UpdatePanelUI();
     }
 
     /// <summary>
-    /// UI ÅØ½ºÆ®µéÀ» ÇöÀç ÀÓ½Ã ·¹º§¿¡ ¸ÂÃç ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// UI í…ìŠ¤íŠ¸ë“¤ì„ í˜„ì¬ ì„ì‹œ ë ˆë²¨ì— ë§ì¶° ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
     /// </summary>
     private void UpdatePanelUI()
     {
@@ -93,15 +93,15 @@ public class SkillConfirmationPanel : MonoBehaviour
 
         skillNameText.text = currentSkillData.skillName;
 
-        // ½ºÅ³ ·¹º§ÀÌ À¯È¿ÇÑ ¹üÀ§ ³»¿¡ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+        // ìŠ¤í‚¬ ë ˆë²¨ì´ ìœ íš¨í•œ ë²”ìœ„ ë‚´ì— ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (tempLevel >= 0 && tempLevel <= currentSkillData.levelInfo.Length)
         {
             SkillLevelInfo currentLevelInfo = null;
 
             if (tempLevel == 0)
             {
-                skillLevelText.text = "Lv. 0 (¹Ì½Àµæ)";
-                // ´ÙÀ½ ·¹º§(1·¹º§)ÀÇ ´É·ÂÄ¡¸¦ ¹Ì¸® º¸¿©Áİ´Ï´Ù.
+                skillLevelText.text = "Lv. 0 (ë¯¸ìŠµë“)";
+                // ë‹¤ìŒ ë ˆë²¨(1ë ˆë²¨)ì˜ ëŠ¥ë ¥ì¹˜ë¥¼ ë¯¸ë¦¬ ë³´ì—¬ì¤ë‹ˆë‹¤.
                 if (currentSkillData.levelInfo.Length > 0)
                 {
                     currentLevelInfo = currentSkillData.levelInfo[0];
@@ -113,33 +113,52 @@ public class SkillConfirmationPanel : MonoBehaviour
                 currentLevelInfo = currentSkillData.levelInfo[tempLevel - 1];
             }
 
-            // ½ºÅ³ ´É·ÂÄ¡ ÅØ½ºÆ®¸¦ µ¿ÀûÀ¸·Î »ı¼ºÇÕ´Ï´Ù.
+            // ìŠ¤í‚¬ ëŠ¥ë ¥ì¹˜ í…ìŠ¤íŠ¸ë¥¼ ë™ì ìœ¼ë¡œ ìƒì„±í•©ë‹ˆë‹¤.
             if (!string.IsNullOrEmpty(currentSkillData.statFormatString) && currentLevelInfo != null)
             {
-                // ½ºÅÈ Å¸ÀÔ°ú °ªÀ» ÀúÀåÇÒ µñ¼Å³Ê¸® »ı¼º
+                // ìŠ¤íƒ¯ íƒ€ì…ê³¼ ê°’ì„ ì €ì¥í•  ë”•ì…”ë„ˆë¦¬ ìƒì„±
                 Dictionary<StatType, float> statValues = new Dictionary<StatType, float>();
 
-                // ÇöÀç ·¹º§ÀÇ ¸ğµç ½ºÅÈÀ» µñ¼Å³Ê¸®¿¡ ÀúÀåÇÕ´Ï´Ù.
+                // í˜„ì¬ ë ˆë²¨ì˜ ëª¨ë“  ìŠ¤íƒ¯ì„ ë”•ì…”ë„ˆë¦¬ì— ì €ì¥í•©ë‹ˆë‹¤.
                 foreach (var stat in currentLevelInfo.stats)
                 {
                     statValues[stat.statType] = stat.value;
                 }
 
-                // Á¤±Ô Ç¥Çö½ÄÀ» »ç¿ëÇÏ¿© ÅÛÇÃ¸´ÀÇ {½ºÅÈÀÌ¸§}À» Ã£¾Æ¼­ °ªÀ¸·Î ´ëÃ¼ÇÕ´Ï´Ù.
+                // ì •ê·œ í‘œí˜„ì‹ì„ ì‚¬ìš©í•˜ì—¬ í…œí”Œë¦¿ì˜ {ìŠ¤íƒ¯ì´ë¦„}ì„ ì°¾ì•„ì„œ ê°’ìœ¼ë¡œ ëŒ€ì²´í•©ë‹ˆë‹¤.
                 string formattedText = Regex.Replace(currentSkillData.statFormatString, @"\{(\w+)\}", match =>
                 {
                     string statName = match.Groups[1].Value;
                     StatType statType;
 
-                    // StatType ¿­°ÅÇüÀ¸·Î º¯È¯ ¼º°ø ¿©ºÎ È®ÀÎ
-                    if (System.Enum.TryParse(statName, out statType) && statValues.ContainsKey(statType))
+                    // StatType ì—´ê±°í˜•ìœ¼ë¡œ ë³€í™˜ ì„±ê³µ ì—¬ë¶€ í™•ì¸
+Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  if (System.Enum.TryParse(statName, out statType) && statValues.ContainsKey(statType))
                     {
-                        // ÇØ´ç ½ºÅÈÀÇ °ªÀ» ¼Ò¼öÁ¡ 2ÀÚ¸®·Î Æ÷¸ËÇÏ¿© ¹İÈ¯
-                        return statValues[statType].ToString("F2");
-                    }
+                        // === NEW: ìŠ¤íƒ¯ ê°’ê³¼ í¬ë§·íŒ… ë³€ìˆ˜ ì„ ì–¸ ===
+                        float value = statValues[statType];
+                        string formattedValue;
+
+                        // **ìˆ˜ì • ì‹œì‘:** LifestealRateë§Œ í¼ì„¼íŠ¸ë¡œ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+                        if (statType == StatType.LifestealRate)
+                        {
+                            // í¡í˜ˆë¥ ì¸ ê²½ìš°, ê°’ì— 100ì„ ê³±í•˜ê³  ì†Œìˆ˜ì  1ìë¦¬ê¹Œì§€ í‘œì‹œ í›„ '%'ë¥¼ ë¶™ì…ë‹ˆë‹¤.
+                            formattedValue = (value * 100f).ToString("F1") + "%";
+                        }
+                        else
+                        {
+                            // ê·¸ ì™¸ì˜ ì¼ë°˜ ìŠ¤íƒ¯ì€ ê¸°ì¡´ëŒ€ë¡œ ì†Œìˆ˜ì  2ìë¦¬ë¡œ í¬ë§·í•˜ì—¬ ë°˜í™˜í•©ë‹ˆë‹¤.
+                            formattedValue = value.ToString("F2");
+                        }
+
+                        // ìˆ˜ì •ëœ í¬ë§· ê°’ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
+                        return formattedValue;
+                        // === ìˆ˜ì • ë ===
+
+Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  // return statValues[statType].ToString("F2"); // <- ê¸°ì¡´ ì½”ë“œëŠ” ì´ê²ƒì´ì—ˆìŠµë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  Â  Â  Â  Â  }
                     else
                     {
-                        // ÇØ´çÇÏ´Â ½ºÅÈÀÌ ¾øÀ¸¸é N/A·Î ¹İÈ¯
+                        // í•´ë‹¹í•˜ëŠ” ìŠ¤íƒ¯ì´ ì—†ìœ¼ë©´ N/Aë¡œ ë°˜í™˜
                         return "N/A";
                     }
                 });
@@ -148,62 +167,62 @@ public class SkillConfirmationPanel : MonoBehaviour
             }
             else
             {
-                // statFormatStringÀÌ ¾øÀ¸¸é ±âº» ¼³¸í Ç¥½Ã
+                // statFormatStringì´ ì—†ìœ¼ë©´ ê¸°ë³¸ ì„¤ëª… í‘œì‹œ
                 skillStatText.text = currentSkillData.skillDescription;
             }
         }
         else
         {
-            Debug.LogWarning("½ºÅ³ ·¹º§ÀÌ À¯È¿ÇÑ ¹üÀ§¸¦ ¹ş¾î³µ½À´Ï´Ù.");
-            skillStatText.text = "½ºÅ³ Á¤º¸ ºÒ·¯¿À±â ½ÇÆĞ.";
+            Debug.LogWarning("ìŠ¤í‚¬ ë ˆë²¨ì´ ìœ íš¨í•œ ë²”ìœ„ë¥¼ ë²—ì–´ë‚¬ìŠµë‹ˆë‹¤.");
+            skillStatText.text = "ìŠ¤í‚¬ ì •ë³´ ë¶ˆëŸ¬ì˜¤ê¸° ì‹¤íŒ¨.";
         }
 
-        // ¹öÆ° È°¼ºÈ­/ºñÈ°¼ºÈ­ »óÅÂ¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+        // ë²„íŠ¼ í™œì„±í™”/ë¹„í™œì„±í™” ìƒíƒœë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
         UpdateButtonStates();
     }
 
     /// <summary>
-    /// ½ºÅ³ ·¹º§¾÷ ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
-    /// ½ºÅ³ Æ÷ÀÎÆ®¸¦ »ç¿ëÇÏ¿© ÀÓ½Ã ·¹º§À» ¿Ã¸³´Ï´Ù.
+    /// ìŠ¤í‚¬ ë ˆë²¨ì—… ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ìŠ¤í‚¬ í¬ì¸íŠ¸ë¥¼ ì‚¬ìš©í•˜ì—¬ ì„ì‹œ ë ˆë²¨ì„ ì˜¬ë¦½ë‹ˆë‹¤.
     /// </summary>
     private void OnLevelUpButtonClick()
     {
-        // ½ºÅ³ Æ÷ÀÎÆ®°¡ ÃæºĞÇÏ°í, ÃÖ´ë ·¹º§¿¡ µµ´ŞÇÏÁö ¾Ê¾ÒÀ» ¶§¸¸ ·¹º§¾÷ ÁøÇà
+        // ìŠ¤í‚¬ í¬ì¸íŠ¸ê°€ ì¶©ë¶„í•˜ê³ , ìµœëŒ€ ë ˆë²¨ì— ë„ë‹¬í•˜ì§€ ì•Šì•˜ì„ ë•Œë§Œ ë ˆë²¨ì—… ì§„í–‰
         if (SkillPointManager.Instance.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length)
         {
-            // ½ºÅ³ Æ÷ÀÎÆ® »ç¿ë (ÀÓ½Ã °¨¼Ò)
+            // ìŠ¤í‚¬ í¬ì¸íŠ¸ ì‚¬ìš© (ì„ì‹œ ê°ì†Œ)
             SkillPointManager.Instance.SpendPoint();
-            // ½ºÅ³ ÀÓ½Ã ·¹º§ Áõ°¡
+            // ìŠ¤í‚¬ ì„ì‹œ ë ˆë²¨ ì¦ê°€
             tempLevel++;
-            // ½ºÅ³ ·¹º§ º¯°æ »çÇ×À» SkillPointManager¿¡ ÅëÁö
+            // ìŠ¤í‚¬ ë ˆë²¨ ë³€ê²½ ì‚¬í•­ì„ SkillPointManagerì— í†µì§€
             SkillPointManager.Instance.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
-            // UI ¾÷µ¥ÀÌÆ®
+            // UI ì—…ë°ì´íŠ¸
             UpdatePanelUI();
         }
     }
 
     /// <summary>
-    /// ½ºÅ³ ·¹º§´Ù¿î ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
-    /// ½ºÅ³ Æ÷ÀÎÆ®¸¦ ¹İÈ¯ÇÏ°í ÀÓ½Ã ·¹º§À» ³»¸³´Ï´Ù.
+    /// ìŠ¤í‚¬ ë ˆë²¨ë‹¤ìš´ ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ìŠ¤í‚¬ í¬ì¸íŠ¸ë¥¼ ë°˜í™˜í•˜ê³  ì„ì‹œ ë ˆë²¨ì„ ë‚´ë¦½ë‹ˆë‹¤.
     /// </summary>
     private void OnLevelDownButtonClick()
     {
-        // SkillPointManager.Instance¿¡ ·¹º§ ´Ù¿îÀÌ °¡´ÉÇÑÁö ¹®ÀÇÇÕ´Ï´Ù.
+        // SkillPointManager.Instanceì— ë ˆë²¨ ë‹¤ìš´ì´ ê°€ëŠ¥í•œì§€ ë¬¸ì˜í•©ë‹ˆë‹¤.
         if (SkillPointManager.Instance.CanLevelDown(currentSkillData.skillId))
         {
-            // ½ºÅ³ Æ÷ÀÎÆ® ¹İÈ¯ (ÀÓ½Ã Áõ°¡)
+            // ìŠ¤í‚¬ í¬ì¸íŠ¸ ë°˜í™˜ (ì„ì‹œ ì¦ê°€)
             SkillPointManager.Instance.RefundPoint();
-            // ½ºÅ³ ÀÓ½Ã ·¹º§ °¨¼Ò
+            // ìŠ¤í‚¬ ì„ì‹œ ë ˆë²¨ ê°ì†Œ
             tempLevel--;
-            // ½ºÅ³ ·¹º§ º¯°æ »çÇ×À» SkillPointManager¿¡ ÅëÁö
+            // ìŠ¤í‚¬ ë ˆë²¨ ë³€ê²½ ì‚¬í•­ì„ SkillPointManagerì— í†µì§€
             SkillPointManager.Instance.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
-            // UI ¾÷µ¥ÀÌÆ®
+            // UI ì—…ë°ì´íŠ¸
             UpdatePanelUI();
         }
     }
 
     /// <summary>
-    /// ´İ±â ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
+    /// ë‹«ê¸° ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
     private void OnCloseButtonClick()
     {
@@ -211,15 +230,15 @@ public class SkillConfirmationPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// ½ºÅ³ Æ÷ÀÎÆ®¿Í ·¹º§¿¡ µû¶ó ¹öÆ° »óÅÂ¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// ìŠ¤í‚¬ í¬ì¸íŠ¸ì™€ ë ˆë²¨ì— ë”°ë¼ ë²„íŠ¼ ìƒíƒœë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
     /// </summary>
     private void UpdateButtonStates()
     {
-        // ·¹º§¾÷ ¹öÆ° »óÅÂ: ÀÓ½Ã ½ºÅ³ Æ÷ÀÎÆ®°¡ 1 ÀÌ»óÀÌ°í, ÃÖ´ë ·¹º§¿¡ µµ´ŞÇÏÁö ¾Ê¾ÒÀ» ¶§ È°¼ºÈ­
+        // ë ˆë²¨ì—… ë²„íŠ¼ ìƒíƒœ: ì„ì‹œ ìŠ¤í‚¬ í¬ì¸íŠ¸ê°€ 1 ì´ìƒì´ê³ , ìµœëŒ€ ë ˆë²¨ì— ë„ë‹¬í•˜ì§€ ì•Šì•˜ì„ ë•Œ í™œì„±í™”
         bool canLevelUp = SkillPointManager.Instance.GetTempSkillPoints() > 0 && tempLevel < currentSkillData.levelInfo.Length;
         levelUpButton.interactable = canLevelUp;
 
-        // ·¹º§ ´Ù¿î ¹öÆ° »óÅÂ: SkillPointManager.Instance¿¡ ·¹º§ ´Ù¿î °¡´É ¿©ºÎ¸¦ ¹®ÀÇÇÕ´Ï´Ù.
+        // ë ˆë²¨ ë‹¤ìš´ ë²„íŠ¼ ìƒíƒœ: SkillPointManager.Instanceì— ë ˆë²¨ ë‹¤ìš´ ê°€ëŠ¥ ì—¬ë¶€ë¥¼ ë¬¸ì˜í•©ë‹ˆë‹¤.
         bool canLevelDown = SkillPointManager.Instance.CanLevelDown(currentSkillData.skillId);
         levelDownButton.interactable = canLevelDown;
     }

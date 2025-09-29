@@ -224,7 +224,6 @@ public class PlayerSkillController : MonoBehaviour
             }
 
             skillSlots[slotIndex] = skillToRegister;
-            Debug.Log($"{skillToRegister.skillName} 스킬이 {slotIndex + 1}번 슬롯에 등록되었습니다.");
 
             OnSkillSlotChanged?.Invoke(slotIndex, skillToRegister);
         }
@@ -250,7 +249,6 @@ public class PlayerSkillController : MonoBehaviour
             if (skillSlots[i] == skillToUnregister)
             {
                 skillSlots[i] = null;
-                Debug.Log($"{i + 1}번 슬롯의 스킬이 해제되었습니다.");
 
                 OnSkillSlotChanged?.Invoke(i, null);
                 return;

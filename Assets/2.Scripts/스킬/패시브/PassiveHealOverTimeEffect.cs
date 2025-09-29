@@ -58,7 +58,6 @@ public class PassiveHealOverTimeEffect : MonoBehaviour, IPassiveEffect
             StopCoroutine(healCoroutine);
         }
         healCoroutine = StartCoroutine(HealOverTime());
-        Debug.Log($"체력 회복 패시브 스킬 발동! 레벨: {skillLevel}, 회복 비율: {GetHealPercentage()}%");
     }
 
     /// <summary>
@@ -120,8 +119,6 @@ public class PassiveHealOverTimeEffect : MonoBehaviour, IPassiveEffect
                 // 사용자님의 PlayerStats 스크립트의 변수명을 사용합니다.
                 playerStats.health = Mathf.Min(playerStats.health, playerStats.MaxHealth);
 
-                // 디버그용 로그
-                Debug.Log($"체력 {healAmount:F2} 회복. 현재 체력: {playerStats.health:F2}");
             }
             // 다음 틱까지 대기합니다.
             yield return new WaitForSeconds(tickRate);

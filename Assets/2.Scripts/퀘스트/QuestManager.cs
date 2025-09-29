@@ -54,6 +54,74 @@ public class QuestManager : MonoBehaviour, ISavable
     private void Start()
     {
         SaveManager.Instance.RegisterSavable(this);
+        // 몬스터가 죽으면 HandleMonsterKilled 메서드를 호출하도록 등록합니다.
+        MonsterBase.OnAnyMonsterKilled += HandleMonsterKilled;
+    }
+    /// <summary>
+    /// 퀘스트 매니저가 파괴될 때, 구독했던 정적 이벤트에서 반드시 해제합니다.
+    /// 이는 정적 이벤트로 인한 메모리 누수를 방지하기 위함입니다.
+    /// </summary>
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            MonsterBase.OnAnyMonsterKilled -= HandleMonsterKilled;
+        }
+    }
+    /// <summary>
+    /// MonsterBase.OnAnyMonsterKilled 이벤트 발생 시 호출되는 핸들러 메서드입니다.
+    /// 여기서 몬스터 처치 관련 퀘스트 진행 상황을 업데이트하는 로직을 호출합니다.
+    /// </summary>
+    /// <param name="monsterID">사망한 몬스터의 고유 ID.</param>
+    private void HandleMonsterKilled(int monsterID)
+    {
+
+        // [수정] 수신한 이벤트를 실제 퀘스트 업데이트 로직으로 전달합니다.
+        // 이벤트 핸들러는 중계만 하고, 실제 업데이트 책임은 분리된 메서드에 위임합니다.
+        UpdateQuestsOnMonsterDefeat(monsterID);
+    }
+    /// <summary>
+    /// **핵심 로직:** 몬스터 처치 시 호출되어 모든 수락된 퀘스트를 순회하며 진행 상황을 업데이트합니다.
+    /// 이 메서드가 퀘스트 관리자의 주요 책임을 수행합니다. (SOLID 원칙 준수)
+    /// </summary>
+    /// <param name="monsterID">사망한 몬스터의 고유 ID입니다. 이 ID로 퀘스트 조건을 확인합니다.</param>
+    public void UpdateQuestsOnMonsterDefeat(int monsterID)
+    {
+        // [추가된 로직 시작]
+
+        // 1. 플레이어가 현재 수락한 모든 퀘스트(acceptedQuests)를 순회합니다.
+        // List<int> acceptedQuests는 퀘스트 매니저가 관리하는 수락 목록입니다.
+        foreach (int questID in acceptedQuests)
+        {
+            // 2. 퀘스트 ID에 해당하는 QuestData를 캐시에서 안전하게 가져옵니다.
+            if (questDataCache.TryGetValue(questID, out QuestData data))
+            {
+                // 3. 이 퀘스트의 모든 조건(conditions)을 순회하며 몬스터 처치 조건이 있는지 확인합니다.
+                foreach (var condition in data.conditions)
+                {
+                    // 4. 조건 유형이 'DefeatMonsters'이고, 목표 ID(targetID)가 현재 처치된 몬스터 ID와 일치하는지 확인합니다.
+                    if (condition.conditionType == QuestCondition.ConditionType.DefeatMonsters &&
+                        condition.targetID == monsterID)
+                    {
+                        // 5. 조건이 충족되면, QuestManager의 기본 진행 업데이트 메서드를 호출하여 카운트를 1 증가시킵니다.
+                        // 이 메서드는 내부적으로 진행 상황 딕셔너리(questProgress)를 업데이트합니다.
+                        UpdateQuestProgress(questID, monsterID, 1);
+
+                        // **[최적화 고려]** 하나의 퀘스트 내에서 동일한 몬스터를 처치해야 하는 조건이 중복될 가능성이 적다면
+                        // 이 시점에서 해당 퀘스트의 내부 조건 순회를 멈추는 것도 고려할 수 있습니다.
+                        // 현재는 중복 조건을 허용한다고 가정하고, 다음 조건 확인으로 넘어갑니다. 
+                        // 하지만 몬스터 처치 퀘스트는 보통 'x 마리'이므로 한 번 업데이트하면 됩니다.
+                        break; // 해당 퀘스트의 조건 확인은 완료되었으므로 다음 퀘스트로 넘어갑니다.
+                    }
+                }
+            }
+            else
+            {
+                // 데이터 오류 방지
+                Debug.LogWarning($"QuestID {questID}에 대한 QuestData를 캐시에서 찾을 수 없습니다.");
+            }
+        }
+        // [추가된 로직 종료]
     }
     /// <summary>
     /// 특정 퀘스트가 현재 수락된 상태인지 확인합니다.

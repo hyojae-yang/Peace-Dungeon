@@ -29,6 +29,8 @@ public class DungeonUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI expText;
     [Tooltip("획득한 아이템 이름을 표시할 텍스트입니다.")]
     [SerializeField] private TextMeshProUGUI itemText;
+    [Tooltip("획득한 던전 코인을 표시할 텍스트입니다.")]
+    [SerializeField] private TextMeshProUGUI coinText; // [추가] 던전 코인 텍스트
     [Tooltip("결과창을 닫는 버튼입니다.")]
     [SerializeField] private Button closeResultsButton;
 
@@ -74,25 +76,27 @@ public class DungeonUIManager : MonoBehaviour
         alertPanel.SetActive(true);
     }
 
-    /// <summary>
     /// 던전 클리어 후 결과창을 활성화하고 보상 정보를 표시합니다.
     /// </summary>
     /// <param name="finalScore">획득한 최종 점수</param>
     /// <param name="gold">획득한 골드</param>
     /// <param name="exp">획득한 경험치</param>
+    /// <param name="finalCoins">획득한 던전 코인</param> // [추가]
     /// <param name="itemNames">획득한 아이템 이름 리스트</param>
-    public void ShowResultsScreen(int finalScore, int gold, int exp, List<string> itemNames)
+    public void ShowResultsScreen(int finalScore, int gold, int exp, int finalCoins, List<string> itemNames) // [수정된 시그니처]
     {
-        if (resultsPanel == null || scoreText == null || goldText == null || expText == null || itemText == null)
+        // [수정] null 체크에 coinText를 추가합니다.
+        if (resultsPanel == null || scoreText == null || goldText == null || expText == null || itemText == null || coinText == null)
         {
-            Debug.LogWarning("DungeonUIManager의 결과창 UI 요소가 모두 설정되지 않았습니다!");
+            Debug.LogWarning("DungeonUIManager의 결과창 UI 요소가 모두 설정되지 않았습니다! (CoinText 확인 필요)");
             return;
         }
 
         scoreText.text = $"최종 점수: {finalScore}"; // 최종 점수 텍스트 업데이트
         goldText.text = $"획득한 골드: {gold}";
         expText.text = $"획득한 경험치: {exp}";
-
+        // [추가] 던전 코인 텍스트 업데이트
+        coinText.text = $"획득한 던전 코인: {finalCoins}";
         if (itemNames.Count > 0)
         {
             itemText.text = "획득한 아이템:\n" + string.Join("\n", itemNames);

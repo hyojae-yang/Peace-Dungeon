@@ -120,6 +120,18 @@ public class Monster : MonsterBase, IDetectable
     {
         ChangeState(MonsterState.Dead);
         loot.GiveReward();
+        // [수정] 몬스터 사망 시 이벤트를 발생시켜 외부에 알립니다.
+        // MonsterBase에서 정의한 보호된 메서드를 호출하여 안전하게 이벤트를 전파합니다.
+        if (monsterData != null)
+        {
+            // [추가된 로직] 이벤트 발생: 몬스터의 고유 ID(Target ID)를 QuestManager로 전달합니다.
+            RaiseMonsterKilledEvent(monsterData.monsterID);
+        }
+        else
+        {
+            // monsterData가 없을 경우의 안전 장치
+            Debug.LogError("MonsterData가 할당되지 않아 몬스터 처치 이벤트를 발생시킬 수 없습니다.");
+        }
         Destroy(gameObject);
     }
 

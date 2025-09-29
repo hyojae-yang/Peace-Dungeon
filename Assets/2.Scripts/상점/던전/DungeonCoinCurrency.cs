@@ -59,7 +59,6 @@ public class DungeonCoinCurrency : MonoBehaviour, ISavable
         if (amount > 0)
         {
             currentDungeonCoins += amount;
-            Debug.Log($"<color=yellow>코인 획득:</color> 던전 코인 {amount}개를 획득하여 현재 {currentDungeonCoins}개입니다.");
         }
     }
 
@@ -73,7 +72,6 @@ public class DungeonCoinCurrency : MonoBehaviour, ISavable
         if (amount > 0 && currentDungeonCoins >= amount)
         {
             currentDungeonCoins -= amount;
-            Debug.Log($"<color=red>코인 사용:</color> 던전 코인 {amount}개를 사용하여 현재 {currentDungeonCoins}개입니다.");
             return true;
         }
         Debug.LogWarning("던전 코인이 부족합니다.");
