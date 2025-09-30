@@ -18,7 +18,7 @@ public class MagicMissileSkillData : SkillData
 
     [Tooltip("투사체가 타겟을 찾을 수 있는 최대 반경입니다. 이 값은 투사체 초기화 시 전달됩니다.")]
     [SerializeField]
-    private float maxTargetingRange = 15f;
+    private float maxTargetingRange = 20f;
 
     [Tooltip("타겟으로 인식할 몬스터들이 속한 레이어 마스크입니다. 이 값은 투사체 초기화 시 전달됩니다.")]
     [SerializeField]
@@ -26,7 +26,7 @@ public class MagicMissileSkillData : SkillData
 
     [Tooltip("플레이어 주변에 투사체가 생성될 때 분산되는 원형 반경입니다. (겹치지 않는 생성 위치 결정)")]
     [SerializeField]
-    private float spawnRadius = 1.0f;
+    private float spawnRadius = 3.0f;
 
     /// <summary>
     /// 스킬을 발동하는 메인 메서드입니다.
@@ -60,46 +60,35 @@ public class MagicMissileSkillData : SkillData
     /// <summary>
     /// 스탯에 정의된 개수만큼 매직 미사일 투사체를 생성하고 초기화합니다.
     /// SRP: 오직 투사체 생성과 위치 계산 책임만을 집니다.
-    /// DIP: 생성된 투사체(MagicMissileProjectile)의 Initialize 메서드를 호출하여 필요한 데이터를 주입합니다.
+    /// [수정] damageType 인자를 투사체 초기화 시 함께 전달합니다.
     /// </summary>
     /// <param name="caster">시전자의 Transform</param>
     /// <param name="damage">각 투사체가 가할 기본 데미지</param>
     /// <param name="count">생성할 투사체의 총 개수</param>
     private void SpawnProjectiles(Transform caster, float damage, int count)
     {
-        // 현재 시전자가 바라보는 방향을 기준으로 투사체를 원형으로 분산시킵니다.
-        // 시전자가 바라보는 방향(caster.eulerAngles.y)을 시작 각도로 사용하여, 
-        // 미사일이 플레이어의 시선 방향을 기준으로 퍼지도록 합니다.
         float startAngle = caster.eulerAngles.y;
 
         for (int i = 0; i < count; i++)
         {
-            // 1. 투사체 분산 각도 계산 (360도를 개수만큼 균등하게 나눔)
-            // 예를 들어, count가 5라면 72도 간격으로 각도가 설정됩니다.
+            // 1. 투사체 분산 각도 계산 및 위치 결정
             float angle = startAngle + (i * (360f / count));
-
-            // 2. 각도와 spawnRadius를 이용해 생성 위치 오프셋 계산
-            // Quaternion.Euler(0, angle, 0) : y축을 기준으로 angle만큼 회전하는 쿼터니언을 생성합니다.
-            // Vector3.forward : (0, 0, 1) 방향 벡터를 쿼터니언으로 회전시켜 오프셋 방향을 얻습니다.
             Vector3 offsetDirection = Quaternion.Euler(0, angle, 0) * Vector3.forward;
-
-            // 3. 최종 생성 위치 계산
-            // 시전자 위치 + (방향 벡터 * 반지름) + 약간 위로 띄우기 (땅에 묻히는 것 방지)
             Vector3 spawnPosition = caster.position + offsetDirection * spawnRadius + Vector3.up * 0.5f;
 
-            // 4. 투사체 생성
+            // 2. 투사체 생성 및 컴포넌트 획득
             GameObject missileGO = Instantiate(missilePrefab, spawnPosition, Quaternion.identity);
             MagicMissileProjectile missile = missileGO.GetComponent<MagicMissileProjectile>();
 
             if (missile != null)
             {
-                // 5. 투사체 초기화 (데이터 주입)
-                // 투사체는 이 데이터를 받아 스스로 타겟을 찾고, 데미지를 가합니다.
-                missile.Initialize(damage, maxTargetingRange, monsterLayer);
+                // 3. 투사체 초기화 (데이터 주입)
+                // [수정] 상속받은 DamageType 필드를 함께 전달합니다.
+                missile.Initialize(damage, maxTargetingRange, monsterLayer, this.damageType);
             }
             else
             {
-                Debug.LogError("MagicMissileSkillData: 투사체 프리팹에 MagicMissileProjectile 컴포넌트가 없습니다! 프리팹을 확인해주세요.");
+                Debug.LogError("MagicMissileSkillData: 투사체 프리팹에 MagicMissileProjectile 컴포넌트가 없습니다!");
             }
         }
     }

@@ -41,6 +41,10 @@ public class MonsterData : ScriptableObject
     public int minGoldReward;
     public int maxGoldReward;
 
+    [Tooltip("처치 시 얻는 던전 코인 보상 범위입니다.")]
+    public int minDungeonCoinReward; // 최소 던전 코인 보상
+    public int maxDungeonCoinReward; // 최대 던전 코인 보상
+    
     [Header("아이템 드롭 설정")]
     [Tooltip("드롭 가능한 아이템 목록과 드롭 확률입니다.")]
     public List<LootItem> lootTable = new List<LootItem>();

@@ -29,6 +29,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform dungeonSpawnPoint;
     [Tooltip("플레이어가 던전에서 나갈 때 스폰될 위치입니다.")]
     [SerializeField] private Transform exitSpawnPoint;
+    [Tooltip("보스룸 입장 시 플레이어가 이동할 위치입니다.")]
+    [SerializeField] private Transform bossRoomSpawnPoint;
     // 상태 변수
     [Tooltip("플레이어가 땅에 닿았는지 여부를 나타냅니다.")]
     private bool isGrounded = true;
@@ -141,6 +143,12 @@ public class PlayerController : MonoBehaviour
     {
         canMove = false;
         playerCharacter.transform.position = exitSpawnPoint.position;
+        canMove = true;
+    }
+    public void enterBossRoom()
+    {
+        canMove = false;
+        playerCharacter.transform.position = bossRoomSpawnPoint.position;
         canMove = true;
     }
 }

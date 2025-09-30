@@ -21,6 +21,7 @@ public class MagicMissileProjectile : MonoBehaviour
     private float damage;             // 이 투사체가 가할 데미지
     private float maxTargetingRange;  // 몬스터를 찾을 최대 반경
     private LayerMask monsterLayer;   // 몬스터 레이어 마스크
+    private DamageType damageType; // <--- 데미지 타입 필드 추가
 
     // === 타겟 상태 필드 ===
     private Transform targetTransform; // 현재 추적 중인 몬스터의 Transform
@@ -63,61 +64,48 @@ public class MagicMissileProjectile : MonoBehaviour
     /// <summary>
     /// 콜라이더 충돌 시 데미지를 적용하고 투사체를 파괴합니다.
     /// </summary>
-    /// <param name="other">충돌한 Collider</param>
     private void OnTriggerEnter(Collider other)
     {
-        // 1. 충돌한 대상이 현재 추적 중인 타겟이 맞는지 확인 (선택적)
-        // 매직 미사일은 타겟에게만 데미지를 주도록 구현하는 것이 일반적입니다.
         if (other.transform != targetTransform)
         {
-            // 현재 타겟이 아닌 다른 오브젝트와 충돌했다면, 무시하고 계속 날아갑니다.
-            // 또는, 환경 오브젝트(벽 등)와 충돌 시 파괴될 수도 있습니다.
-            // 여기서는 타겟이 아니면 계속 날아가도록 가정합니다.
+            // 타겟이 아닌 것에 부딪혔지만, 충돌 즉시 파괴를 원한다면 이 부분을 수정
+            // 만약 타겟 외의 모든 것에 충돌하면 파괴되길 원한다면, 아래 return을 제거하고
+            // 일반적인 충돌 처리 로직으로 넘겨야 합니다.
+            // 현재는 '타겟에만 데미지를 주겠다'는 로직이므로 return을 유지합니다.
             return;
         }
 
-        // 2. 데미지 적용 대상 확인
-        // 몬스터가 IDamageable 인터페이스를 구현했다고 가정합니다.
         IDamageable damageable = other.GetComponent<IDamageable>();
 
         if (damageable != null)
         {
-            // 3. 데미지 적용
-            damageable.TakeDamage(damage);
-
-            // 4. 투사체 소멸
-            Destroy(gameObject);
+            damageable.TakeDamage(damage, damageType);
+            Destroy(gameObject); // 성공적으로 데미지 적용 후 파괴
         }
-        // 타겟은 맞지만 데미지 적용 컴포넌트가 없는 경우(예: 데미지를 받지 않는 UI), 파괴하지 않고 지나칠 수 있습니다.
-        // 하지만 대부분의 경우, 타겟을 맞췄다면 파괴하는 것이 일반적입니다.
-        else if (other.transform == targetTransform)
+        else
         {
-            // 타겟은 맞췄으나 IDamageable이 없다면, 그래도 파괴 (오류 방지)
-            Destroy(gameObject);
+            // 타겟은 맞췄지만 IDamageable이 없는 경우 (예: 데미지를 받지 않는 몬스터의 자식 오브젝트)
+            Destroy(gameObject); // 데미지는 못 줘도 파괴는 해야 함!
         }
     }
 
-    // *참고: IDamageable 인터페이스가 없다면, MonsterBase와 같은 구체적인 클래스로 대체해야 합니다.
-    // (예: MonsterBase monster = other.GetComponent<MonsterBase>();)
-    // === Initialize 메서드 정의 (다음 단계) ===
     /// <summary>
     /// 투사체를 초기화하고 타겟 탐색을 시작합니다.
-    /// DIP (의존성 역전): 외부(SkillData)에서 필요한 데이터를 주입받습니다.
+    /// [수정] DamageType 인자를 추가하여 공격 타입을 주입받습니다.
     /// </summary>
     /// <param name="initialDamage">이 투사체가 가할 데미지</param>
     /// <param name="range">타겟을 찾을 최대 반경</param>
     /// <param name="layer">타겟 레이어 마스크</param>
-    public void Initialize(float initialDamage, float range, LayerMask layer)
+    /// <param name="type">공격 타입 (물리, 마법 등)</param>
+    public void Initialize(float initialDamage, float range, LayerMask layer, DamageType type)
     {
         // 1. 데이터 저장
         this.damage = initialDamage;
         this.maxTargetingRange = range;
         this.monsterLayer = layer;
+        this.damageType = type; // <--- 타입 저장 로직 추가
 
-        // 2. 타겟팅의 기준 위치를 현재 위치로 설정 (재탐색 시 필요)
-        this.initialTargetingOrigin = transform.position;
-
-        // 3. 타겟을 찾고 추적을 시작하는 로직 호출 (핵심 로직 위임)
+        // 2. 타겟을 찾고 추적을 시작하는 로직 호출 (핵심 로직 위임)
         FindTargetAndStartTracking();
     }
     /// <summary>

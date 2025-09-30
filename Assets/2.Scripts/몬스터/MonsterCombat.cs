@@ -51,6 +51,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
 
         currentHealth -= finalDamage;
 
+        Debug.Log($"Monster took {finalDamage} {type} damage. Current Health: {currentHealth}");
         // 이벤트 호출: 데미지 양을 인자로 전달합니다.
         // 다른 스크립트들이 이 이벤트를 구독하여 필요한 행동을 수행할 수 있습니다.
         OnDamageTaken?.Invoke(finalDamage);

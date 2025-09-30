@@ -29,7 +29,6 @@ public class DungeonScoreManager : MonoBehaviour
     {
         monsterScores = scores;
         totalScore = 0;
-        Debug.Log("DungeonScoreManager가 몬스터 점수 데이터를 초기화했습니다.");
     }
 
     // DungeonScoreManager.cs (CalculateFinalScore 메서드만 수정)
@@ -56,10 +55,6 @@ public class DungeonScoreManager : MonoBehaviour
             if (pair.Key == null)
             {
                 totalScore += pair.Value;
-            }
-            else
-            {
-                Debug.Log($"-> **점수 합산 실패!** (객체가 Null로 인식되지 않음)");
             }
         }
         // 다음 던전을 위해 딕셔너리를 비웁니다.

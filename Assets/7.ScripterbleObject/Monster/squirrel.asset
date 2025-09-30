@@ -29,6 +29,8 @@ MonoBehaviour:
   maxExpReward: 2
   minGoldReward: 3
   maxGoldReward: 5
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 0
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35
