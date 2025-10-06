@@ -68,12 +68,16 @@ public class BearBehavior : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        if (monster.currentState == MonsterBase.MonsterState.Dead)
+        if (monster.currentState == MonsterBase.MonsterState.Dead) // 죽었으면 아무 행동도 하지 않음
         {
             monsterPatrol.StopPatrol();
             return;
         }
-
+        if(MainSceneManager.Instance.isGameOver)
+        {
+            monsterPatrol.StopPatrol();
+            return;
+        }
         // --- 플레이어 감지 및 상태 전환 로직 ---
         // isCharging 상태일 때는 플레이어 위치와 관계없이 상태 전환 로직을 실행하지 않습니다.
         if (isCharging)

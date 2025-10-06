@@ -115,6 +115,8 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         Debug.Log("플레이어가 사망했습니다!");
 
         // 여기에 게임 오버, 플레이어 오브젝트 파괴 등 추가 로직을 구현합니다.
-        gameObject.SetActive(false);
+        MainSceneManager.Instance.SetGameOver();
+        // 플레이어 오브젝트를 비활성화하여 죽은 상태를 표현합니다.
+        this.gameObject.SetActive(false);
     }
 }

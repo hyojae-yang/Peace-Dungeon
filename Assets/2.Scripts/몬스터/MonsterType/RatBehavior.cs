@@ -68,6 +68,11 @@ public abstract class RatBehavior : MonoBehaviour
         {
             UpdateBehavior();
         }
+        if (MainSceneManager.Instance.isGameOver)
+        {
+            // 게임 오버 시 몬스터 행동 중지
+            monster.ChangeState(MonsterBase.MonsterState.Patrol);
+        }
     }
 
     /// <summary>

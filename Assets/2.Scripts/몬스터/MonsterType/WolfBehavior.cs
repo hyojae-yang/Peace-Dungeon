@@ -99,7 +99,12 @@ public class WolfBehavior : MonoBehaviour
         {
             return;
         }
-
+        if (MainSceneManager.Instance.isGameOver)
+        {
+            // 게임 오버 시 모든 행동 중지
+            monsterPatrol.StopPatrol();
+            return;
+        }
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
         switch (monster.currentState)

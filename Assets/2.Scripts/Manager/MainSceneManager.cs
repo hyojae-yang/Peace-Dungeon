@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 
 /// <summary>
 /// 씬의 주요 UI 패널들을 중앙에서 관리하는 매니저 클래스입니다.
@@ -30,6 +31,13 @@ public class MainSceneManager : MonoBehaviour
     [Tooltip("던전 캔버스가 현재 활성화되어 있는지 여부를 나타냅니다.")]
     public bool isDungeonCanvasActive = false;
 
+    [Header("게임 오버 패널")]
+    [SerializeField]
+    private GameObject gameOverPanel;
+
+    public bool isGameOver = false;
+
+    [SerializeField] GameObject player;
     /// <summary>
     /// 스크립트 인스턴스가 로드될 때 호출되어 싱글턴을 설정하고 이벤트 리스너를 등록합니다.
     /// </summary>
@@ -49,6 +57,8 @@ public class MainSceneManager : MonoBehaviour
         // 2. UIEventHandler의 두 이벤트에 모두 구독
         UIEventHandler.OnPanelActivated += HandlePanelActivation;
         UIEventHandler.OnPanelDeactivated += HandlePanelDeactivation;
+
+        gameOverPanel.SetActive(false);
     }
 
     /// <summary>
@@ -118,6 +128,50 @@ public class MainSceneManager : MonoBehaviour
     }
     public void save()
     {
+        if (DungeonManager.Instance.IsInDungeon)
+        {
+            Debug.Log("던전 내부에서는 저장할 수 없습니다.");
+            return;
+        }
         SaveManager.Instance.SaveGame();
+    }
+    /// <summary>
+    /// [추가된 기능] 외부(예: PlayerHealth)에서 게임 오버를 선언할 때 호출되는 메서드입니다.
+    /// isGameOver 상태를 true로 설정하고, 게임 오버 시 필요한 초기 UI 로직을 실행합니다.
+    /// </summary>
+    public void SetGameOver()
+    {
+        if (isGameOver) return; // 이미 게임 오버 상태라면 중복 호출 방지
+
+        Debug.Log("게임 오버 상태가 선언되었습니다. isGameOver = true.");
+        isGameOver = true;
+
+        // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
+        // 플레이어의 상호작용을 막습니다.
+        if (playerCanvas != null && playerCanvas.activeInHierarchy)
+        {
+            playerCanvas.SetActive(false);
+        }
+        gameOverPanel.SetActive(true);
+        // TODO: Time.timeScale = 0; 또는 게임 오버 패널 활성화 등의 추가 로직을 여기에 구현합니다.
+    }
+    public void Restart()
+    {
+        if (playerCanvas != null)
+        {
+            playerCanvas.SetActive(true);
+        }
+        gameOverPanel.SetActive(false);
+        player.SetActive(true);
+        PlayerCharacter.Instance.playerStats.health = PlayerCharacter.Instance.playerStats.MaxHealth;
+        PlayerCharacter.Instance.playerStats.mana = PlayerCharacter.Instance.playerStats.MaxMana;
+        PlayerCharacter.Instance.playerController.outDungeon();
+        DungeonManager.Instance.IsInDungeon = false;
+        DungeonManager.Instance._isBossRoomActive = false;
+        if (DungeonManager.Instance.currentBossInstance != null)
+        { Destroy(DungeonManager.Instance.currentBossInstance.gameObject); }
+        DungeonManager.Instance.DeadDungeon();
+        SaveManager.Instance.LoadGame();
+        isGameOver = false;
     }
 }

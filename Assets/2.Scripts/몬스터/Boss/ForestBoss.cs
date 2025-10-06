@@ -11,13 +11,14 @@ using System.Collections.Generic; // 코루틴 사용을 위해 추가
 [RequireComponent(typeof(MonsterLoot))]
 public class ForestBoss : MonoBehaviour, IBossInitializer
 {
-    // === 종속성 ===
-    private IBossNotifier _bossNotifier;
+    // === 종속성 ===
+    private IBossNotifier _bossNotifier;
     private Monster _monster;            // 몬스터 상태 접근 및 변경을 위한 컴포넌트
-    private Transform _playerTransform;  // 플레이어 위치 추적을 위한 Transform
+    private MonsterCombat _monsterCombat;
+    private Transform _playerTransform;  // 플레이어 위치 추적을 위한 Transform
 
-    // === 보스 행동 설정 변수 ===
-    [Header("보스 공격 설정")]
+    // === 보스 행동 설정 변수 ===
+    [Header("보스 공격 설정")]
     [Tooltip("플레이어를 감지하는 유효 사거리입니다. 이 거리 안에 들어와야 행동을 시작합니다.")]
     public float activationRange = 45f;
     [Tooltip("일반 공격 쿨타임입니다.")]
@@ -26,8 +27,6 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     public float chargeCooldown = 10.0f;
     [Tooltip("특수 공격(Charge) 시전 시간입니다. (애니메이션, 기 모으는 시간)")]
     public float chargeCastTime = 2.0f;
-    [Tooltip("투사체 프리팹 (Resource 없으므로 Debug.Log로 대체 예정)")]
-    public GameObject projectilePrefab;
     // [추가] 로직 1: 특수 공격 전용 감지 범위 설정 변수
     [Header("특수 공격 시스템 설정")]
     [Tooltip("특수 공격을 발동시키는 유효 사거리입니다. 일반 공격 감지 범위와 별개로 운영됩니다.")]
@@ -37,13 +36,68 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     private float _lastChargeTime;
     private Coroutine _chargeRoutine; // 특수 공격 시전 코루틴 참조
 
+    // [로직 1] 뿌리 소환 공격에 필요한 프리팹 및 범위 설정
+    [Header("특수 공격 1: 뿌리 소환 (Root Summon)")]
+    [Tooltip("소환될 뿌리(데미지 판정을 가진 오브젝트) 프리팹입니다.")]
+    public GameObject summonRootPrefab;
+
+    [Tooltip("뿌리를 소환할 평면 영역(Planar Area)을 나타내는 **Collider**입니다. 이 콜라이더의 월드 바운드를 사용하여 무작위 위치를 계산합니다.")]
+    private Collider rootSummonAreaCollider; // Collider를 사용해 정확한 영역을 얻습니다.
+
+
+    // [로직 2] 공격 세부 조건 설정
+    [Tooltip("한 번에 소환할 뿌리의 개수입니다.")]
+    public int numberOfRootsToSummon = 7;
+    // [새로 추가된 변수] 플레이어 주변 집중 설정
+    [Tooltip("소환 위치가 플레이어로부터 얼마나 멀리 떨어질 수 있는지를 결정하는 최대 반경입니다. (0으로 설정하면 기존 영역 무시, 이 반경 안에서만 소환됨)")]
+    public float maxDistanceFromPlayer = 15f;
+
+    [Tooltip("플레이어 주변에 소환될 뿌리의 **비율(%)**입니다. (예: 0.75 = 75%) 나머지 뿌리는 기존 영역에 무작위로 소환됩니다.")]
+    [Range(0f, 1f)]
+    public float playerFocusedRootRatio = 0.6f;
+
+    [Header("특수 공격 2: 몬스터 소환 (Monster Summon)")]
+    [Tooltip("소환할 일반 몬스터 프리팹 목록입니다. (Monster 컴포넌트 및 자체 AI 로직 필수)")]
+    public GameObject[] minionPrefabs; // 소환할 몬스터 배열
+
+    [Tooltip("한 번에 소환할 몬스터의 최소 개수입니다.")]
+    public int minNumberOfMinions = 2; // 최소 마릿수
+
+    [Tooltip("한 번에 소환할 몬스터의 최대 개수입니다.")]
+    public int maxNumberOfMinions = 5; // 최대 마릿수
+
+    [Tooltip("몬스터를 소환할 위치를 결정하는 최대 반경입니다. (플레이어 위치 기준)")]
+    public float minionSpawnRadius = 20f; // 소환 반경
+
+    [Tooltip("플레이어 주변에 집중적으로 소환될 몬스터의 비율(%)입니다. (예: 0.6 = 60%)")]
+    [Range(0f, 1f)]
+    public float playerFocusedMinionRatio = 0.6f; // 플레이어 집중 비율
+
+    
+    // [추가] 로직 4: 분노(Enrage) 상태 관리 변수
+    [Header("보스 분노(Enrage) 상태 설정")]
+    [Tooltip("보스가 분노 상태로 전환되는 체력 임계값 비율입니다. (예: 0.3 = 30%)")]
+    public float enrageHealthThreshold = 0.3f; // [사용자 요청] 전역 변수 최소화
+
+    /// <summary>
+    /// 분노 상태 진입 로직이 이미 한 번 실행되었는지 추적하는 플래그입니다. 
+    /// 이 플래그가 참이면 이벤트 핸들러에서 더 이상 검사하지 않습니다.
+    /// [사용자 요청] 단 한 번의 호출을 보장하는 최소한의 상태 변수입니다.
+    /// </summary>
+    private bool _hasEnraged = false;
+    // =========================================================================================
+
     // [추가] 로직 2: 모든 특수 공격 코루틴 메서드를 저장하고 랜덤 선택에 사용할 델리게이트 리스트
     /// <summary>
     /// 특수 공격 그룹에 속한 모든 공격 코루틴 메서드(반환형: IEnumerator)를 담는 리스트입니다.
     /// 쿨타임이 찼을 때 이 리스트에서 무작위로 하나를 선택하여 실행하는 데 사용됩니다. (SOLID OCP 확장)
     /// </summary>
     private List<System.Func<IEnumerator>> _specialAttackRoutines = new List<System.Func<IEnumerator>>();
-
+    /// <summary>
+    /// 특수 공격(PerformMonsterSummon)으로 소환된 모든 미니언의 GameObject 참조를 저장하는 리스트입니다.
+    /// 보스 사망 시 남아있는 미니언을 모두 정리(Destroy)하는 데 사용됩니다.
+    /// </summary>
+    private List<GameObject> _activeMinions = new List<GameObject>();
 
     // --- 일반 공격 (뿌리 내려치기) 설정 추가 ---
     [Header("일반 공격 디테일 (뿌리 내려치기)")]
@@ -54,15 +108,15 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     public List<Transform> rootPivots = new List<Transform>();
 
     [Tooltip("뿌리 내려찍기 동작 시간 (Lerp/Slerp 속도)")]
-    public float attackDownStrokeDuration = 0.6f;
+    public float attackDownStrokeDuration = 0.5f;
     [Tooltip("뿌리 복귀 동작 시간")]
-    public float attackReturnDuration = 1.0f;
+    public float attackReturnDuration = 0.8f;
 
     [Tooltip("뿌리 들어 올리는 초기 각도 (로컬 X축 기준)")]
     public float liftAngle = 45f;
     [Tooltip("뿌리가 내려찍는 최종 각도 (로컬 X축 기준)")]
     public float strikeAngle = -30f;
-    // [주의] MonsterData.attackPower를 사용하므로 이 변수는 제거합니다.
+
     // --- 일반 공격 상태 관리 및 데이터 저장 변수 추가 ---
     /// <summary>
     /// 일반 공격(뿌리 내려치기) 코루틴의 참조를 저장하여 중복 실행을 방지합니다.
@@ -79,16 +133,30 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
 
     private void Awake()
     {
-        // 1. 필수 컴포넌트 종속성 확보
-        _monster = GetComponent<Monster>();
+        // 1. 필수 컴포넌트 종속성 확보
+        _monster = GetComponent<Monster>();
+        // [수정/추가] MonsterCombat 컴포넌트 확보
+        _monsterCombat = GetComponent<MonsterCombat>();
+
+        if (_monster == null || _monsterCombat == null) // MonsterCombat 유효성 검사 추가
+        {
+            Debug.LogError("ForestBoss: Monster 또는 MonsterCombat 컴포넌트가 필요합니다!");
+            enabled = false;
+            return;
+        }
         if (_monster == null)
         {
             Debug.LogError("ForestBoss: Monster 컴포넌트가 필요합니다!");
             enabled = false;
         }
-
-        // 2. 플레이어 Transform 찾기 (보스의 핵심 목표)
-        GameObject playerObject = GameObject.FindWithTag("Player");
+        // [추가] 2. MonsterCombat 이벤트 구독
+        /// <summary>
+        /// MonsterCombat에서 데미지를 입었음을 알리는 이벤트를 구독하여, 
+        /// 체력 변화 시마다 분노 상태 임계점을 검사하도록 합니다. (SRP 준수)
+        /// </summary>
+        _monsterCombat.OnDamageTaken += OnMonsterDamaged;
+        // 2. 플레이어 Transform 찾기 (보스의 핵심 목표)
+        GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject != null)
         {
             _playerTransform = playerObject.transform;
@@ -106,17 +174,17 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
 
     void Start()
     {
-        // 보스는 생성 시 대기 상태(Idle)에서 시작하며, 플레이어 감지 시 공격을 시작합니다.
-        _monster.ChangeState(MonsterBase.MonsterState.Idle);
-        // 초기 공격 시간을 설정하여 즉시 공격하지 않도록 합니다.
-        _lastAttackTime = Time.time;
+        // 보스는 생성 시 대기 상태(Idle)에서 시작하며, 플레이어 감지 시 공격을 시작합니다.
+        _monster.ChangeState(MonsterBase.MonsterState.Idle);
+        // 초기 공격 시간을 설정하여 즉시 공격하지 않도록 합니다.
+        _lastAttackTime = Time.time;
         _lastChargeTime = Time.time;
     }
 
     void Update()
     {
-        // 사망 상태 또는 플레이어가 없으면 행동을 멈춥니다.
-        if (_monster.currentState == MonsterBase.MonsterState.Dead || _playerTransform == null)
+        // 사망 상태 또는 플레이어가 없으면 행동을 멈춥니다.
+        if (_monster.currentState == MonsterBase.MonsterState.Dead || MainSceneManager.Instance.isGameOver)
         {
             return;
         }
@@ -140,8 +208,8 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
                 HandleAttack(distanceToPlayer);
                 break;
             case MonsterBase.MonsterState.Charge:
-                // Charge 상태에서는 코루틴이 알아서 시전 중이므로 Update에서는 대기합니다.
-                break;
+                // Charge 상태에서는 코루틴이 알아서 시전 중이므로 Update에서는 대기합니다.
+                break;
         }
     }
 
@@ -160,10 +228,10 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         }
     }
 
-    /// <summary>
-    /// Attack 상태 처리: 일반 원거리 공격과 특수 공격(Charge) 중 무엇을 사용할지 판단합니다.
-    /// </summary>
-    private void HandleAttack(float distanceToPlayer)
+    /// <summary>
+    /// Attack 상태 처리: 일반 원거리 공격과 특수 공격(Charge) 중 무엇을 사용할지 판단합니다.
+    /// </summary>
+    private void HandleAttack(float distanceToPlayer)
     {
         // [로직 1] Idle로 복귀하는 기준을 가장 넓은 특수 공격 범위로 변경합니다.
         // 플레이어가 specialActivationRange 밖으로 나가면 Idle로 복귀합니다.
@@ -193,10 +261,10 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         }
     }
 
-    /// <summary>
-    /// 일반 공격(뿌리 내려치기) 코루틴을 시작하고, 쿨타임을 업데이트합니다.
-    /// </summary>
-    private void PerformBasicAttack()
+    /// <summary>
+    /// 일반 공격(뿌리 내려치기) 코루틴을 시작하고, 쿨타임을 업데이트합니다.
+    /// </summary>
+    private void PerformBasicAttack()
     {
         // [수정] 기존의 Debug.Log를 제거하고 코루틴을 시작하는 역할만 수행
         // 코루틴 시작 전, 보스가 공격 상태인지 다시 한번 확인하는 것이 좋습니다.
@@ -205,10 +273,8 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // 코루틴 시작 및 참조 저장
         _basicAttackRoutine = StartCoroutine(PerformBasicAttackRoutine());
 
-        // 쿨타임 업데이트는 코루틴 내부 (공격 완료 시점)에서 처리할 예정이므로 여기서는 제거합니다.
-        // _lastAttackTime = Time.time; 
     }
-    /// <summary>
+    /// <summary>
     /// 실제 일반 공격 동작을 시간 흐름에 따라 처리하는 코루틴입니다.
     /// (뿌리 선택 -> 들어 올리기 -> 내려찍기 및 피해 판정 -> 복귀)
     /// </summary>
@@ -318,7 +384,6 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // 초기 회전값 딕셔너리에서 안전하게 로드합니다. (Awake에서 초기화됨)
         if (!_initialRootRotations.TryGetValue(targetRootPivot, out initialRotation))
         {
-            Debug.LogWarning("ForestBoss: 초기 회전값을 찾을 수 없습니다. 현재 로컬 회전을 복귀 목표로 사용합니다.");
             initialRotation = returnStartRotation; // 비상 시 현재 위치 사용
         }
 
@@ -341,16 +406,14 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         _lastAttackTime = Time.time;
         _basicAttackRoutine = null;
     }
-    /// <summary>
-    /// 특수 공격(Charge)을 코루틴으로 실행합니다. (예: 거대 뿌리 폭발 -> **이제 모든 특수 공격의 진입점**)
-    /// Charge 상태는 시전 시간(ChargeCastTime)이 필요합니다.
-    /// </summary>
-    private IEnumerator PerformChargeAttack()
+    /// <summary>
+    /// 특수 공격(Charge)을 코루틴으로 실행합니다. (예: 거대 뿌리 폭발 -> **이제 모든 특수 공격의 진입점**)
+    /// Charge 상태는 시전 시간(ChargeCastTime)이 필요합니다.
+    /// </summary>
+    private IEnumerator PerformChargeAttack()
     {
-        Debug.Log($"ForestBoss: 특수 공격 그룹 시전 시작! ({chargeCastTime}초)");
-
         // 1. 시전 시간 대기 (애니메이션, 기 모으기)
-        yield return new WaitForSeconds(chargeCastTime);
+        yield return new WaitForSeconds(chargeCastTime);
 
         // 2. [수정] 등록된 특수 공격 중 하나를 랜덤으로 선택하여 실행합니다.
         if (_specialAttackRoutines.Count == 0)
@@ -367,24 +430,18 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         int randomIndex = Random.Range(0, _specialAttackRoutines.Count);
         System.Func<IEnumerator> selectedAttack = _specialAttackRoutines[randomIndex];
 
-        // 3. [수정] 선택된 공격 코루틴을 실행하고, 해당 코루틴이 끝날 때까지 대기합니다.
-        // **쿨타임 업데이트 및 상태 복귀는 이제 개별 공격 코루틴에서 담당합니다.**
-        Debug.Log($"ForestBoss: 랜덤 선택된 공격 코루틴 실행. (인덱스: {randomIndex})");
         yield return StartCoroutine(selectedAttack.Invoke());
 
-        // **참고**: 이 코루틴은 selectedAttack이 끝날 때까지 대기한 후 자동으로 종료됩니다.
-        // 쿨타임 업데이트와 상태 복귀는 이미 개별 공격 코루틴에서 처리했으므로, 
-        // 여기서는 별도의 종료 로직이 필요 없습니다. 
-    }
+    }
 
-    /// <summary>
-    /// 보스가 움직이지 않고 플레이어 방향으로만 회전하도록 처리합니다.
-    /// </summary>
-    private void LookAtTarget(Transform targetTransform)
+    /// <summary>
+    /// 보스가 움직이지 않고 플레이어 방향으로만 회전하도록 처리합니다.
+    /// </summary>
+    private void LookAtTarget(Transform targetTransform)
     {
         Vector3 direction = (targetTransform.position - transform.position).normalized;
-        // Y축 회전만 계산하여 몸통이 아닌 시선만 돌리게 합니다.
-        if (direction != Vector3.zero)
+        // Y축 회전만 계산하여 몸통이 아닌 시선만 돌리게 합니다.
+        if (direction != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
@@ -430,39 +487,208 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     }
     // [추가] 로직 1: 특수 공격 1: 뿌리 소환 코루틴 틀 추가
     /// <summary>
-    /// 특수 공격 1: 뿌리 소환(Root Summon) 공격을 실행하는 코루틴입니다. (랜덤 테스트용 더미)
-    /// 이 메서드는 PerformChargeAttack()에 의해 무작위로 호출됩니다.
+    /// 특수 공격 1: 뿌리 소환(Root Summon) 공격을 실행하는 코루틴입니다. 
+    /// 지정된 영역 내 무작위 위치에 경고 마커를 소환하며, 플레이어 주변 집중 비율에 따라 위치를 보정합니다.
     /// </summary>
     private IEnumerator PerformRootSummon()
     {
-        Debug.Log("ForestBoss: (특수 공격 1) '뿌리 소환' 시전 시작! (시전 시간 1.0초 가정)");
-        yield return new WaitForSeconds(1.0f); // 임시 시전 시간
+        // [로직 1] 유효성 검사 (Collider와 프리팹 할당 확인)
+        // 소환 영역이 설정되지 않았거나 프리팹이 없다면 즉시 종료
+        if (rootSummonAreaCollider == null || summonRootPrefab == null)
+        {
+            Debug.LogError("ForestBoss: RootSummonAreaCollider 또는 SummonRootPrefab이 할당되지 않았습니다. 뿌리 소환 공격을 종료합니다.");
+            _lastChargeTime = Time.time;
+            _monster.ChangeState(MonsterBase.MonsterState.Attack);
+            _chargeRoutine = null;
+            yield break;
+        }
 
-        // [랜덤 테스트용]
-        Debug.Log("<color=yellow>ForestBoss: (특수 공격 1) '뿌리 소환' 발동! (랜덤 실행 성공)</color>");
+        // =========================================================================================
+        // [수정된 로직] Collider.bounds 기반 무작위 소환 위치 계산 및 핸들러 초기화
+        // =========================================================================================
+        Bounds areaBounds = rootSummonAreaCollider.bounds; // Collider의 월드 공간 Bounds 정보를 가져옵니다.
+        Vector3 playerPos = _playerTransform.position; // 플레이어 월드 위치를 한 번 저장합니다.
+        float rootMagicDamage = _monster.monsterData.magicAttackPower; // 공격력을 한 번만 계산
 
-        // 쿨타임 업데이트 및 상태 복귀 로직
+        // [추가] 플레이어 집중 소환 개수 계산
+        /// <summary>
+        /// 플레이어 주변에 집중적으로 소환될 뿌리의 개수입니다.
+        /// </summary>
+        int focusedRootCount = Mathf.RoundToInt(numberOfRootsToSummon * playerFocusedRootRatio);
+        /// <summary>
+        /// 소환 영역 내 무작위 위치에 소환될 뿌리의 개수입니다.
+        /// </summary>
+        int randomRootCount = numberOfRootsToSummon - focusedRootCount;
+
+        List<GameObject> warningMarkers = new List<GameObject>(); // 다음 단계에서 제거 예정
+
+        // -----------------------------------------------------------------------------------------
+        // A. [새로운 로직] 플레이어 주변 집중 소환
+        // -----------------------------------------------------------------------------------------
+        for (int i = 0; i < focusedRootCount; i++)
+        {
+            // 1. 플레이어 위치를 기준으로 원형 범위 내 랜덤 위치를 구합니다.
+            Vector2 randomCircle = Random.insideUnitCircle * maxDistanceFromPlayer;
+            float randomWorldX = playerPos.x + randomCircle.x;
+            float randomWorldZ = playerPos.z + randomCircle.y;
+
+            // 2. 소환 위치를 소환 영역 내로 클램프(Clamp)합니다.
+            randomWorldX = Mathf.Clamp(randomWorldX, areaBounds.min.x, areaBounds.max.x);
+            randomWorldZ = Mathf.Clamp(randomWorldZ, areaBounds.min.z, areaBounds.max.z);
+
+            // 3. Y축은 Area의 바닥(월드 최소 Y)으로 고정합니다. (땅에 소환)
+            float spawnWorldY = areaBounds.min.y;
+            Vector3 spawnWorldPosition = new Vector3(randomWorldX, spawnWorldY, randomWorldZ);
+
+            // 4. 경고 이펙트 인스턴스화
+            GameObject warningRoot = Instantiate(summonRootPrefab, spawnWorldPosition, Quaternion.identity);
+
+            // 5. [핵심 로직 추가] RootSummonHandler를 가져와 초기화합니다.
+            RootSummonHandler handler = warningRoot.GetComponent<RootSummonHandler>();
+
+            if (handler != null)
+            {
+                // 공격력(Damage)을 주입하고, 핸들러 내부 코루틴을 시작시킵니다.
+                handler.InitializeAndStartAttack(rootMagicDamage);
+            }
+            else
+            {
+                Debug.LogError($"ForestBoss: 생성된 뿌리 '{warningRoot.name}'에서 RootSummonHandler 컴포넌트를 찾을 수 없습니다. (Instantiate 오류)");
+                Destroy(warningRoot);
+            }
+
+            warningMarkers.Add(warningRoot); // 임시 리스트에 추가 (다음 단계에서 제거 예정)
+        }
+
+        // -----------------------------------------------------------------------------------------
+        // B. [기존 로직 유지] 넓은 영역 무작위 소환 (나머지 개수)
+        // -----------------------------------------------------------------------------------------
+        Vector3 worldCenter = areaBounds.center;
+        Vector3 worldExtents = areaBounds.extents;
+
+        for (int i = 0; i < randomRootCount; i++)
+        {
+            // 1. 월드 좌표계에서 X와 Z의 랜덤 값을 계산 (월드 바운드 내 무작위 위치)
+            float randomWorldX = Random.Range(worldCenter.x - worldExtents.x, worldCenter.x + worldExtents.x);
+            float randomWorldZ = Random.Range(worldCenter.z - worldExtents.z, worldCenter.z + worldExtents.z);
+
+            // 2. Y축은 Area의 바닥(월드 최소 Y)으로 고정하여 땅에 소환되도록 합니다.
+            float spawnWorldY = areaBounds.min.y;
+
+            Vector3 spawnWorldPosition = new Vector3(randomWorldX, spawnWorldY, randomWorldZ);
+
+            // 3. 경고 이펙트(summonRootPrefab) 인스턴스화
+            GameObject warningRoot = Instantiate(summonRootPrefab, spawnWorldPosition, Quaternion.identity);
+
+            // 4. [핵심 로직 추가] RootSummonHandler를 가져와 초기화합니다.
+            RootSummonHandler handler = warningRoot.GetComponent<RootSummonHandler>();
+
+            if (handler != null)
+            {
+                // 공격력(Damage)을 주입하고, 핸들러 내부 코루틴을 시작시킵니다.
+                handler.InitializeAndStartAttack(rootMagicDamage);
+            }
+            else
+            {
+                Debug.LogError($"ForestBoss: 생성된 뿌리 '{warningRoot.name}'에서 RootSummonHandler 컴포넌트를 찾을 수 없습니다. (Instantiate 오류)");
+                Destroy(warningRoot);
+            }
+
+            warningMarkers.Add(warningRoot); // 임시 리스트에 추가
+        }
+
+        // 5. 쿨타임 업데이트 및 상태 복귀 로직
         _lastChargeTime = Time.time;
         _monster.ChangeState(MonsterBase.MonsterState.Attack);
-        _chargeRoutine = null; // 진입점 코루틴 해제
+        _chargeRoutine = null;
+
+        // **참고**: RootSummonHandler가 즉시 공격 코루틴을 시작하므로 이 코루틴은 즉시 종료됩니다.
+        yield break;
     }
-    // [추가] 로직 2: 특수 공격 2: 몬스터 소환 코루틴 틀 추가
+    // [수정] 로직 2: 특수 공격 2: 몬스터 소환 코루틴
     /// <summary>
-    /// 특수 공격 2: 몬스터 소환(Monster Summon) 공격을 실행하는 코루틴입니다. (랜덤 테스트용 더미)
-    /// 이 메서드는 PerformChargeAttack()에 의해 무작위로 호출됩니다.
+    /// 특수 공격 2: 몬스터 소환(Monster Summon) 공격을 실행하는 코루틴입니다.
+    /// 지정된 수의 몬스터를 플레이어 주변에 소환한 후, 즉시 Attack 상태로 복귀합니다.
     /// </summary>
     private IEnumerator PerformMonsterSummon()
     {
-        Debug.Log("ForestBoss: (특수 공격 2) '몬스터 소환' 시전 시작! (시전 시간 2.0초 가정)");
-        yield return new WaitForSeconds(2.0f); // 임시 시전 시간
+        // 1. 유효성 검사: 필수 변수 할당 확인 (Instantiate만 수행하므로 이 검사가 중요합니다.)
+        if (minionPrefabs == null || minionPrefabs.Length == 0 || rootSummonAreaCollider == null)
+        {
+            Debug.LogError("ForestBoss: MinionPrefabs 리스트가 비어 있거나, RootSummonAreaCollider가 할당되지 않았습니다. 몬스터 소환 공격을 종료하고 복귀합니다.");
+            // 실패 시에도 쿨타임 및 상태 복귀 로직은 실행되어야 합니다.
+            _lastChargeTime = Time.time;
+            _monster.ChangeState(MonsterBase.MonsterState.Attack);
+            _chargeRoutine = null;
+            yield break;
+        }
 
-        // [랜덤 테스트용]
-        Debug.Log("<color=red>ForestBoss: (특수 공격 2) '몬스터 소환' 발동! (랜덤 실행 성공)</color>");
+        // 2. 소환할 최종 마릿수 랜덤 결정
+        // [로직] 최소/최대 마릿수 사이에서 랜덤으로 개수를 결정합니다.
+        int totalMinionsToSummon = Random.Range(minNumberOfMinions, maxNumberOfMinions + 1);
 
-        // 쿨타임 업데이트 및 상태 복귀 로직 (나중에 몬스터 사망 대기 로직으로 대체됨)
+        // 3. 시전 시간 대기 (애니메이션, 시각적 효과 등)
+        yield return new WaitForSeconds(chargeCastTime); // PerformChargeAttack에서 이미 대기했으므로, 여기서는 추가 시전 시간만 적용 (예시: 0.5초)
+                                                         // 참고: PerformChargeAttack에서 이미 chargeCastTime만큼 대기했으므로, 여기서는 짧은 시간만 대기하거나 아예 0으로 설정 가능
+        yield return new WaitForSeconds(0.1f);
+
+        // 4. 소환 로직 준비
+        Bounds areaBounds = rootSummonAreaCollider.bounds;
+        Vector3 playerPos = _playerTransform.position;
+
+        // 플레이어 집중 소환 개수 계산 (뿌리 소환과 동일한 로직)
+        int focusedMinionCount = Mathf.RoundToInt(totalMinionsToSummon * playerFocusedMinionRatio);
+        int randomMinionCount = totalMinionsToSummon - focusedMinionCount;
+
+        // --- 소환 루틴 A: 플레이어 주변 집중 소환 ---
+        for (int i = 0; i < focusedMinionCount; i++)
+        {
+            // 1. 플레이어 주변 랜덤 위치 계산
+            Vector2 randomCircle = Random.insideUnitCircle * minionSpawnRadius;
+            float randomWorldX = playerPos.x + randomCircle.x;
+            float randomWorldZ = playerPos.z + randomCircle.y;
+
+            // 2. 위치를 소환 영역 내로 클램프(Clamp)
+            randomWorldX = Mathf.Clamp(randomWorldX, areaBounds.min.x, areaBounds.max.x);
+            randomWorldZ = Mathf.Clamp(randomWorldZ, areaBounds.min.z, areaBounds.max.z);
+            float spawnWorldY = areaBounds.min.y; // 땅바닥 Y축
+            Vector3 spawnWorldPosition = new Vector3(randomWorldX, spawnWorldY, randomWorldZ);
+
+            // 3. [로직] 몬스터 프리팹 배열에서 랜덤으로 하나를 선택
+            GameObject selectedPrefab = minionPrefabs[Random.Range(0, minionPrefabs.Length)];
+
+            // 4. 몬스터 인스턴스화 (Instantiate만 수행하며, 미니언의 초기화는 자체 스크립트에 맡깁니다.)
+            GameObject newMinion = Instantiate(selectedPrefab, spawnWorldPosition, Quaternion.identity);
+            // [추가] 소환된 몬스터를 리스트에 등록합니다.
+            _activeMinions.Add(newMinion); // <--- 이 라인 추가!
+        }
+
+        // --- 소환 루틴 B: 넓은 영역 무작위 소환 ---
+        Vector3 worldCenter = areaBounds.center;
+        Vector3 worldExtents = areaBounds.extents;
+
+        for (int i = 0; i < randomMinionCount; i++)
+        {
+            // 1. 월드 바운드 내 무작위 위치 계산
+            float randomWorldX = Random.Range(worldCenter.x - worldExtents.x, worldCenter.x + worldExtents.x);
+            float randomWorldZ = Random.Range(worldCenter.z - worldExtents.z, worldCenter.z + worldExtents.z);
+            float spawnWorldY = areaBounds.min.y;
+            Vector3 spawnWorldPosition = new Vector3(randomWorldX, spawnWorldY, randomWorldZ);
+
+            // 2. [로직] 몬스터 프리팹 배열에서 랜덤으로 하나를 선택
+            GameObject selectedPrefab = minionPrefabs[Random.Range(0, minionPrefabs.Length)];
+
+            // 3. 몬스터 인스턴스화 (Instantiate만 수행)
+            GameObject newMinion = Instantiate(selectedPrefab, spawnWorldPosition, Quaternion.identity);
+            // [추가] 소환된 몬스터를 리스트에 등록합니다.
+            _activeMinions.Add(newMinion); // <--- 이 라인 추가!
+        }
+
         _lastChargeTime = Time.time;
-        _monster.ChangeState(MonsterBase.MonsterState.Attack);
-        _chargeRoutine = null; // 진입점 코루틴 해제
+        _monster.ChangeState(MonsterBase.MonsterState.Attack); // Attack 상태로 즉시 복귀!
+        _chargeRoutine = null; // PerformChargeAttack 코루틴 종료 유도
+
+        yield break; // 코루틴 즉시 종료!
     }
     // 메서드 역할: 특수 공격 3: 낙뢰 공격 (Lightning Strike)
     /// <summary>
@@ -496,30 +722,116 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         _specialAttackRoutines.Add(PerformRootSummon);
         _specialAttackRoutines.Add(PerformMonsterSummon);
 
-        // [로직 1] 새로운 특수 공격을 리스트에 추가합니다.
-        //_specialAttackRoutines.Add(PerformLightningStrike);
-
-        Debug.Log($"ForestBoss: 특수 공격 {_specialAttackRoutines.Count}개가 리스트에 등록되었습니다.");
     }
-    // --- 던전 매니저 알림 로직 (기존 유지) ---
+    /// <summary>
+    /// MonsterCombat.OnDamageTaken 이벤트 발생 시 호출되는 핸들러입니다.
+    /// (SRP: 체력 변화 감지 책임 / OCP: 분노 로직 활성화)
+    /// </summary>
+    /// <param name="damage">입은 데미지 양 (실제 로직에서는 사용되지 않음)</param>
+    private void OnMonsterDamaged(float damage)
+    {
+        // 1. 이미 분노 상태라면 더 이상 검사할 필요가 없습니다. (단발성 호출 보장)
+        if (_hasEnraged)
+        {
+            return;
+        }
 
-    /// <summary>
-    /// 이 보스 몬스터에게 처치 알림을 받을 객체(Notifier)를 설정합니다. (의존성 주입)
-    /// </summary>
-    /// <param name="notifier">IBossNotifier 인터페이스를 구현한 객체</param>
-    public void SetNotifier(IBossNotifier notifier)
+        // 2. 현재 체력 비율 확인
+        // MonsterCombat이 현재 체력을, Monster가 최대 체력을 가지고 있으므로 둘 다 필요합니다.
+        float currentHealthRatio = _monsterCombat.GetCurrentHealth() / _monster.monsterData.maxHealth;
+
+        if (currentHealthRatio <= enrageHealthThreshold)
+        {
+            // 3. 분노 상태 활성화
+            _hasEnraged = true; // 단발성 플래그를 참으로 설정
+            ActivateEnragePhase(); // 핵심 분노 메서드 호출 (딱 한 번만 실행됨!)
+        }
+    }
+    /// <summary>
+    /// 보스가 체력 임계점에 도달했을 때 **딱 한 번** 호출되는 메서드입니다.
+    /// 이 메서드 내부에 분노 상태 돌입에 따른 능력치/패턴 변경 로직을 구현합니다.
+    /// (사용자 정의 로직 삽입 공간, OCP 준수)
+    /// </summary>
+    private void ActivateEnragePhase()
+    {
+        Debug.Log("<color=red>★★★ FOREST BOSS: 분노(ENRAGE) 상태 활성화! (단발성 이벤트) ★★★</color>");
+
+        // ====================================================================
+        // [사용자 로직 삽입 공간]
+
+        // 예시: 일반 공격 쿨타임을 1.0초로 변경 (사용자 로직)
+        attackCooldown = 1.0f;
+        // 예시: 특수 공격 쿨타임을 5.0초로 변경 (사용자 로직)
+        chargeCooldown = 5.0f;
+        chargeCastTime = 1.0f; // 시전 시간도 단축
+        // 예시: 플레이어 집중 소환 비율을 1.0로 증가 (사용자 로직)
+        playerFocusedRootRatio = 1.0f;
+        // 예시: 몬스터 소환 개수를 증가 (사용자 로직)
+        minNumberOfMinions += 2;
+        maxNumberOfMinions += 5;
+        attackDownStrokeDuration = 0.3f; // 내려찍기 속도 증가
+        attackReturnDuration = 0.5f; // 복귀 속도 증가
+        chargeCastTime = 1.0f; // 시전 시간 단축
+        // ====================================================================
+
+        // [핵심] 패턴 변화가 즉시 적용되도록 쿨타임을 현재 시간으로 업데이트합니다.
+        _lastAttackTime = Time.time;
+        _lastChargeTime = Time.time;
+    }
+    // --- 던전 매니저 알림 로직 (기존 유지) ---
+
+    /// <summary>
+    /// 이 보스 몬스터에게 처치 알림을 받을 객체(Notifier)를 설정합니다. (의존성 주입)
+    /// </summary>
+    /// <param name="notifier">IBossNotifier 인터페이스를 구현한 객체</param>
+    public void SetNotifier(IBossNotifier notifier)
     {
         _bossNotifier = notifier;
     }
-
-    /// <summary>
-    /// 몬스터가 파괴되기 직전에 호출됩니다. (보스 사망 감지 시점)
-    /// 이 시점을 활용하여 DungeonManager에 보스가 처치되었음을 알립니다.
-    /// </summary>
-    private void OnDestroy()
+    // [추가] IBossInitializer 인터페이스의 SetSummonArea 메서드 구현
+    /// <summary>
+    /// DungeonManager로부터 뿌리 소환 영역 Collider를 주입받아 내부 필드에 저장합니다.
+    /// (IBossInitializer 계약 구현 / DIP 수용)
+    /// </summary>
+    /// <param name="collider">DungeonManager가 씬에서 찾아 할당한 Collider 객체</param>
+    public void SetSummonArea(Collider collider)
     {
-        // Charge 코루틴이 진행 중이라면 정지합니다. (안전 장치)
-        if (_chargeRoutine != null)
+        // [SOLID: DIP] 외부 의존성을 주입받아 ForestBoss의 책임을 분리합니다.
+        if (collider == null)
+        {
+            Debug.LogError("ForestBoss: 주입받은 소환 영역 Collider가 Null입니다. 특수 공격이 비활성화됩니다.");
+        }
+        // 주입된 값을 안전하게 private 필드에 저장합니다.
+        rootSummonAreaCollider = collider;
+    }
+    /// <summary>
+    /// 몬스터가 파괴되기 직전에 호출됩니다. (보스 사망 감지 시점)
+    /// 이 시점을 활용하여 DungeonManager에 보스가 처치되었음을 알립니다.
+    /// </summary>
+    private void OnDestroy()
+    {
+        // [추가] 몬스터 정리 로직 시작
+        // 보스 사망 시 소환된 잔여 미니언을 모두 정리합니다.
+        foreach (GameObject minion in _activeMinions)
+        {
+            // 몬스터가 이미 플레이어에게 처치되었을 수 있으므로 null 체크
+            if (minion != null)
+            {
+                // [정리 로직] 해당 미니언의 GameObject를 즉시 파괴합니다.
+                Destroy(minion);
+            }
+        }
+        // 리스트도 깔끔하게 정리 (필수!)
+        _activeMinions.Clear(); // <--- 이 라인 추가!
+                                // [추가] 몬스터 정리 로직 끝
+
+        // [추가] 이벤트 구독 해제 (메모리 누수 방지)
+        if (_monsterCombat != null)
+        {
+            _monsterCombat.OnDamageTaken -= OnMonsterDamaged; // <--- 이 라인 추가!
+        }
+        // Charge 코루틴이 진행 중이라면 정지합니다. (안전 장치)
+        if (_chargeRoutine != null)
         {
             StopCoroutine(_chargeRoutine);
         }

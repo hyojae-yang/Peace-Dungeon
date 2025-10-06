@@ -67,7 +67,6 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("PlayerStats가 PlayerCharacter에 할당되지 않았습니다. 기본 walkSpeed를 사용합니다.");
         }
     }
-
     void Update()
     {
         //Debug.Log("위치 변경: " + transform.position + " by " + this.GetType().Name);

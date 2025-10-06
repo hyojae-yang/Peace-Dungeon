@@ -114,7 +114,12 @@ public class BoarBehavior : MonoBehaviour
             monsterPatrol.StopPatrol();
             return;
         }
-
+        if (MainSceneManager.Instance.isGameOver)
+        {
+            // 게임 오버 시 모든 행동 중지
+            monsterPatrol.StopPatrol();
+            return;
+        }
         // 마나 회복 로직
         if (currentMana < monster.monsterData.maxMana)
         {

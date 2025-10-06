@@ -56,7 +56,11 @@ public class TreeSpiritBehavior : MonoBehaviour
         {
             return;
         }
-
+        if (MainSceneManager.Instance.isGameOver)
+        {
+            // 게임 오버 시 모든 행동 중지
+            return;
+        }
         // 플레이어가 감지 범위 내에 있고, 특수 공격 쿨타임이 지났는지 확인합니다.
         if (monster.detectableTarget != null && Time.time >= lastAoeAttackTime + aoeAttackCooldown)
         {

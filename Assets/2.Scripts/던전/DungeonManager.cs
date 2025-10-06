@@ -11,16 +11,23 @@ public interface IBossNotifier
 }
 /// <summary>
 /// 보스 몬스터에게 DungeonManager(IBossNotifier 구현체)를 주입하는 역할을 정의하는 인터페이스입니다.
-/// 이 인터페이스는 보스의 초기화(Notifier 설정) 책임만 가집니다. (단일 책임 원칙 준수)
+/// 이 인터페이스는 보스의 초기화(Notifier 설정 및 환경 설정) 책임만 가집니다. (단일 책임 원칙 준수)
 /// </summary>
 public interface IBossInitializer
 {
-    /// <summary>
-    /// 이 보스 몬스터에게 처치 알림을 받을 객체(Notifier)를 설정합니다.
-    /// DungeonManager.SpawnBoss()에서 호출되며, Notifier 객체를 주입합니다.
-    /// </summary>
-    /// <param name="notifier">IBossNotifier 인터페이스를 구현한 객체 (예: DungeonManager 인스턴스)</param>
-    void SetNotifier(IBossNotifier notifier);
+    /// <summary>
+    /// 이 보스 몬스터에게 처치 알림을 받을 객체(Notifier)를 설정합니다.
+    /// DungeonManager.SpawnBoss()에서 호출되며, Notifier 객체를 주입합니다.
+    /// </summary>
+    /// <param name="notifier">IBossNotifier 인터페이스를 구현한 객체 (예: DungeonManager 인스턴스)</param>
+    void SetNotifier(IBossNotifier notifier);
+
+    /// <summary>
+    /// 이 보스 몬스터에게 특수 공격(뿌리 소환)에 사용될 영역 BoxCollider를 주입합니다.
+    /// (DungeonManager.SpawnBoss()에서 호출되어 소환 영역 Collider 객체를 주입합니다. DIP 준수)
+    /// </summary>
+    /// <param name="collider">씬에 존재하는 뿌리 소환 영역 BoxCollider 컴포넌트</param>
+    void SetSummonArea(Collider collider); // <-- [추가] DIP를 위한 계약 확장
 }
 public class DungeonManager : MonoBehaviour, IBossNotifier
 {
@@ -33,15 +40,20 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
     /// 현재 플레이어가 던전 안에 있는지(true) 밖에 있는지(false)를 나타냅니다.
     /// 이 프로퍼티에 값을 할당하면 던전 진입에 필요한 로직이 자동으로 실행됩니다.
     /// </summary>
-    private bool _isBossRoomActive = false;
+    public bool _isBossRoomActive = false;
     [Header("보스룸 설정")]
     [Tooltip("소환할 보스 몬스터 프리팹.")]
     [SerializeField] private GameObject bossPrefab;
 
     [Tooltip("보스 몬스터가 소환될 위치.")]
     [SerializeField] private Transform bossSpawnPoint;
+    // [추가] 보스 특수 공격(뿌리 소환) 영역 BoxCollider 필드
+    [Header("보스 특수 공격 설정 (ForestBoss용)")]
+    [Tooltip("뿌리 소환 공격에 사용할 평면 영역 BoxCollider를 할당합니다. (씬 오브젝트)")]
+    [SerializeField] private Collider rootSummonAreaCollider; // <-- [추가] 씬 오브젝트 참조용
+
     // 소환된 보스 인스턴스를 추적하기 위한 변수 (나중에 보스 처치 여부를 알기 위해 사용)
-    private GameObject currentBossInstance;
+    public GameObject currentBossInstance;
     public bool IsInDungeon
     {
         get { return _isInDungeon; }
@@ -126,7 +138,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
             int finalScore = DungeonScoreManager.Instance.CalculateFinalScore();
 
             // 계산된 점수에 따라 보상 시스템을 호출합니다.
-            if (DungeonRewardSystem.Instance != null)
+            if (DungeonRewardSystem.Instance != null && !MainSceneManager.Instance.isGameOver)
             {
                 DungeonRewardSystem.Instance.GrantReward(finalScore);
             }
@@ -139,6 +151,19 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
         {
             Debug.LogWarning("DungeonScoreManager가 존재하지 않습니다.");
         }
+        
+        if (currentSpawnManager != null)
+        {
+            // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
+            currentSpawnManager.DestroyAllMonsters();
+        }
+    }
+    /// <summary>
+    /// 플레이어가 던전에서 나갈 때 호출되는 메서드입니다.
+    /// 몬스터를 정리하고, 점수를 계산하여 보상을 지급합니다.
+    /// </summary>
+    public void DeadDungeon()
+    {
         if (currentSpawnManager != null)
         {
             // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
@@ -202,6 +227,10 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
             // DungeonManager는 IBossNotifier를 구현했으므로 'this'를 넘겨줄 수 있습니다.
             // bossInitializer(IBossInitializer 타입)를 통해 SetNotifier를 호출합니다.
             bossInitializer.SetNotifier(this);
+
+            // 2. [추가] 소환 영역 주입 (새로운 로직)
+            // DungeonManager에 할당된 씬 오브젝트 Collider 정보를 보스에게 전달합니다.
+            bossInitializer.SetSummonArea(rootSummonAreaCollider);
         }
         else
         {
@@ -223,5 +252,6 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
         PlayerCharacter.Instance.playerController.outDungeon();
         // 2. 핵심 로직: 기존에 구현된 던전 퇴장 처리 메서드를 호출하여 책임을 위임합니다.
         ExitDungeon();
+        
     }
 }
