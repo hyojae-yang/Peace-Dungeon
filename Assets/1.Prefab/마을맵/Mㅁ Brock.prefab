@@ -16,6 +16,8 @@ GameObject:
   - component: {fileID: 5908489873335522484}
   - component: {fileID: 9097014625349892000}
   - component: {fileID: 3715691462535998344}
+  - component: {fileID: 2422495357645838855}
+  - component: {fileID: 383619183065037721}
   m_Layer: 0
   m_Name: "\uC7A5\uBCF4\uB78C"
   m_TagString: NPC
@@ -187,6 +189,31 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionRange: 3
+--- !u!114 &2422495357645838855
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 538817513291589422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c2e0d87b4a01e40a4139355889686d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questDatas: []
+--- !u!114 &383619183065037721
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 538817513291589422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ba5b754f2e2bb4a837fbb667c0c48e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1024377101346030284
 GameObject:
   m_ObjectHideFlags: 0
@@ -978,6 +1005,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questDatas:
   - {fileID: 11400000, guid: 20154e280a5eb9247b9d615f0288b031, type: 2}
+  - {fileID: 11400000, guid: aa13b7173bd9db54daef865c41e67711, type: 2}
+  - {fileID: 11400000, guid: 08497eaf1b92c77428eb4ef3bea94ee4, type: 2}
+  - {fileID: 11400000, guid: 9204c2ce36b84304b83f33ddc71c62e6, type: 2}
+  - {fileID: 11400000, guid: 48e56f35756c45445b31df248e6d96c1, type: 2}
+  - {fileID: 11400000, guid: 67671fef1abe6e84eb6c7b1a1d2ab88b, type: 2}
+  - {fileID: 11400000, guid: 469aa61e6a432a04fa78efab6a6d79d9, type: 2}
+  - {fileID: 11400000, guid: 6ff004ceaee9fb745a55b377ffc28b1b, type: 2}
+  - {fileID: 11400000, guid: e3d90741a4181414398a9672c8c55e22, type: 2}
+  - {fileID: 11400000, guid: 0138ddfec1b1d0e4ab73586e575eff9a, type: 2}
 --- !u!1 &3704615524702863130
 GameObject:
   m_ObjectHideFlags: 0
@@ -1992,6 +2028,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questDatas:
   - {fileID: 11400000, guid: a844a2ce6b65e0d4397ac01112d847d5, type: 2}
+  - {fileID: 11400000, guid: 25bf384034021e54d950f4a9633bb6d8, type: 2}
+  - {fileID: 11400000, guid: 7377eba21a1fb6746b76e27be50dfcce, type: 2}
+  - {fileID: 11400000, guid: e7d3b64031143f646abefd7358892ee6, type: 2}
+  - {fileID: 11400000, guid: cc21448d6f0a8a34dba98cb51989f020, type: 2}
+  - {fileID: 11400000, guid: 54d70970e8f5ed2458beaa2aab0733ec, type: 2}
+  - {fileID: 11400000, guid: 3269900c92b7ca7408ef220914f69cc6, type: 2}
+  - {fileID: 11400000, guid: e9df9ae4275916943be61a072f84b021, type: 2}
+  - {fileID: 11400000, guid: 6314cf9a814d89a438b7002363d6d8f8, type: 2}
+  - {fileID: 11400000, guid: 3d40ade1e8f02d14e92e27b8271f1d91, type: 2}
 --- !u!1 &8319956548988408960
 GameObject:
   m_ObjectHideFlags: 0

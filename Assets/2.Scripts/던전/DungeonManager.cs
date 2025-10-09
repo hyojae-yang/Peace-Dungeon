@@ -41,6 +41,18 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
     /// 이 프로퍼티에 값을 할당하면 던전 진입에 필요한 로직이 자동으로 실행됩니다.
     /// </summary>
     public bool _isBossRoomActive = false;
+    // [추가] 던전 클리어 상태를 나타내는 프로퍼티
+    private bool _isDungeonCleared = false;
+    /// <summary>
+    /// 보스 몬스터가 처치되어 던전 클리어가 완료된 상태인지 여부를 나타냅니다.
+    /// 이 상태는 BossRoomDoor에서 퇴장 상호작용을 활성화하는 데 사용됩니다.
+    /// </summary>
+    public bool IsDungeonCleared
+    {
+        get { return _isDungeonCleared; }
+        // private set으로 설정하여 DungeonManager 내부에서만 상태를 변경할 수 있도록 합니다. (캡슐화, SRP 준수)
+        private set { _isDungeonCleared = value; }
+    }
     [Header("보스룸 설정")]
     [Tooltip("소환할 보스 몬스터 프리팹.")]
     [SerializeField] private GameObject bossPrefab;
@@ -159,8 +171,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
         }
     }
     /// <summary>
-    /// 플레이어가 던전에서 나갈 때 호출되는 메서드입니다.
-    /// 몬스터를 정리하고, 점수를 계산하여 보상을 지급합니다.
+    /// 플레이어가 죽어서 던전에서 나갈 때 호출되는 메서드입니다.
     /// </summary>
     public void DeadDungeon()
     {
@@ -241,17 +252,30 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
     // IBossNotifier 인터페이스의 구현부
     /// <summary>
     /// IBossNotifier 인터페이스를 통해 보스 몬스터가 사망했음을 알림 받습니다.
-    /// 단일 책임 원칙(SRP)에 따라, 보스룸 전투 종료 후 던전 퇴장 처리를 위임합니다.
+    /// 이 메서드는 **던전 상태를 클리어로 변경**하고, **실제 퇴장은 BossRoomDoor에 위임**합니다.
     /// </summary>
     public void NotifyBossDefeated()
     {
-        // 1. 상태 변경: 보스룸 전투 종료 상태로 되돌립니다.
-        // BossRoomDoor의 충돌 로직이 다시 활성화되는 것을 막기 위해 상태를 false로 설정합니다.
-        this.IsBossRoomActive = false;
-        IsInDungeon = false; // 던전 밖으로 나감
-        PlayerCharacter.Instance.playerController.outDungeon();
-        // 2. 핵심 로직: 기존에 구현된 던전 퇴장 처리 메서드를 호출하여 책임을 위임합니다.
-        ExitDungeon();
-        
+        // 상태 변경: 전투 종료 및 클리어 상태 설정
+        this.IsBossRoomActive = false; // 전투 상태 종료
+        this.IsDungeonCleared = true;  // <--- 클리어 상태를 true로 설정 (핵심 추가)
+        Debug.Log("보스 처치 완료! 던전이 클리어되었습니다. 보스룸 도어를 통해 퇴장해 주세요.");
+    }
+    // [추가] 던전 상태 초기화 메서드
+    /// <summary>
+    /// 던전 클리어 후 BossRoomDoor에서 호출되어, 던전의 핵심 상태를 초기화합니다.
+    /// 이 메서드는 클리어 상태를 해제하고 다음 던전 진입을 준비합니다. (SRP 준수)
+    /// </summary>
+    public void ResetDungeonState()
+    {
+        this.IsDungeonCleared = false; // 클리어 상태 해제
+        this.IsInDungeon = false;      // 던전 밖으로 나감 상태 설정 (BossRoomDoor가 아닌 여기서 InDungeon을 변경합니다)
+
+        // 현재 보스 인스턴스 참조를 해제하고 파괴합니다.
+        if (currentBossInstance != null)
+        {
+            Destroy(currentBossInstance);
+            currentBossInstance = null;
+        }
     }
 }

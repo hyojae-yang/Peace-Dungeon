@@ -116,7 +116,7 @@ public class NPCManager : MonoBehaviour, ISavable
         if (!specialFunctionMap[npcName].Contains(function))
         {
             specialFunctionMap[npcName].Add(function);
-            Debug.Log($"NPC '{npcName}'에 특수 기능 '{function.FunctionButtonName}'이(가) 등록되었습니다.");
+            //Debug.Log($"NPC '{npcName}'에 특수 기능 '{function.FunctionButtonName}'이(가) 등록되었습니다.");
         }
     }
 

@@ -13,24 +13,91 @@ MonoBehaviour:
   m_Name: 4
   m_EditorClassIdentifier: 
   npcID: 4
-  npcName: "\uBC15\uC694\uB9AC"
-  npcPersonality: "\uBCF8\uC778\uC758 \uC694\uB9AC\uC5D0 \uC790\uBD80\uC2EC \uC788\uB294
-    \uC694\uB9AC\uC0AC,\uD76C\uADC0\uD55C \uC2DD\uC7AC\uB8CC\uB97C \uBCF4\uBA74 \uC815\uC2E0\uC744
-    \uBABB\uCC28\uB9B0\uB2E4"
+  npcName: "\uC7A5\uB3D9\uBBFC"
+  npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uC544\uB4E4, \uC628\uAC16
+    \uC0AC\uACE0\uB97C \uBAB0\uACE0 \uB2E4\uB2C8\uB294 \uC0AC\uACE0\uBB49\uCE58"
   relationships:
   - targetNPCName: "\uC774\uC21C\uB355"
-    relationshipType: "\uC559\uC219"
-  - targetNPCName: "\uCD5C\uCCA0\uC218"
-    relationshipType: "\uC220\uCE5C\uAD6C"
+    relationshipType: "\uC5B4\uBA38\uB2C8"
+  - targetNPCName: "\uC7A5\uD544\uC218"
+    relationshipType: "\uC544\uBC84\uC9C0"
   - targetNPCName: "\uC7A5\uBCF4\uB78C"
-    relationshipType: "\uC0BC\uCD0C\uACFC \uC870\uCE74 \uC0AC\uC774"
+    relationshipType: "\uB204\uB098"
   playerAffection: -100
   dialogueGroups:
   - questState: 0
     questID: 0
     interactionDialogue:
     - minAffection: -100
-      maxAffection: -80
+      maxAffection: -50
       dialogueTexts:
-      - "\uC5B4\uB514\uC5D0\uC11C \uC624\uC2E0 \uBD84\uC774\uC2E0\uAC00\uC694?"
-    generalDialogues: []
+      - "\uC800\uB9AC \uAC00! \uB098\uB294 \uD615\uC544\uB791 \uB180\uACE0 \uC2F6\uC9C0
+        \uC54A\uC544!"
+    - minAffection: -100
+      maxAffection: -50
+      dialogueTexts:
+      - "\uC6B0\uB9AC \uC544\uBE60\uAC00... \uC544\uC800\uC528 \uAC19\uC740 \uC0AC\uB78C
+        \uC2EB\uC5B4\uD574!"
+    - minAffection: -50
+      maxAffection: 0
+      dialogueTexts:
+      - "\uC548\uB155\uD558\uC138\uC694... \uB098\uB294 \uC7A5\uB3D9\uBBFC\uC774\uC57C.
+        \uD615\uC544\uB294... \uC774\uB984\uC774 \uBB50\uC57C?"
+    - minAffection: -50
+      maxAffection: 0
+      dialogueTexts:
+      - "\uD615\uC544... \uD639\uC2DC... \uB2E4\uB9AC \uC544\uD30C?"
+    - minAffection: 0
+      maxAffection: 50
+      dialogueTexts:
+      - "\uD615\uC544! \uD615\uC544! \uB098\uB791 \uB180\uC790! \uC6B0\uB9AC \uC5C4\uB9C8\uB791
+        \uC544\uBE60\uAC00 \uD615\uC544 \uC5C4\uCCAD \uC88B\uC544\uD574!"
+    - minAffection: 0
+      maxAffection: 50
+      dialogueTexts:
+      - "\uD615\uC544\uB294... \uC6B0\uB9AC \uC544\uBE60\uB791 \uB2EE\uC558\uC5B4.
+        \uADF8\uB798\uC11C \uC88B\uC544!"
+    - minAffection: 50
+      maxAffection: 100
+      dialogueTexts:
+      - "\uD615\uC544\uB294... \uB0B4 \uC601\uC6C5\uC774\uC57C! \uB098\uB97C \uAD6C\uD574\uC918\uC11C
+        \uACE0\uB9C8\uC6CC!"
+    - minAffection: 50
+      maxAffection: 100
+      dialogueTexts:
+      - "\uD615\uC544, \uC6B0\uB9AC \uAC00\uC871\uC740... \uD615\uC544 \uB355\uBD84\uC5D0...
+        \uB2E4\uC2DC \uC6C3\uC744 \uC218 \uC788\uAC8C \uB418\uC5C8\uC5B4. \uC815\uB9D0
+        \uACE0\uB9C8\uC6CC!"
+    generalDialogues:
+    - minAffection: -100
+      maxAffection: -50
+      dialogueTexts:
+      - "\uD615\uC544\uB294... \uC6B0\uB9AC \uC544\uBE60\uCC98\uB7FC \uB420 \uAC70\uC57C?"
+      - "\uC544\uBE60\uB294... \uC608\uC804\uC5D0... \uC5C4\uCCAD \uBB34\uC11C\uC6B4
+        \uC0AC\uB78C\uC774\uC5C8\uC5B4."
+      - "\uADF8\uB798\uC11C... \uB098\uB294... \uD615\uC544\uAC00... \uBB34\uC11C\uC6CC"
+    - minAffection: -50
+      maxAffection: 0
+      dialogueTexts:
+      - "\uD615\uC544... \uB098\uB294... \uC65C \uB2E4\uB9AC\uAC00 \uC544\uD508\uC9C0
+        \uBAA8\uB974\uACA0\uC5B4."
+      - "\uADF8\uB0E5... \uC544\uBE60\uAC00... \uC608\uC804\uC5D0 \uCE90\uB0C8\uB358...
+        \uD751\uB9C8\uC11D\uC774\uB77C\uB294 \uB3CC\uBA69\uC774 \uB54C\uBB38\uC5D0...
+        \uC544\uD508 \uAC70\uB798"
+      - "\uADF8\uB798\uC11C... \uB098\uB294... \uC544\uBE60\uAC00... \uBB34\uC11C\uC6CC."
+    - minAffection: 0
+      maxAffection: 50
+      dialogueTexts:
+      - "\uD615\uC544! \uD615\uC544! \uB098\uB3C4... \uD615\uC544\uCC98\uB7FC...
+        \uC6A9\uAC10\uD55C \uC0AC\uB78C\uC774 \uB418\uACE0 \uC2F6\uC5B4!"
+      - "\uADF8\uB798\uC11C... \uB098\uB294... \uB9E4\uC77C... \uC544\uBE60\uD55C\uD14C...
+        \uC2F8\uC6B0\uB294 \uBC29\uBC95\uC744 \uBB3C\uC5B4\uBD10."
+      - "\uC544\uBE60\uB294... \uB9E8\uB0A0... '\uC704\uD5D8\uD558\uB2E4'\uACE0 \uB9D0\uD574."
+      - "\uADFC\uB370... \uB098\uB294... \uC6A9\uAC10\uD574\uC9C0\uACE0 \uC2F6\uC5B4!"
+    - minAffection: 50
+      maxAffection: 100
+      dialogueTexts:
+      - "\uD615\uC544\uB294... \uB0B4 \uC601\uC6C5\uC774\uC57C!"
+      - "\uD615\uC544 \uB355\uBD84\uC5D0... \uC6B0\uB9AC \uC5C4\uB9C8\uB791 \uC544\uBE60\uAC00...
+        \uB2E4\uC2DC \uC6C3\uC744 \uC218 \uC788\uAC8C \uB418\uC5C8\uC5B4."
+      - "\uC815\uB9D0 \uACE0\uB9C8\uC6CC!"

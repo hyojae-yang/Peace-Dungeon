@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 153e120926086884683467a63aec7ec2, type: 3}
-  m_Name: 2
+  m_Name: 5
   m_EditorClassIdentifier: 
-  questID: 2
-  questTitle: "[\uCC98\uCE58]\uB2E4\uB78C\uC950 \uCC98\uCE58(\uBC18\uBCF5)"
-  questDescription: "\uB2E4\uB78C\uC950\uB97C 10\uB9C8\uB9AC \uC7A1\uAE30"
+  questID: 5
+  questTitle: "[\uCC98\uCE58] \uC704\uD611\uC801\uC778 \uB4E4\uC950"
+  questDescription: "\uB4E4\uC950 10\uB9C8\uB9AC \uCC98\uCE58"
   questGiverName: "\uC7A5\uD544\uC218"
-  requiredAffection: -100
-  prerequisiteQuests: 
+  requiredAffection: -40
+  prerequisiteQuests: 04000000
   conditions:
   - conditionType: 2
-    targetID: 1
+    targetID: 3
     requiredAmount: 10
-  isRepeatable: 1
+  isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     itemCount: 5

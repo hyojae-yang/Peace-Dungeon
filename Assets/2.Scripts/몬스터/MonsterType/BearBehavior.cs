@@ -193,7 +193,6 @@ public class BearBehavior : MonoBehaviour
             {
                 float magicDamage = monster.monsterData.magicAttackPower;
                 damageable.TakeDamage(magicDamage, DamageType.Magic);
-                Debug.Log($"곰이 {hitCollider.name}에게 {magicDamage}의 마법 범위 피해를 입혔습니다!");
             }
         }
     }

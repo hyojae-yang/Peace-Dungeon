@@ -113,7 +113,10 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     private void Die()
     {
         Debug.Log("플레이어가 사망했습니다!");
+        if (MainSceneManager.Instance.isGameOver) return; // 이미 게임 오버 상태라면 중복 호출 방지
 
+        Debug.Log("게임 오버 상태가 선언되었습니다. isGameOver = true.");
+        MainSceneManager.Instance.isGameOver = true;
         // 여기에 게임 오버, 플레이어 오브젝트 파괴 등 추가 로직을 구현합니다.
         MainSceneManager.Instance.SetGameOver();
         // 플레이어 오브젝트를 비활성화하여 죽은 상태를 표현합니다.

@@ -2,6 +2,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// 씬의 주요 UI 패널들을 중앙에서 관리하는 매니저 클래스입니다.
@@ -38,6 +39,12 @@ public class MainSceneManager : MonoBehaviour
     public bool isGameOver = false;
 
     [SerializeField] GameObject player;
+
+    /// <summary>
+    /// LoadingManager가 다음에 로드해야 할 최종 목적지 씬의 이름입니다.
+    /// 정적 변수로 설정하여 어떤 씬에서도 접근할 수 있도록 합니다.
+    /// </summary>
+    public static string NextSceneToLoad = ""; // <-- 이 변수를 추가합니다.
     /// <summary>
     /// 스크립트 인스턴스가 로드될 때 호출되어 싱글턴을 설정하고 이벤트 리스너를 등록합니다.
     /// </summary>
@@ -123,8 +130,11 @@ public class MainSceneManager : MonoBehaviour
     }
     public void Exit()
     {
-        //씬매니저로 씬전환
-        UnityEngine.SceneManagement.SceneManager.LoadScene("TitleScene");
+        // [수정] 1. 최종 목적지(TitleScene)를 정적 변수에 설정
+        MainSceneManager.NextSceneToLoad = "TitleScene";
+
+        // [수정] 2. LoadingScene으로 전환하여 비동기 로드를 시작
+        UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
     }
     public void save()
     {
@@ -141,12 +151,7 @@ public class MainSceneManager : MonoBehaviour
     /// </summary>
     public void SetGameOver()
     {
-        if (isGameOver) return; // 이미 게임 오버 상태라면 중복 호출 방지
-
-        Debug.Log("게임 오버 상태가 선언되었습니다. isGameOver = true.");
-        isGameOver = true;
-
-        // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
+                // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
         // 플레이어의 상호작용을 막습니다.
         if (playerCanvas != null && playerCanvas.activeInHierarchy)
         {
@@ -157,6 +162,23 @@ public class MainSceneManager : MonoBehaviour
     }
     public void Restart()
     {
+        // 1. **가장 먼저** isGameOver 상태를 재시작 상태(false)로 변경하여 
+        //    DungeonManager가 보상 로직을 실행하지 못하게 막습니다.
+        isGameOver = false; // 위치 변경
+
+        // 2. 저장 불러오기 (위치, 스탯 등 모든 게임 데이터 복구)
+        //    이것이 먼저 실행되어야 던전 상태를 리셋할 때 충돌이 적습니다.
+        SaveManager.Instance.LoadGame();
+
+        // [수정] 3. MainScene으로 즉시 로드하는 대신, 목표를 설정하고 LoadingScene으로 전환
+        MainSceneManager.NextSceneToLoad = "MainScene";
+        UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene"); // <-- 이 부분 수정
+
+        // [중요] 씬 전환이 일어난 후에는 이 아래의 코드는 실행되지 않거나,
+        // 새 씬의 오브젝트 인스턴스에 접근하므로 오류가 발생할 수 있습니다.
+        // **따라서 아래의 3, 4번 로직은 새 MainScene 인스턴스가 로드된 후에 실행되어야 합니다.**
+
+        // 3. UI 및 플레이어 리셋
         if (playerCanvas != null)
         {
             playerCanvas.SetActive(true);
@@ -165,13 +187,21 @@ public class MainSceneManager : MonoBehaviour
         player.SetActive(true);
         PlayerCharacter.Instance.playerStats.health = PlayerCharacter.Instance.playerStats.MaxHealth;
         PlayerCharacter.Instance.playerStats.mana = PlayerCharacter.Instance.playerStats.MaxMana;
-        PlayerCharacter.Instance.playerController.outDungeon();
-        DungeonManager.Instance.IsInDungeon = false;
-        DungeonManager.Instance._isBossRoomActive = false;
-        if (DungeonManager.Instance.currentBossInstance != null)
-        { Destroy(DungeonManager.Instance.currentBossInstance.gameObject); }
-        DungeonManager.Instance.DeadDungeon();
-        SaveManager.Instance.LoadGame();
-        isGameOver = false;
+        PlayerCharacter.Instance.playerController.outDungeon(); // 플레이어 컨트롤러 상태 리셋
+
+        // 4. 던전 상태 및 보스 파괴 (보스 파괴는 로드 후 잔여 오브젝트 정리 목적으로 실행)
+        //    이 시점에서는 isGameOver가 이미 false이므로 DeadDungeon이 클리어 로직을 실행하지 못합니다.
+        if (DungeonManager.Instance != null)
+        {
+            DungeonManager.Instance.IsInDungeon = false;
+            DungeonManager.Instance._isBossRoomActive = false;
+
+            if (DungeonManager.Instance.currentBossInstance != null)
+            {
+                Destroy(DungeonManager.Instance.currentBossInstance.gameObject);
+                DungeonManager.Instance.currentBossInstance = null; // 인스턴스 참조도 확실히 제거
+            }
+            DungeonManager.Instance.DeadDungeon();
+        }
     }
 }

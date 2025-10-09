@@ -85,9 +85,14 @@ public class TitleSceneManager : MonoBehaviour
     /// </summary>
     public void OnNewGameButtonClick()
     {
-        // TODO: 게임 데이터를 완전히 초기화하는 로직을 여기에 추가
+        // 1. 게임 데이터를 완전히 초기화하는 로직
         SaveManager.Instance.ResetGameData();
-        SceneManager.LoadScene("MainScene");
+
+        // [수정] 2. 최종 목적지(MainScene)를 정적 변수에 설정
+        MainSceneManager.NextSceneToLoad = "MainScene";
+
+        // [수정] 3. LoadingScene으로 전환하여 비동기 로드를 시작
+        SceneManager.LoadScene("LoadingScene");
     }
 
     /// <summary>
@@ -96,11 +101,13 @@ public class TitleSceneManager : MonoBehaviour
     /// </summary>
     public void OnContinueButtonClick()
     {
-
-        // SaveManager의 LoadGame 메서드를 호출하여 데이터를 로드합니다.
+        // 1. 저장된 게임 데이터를 불러와 데이터를 로드합니다.
         SaveManager.Instance.LoadGame();
 
-        // 로드 작업 완료 후 메인 씬으로 이동
-        SceneManager.LoadScene("MainScene");
+        // [수정] 2. 최종 목적지(MainScene)를 정적 변수에 설정
+        MainSceneManager.NextSceneToLoad = "MainScene";
+
+        // [수정] 3. LoadingScene으로 전환하여 비동기 로드를 시작
+        SceneManager.LoadScene("LoadingScene");
     }
 }

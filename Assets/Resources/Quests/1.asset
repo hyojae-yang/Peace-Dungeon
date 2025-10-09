@@ -13,10 +13,8 @@ MonoBehaviour:
   m_Name: 1
   m_EditorClassIdentifier: 
   questID: 1
-  questTitle: "\uB3C4\uD1A0\uB9AC \uC218\uD655(\uBC18\uBCF5)"
-  questDescription: "\uC7A1\uD654\uC810\uC758 \uB3C4\uD1A0\uB9AC \uC7AC\uACE0\uAC00
-    \uBD80\uC871\uD574\uC694.\uC232\uC5D0\uC11C \uB3C4\uD1A0\uB9AC 10\uAC1C\uB9CC
-    \uAD6C\uD574\uB2E4\uC8FC\uC2DC\uBA74 \uAC10\uC0AC\uD558\uACA0\uC2B5\uB2C8\uB2E4."
+  questTitle: "[\uC218\uC9D1] \uD589\uBCF5\uC758 \uB3C4\uD1A0\uB9AC"
+  questDescription: "\uB3C4\uD1A0\uB9AC 10\uAC1C \uC218\uC9D1"
   questGiverName: "\uC774\uC21C\uB355"
   requiredAffection: -100
   prerequisiteQuests: 
@@ -24,10 +22,10 @@ MonoBehaviour:
   - conditionType: 0
     targetID: 6502
     requiredAmount: 10
-  isRepeatable: 1
+  isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: 0bf6d8fc660766e42a683f6f41225d24, type: 2}
-    itemCount: 5
+    itemCount: 3
   experienceReward: 30
   goldReward: 50
   affectionReward: 1
