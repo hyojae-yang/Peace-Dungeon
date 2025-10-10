@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 6521
   itemName: "\uC0AC\uACFC"
   itemDescription: "\uC544\uC774\uC791 \uB274\uD134\uC774 \uB5A0\uC624\uB978\uB2E4"
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: 04c48edec87e1124bb7bc56f61608f0f, type: 3}
   itemPrice: 30
   itemType: 1
   consumptionEffects:

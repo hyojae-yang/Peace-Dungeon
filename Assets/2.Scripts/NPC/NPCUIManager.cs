@@ -15,8 +15,6 @@ public class NPCUIManager : MonoBehaviour
     public static NPCUIManager Instance { get; private set; }
 
     [Header("UI Panels")]
-    [Tooltip("상호작용 프롬프트 UI (예: 'E' 키)")]
-    public GameObject interactionPrompt;
     [Tooltip("대화 패널 UI")]
     public GameObject dialoguePanel;
     [Tooltip("메인 대화 버튼 패널 (대화하기, 퀘스트)")]
@@ -90,9 +88,21 @@ public class NPCUIManager : MonoBehaviour
 
     public void ShowInteractionPrompt(bool show)
     {
-        if (interactionPrompt != null)
+        // [수정된 로직 시작]
+        if (NotificationManager.Instance == null)
         {
-            interactionPrompt.SetActive(show);
+            Debug.LogWarning("NotificationManager를 찾을 수 없습니다. 상호작용 프롬프트 표시 실패.");
+            return;
+        }
+
+        if (show)
+        {
+            // 텍스트는 필요에 따라 변경 가능하지만, 일단 기본 메시지를 사용합니다.
+            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 상호작용");
+        }
+        else
+        {
+            NotificationManager.Instance.HideInteractionPrompt();
         }
     }
 
@@ -185,7 +195,11 @@ public class NPCUIManager : MonoBehaviour
 
     public void HideAllUI()
     {
-        if (interactionPrompt != null) interactionPrompt.SetActive(false);
+        // [추가 로직] 상호작용 프롬프트는 NotificationManager를 통해 수동으로 숨깁니다.
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.HideInteractionPrompt();
+        }
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
         if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false);
         if (questAcceptPanel != null) questAcceptPanel.SetActive(false);

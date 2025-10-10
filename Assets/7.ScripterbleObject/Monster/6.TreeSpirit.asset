@@ -10,25 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
-  m_Name: Rat
+  m_Name: 6.TreeSpirit
   m_EditorClassIdentifier: 
-  monsterID: 4
-  monsterName: "\uB4E4\uC950"
+  monsterID: 6
+  monsterName: "\uB098\uBB34\uC815\uB839"
   monsterLevel: 0
-  maxHealth: 30
+  maxHealth: 200
   maxMana: 0
-  attackPower: 5
-  magicAttackPower: 0
-  defense: 1
-  magicDefense: 1
-  moveSpeed: 3
+  attackPower: 0
+  magicAttackPower: 20
+  defense: 5
+  magicDefense: 30
+  moveSpeed: 0
   criticalChance: 0
   criticalDamageMultiplier: 0
-  attackDamageType: 0
-  minExpReward: 3
-  maxExpReward: 5
-  minGoldReward: 5
-  maxGoldReward: 10
+  attackDamageType: 1
+  minExpReward: 10
+  maxExpReward: 20
+  minGoldReward: 20
+  maxGoldReward: 40
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35
@@ -36,5 +36,5 @@ MonoBehaviour:
     dropChance: 0.35
   - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
     dropChance: 0.3
-  minItemDropCount: 0
-  maxItemDropCount: 1
+  minItemDropCount: 2
+  maxItemDropCount: 4

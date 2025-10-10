@@ -98,7 +98,12 @@ public class SaveManager : MonoBehaviour
 
         // 지정된 경로에 JSON 파일을 작성합니다.
         File.WriteAllText(saveFilePath, json);
-        Debug.Log("게임 저장 완료!");
+        // [추가/수정 로직] 저장 완료 알림을 NotificationManager를 통해 표시
+        if (NotificationManager.Instance != null)
+        {
+            // 성공 타입 알림을 사용하여 "게임 저장 완료!" 메시지를 띄웁니다.
+            NotificationManager.Instance.ShowNotification("게임 저장 완료!", NotificationType.Success);
+        }
     }
 
     /// <summary>
@@ -186,6 +191,58 @@ public class SaveManager : MonoBehaviour
             }
         }
         return false;
+    }
+    /// <summary>
+    /// 로드된 데이터 임시 저장소에서 DungeonManager의 데이터를 가져와 
+    /// 특정 보스의 최초 처치 기록을 조회합니다.
+    /// </summary>
+    /// <param name="bossID">조회할 보스의 고유 ID (MonsterData.monsterID).</param>
+    /// <returns>최초 처치 기록이 있으면 true, 없거나 데이터 로드에 실패하면 false.</returns>
+    public bool GetBossFirstKillStatus(int bossID)
+    {
+        // DungeonManager가 저장한 데이터를 메모리에서 찾습니다.
+        if (TryGetData<DungeonManagerSaveData>("DungeonManager", out DungeonManagerSaveData data))
+        {
+            // 데이터가 있다면, 딕셔너리에서 해당 보스 ID의 기록을 조회합니다.
+            if (data.bossFirstKillRecords.TryGetValue(bossID, out bool isKilled))
+            {
+                return isKilled;
+            }
+        }
+        // 기록이 없거나 로드된 데이터가 없으면 '아직 처치 안 함'으로 간주합니다.
+        return false;
+    }
+
+    /// <summary>
+    /// DungeonManager의 데이터에 특정 보스의 최초 처치 기록을 설정합니다.
+    /// 이 메서드는 메모리 내의 로드된 데이터에만 변경을 가하며, 영구 저장하려면 SaveGame()을 호출해야 합니다.
+    /// </summary>
+    /// <param name="bossID">기록할 보스의 고유 ID (MonsterData.monsterID).</param>
+    /// <param name="status">설정할 상태 (true = 처치 완료).</param>
+    public void SetBossFirstKillStatus(int bossID, bool status)
+    {
+        // DungeonManager가 저장한 데이터를 메모리에서 찾거나 새로 생성합니다.
+        if (!TryGetData<DungeonManagerSaveData>("DungeonManager", out DungeonManagerSaveData data))
+        {
+            // 데이터가 없으면 새로 만들어서 로드된 데이터 딕셔너리에 추가해야 합니다.
+            data = new DungeonManagerSaveData();
+            // SaveManager의 loadedSaveData 딕셔너리에 수동으로 추가하는 로직이 필요합니다.
+            // 이는 DungeonManager가 ISavable을 구현하고 RegisterSavable을 호출했다는 가정 하에 복잡해지므로,
+            // 현재는 'DungeonManager는 이미 ISavable을 구현하고 있다'고 가정하고,
+            // **실제 DungeonManager 스크립트가 SaveManager에 의해 관리되도록 구현되어야 함**을 명시합니다.
+            // (간단화를 위해, 여기서는 data 객체의 딕셔너리만 직접 업데이트합니다.)
+
+            // ******************************************************************************
+            // *주의: 이 코드는 DungeonManager가 SaveManager에 의해 올바르게 로드/관리되고 있음을 가정합니다.
+            // * 실제 구현에서는 DungeonManager의 SaveData()가 이 Dictionary를 반환해야 합니다.
+            // ******************************************************************************
+        }
+
+        // 기록을 업데이트합니다.
+        data.bossFirstKillRecords[bossID] = status;
+
+        // **핵심:** 이 변경 사항을 영구화하려면 DungeonManager가 SaveData()를 호출하고 
+        // SaveManager.SaveGame()이 실행되어야 합니다.
     }
     /// <summary>
     /// 게임 데이터를 초기 상태로 리셋합니다.

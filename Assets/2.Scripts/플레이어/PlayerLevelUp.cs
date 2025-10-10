@@ -118,5 +118,12 @@ public class PlayerLevelUp : MonoBehaviour
         playerCharacter.playerStats.mana = playerCharacter.playerStats.MaxMana;
         // 레벨업이 완료되었음을 외부에 알리는 이벤트를 발생시킵니다.
         OnPlayerLeveledUp?.Invoke();
+        // NotificationManager를 사용하여 레벨 업 성공 알림을 표시합니다.
+        if (NotificationManager.Instance != null)
+        {
+            string currentLevel = playerCharacter.playerStats.level.ToString();
+            // 플레이어의 현재 레벨을 포함하여 메시지를 구성합니다.
+            NotificationManager.Instance.ShowNotification($"레벨 업! Lv. {currentLevel} 달성!", NotificationType.Success);
+        }
     }
 }

@@ -65,8 +65,6 @@ public class MonsterData : ScriptableObject
         [Tooltip("드롭할 아이템 스크립터블 오브젝트입니다. (사용자님의 ItemData 클래스에 연결해주세요.)")]
         public BaseItemSO itemData;
 
-        [Tooltip("아이템이 드롭될 확률입니다. (0.0f ~ 1.0f 사이의 값)")]
-        [Range(0.0f, 1.0f)]
-        public float dropChance;
+        [Tooltip("아이템이 드롭될 가중치입니다. (클수록 잘 나옴)")] public int weight;
     }
 }

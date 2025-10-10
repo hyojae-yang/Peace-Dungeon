@@ -10,27 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
-  m_Name: squirrel
+  m_Name: 4.Rat
   m_EditorClassIdentifier: 
-  monsterID: 1
-  monsterName: "\uB2E4\uB78C\uC950"
+  monsterID: 4
+  monsterName: "\uB4E4\uC950"
   monsterLevel: 0
-  maxHealth: 20
-  maxMana: 5
-  attackPower: 3
+  maxHealth: 30
+  maxMana: 0
+  attackPower: 5
   magicAttackPower: 0
-  defense: 0
-  magicDefense: 0
-  moveSpeed: 2
+  defense: 1
+  magicDefense: 1
+  moveSpeed: 3
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
-  minExpReward: 2
-  maxExpReward: 2
-  minGoldReward: 3
-  maxGoldReward: 5
-  minDungeonCoinReward: 0
-  maxDungeonCoinReward: 0
+  minExpReward: 3
+  maxExpReward: 5
+  minGoldReward: 5
+  maxGoldReward: 10
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35

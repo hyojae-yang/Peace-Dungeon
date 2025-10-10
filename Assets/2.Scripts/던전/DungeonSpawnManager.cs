@@ -1,4 +1,4 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 using System;
 
@@ -7,43 +7,48 @@ public class DungeonSpawnManager : MonoBehaviour
     [System.Serializable]
     public class MonsterSpawnData
     {
-        [Tooltip("»ı¼ºÇÒ ¸ó½ºÅÍÀÇ ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒì„±í•  ëª¬ìŠ¤í„°ì˜ í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
         public GameObject monsterPrefab;
-        [Tooltip("»ı¼ºÇÒ ¸ó½ºÅÍÀÇ ÃÖ¼Ò °³¼öÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒì„±í•  ëª¬ìŠ¤í„°ì˜ ìµœì†Œ ê°œìˆ˜ì…ë‹ˆë‹¤.")]
         [Range(0, 300)]
         public int minSpawnCount;
-        [Tooltip("»ı¼ºÇÒ ¸ó½ºÅÍÀÇ ÃÖ´ë °³¼öÀÔ´Ï´Ù.")]
+        [Tooltip("ìƒì„±í•  ëª¬ìŠ¤í„°ì˜ ìµœëŒ€ ê°œìˆ˜ì…ë‹ˆë‹¤.")]
         [Range(0, 300)]
         public int maxSpawnCount;
-        [Tooltip("ÇØ´ç ¸ó½ºÅÍ Ã³Ä¡ ½Ã È¹µæÇÒ Á¡¼öÀÔ´Ï´Ù.")]
+        [Tooltip("í•´ë‹¹ ëª¬ìŠ¤í„° ì²˜ì¹˜ ì‹œ íšë“í•  ì ìˆ˜ì…ë‹ˆë‹¤.")]
         [Range(0, 1000)]
         public int score;
     }
 
-    [Header("¸ó½ºÅÍ ½ºÆù ¼³Á¤")]
-    [Tooltip("¸ó½ºÅÍµéÀÌ ½ºÆùµÉ Æò¸é(Plan) ¿ÀºêÁ§Æ®µéÀÇ ¹è¿­ÀÔ´Ï´Ù. °¢ ÇÃ·£¿¡´Â Renderer°¡ ÀÖ¾î¾ß ÇÕ´Ï´Ù.")]
+    [Header("ëª¬ìŠ¤í„° ìŠ¤í° ì„¤ì •")]
+    [Tooltip("ëª¬ìŠ¤í„°ë“¤ì´ ìŠ¤í°ë  í‰ë©´(Plan) ì˜¤ë¸Œì íŠ¸ë“¤ì˜ ë°°ì—´ì…ë‹ˆë‹¤. ê° í”Œëœì—ëŠ” Rendererê°€ ìˆì–´ì•¼ í•©ë‹ˆë‹¤.")]
     [SerializeField] private GameObject[] spawnPlans;
-    [Tooltip("»ı¼ºÇÒ ¸ó½ºÅÍµéÀÇ Á¾·ù¿Í °³¼ö¸¦ ¼³Á¤ÇÕ´Ï´Ù.")]
+    [Tooltip("ìƒì„±í•  ëª¬ìŠ¤í„°ë“¤ì˜ ì¢…ë¥˜ì™€ ê°œìˆ˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.")]
     [SerializeField] private List<MonsterSpawnData> monsterSpawnList;
 
-    // ¸ó½ºÅÍÀÇ Á¾·ùº°·Î »ı¼ºµÈ ¸ó½ºÅÍ ¸®½ºÆ®¸¦ ÀúÀåÇÕ´Ï´Ù.
-    private Dictionary<string, List<GameObject>> spawnedMonsters = new Dictionary<string, List<GameObject>>();
-    // »ı¼ºµÈ ¸ó½ºÅÍ °´Ã¼¿Í Á¡¼ö¸¦ ¸ÅÇÎÇÕ´Ï´Ù.
+    // ğŸ’¡ ë³€ê²½ 1: ë”•ì…”ë„ˆë¦¬ í‚¤ íƒ€ì…ì„ stringì—ì„œ GameObjectë¡œ ë³€ê²½
+    /// <summary>
+    /// ëª¬ìŠ¤í„°ì˜ ì¢…ë¥˜(ì›ë³¸ í”„ë¦¬íŒ¹)ë³„ë¡œ ìƒì„±ëœ ëª¬ìŠ¤í„° ë¦¬ìŠ¤íŠ¸ë¥¼ ì €ì¥í•©ë‹ˆë‹¤.
+    /// Keyê°€ GameObjectì´ë¯€ë¡œ DestroyAllMonstersì—ì„œ ì›ë³¸ í”„ë¦¬íŒ¹ì„ ë°”ë¡œ ì•Œ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+    /// </summary>
+    private Dictionary<GameObject, List<GameObject>> spawnedMonsters = new Dictionary<GameObject, List<GameObject>>();
+
+    // ìƒì„±ëœ ëª¬ìŠ¤í„° ê°ì²´ì™€ ì ìˆ˜ë¥¼ ë§¤í•‘í•©ë‹ˆë‹¤. (ë³€ê²½ ì—†ìŒ)
     private Dictionary<GameObject, int> monsterScores = new Dictionary<GameObject, int>();
 
     /// <summary>
-    /// Awake ¸Ş¼­µå´Â ½ºÅ©¸³Æ® ÀÎ½ºÅÏ½º°¡ ·ÎµåµÉ ¶§ È£ÃâµË´Ï´Ù.
-    /// ´øÀü ¸Å´ÏÀú¿¡ ÀÚ½ÅÀ» µî·ÏÇÕ´Ï´Ù.
+    /// Awake ë©”ì„œë“œëŠ” ìŠ¤í¬ë¦½íŠ¸ ì¸ìŠ¤í„´ìŠ¤ê°€ ë¡œë“œë  ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ë˜ì „ ë§¤ë‹ˆì €ì— ìì‹ ì„ ë“±ë¡í•©ë‹ˆë‹¤. (ë³€ê²½ ì—†ìŒ)
     /// </summary>
     private void Awake()
     {
         if (spawnPlans == null || spawnPlans.Length == 0)
         {
-            Debug.LogError("½ºÆù Æò¸é(Plan) ¹è¿­ÀÌ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù. ¸ó½ºÅÍ¸¦ »ı¼ºÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("ìŠ¤í° í‰ë©´(Plan) ë°°ì—´ì´ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ëª¬ìŠ¤í„°ë¥¼ ìƒì„±í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // DungeonManagerÀÇ ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏ¸é ÀÚ½ÅÀ» µî·ÏÇÕ´Ï´Ù.
+        // DungeonManagerì˜ ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ë©´ ìì‹ ì„ ë“±ë¡í•©ë‹ˆë‹¤.
         if (DungeonManager.Instance != null)
         {
             DungeonManager.Instance.RegisterSpawnManager(this);
@@ -51,7 +56,7 @@ public class DungeonSpawnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ½ºÅ©¸³Æ®°¡ ÆÄ±«µÉ ¶§ ´øÀü ¸Å´ÏÀú¿¡ µî·Ï ÇØÁ¦ÇÕ´Ï´Ù.
+    /// ìŠ¤í¬ë¦½íŠ¸ê°€ íŒŒê´´ë  ë•Œ ë˜ì „ ë§¤ë‹ˆì €ì— ë“±ë¡ í•´ì œí•©ë‹ˆë‹¤. (ë³€ê²½ ì—†ìŒ)
     /// </summary>
     private void OnDestroy()
     {
@@ -62,43 +67,54 @@ public class DungeonSpawnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// DungeonManager¿¡ ÀÇÇØ È£ÃâµÇ¾î ¸ó½ºÅÍ »ı¼ºÀ» ½ÃÀÛÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// DungeonManagerì— ì˜í•´ í˜¸ì¶œë˜ì–´ ëª¬ìŠ¤í„° ìƒì„±ì„ ì‹œì‘í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
     public void SpawnAllMonsters()
     {
         if (spawnPlans.Length == 0 || monsterSpawnList == null || monsterSpawnList.Count == 0)
         {
-            Debug.LogWarning("½ºÆùÇÒ ¸ó½ºÅÍ³ª ½ºÆù Æò¸éÀÌ ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("ìŠ¤í°í•  ëª¬ìŠ¤í„°ë‚˜ ìŠ¤í° í‰ë©´ì´ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // **Áß¿ä: ½ºÆù Àü¿¡ ¸ğµç µñ¼Å³Ê¸®¸¦ ÃÊ±âÈ­ÇÏ¿© ÀÌÀü µ¥ÀÌÅÍ¸¦ Á¦°ÅÇÕ´Ï´Ù.**
+        // **ì¤‘ìš”: ìŠ¤í° ì „ì— ëª¨ë“  ë”•ì…”ë„ˆë¦¬ë¥¼ ì´ˆê¸°í™”í•˜ì—¬ ì´ì „ ë°ì´í„°ë¥¼ ì œê±°í•©ë‹ˆë‹¤.**
         spawnedMonsters.Clear();
         monsterScores.Clear();
+
+        // ğŸ’¡ ë³€ê²½ 2-1: ObjectPool ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ í’€ë§ ì‚¬ìš© ì—¬ë¶€ë¥¼ íŒë‹¨
+        ObjectPool pooler = ObjectPool.Instance;
+        bool usePooling = pooler != null;
+        if (!usePooling)
+        {
+            Debug.LogWarning("ObjectPool ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. í’€ë§ì„ ì‚¬ìš©í•˜ì§€ ì•Šê³  Instantiateë¥¼ ì‚¬ìš©í•©ë‹ˆë‹¤.");
+        }
+
 
         foreach (var spawnData in monsterSpawnList)
         {
             if (spawnData.monsterPrefab == null)
             {
-                Debug.LogWarning("¸ó½ºÅÍ ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù. ´ÙÀ½ ¸ó½ºÅÍ·Î ³Ñ¾î°©´Ï´Ù.");
+                Debug.LogWarning("ëª¬ìŠ¤í„° í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ë‹¤ìŒ ëª¬ìŠ¤í„°ë¡œ ë„˜ì–´ê°‘ë‹ˆë‹¤.");
                 continue;
             }
 
             int numberOfMonstersToSpawn = UnityEngine.Random.Range(spawnData.minSpawnCount, spawnData.maxSpawnCount + 1);
 
-            if (!spawnedMonsters.ContainsKey(spawnData.monsterPrefab.name))
+            // ğŸ’¡ ë³€ê²½ 2-2: ë”•ì…”ë„ˆë¦¬ í‚¤ë¥¼ monsterPrefab (GameObject)ìœ¼ë¡œ ì‚¬ìš©
+            if (!spawnedMonsters.ContainsKey(spawnData.monsterPrefab))
             {
-                spawnedMonsters.Add(spawnData.monsterPrefab.name, new List<GameObject>());
+                spawnedMonsters.Add(spawnData.monsterPrefab, new List<GameObject>());
             }
 
             for (int i = 0; i < numberOfMonstersToSpawn; i++)
             {
+                // **(ì´ ë¶€ë¶„ì€ ê¸°ì¡´ ë¡œì§ì´ ê·¸ëŒ€ë¡œ ìœ ì§€ë©ë‹ˆë‹¤: ìŠ¤í° ìœ„ì¹˜ ê³„ì‚°)**
                 GameObject selectedPlan = spawnPlans[UnityEngine.Random.Range(0, spawnPlans.Length)];
                 Renderer planRenderer = selectedPlan.GetComponent<Renderer>();
 
                 if (planRenderer == null)
                 {
-                    Debug.LogError($"'{selectedPlan.name}'¿¡ Renderer ÄÄÆ÷³ÍÆ®°¡ ¾ø½À´Ï´Ù. ¸ó½ºÅÍ¸¦ »ı¼ºÇÒ ¼ö ¾ø½À´Ï´Ù.");
+                    Debug.LogError($"'{selectedPlan.name}'ì— Renderer ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤. ëª¬ìŠ¤í„°ë¥¼ ìƒì„±í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
                     continue;
                 }
 
@@ -108,12 +124,30 @@ public class DungeonSpawnManager : MonoBehaviour
                 float randomZ = UnityEngine.Random.Range(selectedBounds.min.z, selectedBounds.max.z);
 
                 Vector3 spawnPosition = new Vector3(randomX, selectedBounds.max.y, randomZ);
+                // **(ìŠ¤í° ìœ„ì¹˜ ê³„ì‚° ë¡œì§ ë)**
 
-                GameObject spawnedMonster = Instantiate(spawnData.monsterPrefab, spawnPosition, Quaternion.identity);
+                GameObject spawnedMonster = null;
 
-                spawnedMonsters[spawnData.monsterPrefab.name].Add(spawnedMonster);
+                if (usePooling)
+                {
+                    // ğŸ’¡ ë³€ê²½ 2-3: Instantiate ëŒ€ì‹  í’€ì—ì„œ ê°€ì ¸ì˜¤ê¸° ì‹œë„
+                    spawnedMonster = pooler.GetFromPool(spawnData.monsterPrefab);
+                }
+
+                if (spawnedMonster == null)
+                {
+                    // ğŸ’¡ ë³€ê²½ 2-4: í’€ë§ ì‹¤íŒ¨ ë˜ëŠ” í’€ë§ ë¯¸ì‚¬ìš© ì‹œ ê¸°ì¡´ Instantiate ë¡œì§
+                    spawnedMonster = Instantiate(spawnData.monsterPrefab, spawnPosition, Quaternion.identity);
+                }
+
+                // ìœ„ì¹˜/íšŒì „ ì„¤ì • (í’€ì—ì„œ ê°€ì ¸ì™”ë“  ìƒˆë¡œ ë§Œë“¤ì—ˆë“  ê³µí†µìœ¼ë¡œ ì ìš©)
+                spawnedMonster.transform.position = spawnPosition;
+                spawnedMonster.transform.rotation = Quaternion.identity;
+
+
+                // ë”•ì…”ë„ˆë¦¬ì— ì¶”ê°€ (í‚¤ê°€ GameObjectì´ë¯€ë¡œ spawnData.monsterPrefab ì‚¬ìš©)
+                spawnedMonsters[spawnData.monsterPrefab].Add(spawnedMonster);
                 monsterScores.Add(spawnedMonster, spawnData.score);
-
             }
         }
 
@@ -125,39 +159,62 @@ public class DungeonSpawnManager : MonoBehaviour
     }
 
     /// <summary>
-    /// ´øÀü¿¡¼­ ³ª°¥ ¶§ È£ÃâµÇ¾î »ı¼ºµÈ ¸ğµç ¸ó½ºÅÍ¸¦ ÆÄ±«ÇÏ°í °ü·Ã µñ¼Å³Ê¸®¸¦ ºñ¿ó´Ï´Ù.
+    /// ë˜ì „ì—ì„œ ë‚˜ê°ˆ ë•Œ í˜¸ì¶œë˜ì–´ ìƒì„±ëœ ëª¨ë“  ëª¬ìŠ¤í„°ë¥¼ íŒŒê´´í•˜ê³  ê´€ë ¨ ë”•ì…”ë„ˆë¦¬ë¥¼ ë¹„ì›ë‹ˆë‹¤.
     /// </summary>
     public void DestroyAllMonsters()
     {
         try
         {
+            // ğŸ’¡ ë³€ê²½ 3-1: ObjectPool ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ í’€ë§ ì‚¬ìš© ì—¬ë¶€ë¥¼ íŒë‹¨
+            ObjectPool pooler = ObjectPool.Instance;
+            bool usePooling = pooler != null;
 
-            // »ı¼ºµÈ ¸ó½ºÅÍµéÀ» ¸ğµÎ Ã£¾Æ ÆÄ±«ÇÕ´Ï´Ù.
-            foreach (var monsterList in spawnedMonsters.Values)
+            if (!usePooling)
             {
-                foreach (var monster in monsterList)
+                Debug.LogWarning("ObjectPool ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ê¸°ì¡´ Destroy ë¡œì§ì„ ì‚¬ìš©í•©ë‹ˆë‹¤.");
+            }
+
+            // ìƒì„±ëœ ëª¬ìŠ¤í„°ë“¤ì„ ëª¨ë‘ ì°¾ì•„ ë°˜ë‚©í•˜ê±°ë‚˜ íŒŒê´´í•©ë‹ˆë‹¤.
+            foreach (var kvp in spawnedMonsters)
+            {
+                // KeyëŠ” ì´ì œ ì›ë³¸ í”„ë¦¬íŒ¹ GameObjectì…ë‹ˆë‹¤!
+                GameObject originalPrefab = kvp.Key;
+
+                foreach (var monster in kvp.Value)
                 {
                     if (monster != null)
                     {
-                        Destroy(monster);
+                        if (usePooling)
+                        {
+                            // ğŸ’¡ ë³€ê²½ 3-2: Destroy ëŒ€ì‹  ReturnToPool ì˜¤ë²„ë¡œë“œ ë©”ì„œë“œ í˜¸ì¶œ
+                            // ì›ë³¸ í”„ë¦¬íŒ¹(originalPrefab)ì„ í•¨ê»˜ ë„˜ê²¨ í’€ì— ì •í™•íˆ ë°˜ë‚©í•©ë‹ˆë‹¤.
+                            pooler.ReturnToPool(monster, originalPrefab);
+                        }
+                        else
+                        {
+                            // í’€ë§ ì‹œìŠ¤í…œ ë¯¸ì‚¬ìš© ì‹œ: ê¸°ì¡´ Destroy ë¡œì§ ìœ ì§€
+                            Destroy(monster);
+                        }
                     }
                 }
             }
 
-            // µñ¼Å³Ê¸® ³»ºÎÀÇ ¸®½ºÆ®µéÀ» ¸ğµÎ ºñ¿ó´Ï´Ù.
+            // ë”•ì…”ë„ˆë¦¬ ë‚´ë¶€ì˜ ë¦¬ìŠ¤íŠ¸ë“¤ì„ ëª¨ë‘ ë¹„ì›ë‹ˆë‹¤.
+            // **(ì´ ë¶€ë¶„ì€ ê¸°ì¡´ ë¡œì§ì´ ê·¸ëŒ€ë¡œ ìœ ì§€ë©ë‹ˆë‹¤)**
             foreach (var monsterList in spawnedMonsters.Values)
             {
                 monsterList.Clear();
             }
 
-            // ¸ğµç ¸ó½ºÅÍ °´Ã¼ ÂüÁ¶¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+            // ëª¨ë“  ëª¬ìŠ¤í„° ê°ì²´ ì°¸ì¡°ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
             spawnedMonsters.Clear();
             monsterScores.Clear();
+            // **(ë”•ì…”ë„ˆë¦¬ ì´ˆê¸°í™” ë¡œì§ ë)**
 
         }
         catch (Exception ex)
         {
-            Debug.LogError("DestroyAllMonsters ¿¹¿Ü: " + ex);
+            Debug.LogError("DestroyAllMonsters ì˜ˆì™¸: " + ex);
         }
     }
 }

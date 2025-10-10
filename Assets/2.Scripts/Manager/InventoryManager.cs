@@ -92,7 +92,12 @@ public class InventoryManager : MonoBehaviour, ISavable
         {
             if (inventoryData.inventoryItems.Count >= inventorySize)
             {
-                Debug.LogWarning("인벤토리가 가득 찼습니다. 모든 아이템을 추가할 수 없습니다.");
+                // [수정 후] NotificationManager 경고 알림 추가
+                if (NotificationManager.Instance != null)
+                {
+                    // 인벤토리가 가득 찼음을 알리는 경고 알림을 띄웁니다.
+                    NotificationManager.Instance.ShowNotification("인벤토리 공간 부족!", NotificationType.Warning);
+                }
                 onInventoryChanged?.Invoke();
                 return false;
             }
@@ -118,7 +123,10 @@ public class InventoryManager : MonoBehaviour, ISavable
         // 인벤토리 공간이 가득 찼는지 확인합니다.
         if (inventoryData.inventoryItems.Count >= inventorySize)
         {
-            Debug.LogWarning("인벤토리가 가득 찼습니다. 아이템을 추가할 수 없습니다.");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification("장비를 획득하지 못했습니다! 인벤토리 공간 부족.", NotificationType.Warning);
+            }
             return false;
         }
 

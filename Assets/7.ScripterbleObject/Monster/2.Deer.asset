@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
-  m_Name: Deer
+  m_Name: 2.Deer
   m_EditorClassIdentifier: 
   monsterID: 2
   monsterName: "\uC0AC\uC2B4"
@@ -29,12 +29,14 @@ MonoBehaviour:
   maxExpReward: 10
   minGoldReward: 10
   maxGoldReward: 30
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 0
   lootTable:
-  - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    dropChance: 0.35
-  - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
-    dropChance: 0.35
-  - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
-    dropChance: 0.3
+  - itemData: {fileID: 11400000, guid: 773b876dd07a99a429c01aedd950922d, type: 2}
+    weight: 30
+  - itemData: {fileID: 11400000, guid: ea32578317976f743b9bbfd952bf0fcd, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: 323bad99f08855d4d81ded1178626017, type: 2}
+    weight: 3
   minItemDropCount: 1
   maxItemDropCount: 2

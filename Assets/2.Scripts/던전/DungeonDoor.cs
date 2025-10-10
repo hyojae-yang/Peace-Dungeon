@@ -1,89 +1,89 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System;
 
 public class DungeonDoor : MonoBehaviour
 {
     /// <summary>
-    /// Ãæµ¹ÀÌ ½ÃÀÛµÇ¾úÀ» ¶§ ÇÑ ¹ø È£ÃâµË´Ï´Ù.
-    /// ÇÃ·¹ÀÌ¾î°¡ "Player" ÅÂ±×¸¦ °¡Áö°í ÀÖ´Ù¸é DungeonUIManager¸¦ È£ÃâÇÏ¿© ¾Ë¸²Ã¢À» ¶ç¿ó´Ï´Ù.
+    /// ì¶©ëŒì´ ì‹œì‘ë˜ì—ˆì„ ë•Œ í•œ ë²ˆ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// í”Œë ˆì´ì–´ê°€ "Player" íƒœê·¸ë¥¼ ê°€ì§€ê³  ìˆë‹¤ë©´ DungeonUIManagerë¥¼ í˜¸ì¶œí•˜ì—¬ ì•Œë¦¼ì°½ì„ ë„ì›ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="collision">Ãæµ¹ÇÑ ColliderÀÇ Á¤º¸.</param>
+    /// <param name="collision">ì¶©ëŒí•œ Colliderì˜ ì •ë³´.</param>
     private void OnCollisionEnter(Collision collision)
     {
 
-        // ´ÜÀÏ Ã¥ÀÓ ¿øÄ¢ (SRP): Ãæµ¹ °¨Áö ¹× UI È£Ãâ ¿ªÇÒ¸¸ ¼öÇàÇÕ´Ï´Ù.
-        // OCP: ÅÂ±× ºñ±³´Â È®Àå °¡´É¼ºÀÌ ³·Àº ºÎºĞÀÌ¹Ç·Î ±×´ë·Î À¯ÁöÇÕ´Ï´Ù.
+        // ë‹¨ì¼ ì±…ì„ ì›ì¹™ (SRP): ì¶©ëŒ ê°ì§€ ë° UI í˜¸ì¶œ ì—­í• ë§Œ ìˆ˜í–‰í•©ë‹ˆë‹¤.
+        // OCP: íƒœê·¸ ë¹„êµëŠ” í™•ì¥ ê°€ëŠ¥ì„±ì´ ë‚®ì€ ë¶€ë¶„ì´ë¯€ë¡œ ê·¸ëŒ€ë¡œ ìœ ì§€í•©ë‹ˆë‹¤.
         if (collision.gameObject.CompareTag("Player"))
         {
-            // DungeonManagerÀÇ ÀÎ½ºÅÏ½º À¯È¿¼º °Ë»ç (ÀÇÁ¸¼º °ü¸®)
+            // DungeonManagerì˜ ì¸ìŠ¤í„´ìŠ¤ ìœ íš¨ì„± ê²€ì‚¬ (ì˜ì¡´ì„± ê´€ë¦¬)
             if (DungeonManager.Instance != null)
             {
-                // ÇöÀç ´øÀü »óÅÂ¿¡ µû¶ó ¾Ë¸² ¸Ş½ÃÁö¸¦ °áÁ¤ÇÕ´Ï´Ù.
-                string alertMessage = DungeonManager.Instance.IsInDungeon ? "´øÀü¿¡¼­ ³ª°¡½Ã°Ú½À´Ï±î?" : "´øÀü¿¡ ÀÔÀåÇÏ½Ã°Ú½À´Ï±î?";
+                // í˜„ì¬ ë˜ì „ ìƒíƒœì— ë”°ë¼ ì•Œë¦¼ ë©”ì‹œì§€ë¥¼ ê²°ì •í•©ë‹ˆë‹¤.
+                string alertMessage = DungeonManager.Instance.IsInDungeon ? "ë˜ì „ì—ì„œ ë‚˜ê°€ì‹œê² ìŠµë‹ˆê¹Œ?" : "ë˜ì „ì— ì…ì¥í•˜ì‹œê² ìŠµë‹ˆê¹Œ?";
 
-                // DungeonUIManagerÀÇ ÀÎ½ºÅÏ½º¸¦ Ã£¾Æ ¾Ë¸²Ã¢À» ¶ç¿ó´Ï´Ù.
+                // DungeonUIManagerì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì•„ ì•Œë¦¼ì°½ì„ ë„ì›ë‹ˆë‹¤.
                 if (DungeonUIManager.Instance != null)
                 {
-                    // È®ÀÎ ¹öÆ°À» ´©¸£¸é HandleDungeonEntry ¸Ş¼­µå°¡ ½ÇÇàµÇµµ·Ï ActionÀ» ³Ñ°ÜÁİ´Ï´Ù.
-                    // 'collision.gameObject' ´ë½Å 'collision.gameObject'¸¦ Àü´ŞÇÏ¿© ÇÃ·¹ÀÌ¾î °´Ã¼¸¦ Ã³¸®ÇÕ´Ï´Ù.
+                    // í™•ì¸ ë²„íŠ¼ì„ ëˆ„ë¥´ë©´ HandleDungeonEntry ë©”ì„œë“œê°€ ì‹¤í–‰ë˜ë„ë¡ Actionì„ ë„˜ê²¨ì¤ë‹ˆë‹¤.
+                    // 'collision.gameObject' ëŒ€ì‹  'collision.gameObject'ë¥¼ ì „ë‹¬í•˜ì—¬ í”Œë ˆì´ì–´ ê°ì²´ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
                     DungeonUIManager.Instance.ShowDungeonAlert(alertMessage, () => HandleDungeonEntry(collision.gameObject));
                 }
                 else
                 {
-                    Debug.LogWarning("DungeonUIManager ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù! UI¸¦ ¶ç¿ï ¼ö ¾ø½À´Ï´Ù.");
+                    Debug.LogWarning("DungeonUIManager ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! UIë¥¼ ë„ìš¸ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
                 }
             }
             else
             {
-                Debug.LogWarning("DungeonManager ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù! ´øÀü »óÅÂ¸¦ È®ÀÎÇÒ ¼ö ¾ø½À´Ï´Ù.");
+                Debug.LogWarning("DungeonManager ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! ë˜ì „ ìƒíƒœë¥¼ í™•ì¸í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             }
         }
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾îÀÇ ½ÇÁ¦ À§Ä¡ ÀÌµ¿°ú ´øÀü »óÅÂ¸¦ º¯°æÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â DungeonUIManagerÀÇ È®ÀÎ ¹öÆ°¿¡ ÀÇÇØ È£ÃâµË´Ï´Ù.
+    /// í”Œë ˆì´ì–´ì˜ ì‹¤ì œ ìœ„ì¹˜ ì´ë™ê³¼ ë˜ì „ ìƒíƒœë¥¼ ë³€ê²½í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” DungeonUIManagerì˜ í™•ì¸ ë²„íŠ¼ì— ì˜í•´ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="player">ÀÌµ¿½ÃÅ³ ÇÃ·¹ÀÌ¾î GameObject.</param>
+    /// <param name="player">ì´ë™ì‹œí‚¬ í”Œë ˆì´ì–´ GameObject.</param>
     private void HandleDungeonEntry(GameObject player)
     {
-        // DungeonManager°¡ À¯È¿ÇÑÁö È®ÀÎÇÕ´Ï´Ù.
+        // DungeonManagerê°€ ìœ íš¨í•œì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (DungeonManager.Instance == null)
         {
-            Debug.LogWarning("DungeonManager ÀÎ½ºÅÏ½º°¡ ¾ø¾î ´øÀü ÁøÀÔ/ÅğÀå Ã³¸®¸¦ ÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("DungeonManager ì¸ìŠ¤í„´ìŠ¤ê°€ ì—†ì–´ ë˜ì „ ì§„ì…/í‡´ì¥ ì²˜ë¦¬ë¥¼ í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ ÄÁÆ®·Ñ·¯ ÀÎ½ºÅÏ½º°¡ À¯È¿ÇÑÁö È®ÀÎÇÕ´Ï´Ù.
+        // í”Œë ˆì´ì–´ ìºë¦­í„° ì»¨íŠ¸ë¡¤ëŸ¬ ì¸ìŠ¤í„´ìŠ¤ê°€ ìœ íš¨í•œì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (PlayerCharacter.Instance == null || PlayerCharacter.Instance.playerController == null)
         {
-            Debug.LogError("PlayerCharacter ¶Ç´Â playerController ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ÇÃ·¹ÀÌ¾î ÀÌµ¿ Ã³¸®°¡ ºÒ°¡´ÉÇÕ´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ë˜ëŠ” playerController ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. í”Œë ˆì´ì–´ ì´ë™ ì²˜ë¦¬ê°€ ë¶ˆê°€ëŠ¥í•©ë‹ˆë‹¤.");
             return;
         }
 
-        // ´øÀü ÁøÀÔ ·ÎÁ÷
+        // ë˜ì „ ì§„ì… ë¡œì§
         if (DungeonManager.Instance.IsInDungeon == false)
         {
-            SaveManager.Instance.SaveGame(); // ´øÀü ÀÔÀå Àü¿¡ °ÔÀÓÀ» ÀúÀåÇÕ´Ï´Ù.
-            // ÇÃ·¹ÀÌ¾î¸¦ ´øÀü ¾ÈÀ¸·Î ÀÌµ¿½ÃÅµ´Ï´Ù.
+            SaveManager.Instance.SaveGame(); // ë˜ì „ ì…ì¥ ì „ì— ê²Œì„ì„ ì €ì¥í•©ë‹ˆë‹¤.
+            // í”Œë ˆì´ì–´ë¥¼ ë˜ì „ ì•ˆìœ¼ë¡œ ì´ë™ì‹œí‚µë‹ˆë‹¤.
             PlayerCharacter.Instance.playerController.inDungeon();
 
-            // DungeonManagerÀÇ »óÅÂ¸¦ '´øÀü ¾È'À¸·Î º¯°æÇÕ´Ï´Ù.
-            // (DungeonManager ³»ºÎ IsInDungeon Setter¿¡¼­ HandleDungeonEntry()°¡ È£ÃâµÊ)
+            // DungeonManagerì˜ ìƒíƒœë¥¼ 'ë˜ì „ ì•ˆ'ìœ¼ë¡œ ë³€ê²½í•©ë‹ˆë‹¤.
+            // (DungeonManager ë‚´ë¶€ IsInDungeon Setterì—ì„œ HandleDungeonEntry()ê°€ í˜¸ì¶œë¨)
             DungeonManager.Instance.IsInDungeon = true;
         }
-        // ´øÀü ÅğÀå ·ÎÁ÷ (¿©±â°¡ ¼öÁ¤µÇ¾ú½À´Ï´Ù!)
+        // ë˜ì „ í‡´ì¥ ë¡œì§ (ì—¬ê¸°ê°€ ìˆ˜ì •ë˜ì—ˆìŠµë‹ˆë‹¤!)
         else // DungeonManager.Instance.IsInDungeon == true
         {
-            // 1. ÇÃ·¹ÀÌ¾î¸¦ ´øÀü ¹ÛÀ¸·Î ÀÌµ¿½ÃÅµ´Ï´Ù.
+            // 1. í”Œë ˆì´ì–´ë¥¼ ë˜ì „ ë°–ìœ¼ë¡œ ì´ë™ì‹œí‚µë‹ˆë‹¤.
             PlayerCharacter.Instance.playerController.outDungeon();
 
-            // 2. ¸ó½ºÅÍ Á¤¸® ¹× º¸»ó Áö±Ş ·ÎÁ÷À» ´ã´çÇÏ´Â ExitDungeon()À» È£ÃâÇÕ´Ï´Ù.
-            // (ExitDungeon() ³»ºÎ ·ÎÁ÷ÀÌ IsInDungeon »óÅÂ¿¡ ÀÇÁ¸ÇÏÁö ¾ÊÁö¸¸, È£Ãâ ¼ø¼­ÀÇ ¸íÈ®¼ºÀ» À§ÇØ ÀÌ À§Ä¡¸¦ À¯ÁöÇÕ´Ï´Ù.)
+            // 2. ëª¬ìŠ¤í„° ì •ë¦¬ ë° ë³´ìƒ ì§€ê¸‰ ë¡œì§ì„ ë‹´ë‹¹í•˜ëŠ” ExitDungeon()ì„ í˜¸ì¶œí•©ë‹ˆë‹¤.
+            // (ExitDungeon() ë‚´ë¶€ ë¡œì§ì´ IsInDungeon ìƒíƒœì— ì˜ì¡´í•˜ì§€ ì•Šì§€ë§Œ, í˜¸ì¶œ ìˆœì„œì˜ ëª…í™•ì„±ì„ ìœ„í•´ ì´ ìœ„ì¹˜ë¥¼ ìœ ì§€í•©ë‹ˆë‹¤.)
             DungeonManager.Instance.ExitDungeon();
 
-            // 3. ¸¶Áö¸·À¸·Î DungeonManagerÀÇ »óÅÂ¸¦ '´øÀü ¹Û'À¸·Î º¯°æÇÕ´Ï´Ù.
-            //    ÀÌ º¯°æÀ¸·Î DungeonManagerÀÇ IsInDungeon Setter ³»ºÎ ·ÎÁ÷(HandleDungeonEntry)Àº ½ÇÇàµÇÁö ¾Ê½À´Ï´Ù.
+            // 3. ë§ˆì§€ë§‰ìœ¼ë¡œ DungeonManagerì˜ ìƒíƒœë¥¼ 'ë˜ì „ ë°–'ìœ¼ë¡œ ë³€ê²½í•©ë‹ˆë‹¤.
+            //    ì´ ë³€ê²½ìœ¼ë¡œ DungeonManagerì˜ IsInDungeon Setter ë‚´ë¶€ ë¡œì§(HandleDungeonEntry)ì€ ì‹¤í–‰ë˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
             DungeonManager.Instance.IsInDungeon = false;
         }
     }

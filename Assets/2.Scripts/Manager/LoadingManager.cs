@@ -26,12 +26,12 @@ public class LoadingManager : MonoBehaviour
     [SerializeField]
     private List<string> gameTips = new List<string>
     {
-        "모든 몬스터를 처치해야 보스가 등장하는 던전도 있습니다.",
         "보스가 사망하면 던전 클리어 상태가 됩니다.",
-        "보스룸에서 플레이어가 사망하면 보상은 지급되지 않습니다.",
-        "체력이 낮을 땐 회피에 집중하세요! 생존이 보상입니다."
+        "보스룸에서 플레이어가 사망하면 보상은 지급되지 않습니다."
     };
-
+    [Header("로딩 시간 제약")]
+    [Tooltip("로딩 씬이 최소한 이 시간(초)만큼 화면에 표시되도록 강제합니다.")]
+    [SerializeField] private float minDisplayTime = 3.0f; // [추가] 3초를 기본값으로 설정
     private void Start()
     {
         // UI 유효성 검사 (TextMeshProUGUI로 변경)
@@ -104,8 +104,11 @@ public class LoadingManager : MonoBehaviour
             timer += Time.deltaTime;
             loadingProgressBar.value = Mathf.Min(Mathf.Lerp(loadingProgressBar.value, realProgress, timer), realProgress);
 
-            // 로딩이 완료되었고 (0.9 이상), UI 게이지도 거의 다 채워졌을 때 씬을 활성화합니다.
-            if (asyncOperation.progress >= 0.9f && loadingProgressBar.value >= 0.99f)
+            // 로딩이 완료되었고 (0.9 이상), UI 게이지도 거의 다 채워졌으며,
+            // [수정] 최소 표시 시간도 경과했을 때 씬을 활성화합니다.
+            if (asyncOperation.progress >= 0.9f &&
+                loadingProgressBar.value >= 0.99f &&
+                timer >= minDisplayTime) // [추가된 조건]
             {
                 asyncOperation.allowSceneActivation = true;
             }

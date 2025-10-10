@@ -5,7 +5,7 @@ using Unity.Cinemachine;
 public class DungeonFrameInteraction : MonoBehaviour
 {
     // === 기존 변수들 ===
-    public GameObject interactionUI;
+    // public GameObject interactionUI; // <--- 1. 이 필드를 제거합니다.
     public GameObject inventoryUI;
     private PlayerController playerController;
     public CinemachineCamera dungeonCamera;
@@ -14,16 +14,16 @@ public class DungeonFrameInteraction : MonoBehaviour
     [SerializeField] private float uiActivationDelay = 0.5f;
 
     // === 새로 추가된 변수들 ===
-    // 상점 UI의 아이템 목록을 관리하는 매니저
     [SerializeField] private DungeonShopUIManager dungeonShopUIManager;
-
-    // 인벤토리 UI에 던전 조각들을 표시하는 매니저
     [SerializeField] private DungeonInventoryManager dungeonInventoryManager;
+
+    // [추가] 4. 트리거 영역 내 플레이어 유무를 추적하는 플래그
+    private bool isPlayerInZone = false;
 
     private void Start()
     {
         // 기존 Start() 로직
-        if (interactionUI != null) interactionUI.SetActive(false);
+        // if (interactionUI != null) interactionUI.SetActive(false); // <--- interactionUI 제거로 인해 이 줄도 제거합니다.
         if (inventoryUI != null) inventoryUI.SetActive(false);
 
         GameObject playerObject = GameObject.FindGameObjectWithTag("Player");
@@ -41,10 +41,15 @@ public class DungeonFrameInteraction : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player") && !isInventoryOpen)
         {
-            if (interactionUI != null)
+            // [추가] 4. 플래그 설정
+            isPlayerInZone = true;
+
+            // [수정] 2. NotificationManager를 사용하여 상호작용 프롬프트 표시
+            if (NotificationManager.Instance != null)
             {
-                interactionUI.SetActive(true);
+                NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 교환");
             }
+            // if (interactionUI != null) { interactionUI.SetActive(true); } // <--- 기존 로직 제거
         }
     }
 
@@ -52,16 +57,23 @@ public class DungeonFrameInteraction : MonoBehaviour
     {
         if (other.gameObject.CompareTag("Player"))
         {
-            if (interactionUI != null)
+            // [추가] 4. 플래그 해제
+            isPlayerInZone = false;
+
+            // [수정] 3. NotificationManager를 사용하여 상호작용 프롬프트 숨김
+            if (NotificationManager.Instance != null)
             {
-                interactionUI.SetActive(false);
+                NotificationManager.Instance.HideInteractionPrompt();
             }
+            // if (interactionUI != null) { interactionUI.SetActive(false); } // <--- 기존 로직 제거
         }
     }
 
     private void Update()
     {
-        if (interactionUI.activeSelf && Input.GetKeyDown(KeyCode.E))
+        // [수정] 4. Update의 E키 감지 조건을 isPlayerInZone 플래그로 대체
+        // if (interactionUI.activeSelf && Input.GetKeyDown(KeyCode.E)) // <--- 기존 조건
+        if (isPlayerInZone && Input.GetKeyDown(KeyCode.E)) // <--- 수정된 조건
         {
             OpenInventory();
         }
@@ -90,19 +102,24 @@ public class DungeonFrameInteraction : MonoBehaviour
             dungeonCamera.Priority = 20;
         }
 
-        if (interactionUI != null)
+        // if (interactionUI != null) // <--- 기존 로직 제거
+        // {
+        //     interactionUI.SetActive(false); // <--- 기존 로직 제거
+        // }
+        // Note: 인벤토리 열기 직전에 알림은 자동으로 닫히지 않으므로, 
+        // 닫아주는 로직이 필요할 수 있으나, 보통 OnTriggerExit에서 처리되므로 여기서는 생략합니다. 
+        // 다만, 인벤토리가 열릴 때 알림을 확실히 숨기려면 아래를 추가할 수 있습니다.
+        if (NotificationManager.Instance != null)
         {
-            interactionUI.SetActive(false);
+            NotificationManager.Instance.HideInteractionPrompt();
         }
 
-        // === 핵심 수정 부분 ===
-        // 상점 UI의 아이템 목록을 갱신하는 메서드 호출
+        // === 핵심 수정 부분 (유지) ===
         if (dungeonShopUIManager != null)
         {
             dungeonShopUIManager.InitializeShopUI();
         }
 
-        // 인벤토리 UI 활성화를 코루틴으로 실행하여 딜레이 적용
         StartCoroutine(ActivateUIWithDelay());
     }
 
@@ -118,8 +135,7 @@ public class DungeonFrameInteraction : MonoBehaviour
 
     private void CloseInventory()
     {
-        // === 핵심 수정 부분 ===
-        // 상점 UI의 동적 아이템 슬롯들을 정리하는 메서드 호출
+        // === 핵심 수정 부분 (유지) ===
         if (dungeonShopUIManager != null)
         {
             dungeonShopUIManager.ClearShopUI();
@@ -143,5 +159,11 @@ public class DungeonFrameInteraction : MonoBehaviour
         }
 
         isInventoryOpen = false;
+
+        // 인벤토리를 닫은 후, 플레이어가 아직 영역 내에 있다면 알림을 다시 띄워줍니다.
+        if (isPlayerInZone && NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 교환");
+        }
     }
 }

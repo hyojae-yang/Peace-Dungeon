@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: 17
   m_EditorClassIdentifier: 
   questID: 17
-  questTitle: "[\uC218\uC9D1] \uD751\uB9C8\uC11D\uC5D0 \uBB3C\uB4E0 \uB098\uBB34\uC815\uB839"
-  questDescription: "\uB098\uBB34\uC870\uAC01 10\uAC1C \uC218\uC9D1"
+  questTitle: "[\uCC98\uCE58] \uC704\uD5D8\uD55C \uB291\uB300"
+  questDescription: "\uB291\uB300 3\uB9C8\uB9AC \uCC98\uCE58"
   questGiverName: "\uC774\uC21C\uB355"
   requiredAffection: 20
   prerequisiteQuests: 10000000
   conditions:
-  - conditionType: 0
-    targetID: 1001
-    requiredAmount: 1
+  - conditionType: 2
+    targetID: 5
+    requiredAmount: 3
   isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}

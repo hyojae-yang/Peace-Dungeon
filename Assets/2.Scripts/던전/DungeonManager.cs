@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System;
+using System.Collections.Generic;
+using UnityEngine;
 /// <summary>
 /// 보스 처치 이벤트를 DungeonManager에 알리는 역할을 담당하는 인터페이스입니다.
 /// </summary>
@@ -29,7 +31,7 @@ public interface IBossInitializer
     /// <param name="collider">씬에 존재하는 뿌리 소환 영역 BoxCollider 컴포넌트</param>
     void SetSummonArea(Collider collider); // <-- [추가] DIP를 위한 계약 확장
 }
-public class DungeonManager : MonoBehaviour, IBossNotifier
+public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
 {
     public static DungeonManager Instance { get; private set; }
 
@@ -66,6 +68,14 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
 
     // 소환된 보스 인스턴스를 추적하기 위한 변수 (나중에 보스 처치 여부를 알기 위해 사용)
     public GameObject currentBossInstance;
+    // [추가] 현재 소환된 보스의 ID를 추적하기 위한 필드
+    [Header("보스 추적")]
+    [Tooltip("현재 소환된 보스 몬스터의 고유 ID입니다. (MonsterData.monsterID)")]
+    private int currentBossID = 0; // 초기값은 0 또는 유효하지 않은 값으로 설정
+    // [추가] 보스 최초 처치 기록을 메모리에 임시로 보관하는 딕셔너리
+    // 이 데이터가 SaveManager를 통해 영구 저장됩니다.
+    private Dictionary<int, bool> bossFirstKillRecords = new Dictionary<int, bool>();
+
     public bool IsInDungeon
     {
         get { return _isInDungeon; }
@@ -101,7 +111,14 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
             Destroy(gameObject);
         }
     }
-
+    private void Start()
+    {
+        // SaveManager에 자신을 등록 (LoadData를 위함)
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
+    }
     /// <summary>
     /// 현재 던전에 맞는 DungeonSpawnManager를 등록합니다.
     /// </summary>
@@ -231,22 +248,43 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
 
         // 보스 생성 및 추적
         currentBossInstance = Instantiate(bossPrefab, bossSpawnPoint.position, bossSpawnPoint.rotation);
-
-        // 인터페이스 bossInitializer 컴포넌트를 찾습니다.
-        if (currentBossInstance.TryGetComponent(out IBossInitializer bossInitializer)) // OCP/DIP 준수
+        // [핵심 로직 1] Notifier 주입 (기존 IBossInitializer를 통한 주입 로직)
+        if (currentBossInstance.TryGetComponent(out IBossInitializer bossInitializer))
         {
-            // DungeonManager는 IBossNotifier를 구현했으므로 'this'를 넘겨줄 수 있습니다.
-            // bossInitializer(IBossInitializer 타입)를 통해 SetNotifier를 호출합니다.
             bossInitializer.SetNotifier(this);
+            bossInitializer.SetSummonArea(rootSummonAreaCollider);
 
-            // 2. [추가] 소환 영역 주입 (새로운 로직)
-            // DungeonManager에 할당된 씬 오브젝트 Collider 정보를 보스에게 전달합니다.
-            bossInitializer.SetSummonArea(rootSummonAreaCollider);
+            Debug.Log(" Notifier와 SummonArea 주입 완료.");
         }
         else
         {
-            // 디버그 메시지 수정: 실제 스크립트 이름과 찾고 있는 컴포넌트 이름을 명확히 합니다.
-            Debug.LogError("bossInitializer 컴포넌트를 찾을 수 없습니다. 보스 프리팹에 해당 스크립트가 붙어 있는지 확인하세요!");
+            Debug.LogError($" Fatal Error: 보스 프리팹 '{bossPrefab.name}'에서 IBossInitializer 컴포넌트(ForestBoss.cs 등)를 찾을 수 없습니다! 주입 실패.");
+            currentBossID = -1;
+            // 주입 실패 시 ID 추적도 의미 없으므로 여기서 return 처리하는 것도 고려 가능
+        }
+
+        // [핵심 로직 2] ID 추적 (⭐ Monster 컴포넌트를 통해 MonsterData 접근으로 변경 ⭐)
+        // DungeonManager.cs:252 라인의 원래 로직을 이 블록으로 대체합니다.
+        if (currentBossInstance.TryGetComponent(out Monster monsterComponent))
+        {
+            // Monster 컴포넌트는 MonsterData ScriptableObject를 참조하고 있을 것입니다.
+            if (monsterComponent.monsterData != null)
+            {
+                // MonsterData가 public 필드라면 직접 접근하여 ID를 가져옵니다.
+                currentBossID = monsterComponent.monsterData.monsterID;
+                Debug.Log($" 보스 ID 추적 성공: Monster 컴포넌트를 통해 ID({currentBossID}) 획득.");
+            }
+            else
+            {
+                Debug.LogError($" Fatal Error: {monsterComponent.name}의 MonsterData가 Null입니다! ID 추적 실패.");
+                currentBossID = -1;
+            }
+        }
+        else
+        {
+            // Monster 컴포넌트는 ForestBoss의 [RequireComponent]로 필수이므로 이 에러는 거의 발생하지 않아야 합니다.
+            Debug.LogError($" Fatal Error: 보스 프리팹 '{bossPrefab.name}'에서 필수 컴포넌트인 Monster를 찾을 수 없습니다!");
+            currentBossID = -1;
         }
     }
     // IBossNotifier 인터페이스의 구현부
@@ -258,8 +296,44 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
     {
         // 상태 변경: 전투 종료 및 클리어 상태 설정
         this.IsBossRoomActive = false; // 전투 상태 종료
-        this.IsDungeonCleared = true;  // <--- 클리어 상태를 true로 설정 (핵심 추가)
-        Debug.Log("보스 처치 완료! 던전이 클리어되었습니다. 보스룸 도어를 통해 퇴장해 주세요.");
+        this.IsDungeonCleared = true;  // <--- 클리어 상태를 true로 설정
+
+        // ==============================================================
+        // [핵심 로직] 보스 최초 처치 시 1회성 아이템 지급 처리
+        // ==============================================================
+        if (SaveManager.Instance != null && currentBossID > 0)
+        {
+            // 1. SaveManager를 거치지 않고, DungeonManager가 직접 자신의 딕셔너리를 사용합니다.
+            bool isAlreadyKilled = this.bossFirstKillRecords.ContainsKey(currentBossID); // 수정된 부분!
+
+            if (!isAlreadyKilled)
+            {
+                Debug.Log($"**보스 ID {currentBossID} 최초 처치!** 1회성 특별 아이템 보상을 지급합니다!");
+
+                // ==========================================================
+                if (currentBossID == 2001)
+                {
+                    DungeonInventoryManager.Instance.AddPlayerItem("2"); // 요리마을 조각
+                }
+                // ==========================================================
+
+                // 2. 내부 딕셔너리에 기록을 업데이트합니다.
+                this.bossFirstKillRecords[currentBossID] = true; // 수정된 부분!
+                // 3. 변경 사항을 영구 저장하려면 SaveManager.SaveGame()을 호출합니다.
+                SaveManager.Instance.SaveGame();
+            }
+            else
+            {
+                Debug.Log($"보스 ID {currentBossID}는 이미 처치 기록이 있습니다. 1회성 보상은 지급되지 않습니다.");
+            }
+        }
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.ShowNotification(
+                "보스 처치 완료! 던전이 클리어되었습니다.",
+                NotificationType.Success // Success 타입으로 호출
+            );
+        }
     }
     // [추가] 던전 상태 초기화 메서드
     /// <summary>
@@ -276,6 +350,36 @@ public class DungeonManager : MonoBehaviour, IBossNotifier
         {
             Destroy(currentBossInstance);
             currentBossInstance = null;
+        }
+    }
+    // ===============================================
+    // ISavable 인터페이스 구현 (데이터 영속성 확보)
+    // ===============================================
+
+    /// <summary>
+    /// 현재 DungeonManager의 저장 가능한 상태(보스 처치 기록 등)를 반환합니다.
+    /// </summary>
+    public object SaveData()
+    {
+        DungeonManagerSaveData data = new DungeonManagerSaveData
+        {
+            // 메모리 내의 기록을 저장 데이터로 복사
+            bossFirstKillRecords = this.bossFirstKillRecords
+        };
+        return data;
+    }
+
+    /// <summary>
+    /// 로드된 저장 데이터를 DungeonManager의 상태에 적용합니다.
+    /// </summary>
+    /// <param name="data">로드된 데이터 객체 (DungeonManagerSaveData 타입)</param>
+    public void LoadData(object data)
+    {
+        if (data is DungeonManagerSaveData loadedData)
+        {
+            // 로드된 기록을 메모리 딕셔너리에 적용
+            this.bossFirstKillRecords = loadedData.bossFirstKillRecords;
+            Debug.Log($"DungeonManager 데이터 로드 완료. 보스 기록 {this.bossFirstKillRecords.Count}개");
         }
     }
 }

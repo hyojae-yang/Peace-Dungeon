@@ -44,6 +44,7 @@ public class MonsterLoot : MonoBehaviour
         DropItem();
         GiveDungeonCoinReward();
     }
+
     /// <summary>
     /// 몬스터 사망 시 던전 코인을 계산하고 지급하는 메서드입니다.
     /// MonsterData에 새로 추가된 코인 필드를 사용하며, DungeonCoinCurrency에 의존합니다.
@@ -75,28 +76,67 @@ public class MonsterLoot : MonoBehaviour
             }
         }
     }
+
     /// <summary>
     /// 몬스터 사망 시 아이템을 드롭하고 플레이어 인벤토리에 추가하는 로직입니다.
+    /// 기존의 '확률' 기반 드롭에서 '가중치' 기반 랜덤 선택으로 로직을 변경했습니다.
     /// </summary>
     private void DropItem()
     {
-
         var lootTable = monsterBase.monsterData.lootTable;
+
+        // 1. 드롭할 아이템의 총 개수를 결정합니다.
         int dropCount = Random.Range(monsterBase.monsterData.minItemDropCount, monsterBase.monsterData.maxItemDropCount + 1);
 
+        // LootTable이 비어 있거나 null이면 처리를 종료합니다.
+        if (lootTable == null || lootTable.Count == 0)
+        {
+            return;
+        }
+
+        // 2. 루프를 돌며 아이템을 드롭 개수만큼 선택합니다.
         for (int i = 0; i < dropCount; i++)
         {
-            // LootTable이 비어 있지 않은 경우에만 아이템을 드롭합니다.
-            if (lootTable != null && lootTable.Count > 0)
+            // 3. 모든 아이템의 총 가중치를 계산합니다.
+            // 몬스터 데이터의 LootItem 구조체가 이미 weight 필드로 수정되었다고 가정하고 진행합니다.
+            int totalWeight = 0;
+            foreach (var lootItem in lootTable)
             {
-                foreach (var lootItem in lootTable)
+                // 가중치가 0보다 커야만 드롭 대상이 됩니다.
+                if (lootItem.weight > 0)
                 {
-                    if (Random.value <= lootItem.dropChance)
-                    {
-                        // InventoryManager의 AddItem() 메서드를 호출하여 아이템을 추가합니다.
-                        PlayerCharacter.Instance.inventoryManager.AddItem(lootItem.itemData, 1);
-                        break;
-                    }
+                    totalWeight += lootItem.weight;
+                }
+            }
+
+            // 총 가중치가 0이라면 드롭할 아이템이 없으므로 다음 드롭을 시도하지 않고 종료합니다.
+            if (totalWeight <= 0)
+            {
+                break;
+            }
+
+            // 4. 총 가중치 범위 내에서 랜덤 값(Drop Point)을 선택합니다.
+            // Random.Range(min, max)에서 max는 exclusive이지만, int 타입 Random.Range(a, b)에서는 b-1까지 포함합니다.
+            // 총 가중치가 100일 경우, 0부터 99까지의 값 중 하나를 뽑습니다.
+            int dropPoint = Random.Range(0, totalWeight);
+            int currentWeight = 0;
+
+            // 5. 드롭 포인트가 속하는 아이템을 찾아 당첨 아이템으로 결정합니다.
+            foreach (var lootItem in lootTable)
+            {
+                // 유효한 가중치를 가진 아이템만 처리합니다.
+                if (lootItem.weight <= 0) continue;
+
+                currentWeight += lootItem.weight;
+
+                // 현재 누적 가중치 범위 내에 랜덤 포인트가 들어오면 당첨입니다.
+                if (dropPoint < currentWeight)
+                {
+                    // InventoryManager의 AddItem() 메서드를 호출하여 아이템을 추가합니다.
+                    PlayerCharacter.Instance.inventoryManager.AddItem(lootItem.itemData, 1);
+
+                    // 아이템을 찾았으므로 루프를 종료하고 다음 드롭 개수(i)를 위해 계속 진행합니다.
+                    break;
                 }
             }
         }

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 19
   m_EditorClassIdentifier: 
   questID: 19
-  questTitle: "[\uCC98\uCE58] \uD751\uB9C8\uC11D\uC5D0 \uBB3C\uB4E0 \uBA67\uB3FC\uC9C0"
-  questDescription: "\uBA67\uB3FC\uC9C0 7\uB9C8\uB9AC \uCC98\uCE58"
+  questTitle: "[\uCC98\uCE58] \uC704\uD611\uC801\uC778 \uACF0"
+  questDescription: "\uACF0 \uD55C\uB9C8\uB9AC \uCC98\uCE58"
   questGiverName: "\uC774\uC21C\uB355"
   requiredAffection: 60
   prerequisiteQuests: 12000000

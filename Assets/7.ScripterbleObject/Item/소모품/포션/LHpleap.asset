@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uCCB4\uB825\uBE44\uC57D(\uB300)"
   itemDescription: "\uCCB4\uB825\uC744 70% \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   itemIcon: {fileID: 0}
-  itemPrice: 700
+  itemPrice: 1400
   itemType: 1
   consumptionEffects:
   - statType: 12

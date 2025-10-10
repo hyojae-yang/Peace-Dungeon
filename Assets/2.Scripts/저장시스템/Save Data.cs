@@ -261,3 +261,17 @@ public class DungeonInventorySaveData
     /// </summary>
     public int nextUniqueID;
 }
+/// <summary>
+/// DungeonManager의 상태를 저장하기 위한 데이터 클래스입니다.
+/// </summary>
+[System.Serializable]
+public class DungeonManagerSaveData
+{
+    /// <summary>
+    /// Key: 몬스터/보스의 고유 ID, Value: 최초 처치했는지 여부 (true = 처치 완료)
+    /// 보스가 여러 종류일 경우를 대비하여 int(ID)를 키로 사용합니다.
+    /// </summary>
+    public Dictionary<int, bool> bossFirstKillRecords = new Dictionary<int, bool>();
+
+    // TODO: 필요하다면 기존의 IsInDungeon, IsDungeonCleared 등의 상태도 여기에 포함될 수 있습니다.
+}

@@ -20,7 +20,7 @@ MonoBehaviour:
   prerequisiteQuests: 06000000
   conditions:
   - conditionType: 2
-    targetID: 1001
+    targetID: 3
     requiredAmount: 5
   isRepeatable: 0
   rewardItems:

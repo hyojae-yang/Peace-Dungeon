@@ -179,7 +179,7 @@ public class MainSceneManager : MonoBehaviour
         // **따라서 아래의 3, 4번 로직은 새 MainScene 인스턴스가 로드된 후에 실행되어야 합니다.**
 
         // 3. UI 및 플레이어 리셋
-        if (playerCanvas != null)
+        /*if (playerCanvas != null)
         {
             playerCanvas.SetActive(true);
         }
@@ -202,6 +202,6 @@ public class MainSceneManager : MonoBehaviour
                 DungeonManager.Instance.currentBossInstance = null; // 인스턴스 참조도 확실히 제거
             }
             DungeonManager.Instance.DeadDungeon();
-        }
+        }*/
     }
 }

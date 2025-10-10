@@ -121,8 +121,6 @@ public class RootSummonHandler : MonoBehaviour
         // =========================================================================
         // 1. 경고 단계 (Warning)
         // =========================================================================
-        Debug.Log($"RootSummonHandler: 경고 시각화 시작. {warningDuration}초 대기. (데미지: {_magicDamage})");
-
         if (warningVisuals != null)
         {
             warningVisuals.SetActive(true);
@@ -139,35 +137,15 @@ public class RootSummonHandler : MonoBehaviour
         // -------------------------------------------------------------------------
         // 2. 솟아오르기 단계 (Rise and Strike) - [수정] 코루틴 호출
         // -------------------------------------------------------------------------
-
-        Debug.Log("RootSummonHandler: 경고 종료. 다음 단계(솟아오르기) 시작.");
-
-        // 솟아오르는 코루틴을 호출하고 완료될 때까지 대기합니다.
         yield return StartCoroutine(RiseAndStrikeRoutine());
-
-
         // -------------------------------------------------------------------------
         // 3. 유지 단계 (Sustain)
         // -------------------------------------------------------------------------
 
-        Debug.Log($"RootSummonHandler: 솟아오르기 완료. {rootLifetimeAfterRise}초 유지 후 소멸 예정.");
-
         // 유지 시간 대기
         yield return new WaitForSeconds(rootLifetimeAfterRise);
-
-
-        // -------------------------------------------------------------------------
-        // 4. 소멸 단계 (Cleanup)
-        // -------------------------------------------------------------------------
-
-        Debug.Log("RootSummonHandler: 생명주기 종료. 오브젝트 파괴.");
-
         Destroy(gameObject);
     }
-
-    // =========================================================================
-    // [새로 추가된 메서드] 솟아오르기 및 피해 판정 루틴
-    // =========================================================================
     /// <summary>
     /// 뿌리가 땅속에서 목표 위치까지 솟아오르는 동작을 처리합니다.
     /// 솟아오르는 동안 피해 판정(BoxCollider)을 활성화합니다.
@@ -184,9 +162,6 @@ public class RootSummonHandler : MonoBehaviour
         // [SOLID: SRP] 속도(World Distance/Sec)를 사용하여 시간에 종속되지 않게 합니다.
         float duration = totalDistance / rootRiseSpeed; // 이동에 걸리는 시간 = 거리 / 속도
         float timeElapsed = 0f;
-
-        Debug.Log($"RootSummonHandler: 솟아오르기 시작. 목표 높이: {_targetWorldPosition.y:F2} (소요 시간: {duration:F2}초)");
-
         // 2. 솟아오르기 동작 (Lerp 대신 Vector3.MoveTowards와 유사한 방식)
         while (timeElapsed < duration)
         {
@@ -209,10 +184,6 @@ public class RootSummonHandler : MonoBehaviour
             _hitboxCollider.enabled = false;
         }
     }
-
-    // =========================================================================
-    // [수정된 메서드] 피해 판정 로직
-    // =========================================================================
     /// <summary>
     /// 충돌체(BoxCollider)가 다른 충돌체와 겹치기 시작할 때 호출됩니다.
     /// (isTrigger = true일 때만 호출)

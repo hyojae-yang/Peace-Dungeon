@@ -136,7 +136,11 @@ public class ShopManager : MonoBehaviour, INPCFunction
         }
         else
         {
-            Debug.Log("인벤토리가 가득 찼습니다.");
+            if (NotificationManager.Instance != null)
+            {
+                // 인벤토리가 가득 찼음을 알리는 경고 알림을 띄웁니다.
+                NotificationManager.Instance.ShowNotification("인벤토리 공간 부족!", NotificationType.Warning);
+            }
         }
 
         // 구매가 완료되면 확인 창을 닫고 UI를 갱신합니다.

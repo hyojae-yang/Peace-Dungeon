@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
-  m_Name: ForestBoss
+  m_Name: 1001.Baer
   m_EditorClassIdentifier: 
-  monsterID: 2001
-  monsterName: "\uD0C0\uB77D\uD55C \uC232\uC9C0\uAE30"
+  monsterID: 1001
+  monsterName: "\uACF0"
   monsterLevel: 0
-  maxHealth: 10000
+  maxHealth: 500
   maxMana: 0
-  attackPower: 300
-  magicAttackPower: 500
-  defense: 50
-  magicDefense: 100
-  moveSpeed: 0
+  attackPower: 100
+  magicAttackPower: 200
+  defense: 30
+  magicDefense: 30
+  moveSpeed: 6
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
-  minExpReward: 100
-  maxExpReward: 200
-  minGoldReward: 5000
-  maxGoldReward: 10000
-  minDungeonCoinReward: 3
-  maxDungeonCoinReward: 5
+  minExpReward: 30
+  maxExpReward: 50
+  minGoldReward: 50
+  maxGoldReward: 100
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 1
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
     dropChance: 0.35

@@ -16,8 +16,6 @@ GameObject:
   - component: {fileID: 5908489873335522484}
   - component: {fileID: 9097014625349892000}
   - component: {fileID: 3715691462535998344}
-  - component: {fileID: 2422495357645838855}
-  - component: {fileID: 383619183065037721}
   m_Layer: 0
   m_Name: "\uC7A5\uBCF4\uB78C"
   m_TagString: NPC
@@ -189,31 +187,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionRange: 3
---- !u!114 &2422495357645838855
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 538817513291589422}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 73c2e0d87b4a01e40a4139355889686d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  questDatas: []
---- !u!114 &383619183065037721
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 538817513291589422}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18ba5b754f2e2bb4a837fbb667c0c48e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1024377101346030284
 GameObject:
   m_ObjectHideFlags: 0

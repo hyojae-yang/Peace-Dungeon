@@ -121,7 +121,7 @@ public class NPCInteraction : MonoBehaviour
             NPCUIManager.Instance.questButton.gameObject.SetActive(false);
         }
 
-        // 🚨 새로 추가된 부분: NPC가 특수 기능을 가지고 있는지 확인하고 버튼 리스너를 추가합니다.
+        // 새로 추가된 부분: NPC가 특수 기능을 가지고 있는지 확인하고 버튼 리스너를 추가합니다.
         if (npc.HasSpecialFunction())
         {
             // NPC가 가진 모든 특수 기능 리스트를 가져옵니다.

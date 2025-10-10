@@ -20,8 +20,8 @@ MonoBehaviour:
   prerequisiteQuests: 11000000
   conditions:
   - conditionType: 0
-    targetID: 1001
-    requiredAmount: 1
+    targetID: 8019
+    requiredAmount: 10
   isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}

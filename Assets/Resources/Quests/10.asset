@@ -14,14 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questID: 10
   questTitle: "[\uC218\uC9D1] \uC740\uBC00\uD55C \uAD11\uC11D"
-  questDescription: "\uC740\uBC00\uD55C \uAD11\uC11D 5\uAC8C \uC218"
+  questDescription: "\uC740\uBC00\uD55C \uAD11\uC11D 3\uAC1C \uC218\uC9D1"
   questGiverName: "\uC7A5\uD544\uC218"
   requiredAffection: 60
   prerequisiteQuests: 09000000
   conditions:
   - conditionType: 0
-    targetID: 1001
-    requiredAmount: 15
+    targetID: 8018
+    requiredAmount: 3
   isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
