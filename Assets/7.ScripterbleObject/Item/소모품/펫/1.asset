@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5e7724b37504e9448d1438fd13e9cca, type: 3}
+  m_Name: 1
+  m_EditorClassIdentifier: 
+  itemID: 10001
+  itemName: "\uB9DD\uCE58"
+  itemDescription: "\uADC0\uC5FD\uB2E4"
+  itemIcon: {fileID: 0}
+  itemPrice: 0
+  itemType: 1
+  consumptionEffects: []
+  maxStackCount: 99
+  effectDuration: 0
+  petPrefab: {fileID: 8179126157510140887, guid: d1dcf334fc92936449cdef7084355cfc, type: 3}
+  spawnRadius: 5
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 64

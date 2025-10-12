@@ -29142,7 +29142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemTemplate: {fileID: 11400000, guid: 44735197101296340af672c351b76f6a, type: 2}
+  itemTemplate: {fileID: 11400000, guid: 5b82880b49ff8cb4fac949195219b7ff, type: 2}
   itemGrade: 4
 --- !u!114 &564450287
 MonoBehaviour:
@@ -30169,6 +30169,7 @@ RectTransform:
   - {fileID: 1141014249}
   - {fileID: 1977358245}
   - {fileID: 1744225213}
+  - {fileID: 1195087243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -63492,13 +63493,13 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1195087242}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1838486344}
-  m_Father: {fileID: 1706131626}
+  m_Father: {fileID: 586175176}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -91801,7 +91802,6 @@ RectTransform:
   - {fileID: 1039297580}
   - {fileID: 110608382}
   - {fileID: 1869232635}
-  - {fileID: 1195087243}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
