@@ -130,7 +130,14 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     /// Key: Root Visual Transform, Value: 초기 localRotation
     /// </summary>
     private Dictionary<Transform, Quaternion> _initialRootRotations;
-
+    // ========================= 필드 추가 (1개) ===========================
+    /// <summary>
+    /// 이 플래그가 false일 경우, OnDestroy에서 DungeonManager로의 처치 알림을 생략합니다.
+    /// DungeonManager.DeadDungeon() 메서드에서 강제 파괴를 시작하기 전에 false로 설정합니다.
+    /// 기본값은 true로, MonsterCombat/Monster.Die()를 통한 정상 처치 시에는 알림이 정상적으로 전송됩니다.
+    /// </summary>
+    private bool _shouldNotifyDefeat = true;
+    // ===================================================================
     private void Awake()
     {
         // 1. 필수 컴포넌트 종속성 확보
@@ -807,6 +814,17 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // 주입된 값을 안전하게 private 필드에 저장합니다.
         rootSummonAreaCollider = collider;
     }
+    // ========================= 메서드 추가 (1개) =========================
+    /// <summary>
+    /// DungeonManager에서 DeadDungeon()이 호출되어 강제 파괴가 필요할 때 호출됩니다.
+    /// OnDestroy()에서 클리어 알림을 보내지 않도록 플래그를 설정합니다.
+    /// </summary>
+    public void PrepareForForcedDestroy()
+    {
+        this._shouldNotifyDefeat = false;
+        Debug.Log("ForestBoss: 강제 파괴 준비 완료. OnDestroy 알림 생략 예정.");
+    }
+    // ===================================================================
     /// <summary>
     /// 몬스터가 파괴되기 직전에 호출됩니다. (보스 사망 감지 시점)
     /// 이 시점을 활용하여 DungeonManager에 보스가 처치되었음을 알립니다.
@@ -841,7 +859,20 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
 
         if (_bossNotifier != null)
         {
-            _bossNotifier.NotifyBossDefeated();
+            // 핵심 수정: _shouldNotifyDefeat가 true일 때만 알림을 보냅니다.
+            // DeadDungeon()에 의해 PrepareForForcedDestroy()가 호출되었다면 이 조건은 false가 됩니다.
+            if (_shouldNotifyDefeat)
+            {
+                _bossNotifier.NotifyBossDefeated(); // 기존 알림 메서드 호출
+                Debug.Log("ForestBoss: 정상 처치 감지. 클리어 알림 전송.");
+            }
+            else
+            {
+                // 강제 파괴 시 알림을 보내지 않고 Notifier 정리만 수행
+                Debug.Log("ForestBoss: 강제 파괴 플래그 감지. 클리어 알림 생략.");
+            }
+
+            // 알림 여부와 관계없이 Notifier 참조 해제
             _bossNotifier = null;
         }
         else

@@ -55,7 +55,37 @@ public class SmallMap : MonoBehaviour
             transform.position = mousePosition;
         }
     }
+    // --- [추가된 생명 주기 연동 로직] ---
 
+    /// <summary>
+    /// 오브젝트가 활성화될 때 호출됩니다.
+    /// WorldStateSaver.LoadData에 의해 새 오브젝트가 Instantiate 될 때 호출되어
+    /// DungeonMap에 자신의 점유 상태를 등록하도록 요청합니다.
+    /// </summary>
+    private void OnEnable()
+    {
+        // 로드 직후 isDragging 상태가 아닐 때만 실행됩니다.
+        // OCP: 기존 OnMouseUp 로직을 침해하지 않고 로드 시나리오만 처리합니다.
+        if (DungeonMap.Instance != null)
+        {
+            // 이 시점에 transform.position은 이미 로드 데이터에 의해 설정된 상태입니다.
+            DungeonMap.Instance.RegisterOccupiedTiles(this);
+        }
+    }
+
+    /// <summary>
+    /// 오브젝트가 비활성화되거나 파괴되기 직전 호출됩니다.
+    /// WorldStateSaver.LoadData에 의해 기존 오브젝트가 Destroy 될 때 호출되어
+    /// DungeonMap에서 자신의 점유 상태를 해제하도록 요청합니다.
+    /// </summary>
+    private void OnDisable()
+    {
+        // WorldStateSaver가 기존 맵을 Destroy할 때 호출됩니다.
+        if (DungeonMap.Instance != null)
+        {
+            DungeonMap.Instance.DeregisterOccupiedTiles(this);
+        }
+    }
     private void OnMouseDown()
     {
         if (MainSceneManager.Instance != null && !MainSceneManager.Instance.isDungeonCanvasActive)

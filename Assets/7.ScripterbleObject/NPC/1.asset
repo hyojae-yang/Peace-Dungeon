@@ -128,7 +128,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uC654\uB098? \uC7A5\uD130\uC5D0\uC11C \uC4F8 \uB2E4\uB78C\uC950 \uAC00\uC8FD
+      - "\uC654\uB098? \uC7A5\uD130\uC5D0\uC11C \uC4F8 \uD1A0\uB07C \uAC00\uC8FD
         10\uAC1C\uAC00 \uD544\uC694\uD558\uB124."
       - "\uAC00\uC7A5 \uD754\uD558\uACE0 \uC57D\uD558\uB2C8, \uAE08\uBC29 \uD574\uC62C
         \uC218 \uC788\uACA0\uC9C0."

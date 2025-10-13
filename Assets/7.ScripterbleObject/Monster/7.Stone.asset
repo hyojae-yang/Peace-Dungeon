@@ -15,12 +15,12 @@ MonoBehaviour:
   monsterID: 7
   monsterName: "\uC554\uC11D"
   monsterLevel: 0
-  maxHealth: 1
+  maxHealth: 10
   maxMana: 0
   attackPower: 0
-  magicAttackPower: 20
-  defense: 5
-  magicDefense: 30
+  magicAttackPower: 0
+  defense: 0
+  magicDefense: 0
   moveSpeed: 0
   criticalChance: 0
   criticalDamageMultiplier: 0
@@ -33,10 +33,8 @@ MonoBehaviour:
   maxDungeonCoinReward: 0
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    weight: 0
+    weight: 5
   - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
-    weight: 0
-  - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
-    weight: 0
-  minItemDropCount: 2
+    weight: 5
+  minItemDropCount: 1
   maxItemDropCount: 4

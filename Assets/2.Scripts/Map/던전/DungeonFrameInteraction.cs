@@ -47,7 +47,7 @@ public class DungeonFrameInteraction : MonoBehaviour
             // [수정] 2. NotificationManager를 사용하여 상호작용 프롬프트 표시
             if (NotificationManager.Instance != null)
             {
-                NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 교환");
+                NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매");
             }
             // if (interactionUI != null) { interactionUI.SetActive(true); } // <--- 기존 로직 제거
         }
@@ -163,7 +163,7 @@ public class DungeonFrameInteraction : MonoBehaviour
         // 인벤토리를 닫은 후, 플레이어가 아직 영역 내에 있다면 알림을 다시 띄워줍니다.
         if (isPlayerInZone && NotificationManager.Instance != null)
         {
-            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 교환");
+            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매");
         }
     }
 }

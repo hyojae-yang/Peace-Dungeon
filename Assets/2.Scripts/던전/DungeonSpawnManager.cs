@@ -165,7 +165,7 @@ public class DungeonSpawnManager : MonoBehaviour
     {
         try
         {
-            // 💡 변경 3-1: ObjectPool 인스턴스를 가져와 풀링 사용 여부를 판단
+            // 변경 3-1: ObjectPool 인스턴스를 가져와 풀링 사용 여부를 판단
             ObjectPool pooler = ObjectPool.Instance;
             bool usePooling = pooler != null;
 
@@ -186,7 +186,7 @@ public class DungeonSpawnManager : MonoBehaviour
                     {
                         if (usePooling)
                         {
-                            // 💡 변경 3-2: Destroy 대신 ReturnToPool 오버로드 메서드 호출
+                            // 변경 3-2: Destroy 대신 ReturnToPool 오버로드 메서드 호출
                             // 원본 프리팹(originalPrefab)을 함께 넘겨 풀에 정확히 반납합니다.
                             pooler.ReturnToPool(monster, originalPrefab);
                         }

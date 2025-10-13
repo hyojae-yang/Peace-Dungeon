@@ -92,7 +92,8 @@ public class NotificationManager : MonoBehaviour
 
         // 3. 텍스트 및 패널 업데이트
         notificationText.text = message;
-        notificationPanel.SetActive(true);
+        if (notificationPanel != null)
+        { notificationPanel.SetActive(true); }
 
         // 4. 일정 시간 후 숨기는 코루틴 시작
         hideCoroutine = StartCoroutine(HideAfterDelay(displayDuration));

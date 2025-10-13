@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 1
   m_EditorClassIdentifier: 
   itemID: 8001
-  itemName: "\uB2E4\uB78C\uC950\uAF2C\uB9AC"
-  itemDescription: "\uBCF5\uC2E4\uBCF5\uC2E4\uD55C \uB2E4\uB78C\uC950\uAF2C\uB9AC\uB2E4"
+  itemName: "\uD1A0\uB07C\uAF2C\uB9AC"
+  itemDescription: "\uBCF5\uC2E4\uBCF5\uC2E4\uD55C \uD1A0\uB07C\uAF2C\uB9AC\uB2E4"
   itemIcon: {fileID: 0}
   itemPrice: 10
   itemType: 2

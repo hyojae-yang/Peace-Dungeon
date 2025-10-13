@@ -49,9 +49,6 @@ public class SummonItemSO : ConsumableItemSO
         {
             petController.Initialize(player); // 펫 스크립트에게 주인 정보를 넘겨줍니다.
         }
-        
-
-        Debug.Log($"{itemName}을 사용하여 펫을 {spawnPosition} 위치에 소환했습니다!");
     }
 
     /// <summary>

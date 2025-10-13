@@ -67,7 +67,57 @@ public class DungeonMap : MonoBehaviour
             }
         }
     }
+    // --- [추가된 공개 API 영역] ---
 
+    /// <summary>
+    /// 로드(Load) 시스템에 의해 SmallMap 오브젝트가 파괴될 때,
+    /// occupiedTiles에서 해당 맵이 점유했던 모든 정보를 해제합니다.
+    /// (WorldStateSaver.LoadData -> Destroy -> SmallMap.OnDisable 시 호출)
+    /// </summary>
+    /// <param name="map">점유를 해제할 SmallMap 인스턴스</param>
+    public void DeregisterOccupiedTiles(SmallMap map)
+    {
+        // 기존의 내부 해제 로직을 그대로 재사용합니다.
+        RemoveOccupiedTiles(map);
+        // Debug.Log($"Deregister: 맵 {map.name}의 점유 정보 해제 완료.");
+    }
+
+    /// <summary>
+    /// 로드(Load) 시스템에 의해 SmallMap 오브젝트가 새로 생성될 때,
+    /// 해당 맵의 현재 위치를 기반으로 occupiedTiles에 점유 상태를 등록합니다.
+    /// (WorldStateSaver.LoadData -> Instantiate -> SmallMap.OnEnable 시 호출)
+    /// </summary>
+    /// <param name="map">점유를 등록할 SmallMap 인스턴스</param>
+    public void RegisterOccupiedTiles(SmallMap map)
+    {
+        // 1. 등록 전에 혹시 모를 잔여 정보를 제거하여 중복 등록을 방지합니다.
+        // OCP: 기존 로직을 보호하면서 새로운 생명주기 로직을 지원합니다.
+        RemoveOccupiedTiles(map);
+
+        // 2. 현재 맵이 던전 영역과 접촉하는지 확인합니다. (던전 외부는 등록하지 않음)
+        bool hasContact = false;
+        Vector3 currentMapPosition = map.transform.position;
+
+        foreach (Vector3 tileOffset in map.GetRotatedMapTiles())
+        {
+            Vector3 worldTilePos = currentMapPosition + tileOffset;
+            Vector2Int gridCoords = GetGridCoordinates(worldTilePos);
+
+            if (validDungeonTileCoords.Contains(gridCoords))
+            {
+                hasContact = true;
+                break;
+            }
+        }
+
+        // 3. 던전 영역과 접촉하는 경우에만 occupiedTiles에 등록합니다.
+        if (hasContact)
+        {
+            // 기존의 내부 등록 로직을 그대로 재사용합니다.
+            AddOccupiedTiles(map);
+            // Debug.Log($"Register: 맵 {map.name}의 점유 정보 등록 완료.");
+        }
+    }
     // 마우스 위치를 그리드 좌표로 변환하여 반환
     public Vector2Int GetGridCoordinates(Vector3 worldPos)
     {

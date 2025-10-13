@@ -823,6 +823,7 @@ GameObject:
   - component: {fileID: 2542794676968001783}
   - component: {fileID: 7495620264199108974}
   - component: {fileID: 9031612518447765427}
+  - component: {fileID: 8806708895110436140}
   m_Layer: 0
   m_Name: "\u3131 Brock"
   m_TagString: SmallMap
@@ -925,6 +926,56 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uniqueID: 
+--- !u!114 &8806708895110436140
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3301678143447887137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6de90537d47c63346a7bbb806d966cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPlans:
+  - {fileID: 223109097570556205}
+  - {fileID: 8685116932367681477}
+  - {fileID: 1895303240544254498}
+  - {fileID: 387981523385432094}
+  monsterSpawnList:
+  - monsterPrefab: {fileID: 640720440684500291, guid: 0fb72ee48094454469bea0304419d3cb, type: 3}
+    minSpawnCount: 100
+    maxSpawnCount: 200
+    score: 2
+  - monsterPrefab: {fileID: 7478020824845790175, guid: e8f026886796bc344997d71861d8a3e9, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 1220655152558176270, guid: 60e3681ebe4002149a1c9bfcf943c6ff, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 3074596751424611100, guid: ddea837050e1be4448a9d61b94d9193e, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 2581514094922368487, guid: c96fd5bf2c558cc47b7b28f1bb23a251, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 8124726940709404139, guid: 970346f958c7277408f88ccf983c8506, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 50
+    score: 3
+  - monsterPrefab: {fileID: 640720440684500291, guid: 505cdd1c00bf6354da01c66a9ddaa6fb, type: 3}
+    minSpawnCount: 30
+    maxSpawnCount: 50
+    score: 3
 --- !u!1 &3546687141720324060
 GameObject:
   m_ObjectHideFlags: 0

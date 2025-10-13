@@ -354,6 +354,7 @@ GameObject:
   - component: {fileID: 6685380262524930596}
   - component: {fileID: 4960203758773736513}
   - component: {fileID: -4266948283470525056}
+  - component: {fileID: 2006152461743195833}
   m_Layer: 0
   m_Name: "\u31392 Brock"
   m_TagString: SmallMap
@@ -456,6 +457,52 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   uniqueID: 
+--- !u!114 &2006152461743195833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2973377721987734930}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6de90537d47c63346a7bbb806d966cc3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spawnPlans:
+  - {fileID: 5354006723248556905}
+  - {fileID: 6702019121188132532}
+  - {fileID: 7927549659026022051}
+  - {fileID: 7001591182857221051}
+  monsterSpawnList:
+  - monsterPrefab: {fileID: 640720440684500291, guid: 68a48586fd137294483e7d3d4c024394, type: 3}
+    minSpawnCount: 100
+    maxSpawnCount: 200
+    score: 20
+  - monsterPrefab: {fileID: 7478020824845790175, guid: e8f026886796bc344997d71861d8a3e9, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 1220655152558176270, guid: 60e3681ebe4002149a1c9bfcf943c6ff, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 3074596751424611100, guid: ddea837050e1be4448a9d61b94d9193e, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 2581514094922368487, guid: c96fd5bf2c558cc47b7b28f1bb23a251, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 8124726940709404139, guid: 970346f958c7277408f88ccf983c8506, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+    score: 0
+  - monsterPrefab: {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 50
+    score: 3
 --- !u!1 &3082775657921449958
 GameObject:
   m_ObjectHideFlags: 0

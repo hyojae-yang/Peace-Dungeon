@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
-using System.Collections; // 코루틴 사용을 위해 필요
+using System.Collections;
+using NUnit.Framework; // 코루틴 사용을 위해 필요
 
 /// <summary>
 /// 플레이어 캐릭터를 따라다니는 망치(MangChi) 펫의 행동을 제어하는 스크립트입니다.
@@ -66,18 +67,18 @@ public class MangChi : MonoBehaviour
     // private Coroutine _restCoroutine;              // 휴식 코루틴 참조 (필요 시 사용)
 
     // [아이템 파밍 로직 주석 처리 (논의 보류)]
-    /*
     [Header("아이템 파밍 설정")]
-    [SerializeField] private float minLootInterval = 15f; 
-    [SerializeField] private float maxLootInterval = 45f;
-    private Coroutine _lootCoroutine;
-    */
+    [Tooltip("파밍 시도 간 최소 대기 시간 (초)")]
+    [SerializeField] private float minLootInterval = 30f;
+    [Tooltip("파밍 시도 간 최대 대기 시간 (초)")]
+    [SerializeField] private float maxLootInterval = 15*60f;
+    private Coroutine _lootCoroutine; // 파밍 코루틴 참조 변수
+    [SerializeField] BaseItemSO[] baseItemSO; // 파밍할 아이템 리스트
 
     private void Awake()
     {
         if (Instance != null)
         {
-            Debug.LogWarning($"[MangChi] 기존 펫 ({Instance.name})을 대체합니다. 이전 펫 파괴.");
             Object.Destroy(Instance.gameObject);
         }
         Instance = this;
@@ -124,8 +125,19 @@ public class MangChi : MonoBehaviour
         wanderTimer = WANDER_TIME;
         targetWaypointCount = 0; // 휴식 카운터 초기화
         TeleportToOwner();
-
-        Debug.Log($"[MangChi] {player.gameObject.name}이(가) 주인으로 설정되었습니다. 이동 속도: {moveSpeed:F2}");
+        // =======================================================
+        // [핵심 추가] 던전 이벤트 구독 (펫의 파밍 기능을 던전 상태와 연동)
+        // =======================================================
+        if (DungeonManager.Instance != null)
+        {
+            // 실제 파밍 로직 연결 (다음 단계에서 StartLooting/StopLooting으로 변경될 예정)
+            DungeonManager.OnDungeonEnter += StartLooting;
+            DungeonManager.OnDungeonExit += StopLooting;
+        }
+        else
+        {
+            Debug.LogError("[MangChi] DungeonManager 인스턴스를 찾을 수 없습니다. 이벤트 구독 실패!");
+        }
     }
 
     private void Update()
@@ -147,7 +159,6 @@ public class MangChi : MonoBehaviour
             if (currentDistanceToPlayer > teleportDistance)
             {
                 TeleportToOwner();
-                Debug.Log("[MangChi] 거리가 너무 멀어졌습니다! 순간이동 발동!");
                 return;
             }
 
@@ -322,19 +333,102 @@ public class MangChi : MonoBehaviour
         {
             Instance = null;
         }
+        // =======================================================
+        // [핵심 추가] 던전 이벤트 구독 해제
+        // =======================================================
+        if (DungeonManager.Instance != null)
+        {
+            DungeonManager.OnDungeonEnter -= StartLooting;
+            DungeonManager.OnDungeonExit -= StopLooting;
+        }
+        // =======================================================
+    }
+    // =======================================================
+    // [핵심 추가] 파밍 시작/중지 메서드 (다음 단계에서 구현)
+    // =======================================================
+
+    /// <summary>
+    /// 던전 진입 시 호출되어 파밍 루틴을 시작합니다.
+    /// </summary>
+    private void StartLooting()
+    {
+        if (_lootCoroutine != null) return; // 이미 실행 중이면 중복 방지
+
+        _lootCoroutine = StartCoroutine(LootingRoutine()); // 다음 단계에서 활성화
+    }
+    /// <summary>
+    /// 던전 퇴장 시 호출되어 파밍 루틴을 중지합니다.
+    /// </summary>
+    private void StopLooting()
+    {
+        if (_lootCoroutine != null)
+        {
+            StopCoroutine(_lootCoroutine); // 다음 단계에서 활성화
+            _lootCoroutine = null;
+        }
+    }
+    // =======================================================
+    // [핵심 추가] 랜덤 파밍 코루틴 및 로직
+    // =======================================================
+
+    /// <summary>
+    /// 던전 내에서 무작위 시간 간격으로 아이템을 파밍하는 무한 루프 코루틴입니다.
+    /// 휴식 상태(isResting)와 관계없이 독립적으로 작동합니다. (요청 사항 반영)
+    /// SRP: 무작위 시간 간격으로 파밍 행동을 트리거하는 시간 제어 책임.
+    /// </summary>
+    private IEnumerator LootingRoutine()
+    {
+        // S: 무한 루프는 이 코루틴이 DungeonManager.OnDungeonExit 이벤트가 발생할 때까지 계속 실행되게 합니다.
+        while (true)
+        {
+            // 1. 무작위 대기 시간 계산
+            float waitTime = UnityEngine.Random.Range(minLootInterval, maxLootInterval);
+
+            // 2. 대기
+            yield return new WaitForSeconds(waitTime);
+
+            // 3. 아이템 획득 로직 실행
+            LootItemRandomly();
+        }
     }
 
-    // -------------------------------------------------------------
-    // [코루틴 기반 아이템 파밍 로직 - 논의 보류]
-    // -------------------------------------------------------------
-    /*
-    private void StartLooting() { ... }
-    private void StopLooting() { ... }
-    private IEnumerator LootingRoutine() { ... }
-    public class BaseItemSO : ScriptableObject { public string itemName; }
+    /// <summary>
+    /// 미리 정의된 아이템 목록에서 랜덤으로 아이템을 선택하고 디버그 로그를 출력합니다.
+    /// SRP: 실제 아이템 선택 로직 및 피드백 처리 책임.
+    /// </summary>
     private void LootItemRandomly()
     {
-        // ... (ItemDatabase 연동 로직)
+        // A. 아이템 목록 유효성 검사
+        if (baseItemSO == null || baseItemSO.Length == 0)
+        {
+            Debug.LogWarning("[MangChi] 파밍할 아이템 목록 (baseItemSO)이 비어있거나 null입니다! 아이템 파밍 실패.");
+            return;
+        }
+
+        // B. 랜덤 아이템 선택
+        int randomIndex = UnityEngine.Random.Range(0, baseItemSO.Length);
+        BaseItemSO lootedItem = baseItemSO[randomIndex];
+
+        // C. 디버그 로그 출력 (선택된 아이템 정보 출력)
+        // ItemDatabase나 InventoryManager 연동은 다음 단계에서 진행합니다.
+        if (lootedItem != null)
+        {
+            // BaseItemSO 클래스에 'itemName' 필드 또는 프로퍼티가 있다고 가정합니다.
+            string itemName = lootedItem.itemName;
+            PlayerCharacter.Instance.inventoryManager.AddItem(lootedItem); // 인벤토리에 아이템 추가
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    $"망치가 {itemName} 아이템을 획득했습니다!",
+                    NotificationType.Success // Success 타입으로 호출
+                );
+            }
+
+            // TODO: (다음 단계) DungeonInventoryManager.Instance.AddPlayerItem(lootedItem.itemID); 로직 추가 예정
+        }
+        else
+        {
+            Debug.LogWarning("[MangChi] 아이템 목록에서 Null 객체가 선택되었습니다. 파밍 실패.");
+        }
     }
-    */
 }

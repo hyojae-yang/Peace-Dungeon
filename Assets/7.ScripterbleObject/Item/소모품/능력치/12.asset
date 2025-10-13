@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: 12
   m_EditorClassIdentifier: 
   itemID: 7012
-  itemName: "\uB2E4\uB78C\uC950 \uAF2C\uB9AC \uD280\uAE40"
+  itemName: "\uD1A0\uB07C \uAF2C\uB9AC \uD280\uAE40"
   itemDescription: "\uD55C\uC785\uC5D0 \uC3D9 \uB4E4\uC5B4\uC624\uB294 \uD06C\uAE30\uC774\uB2E4"
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: 1794e506141ba0c4c800f87a8bf5ac87, type: 3}
   itemPrice: 170
   itemType: 1
   consumptionEffects:

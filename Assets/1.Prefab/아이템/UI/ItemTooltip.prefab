@@ -311,7 +311,7 @@ MonoBehaviour:
   additionalStat2Text: {fileID: 0}
   additionalStat3Text: {fileID: 0}
   additionalStat4Text: {fileID: 0}
-  specialAbilityText: {fileID: 0}
+  setBonusText: {fileID: 0}
 --- !u!1 &7355402060760796987
 GameObject:
   m_ObjectHideFlags: 0

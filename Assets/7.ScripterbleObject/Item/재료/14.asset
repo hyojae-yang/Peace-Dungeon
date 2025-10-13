@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 14
   m_EditorClassIdentifier: 
   itemID: 8014
-  itemName: "\uB2E4\uB78C\uC950\uAC00\uC8FD"
+  itemName: "\uD1A0\uB07C\uAC00\uC8FD"
   itemDescription: "\uC791\uC740 \uAC00\uC8FD"
   itemIcon: {fileID: 0}
   itemPrice: 10

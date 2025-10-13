@@ -23,10 +23,12 @@ public class SquirrelBehavior : MonoBehaviour
     private MonsterPatrol monsterPatrol;
     private Transform playerTransform;
 
+    Animator animator;
     void Awake()
     {
         monster = GetComponent<Monster>();
         monsterPatrol = GetComponent<MonsterPatrol>();
+        animator = GetComponent<Animator>();
         if (monster == null || monsterPatrol == null)
         {
             Debug.LogError("SquirrelBehavior: 필수 컴포넌트를 찾을 수 없습니다.");

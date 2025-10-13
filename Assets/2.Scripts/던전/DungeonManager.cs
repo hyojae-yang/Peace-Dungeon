@@ -30,13 +30,42 @@ public interface IBossInitializer
     /// </summary>
     /// <param name="collider">씬에 존재하는 뿌리 소환 영역 BoxCollider 컴포넌트</param>
     void SetSummonArea(Collider collider); // <-- [추가] DIP를 위한 계약 확장
+    // =========================================================================
+    // [핵심 추가] 강제 파괴를 알리는 계약 확장
+    // =========================================================================
+    /// <summary>
+    /// DungeonManager에서 강제로 보스를 파괴하기 직전에 호출됩니다.
+    /// 보스에게 던전 클리어 알림(NotifyBossDefeated)을 생략하도록 지시합니다.
+    /// </summary>
+    void PrepareForForcedDestroy(); // 이 계약이 추가되어야 합니다.
+    // =========================================================================
 }
+
 public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
 {
     public static DungeonManager Instance { get; private set; }
+    /// <summary>
+    /// 현재 씬에 존재하는 모든 활성 DungeonSpawnManager 인스턴스들을 추적하는 리스트입니다.
+    /// 플레이어가 던전에 진입하면 이 리스트의 모든 매니저에게 몬스터 스폰을 명령합니다.
+    /// (다중 던전 구역 동시 지원을 위해 List로 변경)
+    /// </summary>
+    private List<DungeonSpawnManager> activeSpawnManagers = new List<DungeonSpawnManager>();
 
-    private DungeonSpawnManager currentSpawnManager;
+    // =======================================================
+    // [핵심 추가] 펫/UI/기타 시스템을 위한 던전 상태 이벤트 (Publisher 역할)
+    // =======================================================
+    /// <summary>
+    /// 플레이어가 던전에 진입했을 때(IsInDungeon이 true로 설정될 때) 호출되는 이벤트입니다.
+    /// MangChi 펫의 파밍 코루틴 시작 등에 사용됩니다.
+    /// </summary>
+    public static event Action OnDungeonEnter;
 
+    /// <summary>
+    /// 플레이어가 던전에서 퇴장했을 때(ExitDungeon 또는 DeadDungeon 호출 후) 호출되는 이벤트입니다.
+    /// MangChi 펫의 파밍 코루틴 중지 등에 사용됩니다.
+    /// </summary>
+    public static event Action OnDungeonExit;
+    // =======================================================
     private bool _isInDungeon = false;
     /// <summary>
     /// 현재 플레이어가 던전 안에 있는지(true) 밖에 있는지(false)를 나타냅니다.
@@ -90,6 +119,18 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                 {
                     // 던전 진입 시 몬스터를 스폰하는 메서드를 호출합니다.
                     HandleDungeonEntry();
+                    // =======================================================
+                    // [핵심 추가] 던전 진입 이벤트 호출
+                    // =======================================================
+                    OnDungeonEnter?.Invoke(); 
+                    if (NotificationManager.Instance != null)
+                    {
+                        NotificationManager.Instance.ShowNotification(
+                            "던전 입장 완료",
+                            NotificationType.General
+                        );
+                    }
+                    // =======================================================
                 }
                 // 기존의 HandleDungeonExit() 호출 로직은 DungeonDoor.cs로 이동되었습니다.
                 // 던전 퇴장 시 필요한 로직(몬스터 정리, 보상)은 ExitDungeon() 메서드에서 처리됩니다.
@@ -120,38 +161,58 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         }
     }
     /// <summary>
-    /// 현재 던전에 맞는 DungeonSpawnManager를 등록합니다.
+    /// 현재 던전에 맞는 DungeonSpawnManager를 **리스트에 추가**로 등록합니다.
+    /// 이 메서드는 DungeonSpawnManager의 Awake나 Start에서 호출되어 자신을 등록합니다.
+    /// (중복 등록 방지 로직 포함)
     /// </summary>
     /// <param name="manager">현재 던전의 스폰 매니저 오브젝트.</param>
     public void RegisterSpawnManager(DungeonSpawnManager manager)
     {
-        currentSpawnManager = manager;
+        // 중복 등록 방지 로직 추가 (방어적 프로그래밍)
+        if (!activeSpawnManagers.Contains(manager))
+        {
+            activeSpawnManagers.Add(manager);
+        }
+        else
+        {
+            // 이미 등록된 경우 중복 등록 메시지를 출력할 수도 있습니다.
+            Debug.LogWarning($"DungeonSpawnManager '{manager.name}'은(는) 이미 등록되어 있습니다.");
+        }
     }
-
     /// <summary>
-    /// 현재 등록된 DungeonSpawnManager의 등록을 해제합니다.
+    /// 현재 등록된 DungeonSpawnManager를 **리스트에서 해제**합니다.
+    /// 이 메서드는 DungeonSpawnManager의 OnDestroy 등에서 호출되어 자신을 해제합니다.
     /// </summary>
     /// <param name="manager">해제할 스폰 매니저 오브젝트.</param>
     public void UnregisterSpawnManager(DungeonSpawnManager manager)
     {
-        if (currentSpawnManager == manager)
+        if (activeSpawnManagers.Contains(manager))
         {
-            currentSpawnManager = null;
+            activeSpawnManagers.Remove(manager);
         }
     }
 
     /// <summary>
     /// 플레이어가 던전에 진입했을 때 실행되는 로직입니다.
+    /// 등록된 **모든** 스폰 매니저에게 몬스터 스폰을 명령합니다.
     /// </summary>
     private void HandleDungeonEntry()
     {
-        if (currentSpawnManager != null)
+        // ----------------------------------------------------------------------
+        // [핵심 수정 3] 모든 매니저에게 스폰 명령 반복문 적용
+        // ----------------------------------------------------------------------
+        if (activeSpawnManagers.Count > 0)
         {
-            currentSpawnManager.SpawnAllMonsters();
+            // OCP(개방-폐쇄 원칙): 새로운 스폰 매니저가 추가되어도 이 코드는 변경할 필요가 없습니다.
+            foreach (DungeonSpawnManager manager in activeSpawnManagers)
+            {
+                // 각 스폰 매니저가 자신에게 할당된 몬스터를 스폰합니다.
+                manager.SpawnAllMonsters();
+            }
         }
         else
         {
-            Debug.LogWarning("현재 활성화된 DungeonSpawnManager가 없습니다!");
+            Debug.LogWarning("현재 활성화된 DungeonSpawnManager가 없습니다. 몬스터 스폰이 발생하지 않았습니다!");
         }
     }
 
@@ -180,23 +241,79 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             Debug.LogWarning("DungeonScoreManager가 존재하지 않습니다.");
         }
-        
-        if (currentSpawnManager != null)
+
+        // ----------------------------------------------------------------------
+        // [핵심 수정 4] ExitDungeon에서도 모든 매니저에게 정리 명령 적용
+        // ----------------------------------------------------------------------
+        if (activeSpawnManagers.Count > 0)
         {
             // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
-            currentSpawnManager.DestroyAllMonsters();
+            foreach (DungeonSpawnManager manager in activeSpawnManagers)
+            {
+                manager.DestroyAllMonsters();
+            }
         }
+        // =======================================================
+        // [핵심 추가] 던전 퇴장 이벤트 호출 (정상 퇴장)
+        // =======================================================
+        OnDungeonExit?.Invoke();
+        // =======================================================
     }
     /// <summary>
     /// 플레이어가 죽어서 던전에서 나갈 때 호출되는 메서드입니다.
     /// </summary>
     public void DeadDungeon()
     {
-        if (currentSpawnManager != null)
+        // =======================================================
+        // [핵심 수정 1] 보스 강제 파괴 인텐트 주입 로직 강화
+        // TryGetComponent 대신 GetComponent를 사용해 명확한 참조를 얻습니다. (방어적 프로그래밍)
+        // =======================================================
+        if (currentBossInstance != null)
         {
-            // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
-            currentSpawnManager.DestroyAllMonsters();
+            // 수정: GetComponent를 사용하고 결과가 null인지 확인합니다.
+            IBossInitializer bossInitializer = currentBossInstance.GetComponent<IBossInitializer>();
+
+            if (bossInitializer != null)
+            {
+                // DestroyAllMonsters()보다 먼저 호출되어야 합니다.
+                // 보스에게 "이번 파괴는 강제 파괴이니, NotifyBossDefeated()를 호출하지 마라"고 알립니다.
+                bossInitializer.PrepareForForcedDestroy();
+                Debug.Log("DungeonManager: 보스에게 강제 파괴 플래그 성공적으로 주입 완료.");
+            }
+            else
+            {
+                // 로그가 찍히면 DungeonManager와 보스 프리팹 간의 연결에 심각한 문제
+                Debug.LogError("DungeonManager: 보스 인스턴스에서 IBossInitializer 컴포넌트를 찾을 수 없습니다! 강제 파괴 알림 실패.");
+            }
         }
+        // =======================================================
+
+        // ----------------------------------------------------------------------
+        // [핵심 수정 2] 기존의 몬스터 정리 로직은 그대로 유지합니다.
+        // ----------------------------------------------------------------------
+        if (activeSpawnManagers.Count > 0)
+        {
+            foreach (DungeonSpawnManager manager in activeSpawnManagers)
+            {
+                manager.DestroyAllMonsters();
+            }
+        }
+
+        // ----------------------------------------------------------------------
+        // [핵심 수정 3] 보스 인스턴스 정리 로직 추가
+        // ----------------------------------------------------------------------
+        if (currentBossInstance != null)
+        {
+            // PrepareForForcedDestroy()가 호출된 후 파괴가 진행됩니다.
+            Destroy(currentBossInstance);
+            currentBossInstance = null;
+        }
+
+        // =======================================================
+        // [핵심 추가] 던전 퇴장 이벤트 호출 (사망 퇴장)
+        // =======================================================
+        OnDungeonExit?.Invoke();
+        // =======================================================
     }
     /// <summary>
     /// 현재 보스룸 전투가 활성화/진행 중인지 여부를 나타냅니다.
@@ -253,8 +370,6 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             bossInitializer.SetNotifier(this);
             bossInitializer.SetSummonArea(rootSummonAreaCollider);
-
-            Debug.Log(" Notifier와 SummonArea 주입 완료.");
         }
         else
         {
@@ -272,7 +387,6 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
             {
                 // MonsterData가 public 필드라면 직접 접근하여 ID를 가져옵니다.
                 currentBossID = monsterComponent.monsterData.monsterID;
-                Debug.Log($" 보스 ID 추적 성공: Monster 컴포넌트를 통해 ID({currentBossID}) 획득.");
             }
             else
             {
@@ -308,7 +422,13 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
 
             if (!isAlreadyKilled)
             {
-                Debug.Log($"**보스 ID {currentBossID} 최초 처치!** 1회성 특별 아이템 보상을 지급합니다!");
+                if (NotificationManager.Instance != null)
+                {
+                    NotificationManager.Instance.ShowNotification(
+                        "보스 처치 완료! 마을 조각을 획득했습니다.",
+                        NotificationType.Success // Success 타입으로 호출
+                    );
+                }
 
                 // ==========================================================
                 if (currentBossID == 2001)
@@ -330,7 +450,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         if (NotificationManager.Instance != null)
         {
             NotificationManager.Instance.ShowNotification(
-                "보스 처치 완료! 던전이 클리어되었습니다.",
+                "보스 처치 완료!",
                 NotificationType.Success // Success 타입으로 호출
             );
         }

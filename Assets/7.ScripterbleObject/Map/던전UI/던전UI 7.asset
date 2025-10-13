@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: "\uB358\uC804UI 7"
   m_EditorClassIdentifier: 
   itemID: 14
-  itemName: "\uB358\uC804\uC870\uAC017"
+  itemName: "\uBA67\uB3FC\uC9C0\uC870\uAC01"
   itemImage: {fileID: 21300000, guid: d3bb018438c28e34f9707191c0cacd05, type: 3}
   backgroundColor: {r: 0.40272367, g: 0.6037736, b: 0.24207903, a: 1}
   smallMapPrefab: {fileID: 2973377721987734930, guid: b5bfddf0efe8ffc44b63184f8a29a195, type: 3}
