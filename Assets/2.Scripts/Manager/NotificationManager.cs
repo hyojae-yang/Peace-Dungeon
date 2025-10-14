@@ -3,6 +3,15 @@ using TMPro;
 using UnityEngine.UI; // Image 컴포넌트 사용을 위해 추가
 using System.Collections;
 
+/*
+                    if (NotificationManager.Instance != null)
+                    {
+                        NotificationManager.Instance.ShowNotification(
+                            "던전 입장 완료",
+                            NotificationType.General
+                        );
+                    }
+*/
 /// <summary>
 /// 알림 메시지의 유형을 정의합니다. 텍스트 색상 또는 기타 스타일을 구분하는 데 사용됩니다.
 /// SOLID: OCP(개방-폐쇄 원칙) - 새로운 알림 유형이 추가되어도 ShowNotification 메서드 자체는 닫혀있습니다.

@@ -117,6 +117,7 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 
         Debug.Log("게임 오버 상태가 선언되었습니다. isGameOver = true.");
         MainSceneManager.Instance.isGameOver = true;
+        DungeonManager.Instance.DeadDungeon(); // 던전 상태 리셋
         // 여기에 게임 오버, 플레이어 오브젝트 파괴 등 추가 로직을 구현합니다.
         MainSceneManager.Instance.SetGameOver();
         // 플레이어 오브젝트를 비활성화하여 죽은 상태를 표현합니다.

@@ -139,7 +139,13 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
         if (!canLearn)
         {
             // 디버그 메시지로 클릭이 무시되었음을 알림
-            Debug.Log($"[Skill Icon] {skillData.skillName} 스킬은 레벨이 부족하여 사용할 수 없습니다.");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    $"{skillData.skillName} 스킬은 레벨이 부족하여 사용할 수 없습니다.",
+                    NotificationType.Warning
+                );
+            }
             return;
         }
 

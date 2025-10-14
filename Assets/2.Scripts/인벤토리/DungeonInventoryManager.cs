@@ -71,6 +71,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
         if (SaveManager.Instance != null && !SaveManager.Instance.HasLoadedData)
         {
             // 테스트용 초기 아이템 ID를 직접 리스트에 추가
+            playerItems.Add(new Tuple<string, int>("2", nextUniqueID++));
             playerItems.Add(new Tuple<string, int>("4", nextUniqueID++));
             playerItems.Add(new Tuple<string, int>("8", nextUniqueID++));
             playerItems.Add(new Tuple<string, int>("9", nextUniqueID++));

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 9001
   itemName: "\uC78A\uD600\uC9C4 \uB9DD\uCE58"
   itemDescription: "\uC7A5\uD544\uC218\uAC00 \uC18C\uC2EF\uC801 \uC560\uC6A9\uD558\uB358
-    \uB3C4"
+    \uB3C4\uAD6C"
   itemIcon: {fileID: 0}
   itemPrice: 0
   itemType: 3

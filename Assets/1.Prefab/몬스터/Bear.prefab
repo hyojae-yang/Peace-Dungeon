@@ -720,7 +720,8 @@ MonoBehaviour:
   aoeAttackRadius: 10
   aoeAttackCooldown: 10
   aoeChargeTime: 1.5
-  aoeVisualPrefab: {fileID: 173814, guid: 810eb771809ba56409dd29eab937ddb2, type: 3}
+  aoeAttackDelayTime: 1
+  aoeVisualObject: {fileID: 0}
 --- !u!1 &1505783535464816863
 GameObject:
   m_ObjectHideFlags: 0
@@ -2397,6 +2398,10 @@ PrefabInstance:
     - target: {fileID: 173814, guid: 810eb771809ba56409dd29eab937ddb2, type: 3}
       propertyPath: m_Name
       value: magic_red
+      objectReference: {fileID: 0}
+    - target: {fileID: 173814, guid: 810eb771809ba56409dd29eab937ddb2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 412740, guid: 810eb771809ba56409dd29eab937ddb2, type: 3}
       propertyPath: m_LocalScale.x
