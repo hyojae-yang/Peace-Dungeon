@@ -27,7 +27,7 @@ MonoBehaviour:
     value: 5
     isPercentage: 0
   additionalStats: []
-  setID: 0
+  setID: 
   weaponType: 2
   damageType: 1
   attackRange: 10

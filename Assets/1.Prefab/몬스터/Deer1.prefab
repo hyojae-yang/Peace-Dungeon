@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2370328505224615269}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1866118135262705591}
   - component: {fileID: 5717980020398603499}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Deer_001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -170,9 +170,9 @@ GameObject:
   - component: {fileID: 4666342359762915603}
   - component: {fileID: 5467408380178951463}
   - component: {fileID: 1725405617615211232}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Deer1
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -284,6 +284,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   attackRange: 2.5
+  deathAnimationDuration: 5
 --- !u!114 &2629904409067631214
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -320,6 +321,7 @@ MonoBehaviour:
   attackSpeed: 6
   attackCooldown: 1.5
   fleeSpeedMultiplier: 1.5
+  attackAnimationDuration: 0.8
 --- !u!114 &4666342359762915603
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -371,7 +373,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5305637351165268429}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.007
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -403,7 +405,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6682211941349950615}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_foot.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -435,7 +437,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4843033935047650904}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.006
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -467,7 +469,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5664248476493263617}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: thigh.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -499,7 +501,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8525533204611490113}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: shoulder.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -531,7 +533,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5502132824606918807}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_shoulder.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -563,7 +565,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4941706388809841561}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: shin.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -595,7 +597,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 418283707673926800}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: thigh.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -627,7 +629,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6530726896816543126}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_shin.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -659,7 +661,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4150034896830350168}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: foot.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -691,7 +693,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 485016031167497104}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.005
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -725,7 +727,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5492374749694938000}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_shin.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -757,7 +759,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7575270334305073671}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.004
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -789,7 +791,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4541172481947795060}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: toe.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -820,7 +822,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5538991022078155624}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Deer_001_rig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -852,7 +854,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1648363590894893707}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ear.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -883,7 +885,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5363099213187960047}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -915,7 +917,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5637114533190997470}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_toe.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -946,7 +948,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6495386325280278893}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.003
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -981,7 +983,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 936753097104449203}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: ear.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1012,7 +1014,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5015416024203517118}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: foot.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1044,7 +1046,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8392418404545619982}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: toe.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1075,7 +1077,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5917394110716300071}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_foot.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1107,7 +1109,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5435578103377719191}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_thigh.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1139,7 +1141,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8788164360638074625}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_shoulder.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1171,7 +1173,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6181725465542203164}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1203,7 +1205,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2194743879058741643}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_toe.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1234,7 +1236,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8585651118641294078}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: scull
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1267,7 +1269,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5754573606384082293}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: shin.L
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1299,7 +1301,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2524649028607600959}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.008
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1331,7 +1333,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2032009276712884795}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: shoulder.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1363,7 +1365,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8322955109592207236}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: front_thigh.R
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1395,7 +1397,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8548502811866534460}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: spine.001
   m_TagString: Untagged
   m_Icon: {fileID: 0}

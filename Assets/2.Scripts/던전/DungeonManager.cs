@@ -278,7 +278,6 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                 // DestroyAllMonsters()보다 먼저 호출되어야 합니다.
                 // 보스에게 "이번 파괴는 강제 파괴이니, NotifyBossDefeated()를 호출하지 마라"고 알립니다.
                 bossInitializer.PrepareForForcedDestroy();
-                Debug.Log("DungeonManager: 보스에게 강제 파괴 플래그 성공적으로 주입 완료.");
             }
             else
             {
@@ -444,16 +443,17 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
             }
             else
             {
+                if (NotificationManager.Instance != null)
+                {
+                    NotificationManager.Instance.ShowNotification(
+                        "보스 처치 완료!",
+                        NotificationType.Success // Success 타입으로 호출
+                    );
+                }
                 Debug.Log($"보스 ID {currentBossID}는 이미 처치 기록이 있습니다. 1회성 보상은 지급되지 않습니다.");
             }
         }
-        if (NotificationManager.Instance != null)
-        {
-            NotificationManager.Instance.ShowNotification(
-                "보스 처치 완료!",
-                NotificationType.Success // Success 타입으로 호출
-            );
-        }
+        
     }
     // [추가] 던전 상태 초기화 메서드
     /// <summary>

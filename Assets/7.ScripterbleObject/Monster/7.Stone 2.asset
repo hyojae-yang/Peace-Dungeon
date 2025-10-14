@@ -15,7 +15,7 @@ MonoBehaviour:
   monsterID: 7
   monsterName: "\uC554\uC11D"
   monsterLevel: 0
-  maxHealth: 10
+  maxHealth: 15
   maxMana: 0
   attackPower: 0
   magicAttackPower: 0

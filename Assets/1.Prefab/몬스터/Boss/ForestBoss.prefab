@@ -287,6 +287,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   attackRange: 0
+  deathAnimationDuration: 3
 --- !u!114 &6929321974040167827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -338,7 +339,7 @@ MonoBehaviour:
   - {fileID: 640720440684500291, guid: 40c2f1ace426e0b4790e23a3768b1475, type: 3}
   - {fileID: 640720440684500291, guid: 505cdd1c00bf6354da01c66a9ddaa6fb, type: 3}
   - {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
-  - {fileID: 640720440684500291, guid: 68a48586fd137294483e7d3d4c024394, type: 3}
+  - {fileID: 1422477296553940473, guid: 93da36d28c29ac74e97c4707f14ed854, type: 3}
   - {fileID: 6009522441560749080, guid: c0d76ac9706567d45ae06ee93c5aae66, type: 3}
   - {fileID: 855980508687128763, guid: 31493d236f0b4f8489b1f5104f8ae301, type: 3}
   minNumberOfMinions: 2
@@ -352,8 +353,8 @@ MonoBehaviour:
   rootPivots:
   - {fileID: 7342901189120433743}
   - {fileID: 2111981241624360309}
-  attackDownStrokeDuration: 0.5
-  attackReturnDuration: 0.8
+  attackDownStrokeDuration: 0.7
+  attackReturnDuration: 1.2
   liftAngle: 45
   strikeAngle: -120
 --- !u!1 &4694010005222326824

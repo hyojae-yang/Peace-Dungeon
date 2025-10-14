@@ -766,6 +766,12 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         {
             NotificationManager.Instance.ShowNotification($"타락한 숲지기: 분노 상태 활성화!", NotificationType.Warning);
         }
+        Renderer renderer = GetComponentInChildren<Renderer>();
+        if (renderer != null)
+        {
+            // 분노 상태 시각 효과: 붉은 색으로 변경
+            renderer.material.color = Color.red;
+        }
         // ====================================================================
         // [사용자 로직 삽입 공간]
 
@@ -779,8 +785,8 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // 예시: 몬스터 소환 개수를 증가 (사용자 로직)
         minNumberOfMinions += 2;
         maxNumberOfMinions += 5;
-        attackDownStrokeDuration = 0.3f; // 내려찍기 속도 증가
-        attackReturnDuration = 0.5f; // 복귀 속도 증가
+        attackDownStrokeDuration = 0.4f; // 내려찍기 속도 증가
+        attackReturnDuration = 0.7f; // 복귀 속도 증가
         chargeCastTime = 1.0f; // 시전 시간 단축
         // ====================================================================
 

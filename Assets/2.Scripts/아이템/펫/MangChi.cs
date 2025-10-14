@@ -11,7 +11,13 @@ public class MangChi : MonoBehaviour
 {
     // [유일성 및 초기화]
     public static MangChi Instance { get; private set; }
+    [Header("사망 설정")]
+    [Tooltip("사망 애니메이션을 재생할 Animator Trigger 매개변수 이름입니다.")]
+    [SerializeField]
+    private string deathAnimTrigger = "DoDie"; // 사망 트리거 이름 (Animator에 설정 필요)
 
+    [Tooltip("현재 펫이 사망 상태인지 여부입니다.")]
+    private bool isDead = false; // 사망 상태 플래그
     // [이동 설정]
     [Header("펫 이동 설정")]
     [Tooltip("플레이어와 망치가 자유롭게 움직일 수 있는 활동 반경입니다. 이 거리를 벗어나면 복귀합니다.")]
@@ -82,6 +88,10 @@ public class MangChi : MonoBehaviour
             Object.Destroy(Instance.gameObject);
         }
         Instance = this;
+        if (MainSceneManager.Instance != null)
+        {
+            MainSceneManager.OnGameOver += Die;
+        }
     }
 
     /// <summary>
@@ -142,6 +152,11 @@ public class MangChi : MonoBehaviour
 
     private void Update()
     {
+        if (isDead)
+        {
+            // 사망 시에는 이동 및 애니메이션 업데이트를 수행하지 않습니다.
+            return;
+        }
         // 필수 컴포넌트가 없으면 로직을 건너뜁니다.
         if (owner == null || characterController == null) return;
 
@@ -333,6 +348,11 @@ public class MangChi : MonoBehaviour
         {
             Instance = null;
         }
+        if (MainSceneManager.Instance != null)
+        {
+            MainSceneManager.OnGameOver -= Die;
+        }
+
         // =======================================================
         // [핵심 추가] 던전 이벤트 구독 해제
         // =======================================================
@@ -343,9 +363,37 @@ public class MangChi : MonoBehaviour
         }
         // =======================================================
     }
-    // =======================================================
-    // [핵심 추가] 파밍 시작/중지 메서드 (다음 단계에서 구현)
-    // =======================================================
+    /// <summary>
+    /// MainSceneManager.OnGameOver 이벤트 발생 시 호출됩니다.
+    /// 펫의 모든 행동을 멈추고 사망 모션을 실행합니다.
+    /// </summary>
+    private void Die()
+    {
+        if (isDead) return; // 이미 죽은 상태라면 무시
+
+        isDead = true;
+
+        // 1. 모든 코루틴 중지 (특히 휴식 및 파밍 루틴)
+        StopAllCoroutines();
+        _lootCoroutine = null; // 파밍 코루틴 참조 해제
+        isResting = false; // 휴식 상태 해제
+
+        // 2. 물리 제어 비활성화 (더 이상 움직이지 않도록)
+        if (characterController != null)
+        {
+            characterController.enabled = false;
+        }
+
+        // 3. 사망 애니메이션 트리거
+        if (animator != null && !string.IsNullOrEmpty(deathAnimTrigger))
+        {
+            animator.SetTrigger(deathAnimTrigger);
+        }
+
+        // 4. 디버그 및 추가 정리 로직
+        Debug.Log("[MangChi] 주인이 사망하여 망치가 쓰러집니다. 사망 이벤트 처리 완료.");
+        // TODO: (선택 사항) 사망 후 일정 시간 뒤에 펫 오브젝트 비활성화/파괴 로직 추가 가능
+    }
 
     /// <summary>
     /// 던전 진입 시 호출되어 파밍 루틴을 시작합니다.

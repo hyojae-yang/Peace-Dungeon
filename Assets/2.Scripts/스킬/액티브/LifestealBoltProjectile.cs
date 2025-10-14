@@ -7,6 +7,9 @@ public class LifestealBoltProjectile : MonoBehaviour
     [Tooltip("투사체가 날아가는 속도입니다.")]
     public float moveSpeed = 7f;
 
+    [Tooltip("투사체가 스스로 회전하는 속도(도/초)입니다.")]
+    public float rotationSpeed = 180f; // 기본값 180도/초 (1초에 반 바퀴)
+
     [Tooltip("투사체가 자동으로 사라지는 시간(초)입니다.")]
     public float lifetime = 8f;
 
@@ -33,6 +36,8 @@ public class LifestealBoltProjectile : MonoBehaviour
     {
         // 매 프레임마다 투사체를 앞으로 이동시킵니다.
         transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+        // 매 프레임마다 투사체를 스스로 회전시킵니다.
+        transform.Rotate(Vector3.forward, rotationSpeed * Time.deltaTime);
     }
 
     /// <summary>

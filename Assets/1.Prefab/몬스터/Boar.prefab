@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 2878683486174659966}
   - component: {fileID: 7343480194831563313}
   - component: {fileID: 7754573069694080020}
+  - component: {fileID: 5737354850204573976}
   m_Layer: 8
   m_Name: Boar
   m_TagString: Monster
@@ -161,6 +162,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   attackRange: 2.5
+  deathAnimationDuration: 5
 --- !u!114 &778637905177413353
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,3 +223,25 @@ MonoBehaviour:
   waitTimeBetweenPatrols: 1
   patrolPointChangeInterval: 5
   homePointChangeInterval: 30
+--- !u!95 &5737354850204573976
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640720440684500291}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

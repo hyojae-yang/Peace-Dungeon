@@ -14,9 +14,10 @@ GameObject:
   - component: {fileID: 1102396735654830160}
   - component: {fileID: 8652097230800094165}
   - component: {fileID: 6891670439717525828}
-  m_Layer: 0
+  - component: {fileID: -4177621581396493880}
+  m_Layer: 8
   m_Name: Stone5
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -29,8 +30,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8124726940709404139}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 109.84785, y: 0.56378865, z: -24.1123}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -109,6 +110,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   attackRange: 0
+  deathAnimationDuration: 0
 --- !u!114 &8652097230800094165
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -133,3 +135,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e55593c4447704b4984aa48bf5fc272b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!65 &-4177621581396493880
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8124726940709404139}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 1.0274277, y: 1.397608, z: 1.0250072}
+  m_Center: {x: 0.017609417, y: 0.13501725, z: 0.029834121}

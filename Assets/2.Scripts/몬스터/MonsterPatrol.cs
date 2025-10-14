@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using static MonsterBase;
 
 /// <summary>
 /// 몬스터의 순찰 행동을 전담하는 클래스입니다.
@@ -54,7 +55,32 @@ public class MonsterPatrol : MonoBehaviour
         // 타이머를 무작위로 초기화하여 모든 몬스터가 동시에 순찰 범위를 바꾸는 것을 방지
         homePointTimer = UnityEngine.Random.Range(0, homePointChangeInterval);
     }
+    // [추가] 몬스터의 사망 상태를 감지하여 순찰을 멈추는 로직입니다.
+    /// <summary>
+    /// 매 프레임 몬스터의 상태를 확인하여 사망 상태일 경우 순찰을 중지하고 컴포넌트를 비활성화합니다.
+    /// </summary>
+    private void Update()
+    {
+        // 몬스터가 'Dead' 상태인 경우
+        if (monsterBase != null && monsterBase.currentState == MonsterState.Dead)
+        {
+            // 순찰 코루틴이 실행 중이면 멈춥니다.
+            if (patrolCoroutine != null)
+            {
+                StopPatrol(); // 기존 StopPatrol 메서드를 사용하여 코루틴을 중지합니다.
+            }
 
+            // 이 컴포넌트 자체를 비활성화하여 더 이상 Update가 호출되지 않게 합니다.
+            enabled = false;
+
+            // 추가적으로, Monster 스크립트에서 Rigidbody의 움직임을 멈추었다면
+            // 이 컴포넌트에서는 더 이상 이동 로직이 실행될 필요가 없습니다.
+            return;
+        }
+
+        // Alive 상태일 경우, 다른 로직이 필요하다면 여기에 추가할 수 있지만, 
+        // 현재는 PatrolCoroutine에서 모든 이동 로직을 처리하고 있으므로 비워둡니다.
+    }
     /// <summary>
     /// 외부에서 순찰 행동을 시작하는 메서드입니다.
     /// 이미 순찰 중이면 중복 실행을 방지합니다.

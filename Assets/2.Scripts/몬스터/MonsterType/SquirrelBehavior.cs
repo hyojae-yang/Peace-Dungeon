@@ -29,7 +29,7 @@ public class SquirrelBehavior : MonoBehaviour
         monster = GetComponent<Monster>();
         monsterPatrol = GetComponent<MonsterPatrol>();
         animator = GetComponent<Animator>();
-        if (monster == null || monsterPatrol == null)
+        if (monster == null || monsterPatrol == null || animator == null)
         {
             Debug.LogError("SquirrelBehavior: 필수 컴포넌트를 찾을 수 없습니다.");
             enabled = false;
@@ -46,6 +46,7 @@ public class SquirrelBehavior : MonoBehaviour
     {
         // 초기 상태를 Patrol로 설정합니다.
         monster.ChangeState(MonsterBase.MonsterState.Patrol);
+        animator.SetFloat("Vert", 0.5f);
     }
     void Update()
     {
@@ -99,11 +100,13 @@ public class SquirrelBehavior : MonoBehaviour
 
             Quaternion lookRotation = Quaternion.LookRotation(fleeDirection);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+            animator.SetFloat("Vert", 1f);
         }
         else
         {
             // 충분히 멀리 도망쳤으면 Patrol 상태로 돌아가 순찰을 시작하게 합니다.
             monster.ChangeState(MonsterBase.MonsterState.Patrol);
+            animator.SetFloat("Vert", 0.5f);
         }
     }
 }

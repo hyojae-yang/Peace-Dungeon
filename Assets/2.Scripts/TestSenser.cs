@@ -35,7 +35,15 @@ public class TestSenser : MonoBehaviour
     private void Awake()
     {
         _collider = GetComponent<Collider>();
+        if (_collider == null)
+        {
+            Debug.LogError("Collider 컴포넌트를 찾을 수 없습니다. [TestSenser]");
+        }
         _ownMeshRenderer = GetComponent<MeshRenderer>();
+        if (_ownMeshRenderer == null)
+        {
+            Debug.LogWarning("MeshRenderer 컴포넌트를 찾을 수 없습니다. [TestSenser]");
+        }
         //SerchAndDeactivateOnce();
     }
 

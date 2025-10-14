@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
+using System;
 
 /// <summary>
 /// 씬의 주요 UI 패널들을 중앙에서 관리하는 매니저 클래스입니다.
@@ -37,6 +38,8 @@ public class MainSceneManager : MonoBehaviour
     private GameObject gameOverPanel;
 
     public bool isGameOver = false;
+
+    public static event Action OnGameOver; // <-- 게임 오버 이벤트 추가
 
     [SerializeField] GameObject player;
 
@@ -151,7 +154,8 @@ public class MainSceneManager : MonoBehaviour
     /// </summary>
     public void SetGameOver()
     {
-                // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
+        OnGameOver?.Invoke();
+        // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
         // 플레이어의 상호작용을 막습니다.
         if (playerCanvas != null && playerCanvas.activeInHierarchy)
         {
@@ -165,7 +169,7 @@ public class MainSceneManager : MonoBehaviour
         // 1. **가장 먼저** isGameOver 상태를 재시작 상태(false)로 변경하여 
         //    DungeonManager가 보상 로직을 실행하지 못하게 막습니다.
         isGameOver = false; // 위치 변경
-
+        DungeonManager.Instance.DeadDungeon(); // 던전 상태 리셋
         // 2. 저장 불러오기 (위치, 스탯 등 모든 게임 데이터 복구)
         //    이것이 먼저 실행되어야 던전 상태를 리셋할 때 충돌이 적습니다.
         SaveManager.Instance.LoadGame();
