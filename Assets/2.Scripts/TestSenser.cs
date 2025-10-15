@@ -13,14 +13,10 @@ public class TestSenser : MonoBehaviour
 
     // 이 오브젝트의 콜라이더 컴포넌트
     private Collider _collider;
-    // 이 스크립트가 붙은 오브젝트의 메시 렌더러
-    private MeshRenderer _ownMeshRenderer;
 
     // 감지된 오브젝트의 콜라이더
     private Collider _serchedCollider;
 
-    // 감지된 오브젝트의 메시 렌더러와 자식 오브젝트 리스트
-    private MeshRenderer _serchedMeshRenderer;
     private Transform[] _serchedChildren;
 
     
@@ -39,12 +35,6 @@ public class TestSenser : MonoBehaviour
         {
             Debug.LogError("Collider 컴포넌트를 찾을 수 없습니다. [TestSenser]");
         }
-        _ownMeshRenderer = GetComponent<MeshRenderer>();
-        if (_ownMeshRenderer == null)
-        {
-            Debug.LogWarning("MeshRenderer 컴포넌트를 찾을 수 없습니다. [TestSenser]");
-        }
-        //SerchAndDeactivateOnce();
     }
 
     /// <summary>
@@ -99,13 +89,9 @@ public class TestSenser : MonoBehaviour
                 {
                     _serchedCollider = collider;
 
-                    // --- 본인의 콜라이더, 메시 렌더러, 자식 비활성화 로직 (유지) ---
-                    // 자기 자신의 콜라이더와 메시 렌더러만 비활성화
+                    // --- 본인의 콜라이더, 자식 비활성화 로직 (유지) ---
+                    // 자기 자신의 콜라이더만 비활성화
                     _collider.enabled = false;
-                    if (_ownMeshRenderer != null)
-                    {
-                        _ownMeshRenderer.enabled = false;
-                    }
                     // 모든 자식 오브젝트들을 비활성화합니다.
                     foreach (Transform child in transform)
                     {
@@ -113,14 +99,9 @@ public class TestSenser : MonoBehaviour
                     }
 
                     // --- 감지된 오브젝트의 컴포넌트 비활성화 로직 (추가) ---
-                    _serchedMeshRenderer = _serchedCollider.GetComponent<MeshRenderer>();
                     _serchedChildren = _serchedCollider.GetComponentsInChildren<Transform>(true);
 
                     _serchedCollider.enabled = false;
-                    if (_serchedMeshRenderer != null)
-                    {
-                        _serchedMeshRenderer.enabled = false;
-                    }
 
                     foreach (Transform child in _serchedChildren)
                     {
@@ -144,10 +125,9 @@ public class TestSenser : MonoBehaviour
     private void ReactivateComponents()
     {
         // --- 본인의 컴포넌트 활성화 로직 (유지) ---
-        if (_collider != null && _ownMeshRenderer != null)
+        if (_collider != null)
         {
             _collider.enabled = true;
-            _ownMeshRenderer.enabled = true;
 
             // 모든 자식 오브젝트들을 다시 활성화합니다.
             foreach (Transform child in transform)
@@ -161,62 +141,11 @@ public class TestSenser : MonoBehaviour
         {
             _serchedCollider.enabled = true;
 
-            if (_serchedMeshRenderer != null)
-            {
-                _serchedMeshRenderer.enabled = true;
-            }
-
             if (_serchedChildren != null)
             {
                 foreach (Transform child in _serchedChildren)
                 {
                     child.gameObject.SetActive(true);
-                }
-            }
-        }
-    }
-    /// <summary>
-    /// 스크립트 시작 시 한 번만 실행되는 감지 및 비활성화 로직입니다.
-    /// </summary>
-    private void SerchAndDeactivateOnce()
-    {
-        // SerchDoor()와 동일한 로직을 재사용합니다.
-        if (serchLayerMask == 0)
-        {
-            Debug.LogWarning("레이어 마스크가 설정되지 않았습니다. [TestSenser]");
-            return;
-        }
-        Vector3 localScale = transform.localScale;
-        Vector3 newHalfExtents = new Vector3(localScale.x * _detectionXScale, localScale.y, localScale.z) * 0.5f;
-        Collider[] hitColliders = Physics.OverlapBox(transform.position, newHalfExtents, transform.rotation, serchLayerMask, QueryTriggerInteraction.Ignore);
-        if (hitColliders.Length > 0)
-        {
-            foreach (var collider in hitColliders)
-            {
-                if (collider.gameObject != this.gameObject)
-                {
-                    _serchedCollider = collider;
-                    if (_collider != null) _collider.enabled = false;
-                    if (_ownMeshRenderer != null) _ownMeshRenderer.enabled = false;
-                    foreach (Transform child in transform)
-                    {
-                        child.gameObject.SetActive(false);
-                    }
-                    _serchedMeshRenderer = _serchedCollider.GetComponent<MeshRenderer>();
-                    _serchedChildren = _serchedCollider.GetComponentsInChildren<Transform>(true);
-                    if (_serchedCollider != null) _serchedCollider.enabled = false;
-                    if (_serchedMeshRenderer != null) _serchedMeshRenderer.enabled = false;
-                    if (_serchedChildren != null)
-                    {
-                        foreach (Transform child in _serchedChildren)
-                        {
-                            if (child.gameObject != _serchedCollider.gameObject)
-                            {
-                                child.gameObject.SetActive(false);
-                            }
-                        }
-                    }
-                    return; // 한 번만 비활성화
                 }
             }
         }

@@ -34,6 +34,10 @@ public class LoadingManager : MonoBehaviour
     [SerializeField] private float minDisplayTime = 3.0f; // [추가] 3초를 기본값으로 설정
     private void Start()
     {
+        if(SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayBGM(BGMType.Loading,1.0f);
+        }
         // UI 유효성 검사 (TextMeshProUGUI로 변경)
         if (loadingProgressBar == null || tipText == null)
         {

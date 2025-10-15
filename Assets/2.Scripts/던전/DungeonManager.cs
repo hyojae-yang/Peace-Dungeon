@@ -123,12 +123,13 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                     // [핵심 추가] 던전 진입 이벤트 호출
                     // =======================================================
                     OnDungeonEnter?.Invoke(); 
-                    if (NotificationManager.Instance != null)
+                    if (NotificationManager.Instance != null||SoundManager.Instance != null)
                     {
                         NotificationManager.Instance.ShowNotification(
                             "던전 입장 완료",
                             NotificationType.General
                         );
+                        SoundManager.Instance.PlayBGM(BGMType.Main_B,1.0f);
                     }
                     // =======================================================
                 }
@@ -222,6 +223,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
     /// </summary>
     public void ExitDungeon()
     {
+        SoundManager.Instance.PlayBGM(BGMType.Main_A);
         if (DungeonScoreManager.Instance != null)
         {
             // 몬스터 파괴가 완료된 후 점수를 계산합니다.
@@ -399,6 +401,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
             Debug.LogError($" Fatal Error: 보스 프리팹 '{bossPrefab.name}'에서 필수 컴포넌트인 Monster를 찾을 수 없습니다!");
             currentBossID = -1;
         }
+        SoundManager.Instance.PlayBGM(BGMType.Main_C, 1.0f);
     }
     // IBossNotifier 인터페이스의 구현부
     /// <summary>

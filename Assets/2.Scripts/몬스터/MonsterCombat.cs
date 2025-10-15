@@ -8,6 +8,8 @@ using System; // 이벤트 사용을 위해 System 네임스페이스 추가
 public class MonsterCombat : MonoBehaviour, IDamageable
 {
     private MonsterBase monsterBase;
+    AudioSource audioSource;
+    public AudioClip hitSound;
     private float currentHealth;
 
     // === 이벤트 ===
@@ -22,6 +24,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
             Debug.LogError("MonsterCombat: MonsterBase 컴포넌트를 찾을 수 없습니다.");
             return;
         }
+        audioSource = GetComponent<AudioSource>();
 
         currentHealth = monsterBase.monsterData.maxHealth;
     }
@@ -50,6 +53,10 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         }
 
         currentHealth -= finalDamage;
+        if (audioSource != null && hitSound != null)
+        {
+            audioSource.PlayOneShot(hitSound);
+        }
 
         // 이벤트 호출: 데미지 양을 인자로 전달합니다.
         // 다른 스크립트들이 이 이벤트를 구독하여 필요한 행동을 수행할 수 있습니다.

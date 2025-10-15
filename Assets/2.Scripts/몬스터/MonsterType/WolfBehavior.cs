@@ -7,9 +7,6 @@ using System; // 이벤트 사용을 위해 System 네임스페이스 추가
 /// 늑대 몬스터의 고유한 행동 로직을 담당하는 클래스입니다.
 /// 플레이어를 공격하다 체력이 절반 이하로 떨어지면 주변 동료를 소집해 무리를 형성하고 함께 공격합니다.
 /// </summary>
-[RequireComponent(typeof(Monster))]
-[RequireComponent(typeof(MonsterPatrol))]
-[RequireComponent(typeof(MonsterCombat))] // MonsterCombat 컴포넌트가 필요함을 명시
 public class WolfBehavior : MonoBehaviour
 {
     // === 종속성 ===
@@ -17,6 +14,7 @@ public class WolfBehavior : MonoBehaviour
     private MonsterPatrol monsterPatrol;
     private MonsterCombat monsterCombat;
     private Transform playerTransform;
+    private Animator animator;
 
     // === 행동 설정 ===
     [Header("늑대 행동 설정")]
@@ -44,6 +42,7 @@ public class WolfBehavior : MonoBehaviour
         monster = GetComponent<Monster>();
         monsterPatrol = GetComponent<MonsterPatrol>();
         monsterCombat = GetComponent<MonsterCombat>();
+        animator = GetComponent<Animator>();
         if (monster == null || monsterPatrol == null || monsterCombat == null)
         {
             Debug.LogError("WolfBehavior: 필수 컴포넌트를 찾을 수 없습니다.");
@@ -84,6 +83,7 @@ public class WolfBehavior : MonoBehaviour
         // 체력이 절반 이하로 떨어지면 동료를 소집
         if (!hasCalledForHelp && monsterCombat.GetCurrentHealth() <= monster.monsterData.maxHealth * callForHelpHealthRatio)
         {
+            animator.SetTrigger("Howl"); // 울부짖기 애니메이션 재생
             CallForHelp();
         }
     }
@@ -159,6 +159,7 @@ public class WolfBehavior : MonoBehaviour
         {
             ExitPack();
             monster.ChangeState(MonsterBase.MonsterState.Patrol);
+            animator.SetFloat("Run", 0f); // 달리기 애니메이션 중지
         }
     }
 
@@ -337,9 +338,9 @@ public class WolfBehavior : MonoBehaviour
             IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
             if (playerDamageable != null)
             {
+                animator.SetTrigger("Attack"); // 공격 애니메이션 재생
                 playerDamageable.TakeDamage(monster.monsterData.attackPower);
                 lastAttackTime = Time.time;
-                Debug.Log($"늑대가 플레이어에게 {monster.monsterData.attackPower}의 데미지를 입혔습니다!");
             }
         }
     }

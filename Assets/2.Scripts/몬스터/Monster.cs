@@ -21,12 +21,14 @@ public class Monster : MonsterBase, IDetectable
     // === 종속성 ===
     private MonsterCombat combat;
     private MonsterLoot loot;
+    AudioSource audioSource;
     [HideInInspector]
     public IDetectable detectableTarget;
     Animator animator;
     [Header("사망 설정")]
     [Tooltip("사망 애니메이션이 재생되는 시간입니다. 이 시간 후 오브젝트가 파괴됩니다.")]
     public float deathAnimationDuration = 5.0f;
+    public AudioClip deathSound;
     private void Awake()
     {
         combat = GetComponent<MonsterCombat>();
@@ -35,6 +37,7 @@ public class Monster : MonsterBase, IDetectable
         loot = GetComponent<MonsterLoot>();
         if (loot == null) Debug.LogError("MonsterLoot 컴포넌트를 찾을 수 없습니다!");
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Update()
@@ -169,6 +172,11 @@ public class Monster : MonsterBase, IDetectable
         {
             // monsterData가 없을 경우의 안전 장치
             Debug.LogError("MonsterData가 할당되지 않아 몬스터 처치 이벤트를 발생시킬 수 없습니다.");
+        }
+        // 사망 사운드 재생
+        if (audioSource != null && deathSound != null)
+        {
+            audioSource.PlayOneShot(deathSound);
         }
         // 사망 애니메이션 재생
         if (animator != null)

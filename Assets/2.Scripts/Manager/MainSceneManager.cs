@@ -70,7 +70,13 @@ public class MainSceneManager : MonoBehaviour
 
         gameOverPanel.SetActive(false);
     }
-
+    private void Start()
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayBGM(BGMType.Main_A,2.0f);
+        }
+    }
     /// <summary>
     /// 이벤트를 통해 패널 활성화 신호를 받으면 호출되는 메서드입니다.
     /// 활성화된 패널이 팝업 패널이면 PlayerCanvas를 비활성화하고, 던전 캔버스라면 상태 변수를 업데이트합니다.

@@ -7,8 +7,6 @@ using static MonsterBase;
 /// 몬스터의 순찰 행동을 전담하는 클래스입니다.
 /// 코루틴을 이용한 순찰 로직과 충돌 감지 후 경로 재설정 기능을 포함합니다.
 /// </summary>
-[RequireComponent(typeof(Rigidbody))]
-[RequireComponent(typeof(Collider))]
 public class MonsterPatrol : MonoBehaviour
 {
     // === 순찰 행동 설정 ===

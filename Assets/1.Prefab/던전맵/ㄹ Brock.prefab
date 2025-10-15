@@ -1658,7 +1658,7 @@ MonoBehaviour:
   - {fileID: 1683270243252664648}
   - {fileID: 4797547816050341330}
   monsterSpawnList:
-  - monsterPrefab: {fileID: 640720440684500291, guid: 40c2f1ace426e0b4790e23a3768b1475, type: 3}
+  - monsterPrefab: {fileID: 8512790387996972601, guid: 1ef60801f6633aa46bb2adc98a4af329, type: 3}
     minSpawnCount: 70
     maxSpawnCount: 100
     score: 10

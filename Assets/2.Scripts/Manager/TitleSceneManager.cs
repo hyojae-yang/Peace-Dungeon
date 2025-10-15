@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using TMPro;
 
 /// <summary>
 /// 타이틀 씬의 UI 버튼 이벤트를 관리하는 매니저 스크립트입니다.
@@ -34,6 +35,8 @@ public class TitleSceneManager : MonoBehaviour
     [Tooltip("게임 설정 내용을 담고 있는 패널입니다. (비활성화/활성화 토글용)")]
     public GameObject settingsPanel;
 
+    public TextMeshProUGUI saveText;
+
     // === 초기화 ===
 
     private void Awake()
@@ -65,6 +68,10 @@ public class TitleSceneManager : MonoBehaviour
 
     private void Start()
     {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayBGM(BGMType.Title,2.0f);
+        }
         // 1. 기존 '새로하기' 버튼 리스너 등록 및 오류 확인
         if (newGameButton != null)
         {
@@ -132,6 +139,7 @@ public class TitleSceneManager : MonoBehaviour
         // 초기 시작 시 모든 패널 비활성화 (선택 사항)
         if (howToPlayPanel != null) howToPlayPanel.SetActive(false);
         if (settingsPanel != null) settingsPanel.SetActive(false);
+        saveText.text = "저장 위치 \n" + SaveManager.Instance.saveFilePath;
     }
 
     // === 게임 시작 관련 메서드 (기존 기능 유지) ===

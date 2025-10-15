@@ -103,4 +103,8 @@ public class PlayerCharacter : MonoBehaviour
         {
         }
     }
+    private void OnDestroy()
+    {
+        DungeonManager.Instance.DeadDungeon();
+    }
 }

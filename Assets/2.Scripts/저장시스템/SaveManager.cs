@@ -21,7 +21,7 @@ public class SaveManager : MonoBehaviour
     /// <summary>
     /// 저장 파일의 경로입니다.
     /// </summary>
-    private string saveFilePath;
+    public string saveFilePath { get; private set; }
     /// <summary>
     /// 로드된 게임 데이터를 임시로 보관하는 딕셔너리입니다.
     /// 씬이 로드된 후 각 ISavable 객체가 데이터를 요청할 때 사용됩니다.
@@ -49,7 +49,7 @@ public class SaveManager : MonoBehaviour
         // 유니티가 제공하는 안전한 저장 경로를 사용하여 파일 경로를 설정합니다.
         // 이는 운영체제별로 경로를 자동으로 지정해주는 편리한 기능입니다.
         saveFilePath = Path.Combine(Application.persistentDataPath, "gameData.json");
-        Debug.Log($"저장 파일 경로: {saveFilePath}");
+        //Debug.Log($"저장 파일 경로: {saveFilePath}");
     }
 
     // === 메서드 ===
