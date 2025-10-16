@@ -46,7 +46,10 @@ public class NPCManager : MonoBehaviour, ISavable
     /// </summary>
     private void Start()
     {
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
     }
     /// <summary>
     /// 모든 NPC 데이터로부터 세션 데이터를 초기화합니다.

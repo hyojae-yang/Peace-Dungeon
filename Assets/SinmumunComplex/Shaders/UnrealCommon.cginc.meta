@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 50624819f0edc0047ab35d1bd245688a
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/UnrealCommon.cginc
+  uploadId: 714261

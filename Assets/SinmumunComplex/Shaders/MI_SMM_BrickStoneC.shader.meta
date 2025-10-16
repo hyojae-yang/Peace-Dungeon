@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000000353478719596573534
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_BrickStoneC.shader
+  uploadId: 714261

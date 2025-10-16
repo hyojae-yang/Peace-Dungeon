@@ -7,15 +7,14 @@ using System.Collections;
 /// 쥐 무리의 리더 몬스터의 행동 로직을 담당하는 클래스입니다.
 /// 추종자들을 이끌고, 무리(Flock) 행동과 공격 행동을 관리하며, 다른 무리를 합병합니다.
 /// </summary>
-[RequireComponent(typeof(MonsterPatrol))]
 public class RatLeader : RatBehavior
 {
     private List<RatFollower> followers = new List<RatFollower>();
     private MonsterPatrol monsterPatrol; // MonsterPatrol 컴포넌트 참조
 
     [Header("무리 관리")]
-    public float flockingDistance = 3f;
-    public float flockingSpeed = 4f;
+    public float flockingDistance = 3f; // 추종자 간 유지 거리
+    public float flockingSpeed = 4f; // 무리 이동 속도
 
     [Header("플로킹 알고리즘 가중치")]
     public float separationWeight = 1.0f;

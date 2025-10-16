@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 5db7bab6a70c5b748aa63e7a3b3931ee
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_Doorframe01.hlsl
+  uploadId: 714261

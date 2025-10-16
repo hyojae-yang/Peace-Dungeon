@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 79386c7b25c6bb344ac4f1ced885f42e
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_DoorIron.hlsl
+  uploadId: 714261

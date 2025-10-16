@@ -339,7 +339,7 @@ public class WolfBehavior : MonoBehaviour
             if (playerDamageable != null)
             {
                 animator.SetTrigger("Attack"); // 공격 애니메이션 재생
-                playerDamageable.TakeDamage(monster.monsterData.attackPower);
+                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 lastAttackTime = Time.time;
             }
         }

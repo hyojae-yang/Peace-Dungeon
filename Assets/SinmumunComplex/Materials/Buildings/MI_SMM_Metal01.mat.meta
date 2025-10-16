@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000006530597228084820373
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Materials/Buildings/MI_SMM_Metal01.mat
+  uploadId: 714261

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000017106991361837262929
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Prefabs/SM_SMM_GateCeiling.prefab
+  uploadId: 714261

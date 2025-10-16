@@ -6,13 +6,14 @@ using UnityEngine;
 /// 자식 클래스(RatLeader, RatFollower)에서 상속받아 사용해야 합니다.
 /// SOLID 원칙 중 단일 책임 원칙(SRP)과 개방-폐쇄 원칙(OCP)을 준수합니다.
 /// </summary>
-[RequireComponent(typeof(Monster))]
 public abstract class RatBehavior : MonoBehaviour
 {
     // === 종속성 ===
     protected Monster monster; // public으로 변경하여 자식 클래스에서 접근 가능하게 함
     protected MonsterCombat monsterCombat;
     protected Transform playerTransform;
+    Animator animator;
+    Rigidbody rb;
 
     // === 들쥐 떼 행동을 위한 공통 설정 ===
     [Header("공통 행동 설정")]
@@ -32,6 +33,7 @@ public abstract class RatBehavior : MonoBehaviour
         if (monster == null) Debug.LogError("RatBehavior: Monster 컴포넌트를 찾을 수 없습니다.");
         monsterCombat = GetComponent<MonsterCombat>();
         if (monsterCombat == null) Debug.LogError("RatBehavior: MonsterCombat 컴포넌트를 찾을 수 없습니다.");
+        animator = GetComponent<Animator>();
 
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject != null)
@@ -52,6 +54,7 @@ public abstract class RatBehavior : MonoBehaviour
 
     protected virtual void Start()
     {
+        animator.SetFloat("Vert",1f);
         SetNewPatrolPoint();
     }
 
@@ -86,15 +89,20 @@ public abstract class RatBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 몬스터의 이동을 제어하는 공통 메서드입니다.
+    /// 몬스터의 이동을 제어하는 공통 메서드입니다. (Rigidbody.MovePosition 사용)
     /// </summary>
     protected void Move(Vector3 direction, float speed)
     {
-        if (direction != Vector3.zero)
+        if (direction != Vector3.zero && rb != null)
         {
+            Vector3 moveVector = direction.normalized * speed * Time.deltaTime;
+
+            // **Rigidbody.MovePosition을 사용하여 물리 엔진에 안전하게 이동 의사를 전달**
+            rb.MovePosition(rb.position + moveVector);
+
+            // 회전 로직 (Slerp는 Update에서 사용 가능)
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-            transform.position += direction.normalized * speed * Time.deltaTime;
         }
     }
 
@@ -108,6 +116,8 @@ public abstract class RatBehavior : MonoBehaviour
             IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
             if (playerDamageable != null)
             {
+                if (animator != null)
+                { animator.SetTrigger("Attack"); }
                 playerDamageable.TakeDamage(monster.monsterData.attackPower);
                 lastAttackTime = Time.time;
             }

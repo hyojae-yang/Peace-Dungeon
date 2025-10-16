@@ -88,8 +88,6 @@ public class TreeSpiritBehavior : MonoBehaviour
             // RootTrap 프리팹을 플레이어 위치에 생성하여 공격 효과를 발생시킵니다.
             Vector3 playerPos = monster.detectableTarget.GetTransform().position;
             Instantiate(rootTrapPrefab, playerPos, Quaternion.identity);
-
-            Debug.Log("나무 정령이 뿌리 묶기 공격을 시작합니다!");
         }
 
         // 공격이 완료되었으므로 상태를 초기화합니다.

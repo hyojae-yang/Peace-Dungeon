@@ -65,7 +65,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 94caed037c8e41048afb5c73efb3fafc, type: 2}
+  - {fileID: 2100000, guid: f9a94780aa94b7c4985400ab0bedcdbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -174,7 +174,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 94caed037c8e41048afb5c73efb3fafc, type: 2}
+  - {fileID: 2100000, guid: f9a94780aa94b7c4985400ab0bedcdbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -352,7 +352,7 @@ MonoBehaviour:
   - {fileID: 5721053444246588114}
   - {fileID: 238619898534132199}
   monsterSpawnList:
-  - monsterPrefab: {fileID: 640720440684500291, guid: d875de36b05658e48a700e15375f318b, type: 3}
+  - monsterPrefab: {fileID: 7328140957996147453, guid: 3fd38f141ae796e46a28c94b49982913, type: 3}
     minSpawnCount: 70
     maxSpawnCount: 100
     score: 7
@@ -378,7 +378,7 @@ MonoBehaviour:
     score: 0
   - monsterPrefab: {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
     minSpawnCount: 10
-    maxSpawnCount: 50
+    maxSpawnCount: 20
     score: 3
 --- !u!1 &1750962561434491522
 GameObject:
@@ -1091,7 +1091,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 94caed037c8e41048afb5c73efb3fafc, type: 2}
+  - {fileID: 2100000, guid: f9a94780aa94b7c4985400ab0bedcdbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1200,7 +1200,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 94caed037c8e41048afb5c73efb3fafc, type: 2}
+  - {fileID: 2100000, guid: f9a94780aa94b7c4985400ab0bedcdbb, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

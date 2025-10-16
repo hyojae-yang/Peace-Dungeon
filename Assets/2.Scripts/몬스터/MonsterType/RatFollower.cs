@@ -7,7 +7,6 @@ using System.Collections;
 /// 쥐 추종자 몬스터의 행동 로직을 담당하는 클래스입니다.
 /// 리더를 추종하며, 무리(Flock) 행동과 공격 행동을 관리합니다.
 /// </summary>
-[RequireComponent(typeof(MonsterPatrol))] // MonsterPatrol 컴포넌트 의존성 명시
 public class RatFollower : RatBehavior
 {
     private RatLeader leader;

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000013141381303457712891
+ShaderImporter:
+  defaultTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_Metal01_1.shader
+  uploadId: 714261

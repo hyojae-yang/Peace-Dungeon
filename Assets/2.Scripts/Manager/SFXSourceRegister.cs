@@ -20,7 +20,8 @@ public class SFXSourceRegister : MonoBehaviour
         }
         else
         {
-            Debug.LogError($"[SFXSourceRegister] {gameObject.name}의 AudioSource 등록 실패. SoundManager 인스턴스 또는 AudioSource 컴포넌트가 null입니다.");
+            return;
+            //Debug.LogError($"[SFXSourceRegister] {gameObject.name}의 AudioSource 등록 실패. SoundManager 인스턴스 또는 AudioSource 컴포넌트가 null입니다.");
         }
     }
 

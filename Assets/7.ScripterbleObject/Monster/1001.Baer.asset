@@ -15,13 +15,13 @@ MonoBehaviour:
   monsterID: 1001
   monsterName: "\uACF0"
   monsterLevel: 0
-  maxHealth: 500
+  maxHealth: 1000
   maxMana: 0
   attackPower: 100
   magicAttackPower: 200
   defense: 30
   magicDefense: 30
-  moveSpeed: 6
+  moveSpeed: 10
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0

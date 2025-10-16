@@ -1,55 +1,71 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// ¸äµÅÁö ¸ó½ºÅÍÀÇ °íÀ¯ÇÑ Çàµ¿ ·ÎÁ÷(¼øÂû, µ¹Áø, °ø°İ)À» ´ã´çÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-/// MonsterBaseÀÇ »óÅÂ¸¦ °üÂûÇÏ¸ç Æ¯º°ÇÑ Çàµ¿À» ½ÇÇàÇÕ´Ï´Ù.
-/// MonsterPatrol ÄÄÆ÷³ÍÆ®¸¦ Á¦¾îÇÏ¿© ¼øÂû ±â´ÉÀ» ¼öÇàÇÕ´Ï´Ù.
+/// ë©§ë¼ì§€ ëª¬ìŠ¤í„°ì˜ ê³ ìœ í•œ í–‰ë™ ë¡œì§(ìˆœì°°, ëŒì§„, ê³µê²©)ì„ ë‹´ë‹¹í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// MonsterBaseì˜ ìƒíƒœë¥¼ ê´€ì°°í•˜ë©° íŠ¹ë³„í•œ í–‰ë™ì„ ì‹¤í–‰í•©ë‹ˆë‹¤.
+/// MonsterPatrol ì»´í¬ë„ŒíŠ¸ë¥¼ ì œì–´í•˜ì—¬ ìˆœì°° ê¸°ëŠ¥ì„ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 /// </summary>
-[RequireComponent(typeof(Monster))]
-[RequireComponent(typeof(MonsterPatrol))] // MonsterPatrol ÄÄÆ÷³ÍÆ®°¡ ÇÊ¿äÇÔÀ» ¸í½Ã
 public class BoarBehavior : MonoBehaviour
 {
-    // === Á¾¼Ó¼º ===
+    // === ì¢…ì†ì„± ===
     private Monster monster;
     private MonsterCombat monsterCombat;
-    private MonsterPatrol monsterPatrol; // MonsterPatrol ÄÄÆ÷³ÍÆ® ÂüÁ¶
+    private MonsterPatrol monsterPatrol; // MonsterPatrol ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
     private Transform playerTransform;
+    Animator animator;
 
-    // === µ¹Áø ¹× °ø°İ ¼³Á¤ ===
-    [Header("µ¹Áø ¹× °ø°İ ¼³Á¤")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î¿Í ÀÌ °Å¸®º¸´Ù ¸Ö¸® ¶³¾îÁ® ÀÖÀ» ¶§ µ¹ÁøÀ» ½ÃÀÛÇÕ´Ï´Ù.")]
+    // === ëŒì§„ ë° ê³µê²© ì„¤ì • ===
+    [Header("ëŒì§„ ë° ê³µê²© ì„¤ì •")]
+    [Tooltip("í”Œë ˆì´ì–´ì™€ ì´ ê±°ë¦¬ë³´ë‹¤ ë©€ë¦¬ ë–¨ì–´ì ¸ ìˆì„ ë•Œ ëŒì§„ì„ ì‹œì‘í•©ë‹ˆë‹¤.")]
     public float chargeDistance = 5f;
-    [Tooltip("µ¹Áø ½Ã ÀÌµ¿ ¼ÓµµÀÔ´Ï´Ù.")]
+    [Tooltip("ëŒì§„ ì‹œ ì´ë™ ì†ë„ì…ë‹ˆë‹¤.")]
     public float chargeSpeed = 20f;
-    [Tooltip("ÀÏ¹İ °ø°İÀ» ½ÃÀÛÇÒ °Å¸®ÀÔ´Ï´Ù. µ¹Áø ÈÄ ÀÌ °Å¸®¿¡ µé¾î¿À¸é ÀÏ¹İ °ø°İÀ» ½ÃÀÛÇÕ´Ï´Ù.")]
+    [Tooltip("ì¼ë°˜ ê³µê²©ì„ ì‹œì‘í•  ê±°ë¦¬ì…ë‹ˆë‹¤. ëŒì§„ í›„ ì´ ê±°ë¦¬ì— ë“¤ì–´ì˜¤ë©´ ì¼ë°˜ ê³µê²©ì„ ì‹œì‘í•©ë‹ˆë‹¤.")]
     public float attackRange = 3f;
-    [Tooltip("ÀÏ¹İ °ø°İ ÄğÅ¸ÀÓÀÔ´Ï´Ù.")]
+    [Tooltip("ì¼ë°˜ ê³µê²© ì¿¨íƒ€ì„ì…ë‹ˆë‹¤.")]
     public float attackCooldown = 1.5f;
-    [Tooltip("µ¹Áø ÇÑ ¹ø¿¡ ¼Ò¸ğµÇ´Â ¸¶³ª ¾çÀÔ´Ï´Ù.")]
+    [Tooltip("ëŒì§„ í•œ ë²ˆì— ì†Œëª¨ë˜ëŠ” ë§ˆë‚˜ ì–‘ì…ë‹ˆë‹¤.")]
     public float manaCostPerCharge = 5f;
-    [Tooltip("ÃÊ´ç È¸º¹µÇ´Â ¸¶³ª ¾çÀÔ´Ï´Ù.")]
+    [Tooltip("ì´ˆë‹¹ íšŒë³µë˜ëŠ” ë§ˆë‚˜ ì–‘ì…ë‹ˆë‹¤.")]
     public float manaRegenRate = 1f;
 
-    // === ³»ºÎ º¯¼ö ===
+    // [ê°œì„  ì¶”ê°€] ëŒì§„ ì¤€ë¹„ ì‹œê°„ ì„¤ì •
+    [Header("ëŒì§„ ì¤€ë¹„ ì‹œê°„")]
+    [Tooltip("ëŒì§„ì„ ì‹œì‘í•˜ê¸° ì „, ì œìë¦¬ì—ì„œ í˜ì„ ëª¨ìœ¼ëŠ” ì¤€ë¹„ ì‹œê°„ì…ë‹ˆë‹¤.")]
+    public float chargePreparationTime = 2.5f;
+
+    // [ê°œì„  ì¶”ê°€] ëŒì§„ ê´€í†µ ê±°ë¦¬ ì„¤ì •
+    [Tooltip("ëŒì§„ ëª©í‘œ ì§€ì (chargeDistance)ì„ í†µê³¼í•˜ì—¬ ì¶”ê°€ë¡œ ë” ì´ë™í•  ê±°ë¦¬ì…ë‹ˆë‹¤.")]
+    public float chargeOvershootDistance = 5f; // ê´€í†µ ê±°ë¦¬ ë³€ìˆ˜ ì¶”ê°€
+
+    // === ë‚´ë¶€ ë³€ìˆ˜ ===
     private float currentMana;
     private float lastAttackTime;
     private Vector3 chargeDestination;
     private bool hasInitiatedCharge = false;
-    private bool hasDealtChargeDamage = false; // Ãß°¡: µ¹Áø Áß µ¥¹ÌÁö¸¦ ÀÔÇû´ÂÁö ¿©ºÎ
+    private bool hasDealtChargeDamage = false; // ëŒì§„ ì¤‘ ë°ë¯¸ì§€ë¥¼ ì…í˜”ëŠ”ì§€ ì—¬ë¶€
+
+    // [ê°œì„  ì¶”ê°€] ëŒì§„ ì¤€ë¹„ ì‹œê°„ ì¶”ì  ë³€ìˆ˜
+    private float currentChargePreparationTime = 0f;
+    private bool isPreparingCharge = false; // ëŒì§„ ì¤€ë¹„ ìƒíƒœë¥¼ ë‚˜íƒ€ë‚´ëŠ” í”Œë˜ê·¸
 
     void Awake()
     {
+        // í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ ì¢…ì†ì„± í™•ë³´ ë° ìœ íš¨ì„± ê²€ì‚¬
         monster = GetComponent<Monster>();
         monsterCombat = GetComponent<MonsterCombat>();
-        monsterPatrol = GetComponent<MonsterPatrol>(); // MonsterPatrol ÄÄÆ÷³ÍÆ® ÂüÁ¶
-        if (monster == null || monsterCombat == null || monsterPatrol == null)
+        monsterPatrol = GetComponent<MonsterPatrol>();
+        animator = GetComponent<Animator>();
+        if (monster == null || monsterCombat == null || monsterPatrol == null || animator == null)
         {
-            Debug.LogError("BoarBehavior: ÇÊ¼ö ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("BoarBehavior: í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             enabled = false;
+            return;
         }
 
+        // í”Œë ˆì´ì–´ íŠ¸ëœìŠ¤í¼ ì°¾ê¸°
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject != null)
         {
@@ -59,8 +75,8 @@ public class BoarBehavior : MonoBehaviour
 
     void Start()
     {
+        // ë§ˆë‚˜ ì´ˆê¸°í™” ë° ì´ˆê¸° ìƒíƒœ ì„¤ì •
         currentMana = monster.monsterData.maxMana;
-        // ¸äµÅÁö ¸ó½ºÅÍ´Â ½ÃÀÛºÎÅÍ ¼øÂû »óÅÂ·Î ¼³Á¤
         monster.ChangeState(MonsterBase.MonsterState.Patrol);
     }
 
@@ -68,6 +84,7 @@ public class BoarBehavior : MonoBehaviour
     {
         if (monsterCombat != null)
         {
+            // ë°ë¯¸ì§€ ì…ì—ˆì„ ë•Œ ê³µê²© ìƒíƒœë¡œ ì „í™˜í•˜ëŠ” ì´ë²¤íŠ¸ êµ¬ë…
             monsterCombat.OnDamageTaken += OnMonsterDamaged;
         }
     }
@@ -76,51 +93,55 @@ public class BoarBehavior : MonoBehaviour
     {
         if (monsterCombat != null)
         {
+            // ì´ë²¤íŠ¸ êµ¬ë… í•´ì œ (ë©”ëª¨ë¦¬ ëˆ„ìˆ˜ ë°©ì§€)
             monsterCombat.OnDamageTaken -= OnMonsterDamaged;
         }
     }
 
+    /// <summary>
+    /// ëª¬ìŠ¤í„°ê°€ ë°ë¯¸ì§€ë¥¼ ì…ì—ˆì„ ë•Œ í˜¸ì¶œë˜ë©°, ì¦‰ì‹œ ê³µê²© ìƒíƒœë¡œ ì „í™˜í•©ë‹ˆë‹¤.
+    /// </summary>
     private void OnMonsterDamaged(float damage)
     {
-        // µ¥¹ÌÁö¸¦ ÀÔÀ¸¸é Áï½Ã °ø°İ »óÅÂ·Î ÀüÈ¯
+        // ë°ë¯¸ì§€ë¥¼ ì…ìœ¼ë©´ ì¦‰ì‹œ ê³µê²© ìƒíƒœë¡œ ì „í™˜ ë° ìˆœì°° ì¤‘ì§€
         monster.ChangeState(MonsterBase.MonsterState.Attack);
-        // ¼øÂû ÁßÀÌ¾ú´Ù¸é ¼øÂû ÁßÁö
         monsterPatrol.StopPatrol();
     }
 
-    // µ¹Áø Áß ÇÃ·¹ÀÌ¾î¿Í Ãæµ¹ÇÏ¸é µ¥¹ÌÁö¸¦ ÀÔÈ÷´Â Äİ¹é ÇÔ¼ö
+    /// <summary>
+    /// ëŒì§„ ì¤‘ í”Œë ˆì´ì–´ì™€ ì¶©ëŒí•˜ë©´ ë°ë¯¸ì§€ë¥¼ ì…íˆëŠ” ì½œë°± í•¨ìˆ˜ì…ë‹ˆë‹¤.
+    /// ì˜¤ì§ 'Charge' ìƒíƒœì—ì„œë§Œ ë°œë™í•˜ì—¬ ìŠ¤í‚¬ ë°ë¯¸ì§€ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+    /// </summary>
     private void OnCollisionEnter(Collision other)
     {
-        // µ¹Áø »óÅÂÀÌ°í, ¾ÆÁ÷ µ¥¹ÌÁö¸¦ ÁÖÁö ¾Ê¾ÒÀ¸¸ç, Ãæµ¹ ´ë»óÀÌ ÇÃ·¹ÀÌ¾î ÅÂ±×¸¦ °¡Áö°í ÀÖÀ» ¶§¸¸ ¹ßµ¿
+        // ëŒì§„ ìƒíƒœì´ê³ , ì•„ì§ ë°ë¯¸ì§€ë¥¼ ì£¼ì§€ ì•Šì•˜ìœ¼ë©°, ì¶©ëŒ ëŒ€ìƒì´ í”Œë ˆì´ì–´ì¼ ë•Œë§Œ ë°œë™
         if (monster.currentState == MonsterBase.MonsterState.Charge && !hasDealtChargeDamage && other.gameObject.CompareTag("Player"))
         {
-            IDamageable playerDamageable = other.gameObject.GetComponent<IDamageable>();
-            if (playerDamageable != null)
+            // í”Œë ˆì´ì–´ì˜ IDamageable ì»´í¬ë„ŒíŠ¸ ê°€ì ¸ì˜¤ê¸°
+            if (other.gameObject.TryGetComponent<IDamageable>(out IDamageable playerDamageable))
             {
                 float chargeDamage = monster.monsterData.attackPower * 1.5f;
-                playerDamageable.TakeDamage(chargeDamage);
-                hasDealtChargeDamage = true; // µ¥¹ÌÁö¸¦ ÀÔÇûÀ¸¹Ç·Î true·Î ¼³Á¤
-                Debug.Log($"¸äµÅÁö µ¹Áø °ø°İ ¼º°ø! ÇÃ·¹ÀÌ¾î¿¡°Ô {chargeDamage} µ¥¹ÌÁö!");
+                // ë¬¼ë¦¬ í”¼í•´ë¡œ ë°ë¯¸ì§€ ì „ë‹¬ (ë°©ì–´ë ¥ ì ìš©ì„ ìœ„í•´ DamageType.Physical ì‚¬ìš©)
+                playerDamageable.TakeDamage(chargeDamage, DamageType.Physical);
+
+                hasDealtChargeDamage = true; // ë°ë¯¸ì§€ë¥¼ ì…í˜”ìœ¼ë¯€ë¡œ trueë¡œ ì„¤ì •
             }
+
+            // ë°ë¯¸ì§€ ì²˜ë¦¬ í›„ ì¦‰ì‹œ ì¼ë°˜ ê³µê²© ìƒíƒœë¡œ ì „í™˜í•˜ì—¬ ëŒì§„ì„ ë©ˆì¶¥ë‹ˆë‹¤.
             monster.ChangeState(MonsterBase.MonsterState.Attack);
         }
     }
 
     void Update()
     {
-        if (playerTransform == null || monster.currentState == MonsterBase.MonsterState.Dead)
+        // ì‚¬ë§ ë˜ëŠ” ê²Œì„ ì˜¤ë²„ ìƒíƒœ ì²´í¬
+        if (playerTransform == null || monster.currentState == MonsterBase.MonsterState.Dead || MainSceneManager.Instance.isGameOver)
         {
-            // ¸ó½ºÅÍ°¡ Á×À¸¸é ¸ğµç Çàµ¿ ÁßÁö
             monsterPatrol.StopPatrol();
             return;
         }
-        if (MainSceneManager.Instance.isGameOver)
-        {
-            // °ÔÀÓ ¿À¹ö ½Ã ¸ğµç Çàµ¿ ÁßÁö
-            monsterPatrol.StopPatrol();
-            return;
-        }
-        // ¸¶³ª È¸º¹ ·ÎÁ÷
+
+        // ë§ˆë‚˜ íšŒë³µ ë¡œì§
         if (currentMana < monster.monsterData.maxMana)
         {
             currentMana += manaRegenRate * Time.deltaTime;
@@ -128,130 +149,197 @@ public class BoarBehavior : MonoBehaviour
 
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
+        // ëª¬ìŠ¤í„° ìƒíƒœë³„ í–‰ë™ ë¶„ê¸°
         switch (monster.currentState)
         {
             case MonsterBase.MonsterState.Patrol:
-                // Patrol »óÅÂÀÏ ¶§ ¼øÂû ½ÃÀÛ
+                // Patrol ìƒíƒœì¼ ë•Œ ìˆœì°° ì‹œì‘
                 monsterPatrol.StartPatrol();
 
-                // ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇÏ¸é ¸¶³ª¿¡ µû¶ó °ø°İ ¶Ç´Â µ¹Áø »óÅÂ·Î ÀüÈ¯
+                // í”Œë ˆì´ì–´ë¥¼ ê°ì§€í•˜ë©´ í–‰ë™ ì „í™˜
                 if (distanceToPlayer < monster.detectionRange)
                 {
-                    monsterPatrol.StopPatrol(); // ¼øÂû ÁßÁö
+                    monsterPatrol.StopPatrol(); // ìˆœì°° ì¤‘ì§€
                     if (currentMana >= manaCostPerCharge)
                     {
+                        // ë§ˆë‚˜ê°€ ì¶©ë¶„í•˜ë©´ Charge ìƒíƒœë¡œ ì „í™˜ (ì¤€ë¹„ ë‹¨ê³„ ì‹œì‘)
                         monster.ChangeState(MonsterBase.MonsterState.Charge);
                     }
                     else
                     {
+                        // ë§ˆë‚˜ê°€ ë¶€ì¡±í•˜ë©´ ì¼ë°˜ Attack ìƒíƒœë¡œ ì „í™˜
                         monster.ChangeState(MonsterBase.MonsterState.Attack);
                     }
                 }
                 break;
 
             case MonsterBase.MonsterState.Charge:
-                // ¼øÂû ÁßÁö ÈÄ µ¹Áø ·ÎÁ÷ ½ÇÇà
+                // ìˆœì°° ì¤‘ì§€ í›„ ëŒì§„ ë¡œì§ ì‹¤í–‰
                 monsterPatrol.StopPatrol();
                 HandleCharge(distanceToPlayer);
                 break;
 
             case MonsterBase.MonsterState.Attack:
-                // ¼øÂû ÁßÁö ÈÄ °ø°İ ·ÎÁ÷ ½ÇÇà
+                // ìˆœì°° ì¤‘ì§€ í›„ ê³µê²© ë¡œì§ ì‹¤í–‰
                 monsterPatrol.StopPatrol();
                 HandleAttack(distanceToPlayer);
                 break;
 
             case MonsterBase.MonsterState.Idle:
-                // Idle »óÅÂ¿¡¼­´Â ¼øÂû ÁßÁö
+                // Idle ìƒíƒœì—ì„œëŠ” ìˆœì°° ì¤‘ì§€
                 monsterPatrol.StopPatrol();
                 break;
         }
     }
 
+    /// <summary>
+    /// ëŒì§„ ì¤€ë¹„ ë° ì‹¤ì œ ëŒì§„ ì´ë™ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+    /// ì¼ì • ì‹œê°„ ì¤€ë¹„ í›„ ëŒì§„ì„ ì‹œì‘í•˜ë©°, ì¤€ë¹„ ì¤‘ì—ëŠ” ë°©í–¥ì„ ê³ ì •í•©ë‹ˆë‹¤.
+    /// </summary>
     private void HandleCharge(float distanceToPlayer)
     {
+        // 1. ëŒì§„ ì´ˆê¸°í™” (Charge ìƒíƒœ ì§„ì… ì‹œ í•œ ë²ˆ ì‹¤í–‰)
         if (!hasInitiatedCharge)
         {
-            // µ¹Áø ¸ñÇ¥ ÁöÁ¡ ¼³Á¤
-            chargeDestination = transform.position + (playerTransform.position - transform.position).normalized * chargeDistance;
+            animator.SetTrigger("SpecialAttack"); // ëŒì§„ ì¤€ë¹„ ì• ë‹ˆë©”ì´ì…˜ (ì°¨ì§•)
             currentMana -= manaCostPerCharge;
             hasInitiatedCharge = true;
-            hasDealtChargeDamage = false; // »õ·Î¿î µ¹Áø ½ÃÀÛ ½Ã ÃÊ±âÈ­
+            hasDealtChargeDamage = false; // ìƒˆë¡œìš´ ëŒì§„ ì‹œì‘ ì‹œ ì´ˆê¸°í™”
+            isPreparingCharge = true; // ì¤€ë¹„ í”Œë˜ê·¸ ì„¤ì •
+            currentChargePreparationTime = 0f; // ì¤€ë¹„ ì‹œê°„ ì´ˆê¸°í™”
+
+            // [í•µì‹¬ ë¡œì§] ëŒì§„ ë°©í–¥ ë²¡í„° ê³„ì‚°
+            Vector3 chargeDirection = (playerTransform.position - transform.position).normalized;
+
+            // [í•µì‹¬ ë¡œì§] ëŒì§„ ë°©í–¥ìœ¼ë¡œ ëª¬ìŠ¤í„°ì˜ ì‹œì„ ì„ ì¦‰ì‹œ ê³ ì • (ëŒì§„ ë°©í–¥ì„ í™•ì •)
+            // LookAtTargetì˜ float.MaxValue ì¸ìë¥¼ í†µí•´ ì¦‰ì‹œ íšŒì „í•˜ë„ë¡ í•©ë‹ˆë‹¤.
+            LookAtTarget(playerTransform, float.MaxValue);
+
+            // ìµœì¢… ëŒì§„ ëª©í‘œ ì§€ì  ì„¤ì •: í”Œë ˆì´ì–´ ê°ì§€ ê±°ë¦¬ + ì¶”ê°€ ê´€í†µ ê±°ë¦¬
+            float totalChargeLength = chargeDistance + chargeOvershootDistance;
+            chargeDestination = transform.position + chargeDirection * totalChargeLength;
         }
 
-        // µ¹Áø ÁöÁ¡±îÁö ÀÌµ¿
+        // 2. ëŒì§„ ì¤€ë¹„ ì‹œê°„ ì²˜ë¦¬ (ëª¬ìŠ¤í„°ë¥¼ ì œìë¦¬ì— ë©ˆì¶”ê²Œ í•¨)
+        if (isPreparingCharge)
+        {
+            currentChargePreparationTime += Time.deltaTime;
+
+            // ì¤€ë¹„ ì¤‘ì—ëŠ” íšŒì „ ë¡œì§ì„ ìƒëµí•˜ì—¬ ë°©í–¥ ê³ ì • ìœ ì§€
+
+            if (currentChargePreparationTime >= chargePreparationTime)
+            {
+                // ì¤€ë¹„ ì‹œê°„ì´ ëë‚˜ë©´ ì‹¤ì œ ëŒì§„ ì‹œì‘
+                isPreparingCharge = false;
+            }
+            // ì¤€ë¹„ ì¤‘ì—ëŠ” ì—¬ê¸°ì„œ ë¦¬í„´í•˜ì—¬ ì´ë™ ë¡œì§ì„ ê±´ë„ˆëœë‹ˆë‹¤.
+            return;
+        }
+
+        // 3. ì‹¤ì œ ëŒì§„ ì´ë™ ë¡œì§ (ì¤€ë¹„ ì‹œê°„ì´ ëë‚˜ë©´ ì‹¤í–‰ë¨)
+
+        // ëŒì§„ ì§€ì ê¹Œì§€ ì´ë™
         transform.position = Vector3.MoveTowards(transform.position, chargeDestination, chargeSpeed * Time.deltaTime);
 
-        // ÇÃ·¹ÀÌ¾î ¹æÇâÀ¸·Î ½Ã¼± º¯°æ
-        Vector3 direction = (playerTransform.position - transform.position).normalized;
-        if (direction != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-        }
+        // ëŒì§„ ì¤‘ì—ëŠ” íšŒì „ ë¡œì§ì„ ìƒëµí•˜ì—¬ ì¼ì§ì„  ê²½ë¡œ ìœ ì§€
 
-        // ¸ñÇ¥ ÁöÁ¡¿¡ µµÂøÇß°Å³ª ÇÃ·¹ÀÌ¾î¿¡°Ô ±ÙÁ¢ÇÏ¸é °ø°İ »óÅÂ·Î ÀüÈ¯
-        if (Vector3.Distance(transform.position, chargeDestination) < 0.5f || distanceToPlayer <= attackRange)
+        // ëª©í‘œ ì§€ì ì— ë„ì°©í•˜ë©´ ê³µê²© ìƒíƒœë¡œ ì „í™˜ (ê´€í†µ ëª©í‘œ ì§€ì )
+        if (Vector3.Distance(transform.position, chargeDestination) < 0.5f)
         {
+            animator.SetTrigger("End");
             hasInitiatedCharge = false;
+            // ëŒì§„ ëª©í‘œë¥¼ ë‹¬ì„±í•˜ë©´ Attack ìƒíƒœë¡œ ì „í™˜í•˜ì—¬ ë‹¤ìŒ í–‰ë™ì„ ì¤€ë¹„í•©ë‹ˆë‹¤.
             monster.ChangeState(MonsterBase.MonsterState.Attack);
         }
     }
 
+    /// <summary>
+    /// ì¼ë°˜ ê³µê²© ë° ì¶”ê²© í–‰ë™ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+    /// </summary>
     private void HandleAttack(float distanceToPlayer)
     {
+        // ê³µê²© ë²”ìœ„ ë°–ì´ë©´ ë§ˆë‚˜ì— ë”°ë¼ ëŒì§„ ë˜ëŠ” ì¶”ê²©
         if (distanceToPlayer > attackRange)
         {
-            // °ø°İ ¹üÀ§ ¹ÛÀÌ¸é ¸¶³ª¿¡ µû¶ó µ¹Áø ¶Ç´Â Ãß°İ
-            if (currentMana >= manaCostPerCharge)
+            // [í•µì‹¬ ìˆ˜ì •] chargeDistance (5m) ì´ìƒì¼ ë•Œë§Œ ëŒì§„ì„ ì‹œë„í•©ë‹ˆë‹¤.
+            if (distanceToPlayer >= chargeDistance && currentMana >= manaCostPerCharge)
             {
+                // Charge ìƒíƒœë¡œ ì „í™˜ë˜ë©´ LookAtTargetì´ ì¦‰ì‹œ íšŒì „í•˜ì—¬ ë°©í–¥ì„ ì¬ì„¤ì •í•¨
                 monster.ChangeState(MonsterBase.MonsterState.Charge);
             }
             else
             {
+                // ì¼ë°˜ ì¶”ê²© ì´ë™ (attackRangeì™€ chargeDistance ì‚¬ì´)
+                // MoveTowardsTarget ë‚´ë¶€ì—ì„œ í”Œë ˆì´ì–´ë¥¼ ë°”ë¼ë³´ë©° ì´ë™
                 MoveTowardsTarget(playerTransform, monster.monsterData.moveSpeed);
             }
         }
-        else
+        else // ê³µê²© ë²”ìœ„ ì•ˆì¼ ë•Œ (distanceToPlayer <= attackRange)
         {
-            // °ø°İ ¹üÀ§ ¾ÈÀÌ¸é °ø°İ ½ÇÇà
+            // [í•µì‹¬ ìˆ˜ì •] ê³µê²© ë²”ìœ„ ì•ˆì¼ ë•ŒëŠ” ê³µê²© ì‹¤í–‰ ì „ì— í”Œë ˆì´ì–´ë¥¼ í–¥í•´ ë¶€ë“œëŸ½ê²Œ íšŒì „
+            LookAtTarget(playerTransform, 5f);
             PerformAttack();
         }
 
-        // ÇÃ·¹ÀÌ¾î°¡ °¨Áö ¹üÀ§¸¦ ¹ş¾î³ª¸é Idle »óÅÂ·Î ÀüÈ¯
+        // í”Œë ˆì´ì–´ê°€ ê°ì§€ ë²”ìœ„ë¥¼ ë²—ì–´ë‚˜ë©´ Patrol ìƒíƒœë¡œ ì „í™˜
         if (distanceToPlayer > monster.detectionRange)
         {
-            monster.ChangeState(MonsterBase.MonsterState.Patrol); // Idle ´ë½Å Patrol »óÅÂ·Î º¯°æ
+            monster.ChangeState(MonsterBase.MonsterState.Patrol);
         }
     }
 
     /// <summary>
-    /// ¸ñÇ¥ TransformÀ» ÇâÇØ ÀÌµ¿ÇÏ°í È¸ÀüÇÏ´Â °øÅë ·ÎÁ÷
+    /// ëª©í‘œ Transformì„ í–¥í•´ ì´ë™í•˜ëŠ” ê³µí†µ ë¡œì§
     /// </summary>
     private void MoveTowardsTarget(Transform targetTransform, float speed)
     {
+        // ì¶”ê²© ì‹œì—ëŠ” í”Œë ˆì´ì–´ë¥¼ í–¥í•´ íšŒì „í•´ì•¼ í•¨
+        LookAtTarget(targetTransform, 5f);
         Vector3 direction = (targetTransform.position - transform.position).normalized;
         if (direction != Vector3.zero)
         {
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
             transform.position += direction * speed * Time.deltaTime;
         }
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î¿¡°Ô µ¥¹ÌÁö¸¦ ÀÔÈ÷´Â ÀÏ¹İ °ø°İ ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù.
+    /// ëª©í‘œ Transformì„ í–¥í•´ ëª¬ìŠ¤í„°ì˜ ì‹œì„ ì„ íšŒì „í•˜ëŠ” ê³µí†µ ë¡œì§
+    /// rotationSpeedê°€ float.MaxValueì¸ ê²½ìš° ì¦‰ì‹œ íšŒì „í•©ë‹ˆë‹¤.
+    /// </summary>
+    private void LookAtTarget(Transform targetTransform, float rotationSpeed)
+    {
+        Vector3 direction = (targetTransform.position - transform.position).normalized;
+        if (direction != Vector3.zero)
+        {
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            // rotationSpeedê°€ float.MaxValueì¸ ê²½ìš° ì¦‰ì‹œ íšŒì „í•©ë‹ˆë‹¤. (ëŒì§„ ì¤€ë¹„ ì‹œ ì‚¬ìš©)
+            if (rotationSpeed == float.MaxValue)
+            {
+                transform.rotation = lookRotation;
+            }
+            else
+            {
+                // ì¼ë°˜ íšŒì „ (ì¶”ê²©/ê³µê²© ì‹œ ì‚¬ìš©)
+                transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
+            }
+        }
+    }
+
+    /// <summary>
+    /// í”Œë ˆì´ì–´ì—ê²Œ ë°ë¯¸ì§€ë¥¼ ì…íˆëŠ” ì¼ë°˜ ê³µê²© ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤.
     /// </summary>
     private void PerformAttack()
     {
+        // ê³µê²© ì¿¨íƒ€ì„ ì²´í¬
         if (Time.time > lastAttackTime + attackCooldown)
         {
-            IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
-            if (playerDamageable != null)
+            // TryGetComponentë¥¼ ì‚¬ìš©í•˜ì—¬ ì•ˆì „í•˜ê²Œ ì»´í¬ë„ŒíŠ¸ ì ‘ê·¼
+            if (playerTransform.TryGetComponent<IDamageable>(out IDamageable playerDamageable))
             {
-                playerDamageable.TakeDamage(monster.monsterData.attackPower);
+                animator.SetTrigger("Attack");
+                // ë°ë¯¸ì§€ ìœ í˜•ì„ ëª…ì‹œí•˜ì—¬ ë°©ì–´ë ¥ ê³„ì‚°ì´ ê°€ëŠ¥í•˜ë„ë¡ í•¨
+                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 lastAttackTime = Time.time;
-                Debug.Log($"¸äµÅÁö°¡ ÇÃ·¹ÀÌ¾î¿¡°Ô {monster.monsterData.attackPower}ÀÇ µ¥¹ÌÁö¸¦ ÀÔÇû½À´Ï´Ù!");
             }
         }
     }

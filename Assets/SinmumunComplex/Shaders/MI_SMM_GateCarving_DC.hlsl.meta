@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 774d73c3de4c2f24391f3c3052f0f2ad
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_GateCarving_DC.hlsl
+  uploadId: 714261

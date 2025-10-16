@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000015264730288788469599
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Prefabs/SM_SMJC_FoundationStone.prefab
+  uploadId: 714261

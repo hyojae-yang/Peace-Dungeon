@@ -109,8 +109,10 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  currentMoveSpeed: 0
   attackRange: 1
   deathAnimationDuration: 0
+  deathSound: {fileID: 0}
 --- !u!114 &8298760695612208713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,6 +137,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa359674bf0889144a3f541494b56955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitSound: {fileID: 0}
 --- !u!65 &5256612406354294306
 BoxCollider:
   m_ObjectHideFlags: 0

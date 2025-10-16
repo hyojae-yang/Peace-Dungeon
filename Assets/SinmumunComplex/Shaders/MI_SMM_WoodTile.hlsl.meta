@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: ff2d96acc8af9bf489a4625d83bfbdc2
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_WoodTile.hlsl
+  uploadId: 714261

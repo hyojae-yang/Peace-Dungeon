@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e7401f1ebec39514db0ab1dd748afd7f
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/LWCOperations.hlsl
+  uploadId: 714261

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000014792036241285330944
+NativeFormatImporter:
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Materials/Buildings/MI_SMM_AngleRafter02.mat
+  uploadId: 714261

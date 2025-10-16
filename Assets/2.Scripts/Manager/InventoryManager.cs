@@ -66,7 +66,10 @@ public class InventoryManager : MonoBehaviour, ISavable
     private void Start()
     {
         // ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
     }
     /// <summary>
     /// 아이템을 인벤토리에 추가하는 메서드입니다.

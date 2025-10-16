@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: e00c1e3a6c621ad4ba823a07623d3c23
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_AngleRafter02.hlsl
+  uploadId: 714261

@@ -22,7 +22,7 @@ public class DungeonCoinCurrency : MonoBehaviour, ISavable
 
     // 현재 플레이어가 보유한 던전 코인 수량입니다.
     // 이 변수가 저장 및 로드 대상이 됩니다.
-    public int currentDungeonCoins { get; private set; } = 10;
+    public int currentDungeonCoins { get; private set; } = 5;
 
     /// <summary>
     /// 이 객체가 생성될 때 한 번 호출되며, 싱글톤 패턴을 초기화합니다.
@@ -47,7 +47,10 @@ public class DungeonCoinCurrency : MonoBehaviour, ISavable
     private void Start()
     {
         // 게임의 저장/로드 시스템에 이 객체를 등록합니다.
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
     }
 
     /// <summary>

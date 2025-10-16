@@ -94,7 +94,10 @@ public class PlayerStatSystem : MonoBehaviour, ISavable
     void Start()
     {
         // ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
 
         // 초기 스탯 계산 및 적용
         //UpdateFinalStats();

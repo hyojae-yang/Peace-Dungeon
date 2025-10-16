@@ -52,7 +52,10 @@ public class WorldStateSaver : MonoBehaviour, ISavable
 
     void Start()
     {
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
     }
 
     // === 4. 외부에서 접근 가능한 정적(Static) 메서드 ===

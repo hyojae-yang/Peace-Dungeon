@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: abc00000000011422651267083962376
+PrefabImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Prefabs/SM_SMJC_FloorA.prefab
+  uploadId: 714261

@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 0bb134a396270ba42b1be32f8c30e534
+ShaderIncludeImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 304250
+  packageName: KHS - Korean Sinmumun Gate
+  packageVersion: 1.0
+  assetPath: Assets/SinmumunComplex/Shaders/MI_SMM_Roof03.hlsl
+  uploadId: 714261

@@ -53,7 +53,10 @@ public class QuestManager : MonoBehaviour, ISavable
 
     private void Start()
     {
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
         // 몬스터가 죽으면 HandleMonsterKilled 메서드를 호출하도록 등록합니다.
         MonsterBase.OnAnyMonsterKilled += HandleMonsterKilled;
     }

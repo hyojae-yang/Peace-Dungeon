@@ -66,7 +66,10 @@ public class PlayerStats : MonoBehaviour, ISavable
         // ①. ISavable 인터페이스를 구현한 이 객체를 SaveManager에 등록합니다.
         // SaveManager.RegisterSavable() 메서드 내에서 로드 로직을 처리하므로
         // 이 스크립트에서는 등록만 하면 됩니다.
-        SaveManager.Instance.RegisterSavable(this);
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RegisterSavable(this);
+        }
 
         // ②. 기존에 Start()나 Awake()에 있던 로드 로직은 모두 제거합니다.
         // SaveManager가 모든 로드 과정을 중앙에서 관리합니다.
