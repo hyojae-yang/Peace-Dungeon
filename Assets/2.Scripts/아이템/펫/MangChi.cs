@@ -83,11 +83,20 @@ public class MangChi : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null)
+        // A. 싱글톤 인스턴스 관리
+        if (Instance == null)
         {
-            Object.Destroy(Instance.gameObject);
+            Instance = this;
+            // DontDestroyOnLoad(gameObject); // 씬 전환 시 파괴되도록 DontDestroyOnLoad 제거
         }
-        Instance = this;
+        else
+        {
+            // 씬 로드 시 펫이 두 번 생성되면 새 인스턴스를 파괴
+            Destroy(gameObject);
+            return;
+        }
+
+        // B. MainSceneManager 이벤트 구독 (Die 메서드는 A에서만 실행됨)
         if (MainSceneManager.Instance != null)
         {
             MainSceneManager.OnGameOver += Die;
@@ -344,24 +353,25 @@ public class MangChi : MonoBehaviour
 
     private void OnDestroy()
     {
+        // A. 싱글톤 인스턴스 해제 로직 (Awake에서 Instance = this를 했다면 필요)
         if (Instance == this)
         {
+            // 핵심 수정: 이 인스턴스가 파괴될 때만 전역 변수 Instance를 null로 설정합니다.
             Instance = null;
         }
+
+        // B. 이벤트 구독 해제 (기존 로직 유지)
         if (MainSceneManager.Instance != null)
         {
             MainSceneManager.OnGameOver -= Die;
         }
 
-        // =======================================================
-        // [핵심 추가] 던전 이벤트 구독 해제
-        // =======================================================
+        // C. 던전 이벤트 구독 해제 (기존 로직 유지)
         if (DungeonManager.Instance != null)
         {
             DungeonManager.OnDungeonEnter -= StartLooting;
             DungeonManager.OnDungeonExit -= StopLooting;
         }
-        // =======================================================
     }
     /// <summary>
     /// MainSceneManager.OnGameOver 이벤트 발생 시 호출됩니다.
@@ -369,7 +379,7 @@ public class MangChi : MonoBehaviour
     /// </summary>
     private void Die()
     {
-        if (isDead) return; // 이미 죽은 상태라면 무시
+        if (this == null || gameObject == null || isDead) return; // 이 한 줄 추가를 강력히 권장합니다.
 
         isDead = true;
 
@@ -391,10 +401,8 @@ public class MangChi : MonoBehaviour
         }
 
         // 4. 디버그 및 추가 정리 로직
-        Debug.Log("[MangChi] 주인이 사망하여 망치가 쓰러집니다. 사망 이벤트 처리 완료.");
         // TODO: (선택 사항) 사망 후 일정 시간 뒤에 펫 오브젝트 비활성화/파괴 로직 추가 가능
     }
-
     /// <summary>
     /// 던전 진입 시 호출되어 파밍 루틴을 시작합니다.
     /// </summary>
@@ -478,5 +486,34 @@ public class MangChi : MonoBehaviour
         {
             Debug.LogWarning("[MangChi] 아이템 목록에서 Null 객체가 선택되었습니다. 파밍 실패.");
         }
+    }
+    // === [핵심: 저장/로드 메서드 추가] ===
+
+    /// <summary>
+    /// 현재 펫의 소환 상태를 PetSystemSaveData 객체로 추출하여 반환합니다.
+    /// SOLID: SRP (데이터 추출 책임) - 오직 소환 여부만 보고합니다.
+    /// </summary>
+    /// <returns>현재 펫의 저장 데이터 객체</returns>
+    public PetSystemSaveData GetSaveData()
+    {
+        // 펫이 현재 씬에 살아있고(isDead=false), 활성화되어 있다면 소환된 것으로 간주합니다.
+        bool isCurrentlySummoned = !isDead && gameObject.activeInHierarchy;
+
+        return new PetSystemSaveData
+        {
+            isMangChiSummoned = isCurrentlySummoned
+        };
+    }
+
+    /// <summary>
+    /// 로드된 PetSystemSaveData를 바탕으로 펫의 상태를 복원합니다.
+    /// 로드 시 위치나 상태를 복원할 필요 없이, PetManager가 펫을 생성한 후 초기화만 수행합니다.
+    /// SOLID: SRP (데이터 복원 책임)
+    /// </summary>
+    /// <param name="data">로드된 펫 데이터</param>
+    public void LoadData(PetSystemSaveData data)
+    {
+        // 현재는 소환 여부 외에 복원할 상태 데이터가 없으므로, 로드된 상태에 대한 특별한 로직은 없습니다.
+        isDead = false; // 로드 시에는 죽은 상태 해제
     }
 }

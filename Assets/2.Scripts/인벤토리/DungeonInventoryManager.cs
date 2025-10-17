@@ -143,7 +143,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
 
         // 오브젝트 풀 대신 Instantiate()를 사용하여 오브젝트 생성
         GameObject smallMapGO = Instantiate(data.smallMapPrefab);
-        smallMapGO.transform.position = new Vector3(-350, 0, 150);
+        smallMapGO.transform.position = new Vector3(500, 0, 200);
     }
 
     /// <summary>

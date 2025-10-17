@@ -9,7 +9,6 @@ using System.Collections.Generic;
 /// 플레이어의 접근을 감지하고, E키 입력 시 상호작용을 시작합니다.
 /// SOLID: 단일 책임 원칙 (물리적 상호작용).
 /// </summary>
-[RequireComponent(typeof(NPC))]
 public class NPCInteraction : MonoBehaviour
 {
     // 플레이어와의 상호작용을 시작할 수 있는 최대 거리입니다.
@@ -145,7 +144,7 @@ public class NPCInteraction : MonoBehaviour
 
         // 2. 초기 대사를 시작합니다.
         string[] initialDialogue = GetInteractionDialogue();
-        NPCDialogueController.Instance.StartDialogue(npc.Data.npcName, initialDialogue);
+        NPCDialogueController.Instance.StartDialogue(npc.Data.npcName, npc.Data.npcSprite, initialDialogue);
     }
 
     /// <summary>
@@ -169,7 +168,7 @@ public class NPCInteraction : MonoBehaviour
             EndInteraction();
         };
 
-        NPCDialogueController.Instance.StartDialogue(npc.Data.npcName, dialogues, onDialogueEnd);
+        NPCDialogueController.Instance.StartDialogue(npc.Data.npcName, npc.Data.npcSprite, dialogues, onDialogueEnd);
     }
 
     /// <summary>
@@ -218,36 +217,82 @@ public class NPCInteraction : MonoBehaviour
     //----------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// NPC와의 첫 상호작용 대사를 가져옵니다. 호감도와 퀘스트 상태에 따라 대사가 결정됩니다.
+    /// NPC와의 첫 상호작용 대사를 가져옵니다. 
+    /// 퀘스트 상태(None, Available 등)에 따라 적절한 대화 그룹을 찾아 반환합니다.
+    /// SOLID: OCP(Open/Closed Principle) - 새로운 퀘스트 상태가 추가되어도, 초기 대화가 누락되면 
+    ///        'None' 상태로 돌아가 안정적인 기본 대화를 제공하도록 폴백 로직을 명확히 합니다.
     /// </summary>
     private string[] GetInteractionDialogue()
     {
         QuestGiver questGiver = npc.QuestGiver;
         QuestState currentQuestState = QuestState.None;
+
+        // 1. 퀘스트 상태 결정
         if (questGiver != null && questGiver.GetQuestDatas().Count > 0)
         {
+            // 퀘스트가 있다면, 가장 우선순위가 높은 상태를 가져옵니다.
             currentQuestState = questGiver.GetHighestPriorityQuestState();
         }
-        DialogueGroup dialogueGroup = npc.Data.dialogueGroups.FirstOrDefault(dg => dg.questState == currentQuestState);
-        if (dialogueGroup == null)
-        {
-            dialogueGroup = npc.Data.dialogueGroups.FirstOrDefault(dg => dg.questState == QuestState.None);
-        }
-        if (dialogueGroup == null)
-        {
-            return new string[] { "..." };
-        }
+
+        // 2. 현재 상태에 맞는 DialogueGroup을 먼저 찾습니다. (Available, Accepted 등)
+        DialogueGroup dialogueGroup = npc.Data.dialogueGroups
+            .FirstOrDefault(dg => dg.questState == currentQuestState);
+
+        // ✨ 핵심 수정 시작: (퀘스트 상태 그룹이 있든 없든) 초기 대화가 존재하는지 확인합니다.
+
+        // 3. 호감도 기반으로 초기 대화를 찾습니다.
         int currentAffection = npc.GetAffection();
-        AffectionDialogue affectionDialogue = dialogueGroup.interactionDialogue.FirstOrDefault(
-            ad => currentAffection >= ad.minAffection && currentAffection < ad.maxAffection);
+        string[] dialogueTexts = null;
 
-        if (affectionDialogue != null && affectionDialogue.dialogueTexts.Length > 0)
+        if (dialogueGroup != null)
         {
-            int randomIndex = UnityEngine.Random.Range(0, affectionDialogue.dialogueTexts.Length);
-            return new string[] { affectionDialogue.dialogueTexts[randomIndex] };
+            AffectionDialogue affectionDialogue = dialogueGroup.interactionDialogue.FirstOrDefault(
+                ad => currentAffection >= ad.minAffection && currentAffection < ad.maxAffection);
+
+            if (affectionDialogue != null && affectionDialogue.dialogueTexts.Length > 0)
+            {
+                // 대사를 찾으면 여기서 바로 반환 준비
+                int randomIndex = UnityEngine.Random.Range(0, affectionDialogue.dialogueTexts.Length);
+                dialogueTexts = new string[] { affectionDialogue.dialogueTexts[randomIndex] };
+            }
+            else
+            {
+                // 호감도 조건에 맞는 대사가 없을 경우, 해당 그룹의 첫 번째 대사를 시도합니다.
+                dialogueTexts = dialogueGroup.interactionDialogue.FirstOrDefault()?.dialogueTexts;
+            }
         }
 
-        return dialogueGroup.interactionDialogue.FirstOrDefault()?.dialogueTexts ?? new string[] { "..." };
+        // 4. 만약 현재 상태(퀘스트 상태)에서 초기 대사를 찾지 못했다면 (dialogueTexts == null), 
+        //    'None' 그룹의 초기 대화를 폴백으로 사용합니다.
+        if (dialogueTexts == null || dialogueTexts.Length == 0)
+        {
+            // QuestState.None 그룹을 찾아봅니다.
+            DialogueGroup noneDialogueGroup = npc.Data.dialogueGroups
+                .FirstOrDefault(dg => dg.questState == QuestState.None);
+
+            if (noneDialogueGroup != null)
+            {
+                AffectionDialogue noneAffectionDialogue = noneDialogueGroup.interactionDialogue.FirstOrDefault(
+                    ad => currentAffection >= ad.minAffection && currentAffection < ad.maxAffection);
+
+                if (noneAffectionDialogue != null && noneAffectionDialogue.dialogueTexts.Length > 0)
+                {
+                    int randomIndex = UnityEngine.Random.Range(0, noneAffectionDialogue.dialogueTexts.Length);
+                    return new string[] { noneAffectionDialogue.dialogueTexts[randomIndex] };
+                }
+
+                // 호감도에 맞는 None 대사가 없으면, None 그룹의 첫 번째 대사를 반환
+                return noneDialogueGroup.interactionDialogue.FirstOrDefault()?.dialogueTexts ?? new string[] { "..." };
+            }
+            else
+            {
+                // 'None' 그룹 자체도 없다면 최종적으로 기본 대사 반환
+                return new string[] { "..." };
+            }
+        }
+
+        // 5. 퀘스트 상태에서 이미 대사를 찾았으므로 최종 반환합니다.
+        return dialogueTexts;
     }
 
     /// <summary>

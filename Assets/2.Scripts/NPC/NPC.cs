@@ -22,10 +22,6 @@ public class NPC : MonoBehaviour
     // 퀘스트 기능을 담당하는 컴포넌트.
     private QuestGiver questGiver;
 
-    // 특수 기능 리스트는 이제 NPCManager가 관리하므로 제거합니다.
-    // private List<INPCFunction> specialFunctions;
-
-
     /// <summary>
     /// NPC의 고유 데이터를 가져오는 프로퍼티. 외부에서 읽기 전용으로 사용합니다.
     /// </summary>

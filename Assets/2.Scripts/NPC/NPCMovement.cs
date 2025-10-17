@@ -9,12 +9,11 @@ using System.Collections.Generic; // List를 사용하기 위해 추가
 /// SOLID: 단일 책임 원칙 (물리적 이동 및 경로 탐색)
 /// 개방-폐쇄 원칙 (SetIsTalking 메서드로 외부에서 이동 제어 가능)
 /// </summary>
-[RequireComponent(typeof(Rigidbody))]
 public class NPCMovement : MonoBehaviour
 {
     // NPC의 Rigidbody 컴포넌트
     private Rigidbody npcRigidbody;
-
+    private Animator npcAnimator;
     // NPC의 이동 속도입니다.
     [Header("Movement Settings")]
     [Tooltip("NPC의 이동 속도입니다.")]
@@ -56,11 +55,11 @@ public class NPCMovement : MonoBehaviour
     {
         // Rigidbody 컴포넌트를 가져옵니다.
         npcRigidbody = GetComponent<Rigidbody>();
-        // Rigidbody를 isKinematic = false로 설정하여 물리적 힘에 영향을 받도록 합니다.
-        npcRigidbody.isKinematic = false;
+        npcAnimator = GetComponent<Animator>();
 
         // 첫 번째 목표 위치를 설정합니다.
         SetNewTargetPosition();
+        npcAnimator.SetFloat("Speed", 1f);
     }
 
     /// <summary>
@@ -107,7 +106,7 @@ public class NPCMovement : MonoBehaviour
         {
             // NPC가 멈추도록 선형 속도를 0으로 설정합니다.
             npcRigidbody.linearVelocity = Vector3.zero;
-
+            npcAnimator.SetFloat("Speed", 0f);
             // 대기 타이머를 줄입니다.
             waitTimer -= Time.deltaTime;
             // 대기 시간이 0보다 작거나 같아지면
@@ -124,6 +123,7 @@ public class NPCMovement : MonoBehaviour
             // Rigidbody를 사용해 물리적으로 이동합니다.
             // 물리 연산에 더 적합한 linearVelocity를 사용합니다.
             npcRigidbody.linearVelocity = direction * moveSpeed;
+            npcAnimator.SetFloat("Speed", 1f);
 
             // NPC가 이동하는 방향을 바라보도록 회전합니다.
             // Y축을 기준으로 회전 방향을 설정하여 NPC가 기울어지지 않도록 합니다.
@@ -181,6 +181,8 @@ public class NPCMovement : MonoBehaviour
             npcRigidbody.linearVelocity = Vector3.zero;
             // 현재 위치를 목표로 재설정하여 MoveToTarget 메서드가 실행되지 않도록 합니다.
             targetPosition = transform.position;
+            npcAnimator.SetFloat("Speed", 0f);
+            npcAnimator.SetTrigger("wave");
         }
     }
 }

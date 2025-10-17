@@ -6,9 +6,6 @@ using System.Collections.Generic; // 코루틴 사용을 위해 추가
 /// 숲 보스 몬스터의 행동 로직 및 던전 매니저 알림 처리를 담당합니다.
 /// 움직이지 않는 원거리 공격형 거대 나무 컨셉에 맞게 행동합니다.
 /// </summary>
-[RequireComponent(typeof(Monster))]
-[RequireComponent(typeof(MonsterCombat))]
-[RequireComponent(typeof(MonsterLoot))]
 public class ForestBoss : MonoBehaviour, IBossInitializer
 {
     // === 종속성 ===
@@ -828,7 +825,6 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     public void PrepareForForcedDestroy()
     {
         this._shouldNotifyDefeat = false;
-        Debug.Log("ForestBoss: 강제 파괴 준비 완료. OnDestroy 알림 생략 예정.");
     }
     // ===================================================================
     /// <summary>
@@ -870,12 +866,10 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
             if (_shouldNotifyDefeat)
             {
                 _bossNotifier.NotifyBossDefeated(); // 기존 알림 메서드 호출
-                Debug.Log("ForestBoss: 정상 처치 감지. 클리어 알림 전송.");
             }
             else
             {
                 // 강제 파괴 시 알림을 보내지 않고 Notifier 정리만 수행
-                Debug.Log("ForestBoss: 강제 파괴 플래그 감지. 클리어 알림 생략.");
             }
 
             // 알림 여부와 관계없이 Notifier 참조 해제

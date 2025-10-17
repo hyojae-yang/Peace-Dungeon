@@ -138,7 +138,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
             }
         }
     }
-    
+    public GameObject me;
     /// <summary>
     /// 게임 시작 시 한 번 호출되며, 싱글톤 패턴을 초기화합니다.
     /// </summary>
@@ -160,6 +160,11 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             SaveManager.Instance.RegisterSavable(this);
         }
+        me.SetActive(false);
+        if (this.bossFirstKillRecords.Count > 0) // 키 '0'을 찾아 에러를 낼 필요 없이, 데이터의 존재 유무만 확인
+    {
+        me.SetActive(true);
+    }
     }
     /// <summary>
     /// 현재 던전에 맞는 DungeonSpawnManager를 **리스트에 추가**로 등록합니다.
@@ -431,7 +436,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                         NotificationType.Success // Success 타입으로 호출
                     );
                 }
-
+                me.SetActive(true);
                 // ==========================================================
                 if (currentBossID == 2001)
                 {

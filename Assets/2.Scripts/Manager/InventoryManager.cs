@@ -69,6 +69,12 @@ public class InventoryManager : MonoBehaviour, ISavable
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.RegisterSavable(this);
+            // SaveManager가 '새로하기' 상태인지 확인합니다.
+            if (SaveManager.Instance.IsNewGame)
+            {
+                // 새로하기일 때만 인벤토리 초기화 로직을 실행합니다.
+                InitializeNewGameInventory();
+            }
         }
     }
     /// <summary>
@@ -475,5 +481,47 @@ public class InventoryManager : MonoBehaviour, ISavable
             // UI 갱신을 위해 이벤트 호출
             onInventoryChanged?.Invoke();
         }
+    }
+    // --- 새로 추가할 메서드 ---
+    /// <summary>
+    /// 새로하기로 게임을 시작했을 때만 호출되며,
+    /// 플레이어에게 기본적인 시작 장비나 튜토리얼 아이템 등을 지급합니다.
+    /// </summary>
+    private void InitializeNewGameInventory()
+    {
+        // 1. [장비 아이템 지급] 기본 무기 템플릿 로드 (예: ID 1001)
+        // TODO: STARTING_WEAPON_ID를 고객님의 ItemDatabase에 맞는 ID로 변경해주세요.
+        const int STARTING_WEAPON_ID = 3001;
+
+        // ItemDatabaseManager와 ItemGenerator가 모두 존재하는지 확인
+        if (ItemDatabaseManager.Instance == null || ItemGenerator.Instance == null)
+        {
+            Debug.LogError("ItemDatabaseManager 또는 ItemGenerator 인스턴스를 찾을 수 없습니다. 시작 장비 지급 실패.");
+            return;
+        }
+
+        BaseItemSO baseTemplate = ItemDatabaseManager.Instance.GetItemByID(STARTING_WEAPON_ID);
+
+        if (baseTemplate is EquipmentItemSO weaponTemplate)
+        {
+            // ItemGenerator를 사용하여 일반(Common) 등급의 고유 아이템 인스턴스를 생성합니다.
+            // ItemGrade.Common은 ItemGenerator 스크립트에서 사용되는 Enum이라고 가정합니다.
+            EquipmentItemSO startingWeapon = ItemGenerator.Instance.GenerateItem(
+                weaponTemplate,
+                ItemGrade.Common
+            );
+
+            // 생성된 고유 장비 아이템을 AddItem(EquipmentItemSO) 오버로드를 사용하여 인벤토리에 추가합니다.
+            if (startingWeapon != null)
+            {
+                AddItem(startingWeapon);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"아이템 ID {STARTING_WEAPON_ID}가 유효한 EquipmentItemSO 템플릿이 아닙니다. 장비를 지급할 수 없습니다.");
+        }
+        // 인벤토리 변경 이벤트 강제 호출 (UI 갱신 목적)
+        onInventoryChanged?.Invoke();
     }
 }

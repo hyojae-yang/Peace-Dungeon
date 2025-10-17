@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 1
   m_EditorClassIdentifier: 
   npcID: 1
+  npcSprite: {fileID: 21300000, guid: d659f7396cd57754eba78763cf986c51, type: 3}
   npcName: "\uC7A5\uD544\uC218"
   npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uAC00\uC7A5,\uC0C1\uC810
     \uC6B4\uC601,\uAE30\uBCF8\uC544\uC774\uD15C \uD310\uB9E4"
@@ -524,7 +525,7 @@ MonoBehaviour:
         \uC78A\uC5B4\uBC84\uB9AC\uAC8C."
       - "\uB0B4 \uC8C4\uB3C4... \uC2DC\uAC04\uC774 \uD750\uB974\uBA74 \uC78A\uD788\uACA0\uC9C0."
   - questState: 4
-    questID: 10
+    questID: 11
     interactionDialogue: []
     generalDialogues:
     - minAffection: -100

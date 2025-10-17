@@ -169,6 +169,7 @@ GameObject:
   - component: {fileID: 6929321974040167827}
   - component: {fileID: 8999192889082747891}
   - component: {fileID: 1573326570419179162}
+  - component: {fileID: -1981122002723324318}
   m_Layer: 8
   m_Name: ForestBoss
   m_TagString: Monster
@@ -286,8 +287,10 @@ MonoBehaviour:
   playerLayer:
     serializedVersion: 2
     m_Bits: 128
+  currentMoveSpeed: 0
   attackRange: 0
   deathAnimationDuration: 3
+  deathSound: {fileID: 0}
 --- !u!114 &6929321974040167827
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -300,6 +303,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa359674bf0889144a3f541494b56955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hitSound: {fileID: 0}
 --- !u!114 &8999192889082747891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -334,14 +338,14 @@ MonoBehaviour:
   maxDistanceFromPlayer: 25
   playerFocusedRootRatio: 0.6
   minionPrefabs:
-  - {fileID: 640720440684500291, guid: d875de36b05658e48a700e15375f318b, type: 3}
-  - {fileID: 640720440684500291, guid: 0fb72ee48094454469bea0304419d3cb, type: 3}
-  - {fileID: 640720440684500291, guid: 40c2f1ace426e0b4790e23a3768b1475, type: 3}
-  - {fileID: 640720440684500291, guid: 505cdd1c00bf6354da01c66a9ddaa6fb, type: 3}
-  - {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
-  - {fileID: 1422477296553940473, guid: 93da36d28c29ac74e97c4707f14ed854, type: 3}
   - {fileID: 6009522441560749080, guid: c0d76ac9706567d45ae06ee93c5aae66, type: 3}
+  - {fileID: 483987322422019827, guid: 20f11513772e41e499b8204dd19dd1e3, type: 3}
+  - {fileID: 7094218536885164343, guid: f70ea5bd5fcf0f340ad3927e93d323db, type: 3}
+  - {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
   - {fileID: 855980508687128763, guid: 31493d236f0b4f8489b1f5104f8ae301, type: 3}
+  - {fileID: 7328140957996147453, guid: 3fd38f141ae796e46a28c94b49982913, type: 3}
+  - {fileID: 8512790387996972601, guid: 1ef60801f6633aa46bb2adc98a4af329, type: 3}
+  - {fileID: 1422477296553940473, guid: 93da36d28c29ac74e97c4707f14ed854, type: 3}
   minNumberOfMinions: 2
   maxNumberOfMinions: 5
   minionSpawnRadius: 20
@@ -357,6 +361,19 @@ MonoBehaviour:
   attackReturnDuration: 1.2
   liftAngle: 45
   strikeAngle: -120
+--- !u!114 &-1981122002723324318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4424686701008790751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0f696869ca8c6644eb89a75a595d5806, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bossName: "\uD0C0\uB77D\uD55C \uC232\uC758 \uD63C\uB839"
 --- !u!1 &4694010005222326824
 GameObject:
   m_ObjectHideFlags: 0

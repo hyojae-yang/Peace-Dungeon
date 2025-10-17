@@ -1154,7 +1154,7 @@ MonoBehaviour:
     minSpawnCount: 30
     maxSpawnCount: 50
     score: 3
-  - monsterPrefab: {fileID: 640720440684500291, guid: 0fb72ee48094454469bea0304419d3cb, type: 3}
+  - monsterPrefab: {fileID: 7094218536885164343, guid: f70ea5bd5fcf0f340ad3927e93d323db, type: 3}
     minSpawnCount: 60
     maxSpawnCount: 100
     score: 2
@@ -1162,7 +1162,7 @@ MonoBehaviour:
     minSpawnCount: 30
     maxSpawnCount: 60
     score: 5
-  - monsterPrefab: {fileID: 640720440684500291, guid: d875de36b05658e48a700e15375f318b, type: 3}
+  - monsterPrefab: {fileID: 483987322422019827, guid: 20f11513772e41e499b8204dd19dd1e3, type: 3}
     minSpawnCount: 20
     maxSpawnCount: 40
     score: 7

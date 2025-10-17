@@ -14,6 +14,7 @@ public class NPCData : ScriptableObject
     [Tooltip("NPC의 고유한 식별자 ID입니다.")]
     public int npcID;
 
+    public Sprite npcSprite;
     // NPC의 이름을 저장합니다.
     [Tooltip("NPC의 고유한 이름입니다.")]
     public string npcName;

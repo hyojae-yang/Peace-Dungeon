@@ -229,7 +229,7 @@ MonoBehaviour:
   iconImage: {fileID: 4971383220715048712}
   countText: {fileID: 4774079923414239973}
   buttonPanelPrefab: {fileID: 4393666928322119529, guid: 4ee86f8215817ef48be9b2b69385a2c3, type: 3}
-  tooltipPrefab: {fileID: 0}
+  tooltipPrefab: {fileID: 2969000874225422248, guid: 473a7bd5595bec14298204134b8208ee, type: 3}
 --- !u!1 &6581188437696122007
 GameObject:
   m_ObjectHideFlags: 0

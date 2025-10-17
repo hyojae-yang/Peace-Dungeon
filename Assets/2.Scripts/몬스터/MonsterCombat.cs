@@ -13,8 +13,20 @@ public class MonsterCombat : MonoBehaviour, IDamageable
     private float currentHealth;
 
     // === 이벤트 ===
-    // 데미지를 입었을 때 다른 스크립트에 알리는 이벤트
+    // 데미지를 입었을 때 다른 스크립트에 알리는 기존 이벤트
     public event Action<float> OnDamageTaken;
+
+    // 1. 추가된 훅: 현재 체력 값이 변경될 때마다 남은 체력을 외부에 알립니다.
+    /// <summary>
+    /// 현재 체력 값이 변경될 때 남은 체력 값을 인자로 전달하는 이벤트. (보스 UI 시스템이 사용)
+    /// </summary>
+    public event Action<float> OnHealthUpdated; // <<<< --- 추가된 부분
+
+    // 2. 추가된 훅: 몬스터/보스가 사망할 때 외부에 알립니다.
+    /// <summary>
+    /// 몬스터/보스가 사망 처리 직전에 호출되는 이벤트. (보스 UI 시스템이 사용)
+    /// </summary>
+    public event Action OnDefeated; // <<<< --- 추가된 부분
 
     private void Awake()
     {
@@ -58,17 +70,23 @@ public class MonsterCombat : MonoBehaviour, IDamageable
             audioSource.PlayOneShot(hitSound);
         }
 
-        // 이벤트 호출: 데미지 양을 인자로 전달합니다.
-        // 다른 스크립트들이 이 이벤트를 구독하여 필요한 행동을 수행할 수 있습니다.
+        // 기존 이벤트 호출
         OnDamageTaken?.Invoke(finalDamage);
+
+        // 3. 훅 호출: 체력 변경 후, 현재 남은 체력을 외부에 알립니다.
+        // OCP: 이 코드는 MonsterCombat의 기능(데미지 처리)을 바꾸지 않고 확장 포인트만 제공합니다.
+        OnHealthUpdated?.Invoke(currentHealth); // <<<< --- 추가된 부분
 
         if (currentHealth <= 0)
         {
+            // 4. 훅 호출: 사망 처리(Die) 직전에 사망 이벤트를 외부에 알립니다.
+            OnDefeated?.Invoke(); // <<<< --- 추가된 부분
+
             monsterBase.Die();
         }
     }
     public float GetCurrentHealth()
-    { 
-     return currentHealth;
+    {
+        return currentHealth;
     }
 }

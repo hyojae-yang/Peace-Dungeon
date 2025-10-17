@@ -275,3 +275,18 @@ public class DungeonManagerSaveData
 
     // TODO: 필요하다면 기존의 IsInDungeon, IsDungeonCleared 등의 상태도 여기에 포함될 수 있습니다.
 }
+/// <summary>
+/// 펫 시스템의 저장 데이터를 담는 컨테이너 클래스입니다.
+/// MangChi가 싱글톤이며 위치 정보를 저장하지 않으므로, 소환 여부(bool)만 저장합니다.
+/// SOLID: SRP (데이터 저장 책임) - 오직 소환 여부만을 저장합니다.
+/// </summary>
+[System.Serializable]
+public class PetSystemSaveData // 기존 PetSaveData와 PetSystemSaveData를 통합하여 간소화
+{
+    /// <summary>
+    /// 망치 펫이 마지막으로 저장되었을 때 소환되어 있었는지 여부입니다.
+    /// true: 펫이 소환되어 있었음. 로드 시 다시 생성해야 함.
+    /// false: 펫이 소환되어 있지 않았음. 로드 시 아무것도 하지 않음.
+    /// </summary>
+    public bool isMangChiSummoned = false;
+}

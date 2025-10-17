@@ -138,7 +138,7 @@ public class CookingUIManager : MonoBehaviour
     /// 인벤토리 데이터를 받아와 UI에 표시하는 메서드입니다.
     /// CookingManager로부터 호출됩니다.
     /// </summary>
-    private void UpdateInventoryUI()
+    public void UpdateInventoryUI()
     {
         // 기존에 생성된 아이템 슬롯들 모두 제거 (갱신을 위해)
         foreach (Transform child in inventoryContent)

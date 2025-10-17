@@ -1,70 +1,70 @@
-// ÆÄÀÏ¸í: CookingManager.cs
+ï»¿// íŒŒì¼ëª…: CookingManager.cs
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
-/// NPC¿¡°Ô ¿ä¸® ±â´ÉÀ» ºÎ¿©ÇÏ´Â ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.
-/// INPCFunction ÀÎÅÍÆäÀÌ½º¸¦ ±¸ÇöÇÏ¿© NPC »óÈ£ÀÛ¿ë ½Ã½ºÅÛ¿¡ ÅëÇÕµË´Ï´Ù.
-/// SOLID: °³¹æ-Æó¼â ¿øÄ¢ (±âÁ¸ NPC ½ºÅ©¸³Æ® ¼öÁ¤ ¾øÀÌ ±â´É Ãß°¡)
+/// NPCì—ê²Œ ìš”ë¦¬ ê¸°ëŠ¥ì„ ë¶€ì—¬í•˜ëŠ” ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.
+/// INPCFunction ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í•˜ì—¬ NPC ìƒí˜¸ì‘ìš© ì‹œìŠ¤í…œì— í†µí•©ë©ë‹ˆë‹¤.
+/// SOLID: ê°œë°©-íì‡„ ì›ì¹™ (ê¸°ì¡´ NPC ìŠ¤í¬ë¦½íŠ¸ ìˆ˜ì • ì—†ì´ ê¸°ëŠ¥ ì¶”ê°€)
 /// </summary>
 public class CookingManager : MonoBehaviour, INPCFunction
 {
-    // === ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ===
-    // CookingManagerÀÇ ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º (UI¿ÍÀÇ ¿¬°áÀ» À§ÇØ Ãß°¡)
+    // === ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ===
+    // CookingManagerì˜ ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ (UIì™€ì˜ ì—°ê²°ì„ ìœ„í•´ ì¶”ê°€)
     public static CookingManager Instance { get; private set; }
 
-    // === INPCFunction ÀÎÅÍÆäÀÌ½º ±¸Çö ===
+    // === INPCFunction ì¸í„°í˜ì´ìŠ¤ êµ¬í˜„ ===
 
     [Header("Cooking Data")]
-    [Tooltip("ÀÌ NPC°¡ Á¦°øÇÒ ¿ä¸® ·¹½ÃÇÇ ¸ñ·ÏÀ» ´ãÀº ScriptableObjectÀÔ´Ï´Ù.")]
+    [Tooltip("ì´ NPCê°€ ì œê³µí•  ìš”ë¦¬ ë ˆì‹œí”¼ ëª©ë¡ì„ ë‹´ì€ ScriptableObjectì…ë‹ˆë‹¤.")]
     [SerializeField]
     private CookingDataSO cookingData;
     [Header("Cooking Result")]
-    [Tooltip("·¹½ÃÇÇ¸¦ Ã£Áö ¸øÇßÀ» ¶§ Áö±ŞÇÒ ½ÇÆĞÀÛ ¾ÆÀÌÅÛÀÔ´Ï´Ù.")]
+    [Tooltip("ë ˆì‹œí”¼ë¥¼ ì°¾ì§€ ëª»í–ˆì„ ë•Œ ì§€ê¸‰í•  ì‹¤íŒ¨ì‘ ì•„ì´í…œì…ë‹ˆë‹¤.")]
     [SerializeField]
     private BaseItemSO failResultItem;
     /// <summary>
-    /// INPCFunction ÀÎÅÍÆäÀÌ½ºÀÇ ¿ä±¸»çÇ×: UI ¹öÆ°¿¡ Ç¥½ÃµÉ ÀÌ¸§À» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// INPCFunction ì¸í„°í˜ì´ìŠ¤ì˜ ìš”êµ¬ì‚¬í•­: UI ë²„íŠ¼ì— í‘œì‹œë  ì´ë¦„ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public string FunctionButtonName
     {
-        get { return "¿ä¸®ÇÏ±â"; }
+        get { return "ìš”ë¦¬í•˜ê¸°"; }
     }
 
     /// <summary>
-    /// INPCFunction ÀÎÅÍÆäÀÌ½ºÀÇ ¿ä±¸»çÇ×: ¹öÆ°ÀÌ Å¬¸¯µÇ¾úÀ» ¶§ È£ÃâµÉ ÇÔ¼öÀÔ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â ¿ä¸® UI¸¦ ¿©´Â ·ÎÁ÷À» ´ã´çÇÏ°Ô µÉ °ÍÀÔ´Ï´Ù.
+    /// INPCFunction ì¸í„°í˜ì´ìŠ¤ì˜ ìš”êµ¬ì‚¬í•­: ë²„íŠ¼ì´ í´ë¦­ë˜ì—ˆì„ ë•Œ í˜¸ì¶œë  í•¨ìˆ˜ì…ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” ìš”ë¦¬ UIë¥¼ ì—¬ëŠ” ë¡œì§ì„ ë‹´ë‹¹í•˜ê²Œ ë  ê²ƒì…ë‹ˆë‹¤.
     /// </summary>
     public void ExecuteFunction()
     {
         if (CookingUIManager.Instance != null && this.cookingData != null)
         {
-            // ÀÌÁ¦ null ´ë½Å ÇÒ´çµÈ cookingData¸¦ Àü´ŞÇÕ´Ï´Ù.
+            // ì´ì œ null ëŒ€ì‹  í• ë‹¹ëœ cookingDataë¥¼ ì „ë‹¬í•©ë‹ˆë‹¤.
             CookingUIManager.Instance.ShowCookingUI(this.cookingData);
         }
         else
         {
-            Debug.LogError("CookingUIManager ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ¿ä¸® UI¸¦ ¿­ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("CookingUIManager ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ìš”ë¦¬ UIë¥¼ ì—´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 
-    // === MonoBehaviour ¸Ş¼­µå ===
+    // === MonoBehaviour ë©”ì„œë“œ ===
     private void Awake()
     {
-        // 1. CookingManager ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ÃÊ±âÈ­
+        // 1. CookingManager ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ì´ˆê¸°í™”
         if (Instance == null)
         {
             Instance = this;
         }
         else if (Instance != this)
         {
-            // ÇÑ ¾À¿¡ ¿©·¯ CookingManager°¡ ÀÖÀ» °æ¿ì¸¦ ´ëºñ
-            Debug.LogWarning("¾À¿¡ ÀÌ¹Ì ´Ù¸¥ CookingManager ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÕ´Ï´Ù.");
+            // í•œ ì”¬ì— ì—¬ëŸ¬ CookingManagerê°€ ìˆì„ ê²½ìš°ë¥¼ ëŒ€ë¹„
+            Debug.LogWarning("ì”¬ì— ì´ë¯¸ ë‹¤ë¥¸ CookingManager ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•©ë‹ˆë‹¤.");
         }
 
-        // 2. NPCManager¿¡ ½º½º·Î µî·Ï
-        // NPCManagerÀÇ RegisterSpecialFunctionÀ» È£ÃâÇÏ¿© ¿ä¸® ±â´ÉÀ» µî·ÏÇÕ´Ï´Ù.
+        // 2. NPCManagerì— ìŠ¤ìŠ¤ë¡œ ë“±ë¡
+        // NPCManagerì˜ RegisterSpecialFunctionì„ í˜¸ì¶œí•˜ì—¬ ìš”ë¦¬ ê¸°ëŠ¥ì„ ë“±ë¡í•©ë‹ˆë‹¤.
         NPC npc = GetComponentInParent<NPC>();
         if (npc != null && NPCManager.Instance != null)
         {
@@ -72,30 +72,30 @@ public class CookingManager : MonoBehaviour, INPCFunction
         }
         else
         {
-            Debug.LogError("NPC ¶Ç´Â NPCManager ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ¿ä¸® ±â´É µî·Ï¿¡ ½ÇÆĞÇß½À´Ï´Ù.");
+            Debug.LogError("NPC ë˜ëŠ” NPCManager ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ìš”ë¦¬ ê¸°ëŠ¥ ë“±ë¡ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.");
         }
     }
-    // === ¿ä¸® ±â´É ¸Ş¼­µå ===
+    // === ìš”ë¦¬ ê¸°ëŠ¥ ë©”ì„œë“œ ===
     /// <summary>
-    /// ÅõÀÔµÈ Àç·á ¸ñ·Ï°ú ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ¸¦ Ã£¾Æ ¹İÈ¯ÇÕ´Ï´Ù.
-    /// SOLID: ´ÜÀÏ Ã¥ÀÓ ¿øÄ¢ (·¹½ÃÇÇ¸¦ Ã£´Â ¿ªÇÒ¸¸ ¼öÇà).
+    /// íˆ¬ì…ëœ ì¬ë£Œ ëª©ë¡ê³¼ ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ë¥¼ ì°¾ì•„ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (ë ˆì‹œí”¼ë¥¼ ì°¾ëŠ” ì—­í• ë§Œ ìˆ˜í–‰).
     /// </summary>
-    /// <param name="ingredientList">ÅõÀÔµÈ Àç·áÀÇ BaseItemSO ¸®½ºÆ®ÀÔ´Ï´Ù.</param>
-    /// <returns>ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ SO, ¾øÀ¸¸é nullÀ» ¹İÈ¯ÇÕ´Ï´Ù.</returns>
+    /// <param name="ingredientList">íˆ¬ì…ëœ ì¬ë£Œì˜ BaseItemSO ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.</param>
+    /// <returns>ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ SO, ì—†ìœ¼ë©´ nullì„ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
     private RecipeSO FindMatchingRecipe(List<BaseItemSO> ingredientList)
     {
-        // 1. ÅõÀÔµÈ Àç·á¸¦ ¾ÆÀÌÅÛID ±âÁØÀ¸·Î Á¤·ÄÇÏ¿© ¼ø¼­¿¡ »ó°ü¾øÀÌ ºñ±³ °¡´ÉÇÏ°Ô ÇÕ´Ï´Ù.
+        // 1. íˆ¬ì…ëœ ì¬ë£Œë¥¼ ì•„ì´í…œID ê¸°ì¤€ìœ¼ë¡œ ì •ë ¬í•˜ì—¬ ìˆœì„œì— ìƒê´€ì—†ì´ ë¹„êµ ê°€ëŠ¥í•˜ê²Œ í•©ë‹ˆë‹¤.
         ingredientList.Sort((a, b) => a.itemID.CompareTo(b.itemID));
 
-        // 2. ·¹½ÃÇÇ ¸ñ·ÏÀ» ÇÏ³ª¾¿ ¼øÈ¸ÇÏ¸ç ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ¸¦ Ã£½À´Ï´Ù.
+        // 2. ë ˆì‹œí”¼ ëª©ë¡ì„ í•˜ë‚˜ì”© ìˆœíšŒí•˜ë©° ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ë¥¼ ì°¾ìŠµë‹ˆë‹¤.
         foreach (var recipe in cookingData.recipes)
         {
-            // ÅõÀÔµÈ Àç·áÀÇ °³¼ö°¡ ·¹½ÃÇÇÀÇ Àç·á °³¼ö¿Í °°ÀºÁö ¸ÕÀú È®ÀÎÇÕ´Ï´Ù.
+            // íˆ¬ì…ëœ ì¬ë£Œì˜ ê°œìˆ˜ê°€ ë ˆì‹œí”¼ì˜ ì¬ë£Œ ê°œìˆ˜ì™€ ê°™ì€ì§€ ë¨¼ì € í™•ì¸í•©ë‹ˆë‹¤.
             if (recipe.ingredients.Count == ingredientList.Count)
             {
-                // Àç·á °³¼ö°¡ °°´Ù¸é, °¢ Àç·áÀÇ ¾ÆÀÌÅÛ IDµµ °°ÀºÁö ºñ±³ÇÕ´Ï´Ù.
+                // ì¬ë£Œ ê°œìˆ˜ê°€ ê°™ë‹¤ë©´, ê° ì¬ë£Œì˜ ì•„ì´í…œ IDë„ ê°™ì€ì§€ ë¹„êµí•©ë‹ˆë‹¤.
                 bool isMatch = true;
-                // **¼öÁ¤µÈ ºÎºĞ:** ·¹½ÃÇÇÀÇ Àç·á ¸ñ·Ïµµ Á¤·ÄÇÏ¿© ºñ±³ ÁØºñ¸¦ ÇÕ´Ï´Ù.
+                // **ìˆ˜ì •ëœ ë¶€ë¶„:** ë ˆì‹œí”¼ì˜ ì¬ë£Œ ëª©ë¡ë„ ì •ë ¬í•˜ì—¬ ë¹„êµ ì¤€ë¹„ë¥¼ í•©ë‹ˆë‹¤.
                 var recipeIngredientIDs = recipe.ingredients.Select(i => i.item.itemID).OrderBy(id => id).ToList();
 
                 for (int i = 0; i < ingredientList.Count; i++)
@@ -109,40 +109,48 @@ public class CookingManager : MonoBehaviour, INPCFunction
 
                 if (isMatch)
                 {
-                    // **ÀÌ°÷¿¡¼­ ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ¸¦ Ã£¾Ò½À´Ï´Ù!**
-                    // ´ÙÀ½ ´Ü°è¿¡¼­ ÀÌ ÄÚµå¸¦ TryCraft ¸Ş¼­µå¿¡ ¿¬°áÇÒ °ÍÀÔ´Ï´Ù.
+                    // **ì´ê³³ì—ì„œ ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ë¥¼ ì°¾ì•˜ìŠµë‹ˆë‹¤!**
+                    // ë‹¤ìŒ ë‹¨ê³„ì—ì„œ ì´ ì½”ë“œë¥¼ TryCraft ë©”ì„œë“œì— ì—°ê²°í•  ê²ƒì…ë‹ˆë‹¤.
                     return recipe;
                 }
             }
         }
 
-        // ¹İº¹¹®À» ¸ğµÎ µ¹¾Ò´Âµ¥µµ ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ°¡ ¾øÀ¸¸é nullÀ» ¹İÈ¯ÇÕ´Ï´Ù.
+        // ë°˜ë³µë¬¸ì„ ëª¨ë‘ ëŒì•˜ëŠ”ë°ë„ ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ê°€ ì—†ìœ¼ë©´ nullì„ ë°˜í™˜í•©ë‹ˆë‹¤.
         return null;
     }
     /// <summary>
-    /// ³¿ºñ¿¡ ÅõÀÔµÈ Àç·á ¸ñ·ÏÀ» ±â¹İÀ¸·Î ¿ä¸®¸¦ ½ÃµµÇÕ´Ï´Ù.
+    /// ëƒ„ë¹„ì— íˆ¬ì…ëœ ì¬ë£Œ ëª©ë¡ì„ ê¸°ë°˜ìœ¼ë¡œ ìš”ë¦¬ë¥¼ ì‹œë„í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="ingredients">ÇÃ·¹ÀÌ¾î°¡ ³¿ºñ¿¡ ÅõÀÔÇÑ Àç·á ¸ñ·ÏÀÔ´Ï´Ù.</param>
+    /// <param name="ingredients">í”Œë ˆì´ì–´ê°€ ëƒ„ë¹„ì— íˆ¬ì…í•œ ì¬ë£Œ ëª©ë¡ì…ë‹ˆë‹¤.</param>
     public bool TryCraft(List<ItemData> ingredients)
     {
-        // 1. ÅõÀÔµÈ Àç·á ¸ñ·ÏÀ» BaseItemSO ¸®½ºÆ®·Î º¯È¯ÇÕ´Ï´Ù.
+        // ìš”ë¦¬ëŠ” ìµœì†Œí•œ í•˜ë‚˜ì˜ ì¬ë£Œë¥¼ í•„ìš”ë¡œ í•˜ëŠ” í–‰ìœ„ì´ë¯€ë¡œ, ë¹ˆ ëª©ë¡ì€ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
+        if (ingredients == null || ingredients.Count == 0)
+        {
+            Debug.LogWarning("íˆ¬ì…ëœ ì¬ë£Œê°€ ì—†ìŠµë‹ˆë‹¤. ìš”ë¦¬ë¥¼ ì‹œë„í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            // UIë¥¼ ë‹«ê±°ë‚˜ ë©”ì‹œì§€ë¥¼ í‘œì‹œí•˜ëŠ” ë“±ì˜ ì¶”ê°€ ì²˜ë¦¬ê°€ í•„ìš”í•˜ë‹¤ë©´ ì—¬ê¸°ì— ë„£ìŠµë‹ˆë‹¤.
+            // í˜„ì¬ëŠ” UI ì´ˆê¸°í™” ì—†ì´ falseë¥¼ ë°˜í™˜í•˜ì—¬ ìš”ë¦¬ ì‹œë„ë¥¼ ë¬´íš¨í™”í•©ë‹ˆë‹¤.
+            return false;
+        }
+        // 1. íˆ¬ì…ëœ ì¬ë£Œ ëª©ë¡ì„ BaseItemSO ë¦¬ìŠ¤íŠ¸ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
         List<BaseItemSO> currentIngredientSOs = ingredients.Select(itemData => itemData.itemSO).ToList();
 
-        // 2. ÅõÀÔµÈ Àç·á ¸ñ·Ï°ú Á¤È®È÷ ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ¸¦ Ã£½À´Ï´Ù.
-        // ÀÌ ÇÑ ÁÙÀÌ FindMatchingRecipe ¸Ş¼­µå¸¦ È£ÃâÇÏ¿© ·¹½ÃÇÇ¸¦ Ã£½À´Ï´Ù.
+        // 2. íˆ¬ì…ëœ ì¬ë£Œ ëª©ë¡ê³¼ ì •í™•íˆ ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ë¥¼ ì°¾ìŠµë‹ˆë‹¤.
+        // ì´ í•œ ì¤„ì´ FindMatchingRecipe ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ë ˆì‹œí”¼ë¥¼ ì°¾ìŠµë‹ˆë‹¤.
         RecipeSO matchedRecipe = FindMatchingRecipe(currentIngredientSOs);
 
-        // 3. ÀÎº¥Åä¸®¿¡¼­ Àç·á¸¦ ¼Ò¸ğÇÕ´Ï´Ù.
-        // ÀÌ ´Ü°è¿¡¼­´Â Àç·á°¡ Á¤»óÀûÀ¸·Î Á¦°ÅµÇ´ÂÁö¸¸ È®ÀÎÇÕ´Ï´Ù.
+        // 3. ì¸ë²¤í† ë¦¬ì—ì„œ ì¬ë£Œë¥¼ ì†Œëª¨í•©ë‹ˆë‹¤.
+        // ì´ ë‹¨ê³„ì—ì„œëŠ” ì¬ë£Œê°€ ì •ìƒì ìœ¼ë¡œ ì œê±°ë˜ëŠ”ì§€ë§Œ í™•ì¸í•©ë‹ˆë‹¤.
         bool allIngredientsRemoved = true;
         foreach (var itemSO in currentIngredientSOs)
         {
-            // PlayerCharacterÀÇ InventoryManager¸¦ ÅëÇØ ¾ÆÀÌÅÛÀ» Á¦°ÅÇÕ´Ï´Ù.
-            // ÇöÀç´Â °¢ ¾ÆÀÌÅÛÀÌ ÇÑ °³¾¿ ¼Ò¸ğµÈ´Ù°í °¡Á¤ÇÕ´Ï´Ù.
+            // PlayerCharacterì˜ InventoryManagerë¥¼ í†µí•´ ì•„ì´í…œì„ ì œê±°í•©ë‹ˆë‹¤.
+            // í˜„ì¬ëŠ” ê° ì•„ì´í…œì´ í•œ ê°œì”© ì†Œëª¨ëœë‹¤ê³  ê°€ì •í•©ë‹ˆë‹¤.
             bool removed = PlayerCharacter.Instance.inventoryManager.RemoveItem(itemSO, 1);
             if (!removed)
             {
-                // Àç·á°¡ ºÎÁ·ÇÏ¿© Á¦°Å¿¡ ½ÇÆĞÇÏ¸é ÇÃ·¡±×¸¦ false·Î ¹Ù²Ù°í ¹İº¹¹®À» Áß´ÜÇÕ´Ï´Ù.
+                // ì¬ë£Œê°€ ë¶€ì¡±í•˜ì—¬ ì œê±°ì— ì‹¤íŒ¨í•˜ë©´ í”Œë˜ê·¸ë¥¼ falseë¡œ ë°”ê¾¸ê³  ë°˜ë³µë¬¸ì„ ì¤‘ë‹¨í•©ë‹ˆë‹¤.
                 allIngredientsRemoved = false;
                 break;
             }
@@ -150,43 +158,43 @@ public class CookingManager : MonoBehaviour, INPCFunction
 
         if (allIngredientsRemoved)
         {
-            // ÃÖÁ¾ÀûÀ¸·Î ÇÃ·¹ÀÌ¾î¿¡°Ô Áö±ŞÇÒ °á°ú ¾ÆÀÌÅÛÀ» ´ãÀ» º¯¼öÀÔ´Ï´Ù.
+            // ìµœì¢…ì ìœ¼ë¡œ í”Œë ˆì´ì–´ì—ê²Œ ì§€ê¸‰í•  ê²°ê³¼ ì•„ì´í…œì„ ë‹´ì„ ë³€ìˆ˜ì…ë‹ˆë‹¤.
             BaseItemSO resultItem = null;
-            // 2. ÀÏÄ¡ÇÏ´Â ·¹½ÃÇÇ¸¦ Ã£¾Ò´ÂÁö È®ÀÎÇÏ°í °á°ú ¾ÆÀÌÅÛÀ» °áÁ¤ÇÕ´Ï´Ù.
+            // 2. ì¼ì¹˜í•˜ëŠ” ë ˆì‹œí”¼ë¥¼ ì°¾ì•˜ëŠ”ì§€ í™•ì¸í•˜ê³  ê²°ê³¼ ì•„ì´í…œì„ ê²°ì •í•©ë‹ˆë‹¤.
             if (matchedRecipe != null)
             {
-                // ·¹½ÃÇÇ¸¦ Ã£¾Ò´Ù¸é, ·¹½ÃÇÇÀÇ °á°ú ¾ÆÀÌÅÛÀ» °¡Á®¿É´Ï´Ù.
+                // ë ˆì‹œí”¼ë¥¼ ì°¾ì•˜ë‹¤ë©´, ë ˆì‹œí”¼ì˜ ê²°ê³¼ ì•„ì´í…œì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
                 resultItem = matchedRecipe.resultItem;
             }
             else
             {
-                // ·¹½ÃÇÇ¸¦ Ã£Áö ¸øÇß´Ù¸é, ½ÇÆĞÀÛ ¾ÆÀÌÅÛÀ» °¡Á®¿É´Ï´Ù.
+                // ë ˆì‹œí”¼ë¥¼ ì°¾ì§€ ëª»í–ˆë‹¤ë©´, ì‹¤íŒ¨ì‘ ì•„ì´í…œì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
                 resultItem = failResultItem;
             }
-            // **Ãß°¡µÈ ÇÑ ÁÙ:** resultItemÀ» ÀÎº¥Åä¸®¿¡ Ãß°¡ÇÕ´Ï´Ù.
+            // **ì¶”ê°€ëœ í•œ ì¤„:** resultItemì„ ì¸ë²¤í† ë¦¬ì— ì¶”ê°€í•©ë‹ˆë‹¤.
             if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.inventoryManager != null)
             {
                 PlayerCharacter.Instance.inventoryManager.AddItem(resultItem, 1);
             }
             else
             {
-                Debug.LogError("ÇÃ·¹ÀÌ¾î ¶Ç´Â ÀÎº¥Åä¸® ¸Å´ÏÀú¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ¾ÆÀÌÅÛ Ãß°¡¿¡ ½ÇÆĞÇß½À´Ï´Ù.");
+                Debug.LogError("í”Œë ˆì´ì–´ ë˜ëŠ” ì¸ë²¤í† ë¦¬ ë§¤ë‹ˆì €ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ì•„ì´í…œ ì¶”ê°€ì— ì‹¤íŒ¨í–ˆìŠµë‹ˆë‹¤.");
             }
 
-            // Ãß°¡µÈ ºÎºĞ: Àç·á ¼Ò¸ğ°¡ ¼º°øÇÏ¸é ³¿ºñ UI¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+            // ì¶”ê°€ëœ ë¶€ë¶„: ì¬ë£Œ ì†Œëª¨ê°€ ì„±ê³µí•˜ë©´ ëƒ„ë¹„ UIë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
             if (CookingUIManager.Instance != null)
             {
                 CookingUIManager.Instance.ResetCookingIngredientUI();
             }
             
 
-            // ¿ä¸® ¼º°ø ½Ã UI¸¦ °»½ÅÇØ¾ß ÇÕ´Ï´Ù.
-            // CookingUIManager.Instance.UpdateInventoryUI();
+            // ìš”ë¦¬ ì„±ê³µ ì‹œ UIë¥¼ ê°±ì‹ í•´ì•¼ í•©ë‹ˆë‹¤.
+            CookingUIManager.Instance.UpdateInventoryUI();
             return true;
         }
         else
         {
-            Debug.LogWarning("Àç·á°¡ ºÎÁ·ÇÏ¿© ¿ä¸®¸¦ ¸¸µé ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("ì¬ë£Œê°€ ë¶€ì¡±í•˜ì—¬ ìš”ë¦¬ë¥¼ ë§Œë“¤ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
     }

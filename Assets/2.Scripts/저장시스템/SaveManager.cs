@@ -27,7 +27,10 @@ public class SaveManager : MonoBehaviour
     /// 씬이 로드된 후 각 ISavable 객체가 데이터를 요청할 때 사용됩니다.
     /// </summary>
     private Dictionary<string, SaveDataContainer> loadedSaveData;
-
+    /// <summary>
+    /// 현재 게임 세션이 '새로하기'로 시작되었는지 여부를 나타냅니다. (True: 새로 시작, False: 이어하기)
+    /// </summary>
+    public bool IsNewGame { get; private set; } = true; // 기본값은 True (파일이 없을 수도 있으므로)
     /// <summary>
     /// Awake는 스크립트 인스턴스가 로드될 때 호출됩니다.
     /// </summary>
@@ -132,6 +135,7 @@ public class SaveManager : MonoBehaviour
         // 로드된 게임 데이터를 임시 저장소에 역직렬화합니다.
         // settings 객체를 인자로 전달합니다.
         loadedSaveData = JsonConvert.DeserializeObject<Dictionary<string, SaveDataContainer>>(json, settings);
+        IsNewGame = false; // 성공적으로 로드했으므로 '새로하기'가 아닙니다.
         // --- 여기까지 수정해야 할 코드입니다. ---
         Debug.Log("게임 로드 완료!");
     }
@@ -244,6 +248,7 @@ public class SaveManager : MonoBehaviour
         // **핵심:** 이 변경 사항을 영구화하려면 DungeonManager가 SaveData()를 호출하고 
         // SaveManager.SaveGame()이 실행되어야 합니다.
     }
+
     /// <summary>
     /// 게임 데이터를 초기 상태로 리셋합니다.
     /// '새 게임 시작' 버튼에 연결하여 사용합니다.
@@ -259,7 +264,7 @@ public class SaveManager : MonoBehaviour
 
         // 2. 메모리 내 데이터 초기화
         loadedSaveData = null;
-
+        IsNewGame = true; // 새로하기 기능을 수행했으므로 True로 설정합니다.
         // 3. 씬의 저장 가능한 오브젝트 초기화
         // 월드에 있는 모든 SavableEntity 오브젝트들을 제거합니다.
         // 현재 씬에서 SavableEntity 컴포넌트를 가진 모든 오브젝트를 찾습니다.
@@ -274,5 +279,85 @@ public class SaveManager : MonoBehaviour
         }
 
         Debug.Log("게임 데이터 초기화 완료!");
+    }
+    /// <summary>
+    /// 저장 파일에서 모든 데이터를 읽어와 loadedSaveData 딕셔너리에 채웁니다.
+    /// 파일이 없으면 딕셔너리를 null로 설정합니다.
+    /// SOLID: SRP (파일 읽기 책임)
+    /// </summary>
+    private void LoadGameDataFromFileToMemory()
+    {
+        if (!File.Exists(saveFilePath))
+        {
+            loadedSaveData = null; // 파일이 없으면 메모리 데이터도 없음
+            Debug.Log("[SaveManager] 저장 파일이 없어 메모리에 데이터를 로드할 수 없습니다.");
+            return;
+        }
+
+        string json = File.ReadAllText(saveFilePath);
+
+        // Json 역직렬화 설정 (SaveGame()과 동일)
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            TypeNameHandling = TypeNameHandling.Auto
+        };
+
+        try
+        {
+            // 로드된 게임 데이터를 임시 저장소에 역직렬화
+            loadedSaveData = JsonConvert.DeserializeObject<Dictionary<string, SaveDataContainer>>(json, settings);
+            IsNewGame = false; // 성공적으로 로드했으므로 '새로하기'가 아닙니다.
+                               // Debug.Log("[SaveManager] 저장 파일 내용이 메모리(loadedSaveData)에 로드되었습니다.");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"[SaveManager] 데이터 로드 중 오류 발생: {e.Message}");
+            loadedSaveData = null;
+        }
+    }
+    /// <summary>
+    /// 특정 ISavable 객체의 데이터만 수집하여 현재 로드된 데이터(loadedSaveData)를 업데이트하고,
+    /// 즉시 파일에 덮어씁니다. (플레이어 사망 시 펫 상태 기록 등에 사용)
+    /// SOLID: SRP (특정 데이터 업데이트 및 파일 기록 책임)
+    /// </summary>
+    /// <param name="savable">데이터를 저장할 ISavable 객체입니다.</param>
+    public void SaveSingleSavable(ISavable savable)
+    {
+        // 1. 메모리에 로드된 데이터 딕셔너리를 **현재 파일 상태**로 준비합니다.
+        // 기존 데이터 손실을 막기 위해 무조건 파일에서 전체를 로드합니다.
+        LoadGameDataFromFileToMemory();
+
+        // 로드에 실패했더라도, 새로운 빈 딕셔너리를 만들어 데이터를 저장할 준비를 합니다.
+        if (loadedSaveData == null)
+        {
+            loadedSaveData = new Dictionary<string, SaveDataContainer>();
+        }
+
+        // 2. 키(Key) 생성
+        string key = ((MonoBehaviour)savable).GetType().Name;
+
+        // 3. 요청된 객체의 데이터만 수집
+        SaveDataContainer container = new SaveDataContainer
+        {
+            typeName = key,
+            data = savable.SaveData() // PetManager의 'false' 상태를 가져옴
+        };
+
+        // 4. 특정 데이터만 딕셔너리에 덮어쓰기 (다른 데이터는 이미 로드되어 존재)
+        loadedSaveData[key] = container;
+
+        // 5. 메모리에 있는 **전체 딕셔너리** (기존 데이터 + 업데이트된 펫 데이터)를 파일에 기록합니다.
+        // Json 직렬화 설정을 SaveGame()과 동일하게 사용합니다.
+        JsonSerializerSettings settings = new JsonSerializerSettings
+        {
+            ReferenceLoopHandling = ReferenceLoopHandling.Ignore,
+            TypeNameHandling = TypeNameHandling.Auto
+        };
+
+        string json = JsonConvert.SerializeObject(loadedSaveData, Formatting.Indented, settings);
+        File.WriteAllText(saveFilePath, json);
+
+        Debug.Log($"[SaveManager] SaveSingleSavable: '{key}' 데이터만 업데이트하여 전체 저장 파일 덮어쓰기 완료! (기존 데이터 안전 확보)");
     }
 }

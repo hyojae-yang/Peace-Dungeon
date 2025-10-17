@@ -8,7 +8,6 @@ using UnityEngine;
 /// UI 매니저를 통해 퀘스트 수락/취소 패널을 제어합니다.
 /// SOLID: 단일 책임 원칙 (퀘스트 관련 로직).
 /// </summary>
-[RequireComponent(typeof(NPC))]
 public class NPCQuestHandler : MonoBehaviour
 {
     private NPC npc;
@@ -47,7 +46,7 @@ public class NPCQuestHandler : MonoBehaviour
             HandleQuestAfterDialogue(selectedQuest, state);
         };
 
-        NPCDialogueController.Instance.StartDialogue(npc.Data.npcName, dialogues, onDialogueEnd);
+        NPCDialogueController.Instance.StartDialogue(npc.Data.npcName, npc.Data.npcSprite, dialogues, onDialogueEnd);
     }
 
     /// <summary>

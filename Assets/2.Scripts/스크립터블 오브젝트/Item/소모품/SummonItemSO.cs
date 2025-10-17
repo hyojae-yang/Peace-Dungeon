@@ -25,18 +25,6 @@ public class SummonItemSO : ConsumableItemSO
             return;
         }
 
-        // 1. 기존 펫 파괴 (유일성 보장)
-        // PetController.Instance는 PetController 스크립트에 싱글톤으로 정의되어 있다고 가정합니다.
-        // 현재 논의 범위 밖이므로, 이 부분은 주석으로 처리하고 넘어가겠습니다.
-        /*
-        if (PetController.Instance != null)
-        {
-            Debug.Log($"기존 펫 ({PetController.Instance.name})을 파괴하고 새로 소환합니다.");
-            // Unity.Object를 명시적으로 사용합니다.
-            Object.Destroy(PetController.Instance.gameObject); 
-        }
-        */
-
         // 2. 소환 위치 계산 (플레이어 주변 랜덤 위치 + 지면 검색)
         Vector3 spawnPosition = CalculateSpawnPosition(player.transform.position);
 
