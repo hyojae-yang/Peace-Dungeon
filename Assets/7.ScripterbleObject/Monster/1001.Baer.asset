@@ -32,11 +32,15 @@ MonoBehaviour:
   minDungeonCoinReward: 0
   maxDungeonCoinReward: 1
   lootTable:
-  - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
+  - itemData: {fileID: 11400000, guid: 24b9e302c568a4a4ea0d779a7db977fd, type: 2}
     weight: 0
-  - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
+  - itemData: {fileID: 11400000, guid: 71de1c5ff0da03545b1bfde00fae3bb3, type: 2}
     weight: 0
-  - itemData: {fileID: 0}
+  - itemData: {fileID: 11400000, guid: e8ba397af9c2082478393cd8a813b32a, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: cab5e84d2b4d06a4799f7433b3d2dddd, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: f4797e60a9165e84786516daae8d9588, type: 2}
     weight: 0
   minItemDropCount: 3
   maxItemDropCount: 5

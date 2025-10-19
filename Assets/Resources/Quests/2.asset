@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   questID: 2
   questTitle: "[\uC218\uC9D1] \uB358\uC804\uC758 \uD544\uC218\uD488"
-  questDescription: "\uB2E4\uB78C\uC950 \uAC00\uC8FD 10\uAC1C \uC218\uC9D1"
+  questDescription: "\uD1A0\uB07C \uAC00\uC8FD 10\uAC1C \uC218\uC9D1"
   questGiverName: "\uC7A5\uD544\uC218"
   requiredAffection: -100
   prerequisiteQuests: 

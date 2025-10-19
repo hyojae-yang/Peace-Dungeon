@@ -1,53 +1,54 @@
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System;
 
 /// <summary>
-/// ���� ��Ͽ� ǥ�õǴ� ���� ������ UI�� ������ �����մϴ�.
-/// ����/�Ǹ� ��ư�� �ؽ�Ʈ�� ����� �������� �����մϴ�.
-/// SOLID: ���� å�� ��Ģ (���� ������ UI ����).
+/// 상점 목록에 표시되는 개별 아이템 UI의 동작을 관리합니다.
+/// 구매/판매 버튼의 텍스트와 기능을 동적으로 설정합니다.
+/// SOLID: 단일 책임 원칙 (개별 아이템 UI 관리).
 /// </summary>
 public class ShopItemUI : MonoBehaviour
 {
-    // === UI ������Ʈ ���� ===
-    [Tooltip("������ �̹����� ǥ���� Image ������Ʈ�Դϴ�.")]
+    // === UI 컴포넌트 참조 ===
+    [Tooltip("아이템 이미지를 표시할 Image 컴포넌트입니다.")]
     [SerializeField]
     private Image itemIcon;
 
-    [Tooltip("������ �̸��� ǥ���� TextMeshProUGUI ������Ʈ�Դϴ�.")]
+    [Tooltip("아이템 이름을 표시할 TextMeshProUGUI 컴포넌트입니다.")]
     [SerializeField]
     private TextMeshProUGUI itemName;
 
-    [Tooltip("������ ������ ǥ���� TextMeshProUGUI ������Ʈ�Դϴ�.")]
+    [Tooltip("아이템 가격을 표시할 TextMeshProUGUI 컴포넌트입니다.")]
     [SerializeField]
     private TextMeshProUGUI itemPrice;
 
-    [Tooltip("���� �Ǵ� �Ǹ� ������ ������ ��ư�Դϴ�.")]
+    [Tooltip("구매 또는 판매 동작을 실행할 버튼입니다.")]
     [SerializeField]
     private Button actionButton;
 
-    [Tooltip("��ư�� �ؽ�Ʈ�� ǥ���� TextMeshProUGUI ������Ʈ�Դϴ�.")]
+    [Tooltip("버튼의 텍스트를 표시할 TextMeshProUGUI 컴포넌트입니다.")]
     [SerializeField]
     private TextMeshProUGUI actionButtonText;
 
     /// <summary>
-    /// ������ UI�� �־��� �����ͷ� �ʱ�ȭ�ϴ� �޼����Դϴ�.
-    /// �� �޼���� ShopUIManager���� ȣ��˴ϴ�.
+    /// 아이템 UI를 주어진 데이터로 초기화하는 메서드입니다.
+    /// 이 메서드는 ShopUIManager에서 호출됩니다.
     /// </summary>
-    /// <param name="itemSO">ǥ���� �������� BaseItemSO �������Դϴ�.</param>
-    /// <param name="buttonText">��ư�� ǥ���� �ؽ�Ʈ�Դϴ�. (��: "����", "�Ǹ�")</param>
-    /// <param name="onButtonClick">��ư Ŭ�� �� ����� �����Դϴ�.</param>
-    public void Setup(BaseItemSO itemSO, string buttonText, Action onButtonClick)
+    /// <param name="itemSO">표시할 아이템의 BaseItemSO 데이터입니다.</param>
+    /// <param name="displayPrice">아이템 UI에 표시할 최종 가격입니다. (구매 시는 구매가, 판매 시는 판매가)</param> // ⭐️ 추가된 주석: displayPrice 인자 설명
+    /// <param name="buttonText">버튼에 표시할 텍스트입니다. (예: "구매", "판매")</param>
+    /// <param name="onButtonClick">버튼 클릭 시 실행될 동작입니다.</param>
+    public void Setup(BaseItemSO itemSO, int displayPrice, string buttonText, Action onButtonClick) // ⭐️ 수정: int displayPrice 인자 추가
     {
-        // Null üũ: �Ű������� ��ȿ���� Ȯ���մϴ�.
+        // Null 체크: 매개변수가 유효한지 확인합니다.
         if (itemSO == null)
         {
-            Debug.LogError("ShopItemUI: Setup �޼��忡 ��ȿ���� ���� BaseItemSO�� ���޵Ǿ����ϴ�.");
+            Debug.LogError("ShopItemUI: Setup 메서드에 유효하지 않은 BaseItemSO가 전달되었습니다.");
             return;
         }
 
-        // ������ ���� ǥ��
+        // 아이템 정보 표시
         if (itemIcon != null)
         {
             itemIcon.sprite = itemSO.itemIcon;
@@ -56,22 +57,24 @@ public class ShopItemUI : MonoBehaviour
         {
             itemName.text = itemSO.itemName;
         }
+
+        // 수정된 부분: itemSO.itemPrice 대신 전달받은 displayPrice를 사용합니다.
         if (itemPrice != null)
         {
-            // G�� Gold�� ���ڷ� �����մϴ�.
-            itemPrice.text = $"{itemSO.itemPrice} G";
+            // G는 Gold의 약자로 가정합니다.
+            itemPrice.text = $"{displayPrice} 원";
         }
 
-        // ��ư �ʱ�ȭ �� �̺�Ʈ ����
+        // 버튼 초기화 및 이벤트 연결
         if (actionButton != null)
         {
-            // ���� �����ʸ� ��� �����Ͽ� �ߺ� ������ �����մϴ�.
+            // 기존 리스너를 모두 제거하여 중복 연결을 방지합니다.
             actionButton.onClick.RemoveAllListeners();
-            // ���ο� �����ʸ� �߰��մϴ�.
+            // 새로운 리스너를 추가합니다.
             actionButton.onClick.AddListener(() => onButtonClick?.Invoke());
         }
 
-        // ��ư �ؽ�Ʈ ����
+        // 버튼 텍스트 설정
         if (actionButtonText != null)
         {
             actionButtonText.text = buttonText;

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 3.Iron Wand
   m_EditorClassIdentifier: 
   itemID: 3503
-  itemName: "\uCCA0\uC9C0\uD321\uC774"
-  itemDescription: "\uCCA0\uB85C \uB41C \uC9C0\uD321\uC774"
+  itemName: "\uB2E8\uD48D\uB098\uBB34\uC9C0\uD321\uC774"
+  itemDescription: "\uB2E8\uD48D\uB098\uBB34\uB85C \uB41C \uC9C0\uD321\uC774"
   itemIcon: {fileID: 21300000, guid: e4214e22c0e4a0342af3a2e31f3f84b8, type: 3}
   itemPrice: 250
   itemType: 0
@@ -35,4 +35,4 @@ MonoBehaviour:
   attackSpeed: 1.5
   knockbackForce: 0
   projectilePrefab: {fileID: 451114298932106328, guid: 6da4592f61419564ebfbb6b39bc8ec5c, type: 3}
-  weaponPrefab: {fileID: 8150743016342531013, guid: ef24a18b1f0afa546b001bd47bd28252, type: 3}
+  weaponPrefab: {fileID: 8150743016342531013, guid: cd99c0902b863264db0393118abb22df, type: 3}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 4.Chicken
   m_EditorClassIdentifier: 
   monsterID: 4
-  monsterName: "\uB4E4\uC950"
+  monsterName: "\uB2ED"
   monsterLevel: 0
   maxHealth: 30
   maxMana: 0
@@ -29,12 +29,14 @@ MonoBehaviour:
   maxExpReward: 5
   minGoldReward: 5
   maxGoldReward: 10
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 0
   lootTable:
-  - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    dropChance: 0.35
-  - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
-    dropChance: 0.35
-  - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
-    dropChance: 0.3
+  - itemData: {fileID: 11400000, guid: af008ec78c6a13c4c86551ef8117ea99, type: 2}
+    weight: 10
+  - itemData: {fileID: 11400000, guid: 5fd3a479550ba224a9648c6108569e7c, type: 2}
+    weight: 10
+  - itemData: {fileID: 11400000, guid: f4797e60a9165e84786516daae8d9588, type: 2}
+    weight: 10
   minItemDropCount: 0
   maxItemDropCount: 1

@@ -166,8 +166,8 @@ public class ShopUIManager : MonoBehaviour
 
                 if (itemUI != null)
                 {
-                    // 이제 확인 버튼을 열도록 리스너를 변경합니다.
-                    itemUI.Setup(item, "구매", () => OpenBuyConfirmation(item));
+                    // ⭐️ 수정된 부분: displayPrice로 item.itemPrice (구매 가격)을 전달합니다.
+                    itemUI.Setup(item, item.itemPrice, "구매", () => OpenBuyConfirmation(item));
                 }
             }
         }
@@ -199,8 +199,11 @@ public class ShopUIManager : MonoBehaviour
 
             if (itemUI != null)
             {
-                // 수정된 부분: 이제 확인 버튼을 열도록 리스너를 변경합니다.
-                itemUI.Setup(itemData.itemSO, "판매", () => OpenSellConfirmation(itemData));
+                // ⭐️ 추가된 로직: ShopManager 로직에 맞춰 50% 할인된 판매 가격을 계산합니다.
+                int sellPrice = (int)(itemData.itemSO.itemPrice * 0.5f);
+
+                // ⭐️ 수정된 부분: displayPrice로 계산된 sellPrice를 전달합니다.
+                itemUI.Setup(itemData.itemSO, sellPrice, "판매", () => OpenSellConfirmation(itemData));
             }
         }
     }
@@ -217,7 +220,7 @@ public class ShopUIManager : MonoBehaviour
     {
         confirmationPanel.SetActive(true);
 
-        // 🚨 추가된 부분: confirmText를 업데이트합니다.
+        // 추가된 부분: confirmText를 업데이트합니다.
         if (confirmText != null)
         {
             confirmText.text = $"{itemToBuy.itemName}을(를) 몇 개 구매하시겠습니까?";
@@ -240,7 +243,7 @@ public class ShopUIManager : MonoBehaviour
     {
         confirmationPanel.SetActive(true);
 
-        // 🚨 추가된 부분: confirmText를 업데이트합니다.
+        // 추가된 부분: confirmText를 업데이트합니다.
         if (confirmText != null)
         {
             confirmText.text = $"{itemToSell.itemSO.itemName}을(를) 몇 개 판매하시겠습니까?";

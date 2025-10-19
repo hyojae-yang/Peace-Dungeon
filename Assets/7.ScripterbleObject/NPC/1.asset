@@ -326,11 +326,10 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uC232\uC758 \uBA67\uB3FC\uC9C0\uAC00 \uC0AC\uB098\uC6CC\uC84C\uB2E4\uACE0
-        \uD558\uB354\uAD70."
+      - "\uC232\uC758 \uC0B0\uC591\uC774 \uC0AC\uB098\uC6CC\uC84C\uB2E4\uACE0 \uD558\uB354\uAD70."
       - "\uB9C8\uC744 \uC0AC\uB78C\uB4E4\uC5D0\uAC8C \uD53C\uD574\uB97C \uC904\uAE4C
         \uBD10 \uAC71\uC815\uC774\uB124."
-      - "\uBA67\uB3FC\uC9C0 5\uB9C8\uB9AC\uB97C \uCC98\uCE58\uD558\uACE0 \uC640."
+      - "\uC0B0\uC591 5\uB9C8\uB9AC\uB97C \uCC98\uCE58\uD558\uACE0 \uC640\uC8FC\uACA0\uB098"
   - questState: 4
     questID: 7
     interactionDialogue: []
@@ -338,7 +337,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0 \uB0C4\uC0C8\uAC00 \uC0AC\uB77C\uC84C\uAD70."
+      - "\uC0B0\uC591 \uB0C4\uC0C8\uAC00 \uC0AC\uB77C\uC84C\uAD70."
       - " \uACE0\uB9D9\uB124. \uC790\uB124 \uB355\uBD84\uC5D0 \uC7A5\uD130\uAC00
         \uC548\uC804\uD574\uC84C\uC5B4."
   - questState: 3
@@ -348,7 +347,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0\uB294 \uAC15\uD558\uC9C0."
+      - "\uC0B0\uC591\uC740 \uAC15\uD558\uC9C0."
       - "\uB108\uBB34 \uBB34\uB9AC\uD558\uC9C0 \uB9D0\uAC8C."
       - "\uB0B4\uAC8C\uB294... \uC2E4\uD328\uC758 \uAE30\uC5B5\uC774 \uB9CE\uC73C\uB2C8."
   - questState: 5
@@ -358,7 +357,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0\uB294 \uC774\uC81C \uC548 \uB098\uD0C0\uB098. "
+      - "\uC0B0\uC591\uC740 \uC774\uC81C \uC548 \uB098\uD0C0\uB098. "
       - "\uACE0\uB9C8\uC6E0\uC5B4."
   - questState: 2
     questID: 8

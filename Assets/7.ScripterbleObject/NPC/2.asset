@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 2
   m_EditorClassIdentifier: 
   npcID: 2
+  npcSprite: {fileID: 0}
   npcName: "\uC774\uC21C\uB355"
   npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uC5B4\uBA38\uB2C8,\uB9C8\uC744
     \uC18C\uBB38\uC5D0 \uBE60\uC0AD\uD558\uBA70 \uBC15\uC694\uB9AC\uC640 \uC808\uCE5C"
@@ -355,11 +356,11 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0\uAC00 \uBFD4\uB85C \uC6B0\uB9AC \uC7A5\uD130\uB97C \uBD80\uC218\uB824\uACE0
+      - "\uC0B0\uC591\uC774 \uBFD4\uB85C \uC6B0\uB9AC \uC7A5\uD130\uB97C \uBD80\uC218\uB824\uACE0
         \uD558\uB124!"
-      - "\uC18C\uBB38\uC5D0 \uBA67\uB3FC\uC9C0\uAC00 \uBD88\uAE38\uD55C \uAE30\uC6B4\uC5D0
+      - "\uC18C\uBB38\uC5D0 \uC0B0\uC591\uC774 \uBD88\uAE38\uD55C \uAE30\uC6B4\uC5D0
         \uBB3C\uB4E4\uC5C8\uB300\uC694!"
-      - "\uBA67\uB3FC\uC9C0 5\uB9C8\uB9AC\uB97C \uD63C\uB0B4\uC8FC\uACE0 \uC640\uC694!"
+      - "\uC0B0\uC591 5\uB9C8\uB9AC\uB97C \uD63C\uB0B4\uC8FC\uACE0 \uC640\uC694!"
   - questState: 4
     questID: 16
     interactionDialogue: []
@@ -367,7 +368,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0\uB4E4\uC774 \uC870\uC6A9\uD574\uC84C\uB124."
+      - "\uC0B0\uC591\uB4E4\uC774 \uC870\uC6A9\uD574\uC84C\uB124."
       - "\uB2F9\uC2E0\uC740 \uC815\uB9D0 \uC6A9\uAC10\uD574\uC694!"
       - "\uB2F9\uC2E0 \uB355\uBD84\uC5D0 \uB9C8\uC744\uC774 \uC548\uC804\uD574\uC84C\uC5B4."
   - questState: 3
@@ -377,7 +378,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0\uB294 \uAC15\uD558\uC9C0."
+      - "\uC0B0\uC591\uC740 \uAC15\uD558\uC9C0."
       - "\uB108\uBB34 \uBB34\uB9AC\uD558\uC9C0 \uB9D0\uC544\uC694."
       - "\uB2F9\uC2E0\uC774 \uB2E4\uCE58\uBA74... \uC6B0\uB9AC \uB0A8\uD3B8\uC774
         \uB610... \uBB34\uC11C\uC6B4 \uC9D3\uC744 \uD560\uAE4C \uBD10 \uAC71\uC815\uC774\uB124."
@@ -388,7 +389,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: 100
       dialogueTexts:
-      - "\uBA67\uB3FC\uC9C0\uB294 \uC774\uC81C \uC548 \uB098\uD0C0\uB098."
+      - "\uC0B0\uC591\uC740 \uC774\uC81C \uC548 \uB098\uD0C0\uB098."
       - "\uD558\uC9C0\uB9CC... \uB0A8\uD3B8\uC758 \uC8C4\uB294... \uC5EC\uC804\uD788
         \uC6B0\uB9AC\uB97C \uAD34\uB86D\uD788\uB124."
   - questState: 2

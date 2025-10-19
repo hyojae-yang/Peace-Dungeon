@@ -159,8 +159,8 @@ public class ShopManager : MonoBehaviour, INPCFunction
         // ItemData는 stackCount를 포함하고 있으므로, 정확한 판매 수량을 알 수 있습니다.
         if (PlayerCharacter.Instance.inventoryManager.RemoveItem(itemToSell.itemSO.itemID, quantity))
         {
-            // 판매 가격은 구매 가격의 80%로 가정
-            int sellPrice = (int)(itemToSell.itemSO.itemPrice * quantity * 0.8f);
+            // 판매 가격은 구매 가격의 50%로 가정
+            int sellPrice = (int)(itemToSell.itemSO.itemPrice * quantity * 0.5f);
             PlayerCharacter.Instance.playerStats.gold += sellPrice;
             Debug.Log($"{itemToSell.itemSO.itemName}을(를) {quantity}개 판매했습니다. 획득 골드: {sellPrice}");
         }

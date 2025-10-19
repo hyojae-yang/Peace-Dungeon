@@ -116,7 +116,6 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         if (MainSceneManager.Instance.isGameOver) return; // 이미 게임 오버 상태라면 중복 호출 방지
         if (SoundManager.Instance != null)
         { SoundManager.Instance.PlayBGM(BGMType.Main_D); }
-        Debug.Log("게임 오버 상태가 선언되었습니다. isGameOver = true.");
         MainSceneManager.Instance.isGameOver = true;
         DungeonManager.Instance.DeadDungeon(); // 던전 상태 리셋
         // 여기에 게임 오버, 플레이어 오브젝트 파괴 등 추가 로직을 구현합니다.

@@ -33,10 +33,10 @@ MonoBehaviour:
   maxDungeonCoinReward: 5
   lootTable:
   - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    dropChance: 0.35
+    weight: 0
   - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
-    dropChance: 0.35
+    weight: 0
   - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
-    dropChance: 0.3
-  minItemDropCount: 3
-  maxItemDropCount: 5
+    weight: 0
+  minItemDropCount: 5
+  maxItemDropCount: 10

@@ -277,8 +277,6 @@ public class SaveManager : MonoBehaviour
         {
             Destroy(obj.gameObject);
         }
-
-        Debug.Log("게임 데이터 초기화 완료!");
     }
     /// <summary>
     /// 저장 파일에서 모든 데이터를 읽어와 loadedSaveData 딕셔너리에 채웁니다.
@@ -357,7 +355,5 @@ public class SaveManager : MonoBehaviour
 
         string json = JsonConvert.SerializeObject(loadedSaveData, Formatting.Indented, settings);
         File.WriteAllText(saveFilePath, json);
-
-        Debug.Log($"[SaveManager] SaveSingleSavable: '{key}' 데이터만 업데이트하여 전체 저장 파일 덮어쓰기 완료! (기존 데이터 안전 확보)");
     }
 }

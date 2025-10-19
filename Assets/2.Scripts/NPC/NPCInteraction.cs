@@ -50,15 +50,15 @@ public class NPCInteraction : MonoBehaviour
     private void Update()
     {
         if (playerTransform == null) return;
+        if (NotificationManager.Instance == null) return; // NotificationManager가 없으면 프롬프트 처리를 건너뜁니다.
 
         float distance = Vector3.Distance(transform.position, playerTransform.position);
 
         if (distance <= interactionRange)
         {
-            if (NPCUIManager.Instance != null)
-            {
-                NPCUIManager.Instance.ShowInteractionPrompt(true);
-            }
+            // 수정된 부분: NPCUIManager 대신 NotificationManager를 직접 호출합니다.
+            // 이렇게 함으로써, 이 NPC가 범위 내에 있을 때 프롬프트가 표시됩니다.
+            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 상호작용");
 
             if (Input.GetKeyDown(KeyCode.E) && !isInteracting)
             {
@@ -69,13 +69,13 @@ public class NPCInteraction : MonoBehaviour
         {
             if (!isInteracting)
             {
-                if (NPCUIManager.Instance != null)
-                {
-                    NPCUIManager.Instance.ShowInteractionPrompt(false);
-                }
+                // ⭐️ 수정된 부분: NPCUIManager 대신 NotificationManager를 직접 호출하여 프롬프트를 숨깁니다.
+                // 이 NPC가 범위 밖으로 나가면 프롬프트를 숨기도록 요청합니다.
+                NotificationManager.Instance.HideInteractionPrompt();
             }
             else
             {
+                // 상호작용 중인데 거리가 멀어지면 상호작용을 종료합니다.
                 EndInteraction();
             }
         }
@@ -97,10 +97,6 @@ public class NPCInteraction : MonoBehaviour
         }
 
         isInteracting = true;
-
-        // 마우스 커서를 보이게 하고 잠금을 해제하는 부분은 유지합니다.
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
 
         if (npc.TryGetComponent(out NPCMovement npcMovement))
         {
@@ -202,10 +198,6 @@ public class NPCInteraction : MonoBehaviour
         NPCUIManager.Instance.HideAllUI();
         NPCDialogueController.Instance.HideDialogueUI();
 
-        // 마우스 커서 상태를 원래대로 복구하는 코드를 주석 처리하여 마우스가 보이도록 유지합니다.
-        // Cursor.visible = false;
-        // Cursor.lockState = CursorLockMode.Locked;
-
         if (npc.TryGetComponent(out NPCMovement npcMovement))
         {
             npcMovement.SetIsTalking(false);
@@ -220,7 +212,7 @@ public class NPCInteraction : MonoBehaviour
     /// NPC와의 첫 상호작용 대사를 가져옵니다. 
     /// 퀘스트 상태(None, Available 등)에 따라 적절한 대화 그룹을 찾아 반환합니다.
     /// SOLID: OCP(Open/Closed Principle) - 새로운 퀘스트 상태가 추가되어도, 초기 대화가 누락되면 
-    ///        'None' 상태로 돌아가 안정적인 기본 대화를 제공하도록 폴백 로직을 명확히 합니다.
+    ///        'None' 상태로 돌아가 안정적인 기본 대화를 제공하도록 폴백 로직을 명확히 합니다.
     /// </summary>
     private string[] GetInteractionDialogue()
     {
@@ -238,7 +230,7 @@ public class NPCInteraction : MonoBehaviour
         DialogueGroup dialogueGroup = npc.Data.dialogueGroups
             .FirstOrDefault(dg => dg.questState == currentQuestState);
 
-        // ✨ 핵심 수정 시작: (퀘스트 상태 그룹이 있든 없든) 초기 대화가 존재하는지 확인합니다.
+        // 핵심 수정 시작: (퀘스트 상태 그룹이 있든 없든) 초기 대화가 존재하는지 확인합니다.
 
         // 3. 호감도 기반으로 초기 대화를 찾습니다.
         int currentAffection = npc.GetAffection();
@@ -263,7 +255,7 @@ public class NPCInteraction : MonoBehaviour
         }
 
         // 4. 만약 현재 상태(퀘스트 상태)에서 초기 대사를 찾지 못했다면 (dialogueTexts == null), 
-        //    'None' 그룹의 초기 대화를 폴백으로 사용합니다.
+        //    'None' 그룹의 초기 대화를 폴백으로 사용합니다.
         if (dialogueTexts == null || dialogueTexts.Length == 0)
         {
             // QuestState.None 그룹을 찾아봅니다.

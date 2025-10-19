@@ -35,7 +35,6 @@ public static class BossEvents
     {
         // Null Check를 통해 구독자가 없을 때의 에러를 방지합니다.
         OnBossSpawned?.Invoke(sender, new BossDataEventArgs(bossName, maxHealth));
-        Debug.Log($"[BossEvents] Boss Spawned Event Raised: {bossName}");
     }
 
     /// <summary>
@@ -55,6 +54,5 @@ public static class BossEvents
     public static void RaiseBossDefeated(object sender)
     {
         OnBossDefeated?.Invoke(sender, EventArgs.Empty);
-        Debug.Log("[BossEvents] Boss Defeated Event Raised.");
     }
 }

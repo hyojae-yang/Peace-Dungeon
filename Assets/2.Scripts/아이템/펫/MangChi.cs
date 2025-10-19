@@ -53,31 +53,31 @@ public class MangChi : MonoBehaviour
 
     // [내부 변수]
     private PlayerCharacter owner;
-    private Vector3 currentVelocity;                 // SmoothDamp 함수가 사용하는 내부 속도 변수
-    private Vector3 currentTargetPosition;           // 망치가 현재 가야 할 목표 지점 (랜덤 또는 플레이어 복귀 지점)
-    private float wanderTimer;                       // 다음 랜덤 목표를 설정할 때까지의 남은 시간
+    private Vector3 currentVelocity;                 // SmoothDamp 함수가 사용하는 내부 속도 변수
+    private Vector3 currentTargetPosition;           // 망치가 현재 가야 할 목표 지점 (랜덤 또는 플레이어 복귀 지점)
+    private float wanderTimer;                       // 다음 랜덤 목표를 설정할 때까지의 남은 시간
 
-    private Animator animator;                       // 애니메이터 컴포넌트 참조
+    private Animator animator;                       // 애니메이터 컴포넌트 참조
     private CharacterController characterController; // CharacterController 컴포넌트 참조
-    private Vector3 verticalVelocity;                // 중력 및 수직 이동 속도
+    private Vector3 verticalVelocity;                // 중력 및 수직 이동 속도
 
-    private Vector3 smoothHorizontalVelocity;        // 캐릭터의 실제 수평 이동 속도 (애니메이션 제어용)
+    private Vector3 smoothHorizontalVelocity;        // 캐릭터의 실제 수평 이동 속도 (애니메이션 제어용)
 
     // [애니메이션 플로우 변수]
-    private float currentFlowVert = 0.0f;           // Vert 매개변수의 현재 흐름 값 (움직임 유무)
-    private float currentFlowState = 0.0f;          // State 매개변수의 현재 흐름 값 (걷기/뛰기 모드)
+    private float currentFlowVert = 0.0f;           // Vert 매개변수의 현재 흐름 값 (움직임 유무)
+    private float currentFlowState = 0.0f;          // State 매개변수의 현재 흐름 값 (걷기/뛰기 모드)
 
     // [휴식/파밍 상태 변수]
-    private bool isResting = false;                  // 현재 망치가 휴식 중인지 여부
-    private int targetWaypointCount = 0;             // 목표 지점에 도달한 횟수 (휴식 트리거용)
-    // private Coroutine _restCoroutine;              // 휴식 코루틴 참조 (필요 시 사용)
+    private bool isResting = false;                  // 현재 망치가 휴식 중인지 여부
+    private int targetWaypointCount = 0;             // 목표 지점에 도달한 횟수 (휴식 트리거용)
+    // private Coroutine _restCoroutine;              // 휴식 코루틴 참조 (필요 시 사용)
 
     // [아이템 파밍 로직 주석 처리 (논의 보류)]
     [Header("아이템 파밍 설정")]
     [Tooltip("파밍 시도 간 최소 대기 시간 (초)")]
     [SerializeField] private float minLootInterval = 30f;
     [Tooltip("파밍 시도 간 최대 대기 시간 (초)")]
-    [SerializeField] private float maxLootInterval = 15*60f;
+    [SerializeField] private float maxLootInterval = 15 * 60f;
     private Coroutine _lootCoroutine; // 파밍 코루틴 참조 변수
     [SerializeField] BaseItemSO[] baseItemSO; // 파밍할 아이템 리스트
 
@@ -408,9 +408,19 @@ public class MangChi : MonoBehaviour
     /// </summary>
     private void StartLooting()
     {
+        // [핵심 수정]: MissingReferenceException 방지 가드
+        // 오브젝트가 파괴되었거나, 비활성화된 상태에서 StartCoroutine 호출을 시도하는 것을 막습니다.
+        // isDead 상태일 때도 코루틴을 시작하지 않도록 방어합니다.
+        if (!this.isActiveAndEnabled || isDead)
+        {
+            // Debug.LogWarning("MangChi 인스턴스가 유효하지 않거나 사망 상태라 StartLooting을 무시했습니다.");
+            return;
+        }
+
         if (_lootCoroutine != null) return; // 이미 실행 중이면 중복 방지
 
-        _lootCoroutine = StartCoroutine(LootingRoutine()); // 다음 단계에서 활성화
+        // _lootCoroutine = StartCoroutine(LootingRoutine()); // 기존 코드
+        _lootCoroutine = StartCoroutine(LootingRoutine());
     }
     /// <summary>
     /// 던전 퇴장 시 호출되어 파밍 루틴을 중지합니다.
@@ -470,14 +480,23 @@ public class MangChi : MonoBehaviour
         if (lootedItem != null)
         {
             // BaseItemSO 클래스에 'itemName' 필드 또는 프로퍼티가 있다고 가정합니다.
-            string itemName = lootedItem.itemName;
-            PlayerCharacter.Instance.inventoryManager.AddItem(lootedItem); // 인벤토리에 아이템 추가
-            if (NotificationManager.Instance != null)
+            // 인벤토리 매니저가 유효한지 추가 검사
+            if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.inventoryManager != null)
             {
-                NotificationManager.Instance.ShowNotification(
-                    $"망치가 {itemName} 아이템을 획득했습니다!",
-                    NotificationType.Success // Success 타입으로 호출
-                );
+                string itemName = lootedItem.itemName;
+                PlayerCharacter.Instance.inventoryManager.AddItem(lootedItem); // 인벤토리에 아이템 추가
+
+                if (NotificationManager.Instance != null)
+                {
+                    NotificationManager.Instance.ShowNotification(
+                        $"망치가 {itemName} 아이템을 획득했습니다!",
+                        NotificationType.Success // Success 타입으로 호출
+                    );
+                }
+            }
+            else
+            {
+                Debug.LogError("[MangChi] PlayerCharacter.Instance 또는 inventoryManager가 null입니다. 아이템 획득 알림 및 인벤토리 추가 실패.");
             }
 
             // TODO: (다음 단계) DungeonInventoryManager.Instance.AddPlayerItem(lootedItem.itemID); 로직 추가 예정

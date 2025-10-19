@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: 16
   m_EditorClassIdentifier: 
   questID: 16
-  questTitle: "[\uCC98\uCE58] \uC0AC\uB098\uC6B4 \uBA67\uB3FC\uC9C0"
-  questDescription: "\uBA67\uB3FC\uC9C0 5\uB9C8\uB9AC \uCC98\uCE58"
+  questTitle: "[\uCC98\uCE58] \uC0AC\uB098\uC6B4 \uC0B0\uC591"
+  questDescription: "\uC0B0\uC591 5\uB9C8\uB9AC \uCC98\uCE58"
   questGiverName: "\uC774\uC21C\uB355"
   requiredAffection: 0
   prerequisiteQuests: 0f000000

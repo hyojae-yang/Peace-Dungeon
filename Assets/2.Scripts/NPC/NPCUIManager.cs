@@ -1,68 +1,67 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections.Generic;
-using System;
 
 /// <summary>
-/// NPC¿Í °ü·ÃµÈ UI¸¦ °ü¸®ÇÏ´Â ½Ì±ÛÅÏ Å¬·¡½ºÀÔ´Ï´Ù.
-/// ´Ù¸¥ ½ºÅ©¸³Æ®(NPCInteraction, NPCQuestHandler)ÀÇ ¿äÃ»¿¡ µû¶ó UI¸¦ Ç¥½Ã/¼û±é´Ï´Ù.
-/// SOLID: ´ÜÀÏ Ã¥ÀÓ ¿øÄ¢ (UI Ç¥½Ã/¼û±â±â).
+/// NPCì™€ ê´€ë ¨ëœ UIë¥¼ ê´€ë¦¬í•˜ëŠ” ì‹±ê¸€í„´ í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸(NPCInteraction, NPCQuestHandler)ì˜ ìš”ì²­ì— ë”°ë¼ UIë¥¼ í‘œì‹œ/ìˆ¨ê¹ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (UI í‘œì‹œ/ìˆ¨ê¸°ê¸°).
 /// </summary>
 public class NPCUIManager : MonoBehaviour
 {
-    // ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º
+    // ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤
     public static NPCUIManager Instance { get; private set; }
 
     [Header("UI Panels")]
-    [Tooltip("´ëÈ­ ÆĞ³Î UI")]
+    [Tooltip("ëŒ€í™” íŒ¨ë„ UI")]
     public GameObject dialoguePanel;
-    [Tooltip("¸ŞÀÎ ´ëÈ­ ¹öÆ° ÆĞ³Î (´ëÈ­ÇÏ±â, Äù½ºÆ®)")]
+    [Tooltip("ë©”ì¸ ëŒ€í™” ë²„íŠ¼ íŒ¨ë„ (ëŒ€í™”í•˜ê¸°, í€˜ìŠ¤íŠ¸)")]
     public GameObject mainButtonsPanel;
-    [Tooltip("Äù½ºÆ® ¼ö¶ô ÆĞ³Î")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ìˆ˜ë½ íŒ¨ë„")]
     public GameObject questAcceptPanel;
-    [Tooltip("Äù½ºÆ® Ãë¼Ò ÆĞ³Î")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ì·¨ì†Œ íŒ¨ë„")]
     public GameObject questCancelPanel;
-    [Tooltip("Äù½ºÆ® ¸ñ·Ï ÆĞ³Î")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ëª©ë¡ íŒ¨ë„")]
     public GameObject questListPanel;
-    [Tooltip("Äù½ºÆ® º¸»ó ÆĞ³ÎÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ë³´ìƒ íŒ¨ë„ì…ë‹ˆë‹¤.")]
     public GameObject questRewardPanel;
 
     [Header("UI Elements")]
-    [Tooltip("NPC ÀÌ¸§ ÅØ½ºÆ®")]
+    [Tooltip("NPC ì´ë¦„ í…ìŠ¤íŠ¸")]
     public TextMeshProUGUI npcNameText;
-    [Tooltip("´ëÈ­ ³»¿ë ÅØ½ºÆ®")]
+    [Tooltip("ëŒ€í™” ë‚´ìš© í…ìŠ¤íŠ¸")]
     public TextMeshProUGUI dialogueText;
-    [Tooltip("´ëÈ­ÇÏ±â ¹öÆ°")]
+    [Tooltip("ëŒ€í™”í•˜ê¸° ë²„íŠ¼")]
     public Button dialogueButton;
-    [Tooltip("Äù½ºÆ® ¹öÆ°")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ë²„íŠ¼")]
     public Button questButton;
-    [Tooltip("´ëÈ­ ÆĞ³ÎÀÇ '´ÙÀ½' ¹öÆ°")]
+    [Tooltip("ëŒ€í™” íŒ¨ë„ì˜ 'ë‹¤ìŒ' ë²„íŠ¼")]
     public Button nextButton;
-    [Tooltip("»óÁ¡, ´ëÀå°£ µî Æ¯¼ö ±â´É ¹öÆ°")]
+    [Tooltip("ìƒì , ëŒ€ì¥ê°„ ë“± íŠ¹ìˆ˜ ê¸°ëŠ¥ ë²„íŠ¼")]
     public Button specialButton;
-    [Tooltip("Æ¯¼ö ¹öÆ°ÀÇ ÅØ½ºÆ®")]
+    [Tooltip("íŠ¹ìˆ˜ ë²„íŠ¼ì˜ í…ìŠ¤íŠ¸")]
     public TextMeshProUGUI specialButtonText;
 
-    // Äù½ºÆ® ¼ö¶ô/Ãë¼Ò ÆĞ³ÎÀÇ ¹öÆ°µé
+    // í€˜ìŠ¤íŠ¸ ìˆ˜ë½/ì·¨ì†Œ íŒ¨ë„ì˜ ë²„íŠ¼ë“¤
     [Header("Quest Panels Buttons")]
-    [Tooltip("Äù½ºÆ® ¼ö¶ô ÆĞ³ÎÀÇ '¼ö¶ô' ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ìˆ˜ë½ íŒ¨ë„ì˜ 'ìˆ˜ë½' ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     public Button acceptQuestButton;
-    [Tooltip("Äù½ºÆ® ¼ö¶ô ÆĞ³ÎÀÇ '°ÅÀı' ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ìˆ˜ë½ íŒ¨ë„ì˜ 'ê±°ì ˆ' ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     public Button rejectQuestButton;
-    [Tooltip("Äù½ºÆ® Ãë¼Ò ÆĞ³ÎÀÇ 'È®ÀÎ' ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ì·¨ì†Œ íŒ¨ë„ì˜ 'í™•ì¸' ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     public Button confirmCancelButton;
-    [Tooltip("Äù½ºÆ® Ãë¼Ò ÆĞ³ÎÀÇ 'Ãë¼Ò' ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ì·¨ì†Œ íŒ¨ë„ì˜ 'ì·¨ì†Œ' ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     public Button cancelQuestButton;
-    [Tooltip("Äù½ºÆ® º¸»ó ÆĞ³ÎÀÇ 'È®ÀÎ' ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("í€˜ìŠ¤íŠ¸ ë³´ìƒ íŒ¨ë„ì˜ 'í™•ì¸' ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     public Button rewardPanelConfirmButton;
 
     [Header("Quest Reward UI")]
-    [Tooltip("º¸»ó ¾ÆÀÌÅÛ ÀÌ¸§ ÅØ½ºÆ®")]
+    [Tooltip("ë³´ìƒ ì•„ì´í…œ ì´ë¦„ í…ìŠ¤íŠ¸")]
     public TextMeshProUGUI rewardItemNameText;
-    [Tooltip("º¸»ó °æÇèÄ¡ ÅØ½ºÆ®")]
+    [Tooltip("ë³´ìƒ ê²½í—˜ì¹˜ í…ìŠ¤íŠ¸")]
     public TextMeshProUGUI rewardExpText;
-    [Tooltip("º¸»ó °ñµå ÅØ½ºÆ®")]
+    [Tooltip("ë³´ìƒ ê³¨ë“œ í…ìŠ¤íŠ¸")]
     public TextMeshProUGUI rewardGoldText;
 
     private void Awake()
@@ -83,28 +82,10 @@ public class NPCUIManager : MonoBehaviour
     }
 
     //----------------------------------------------------------------------------------------------------------------
-    // UI Ç¥½Ã/¼û±â±â
+    // UI í‘œì‹œ/ìˆ¨ê¸°ê¸°
     //----------------------------------------------------------------------------------------------------------------
 
-    public void ShowInteractionPrompt(bool show)
-    {
-        // [¼öÁ¤µÈ ·ÎÁ÷ ½ÃÀÛ]
-        if (NotificationManager.Instance == null)
-        {
-            Debug.LogWarning("NotificationManager¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. »óÈ£ÀÛ¿ë ÇÁ·ÒÇÁÆ® Ç¥½Ã ½ÇÆĞ.");
-            return;
-        }
-
-        if (show)
-        {
-            // ÅØ½ºÆ®´Â ÇÊ¿ä¿¡ µû¶ó º¯°æ °¡´ÉÇÏÁö¸¸, ÀÏ´Ü ±âº» ¸Ş½ÃÁö¸¦ »ç¿ëÇÕ´Ï´Ù.
-            NotificationManager.Instance.ShowInteractionPrompt("E Å°¸¦ ´­·¯ »óÈ£ÀÛ¿ë");
-        }
-        else
-        {
-            NotificationManager.Instance.HideInteractionPrompt();
-        }
-    }
+    // ì œê±°ëœ ë¶€ë¶„: ShowInteractionPrompt ë©”ì„œë“œëŠ” NPCInteraction.csë¡œ ì±…ì„ì´ ì´ì „ë©ë‹ˆë‹¤.
 
     public void ShowDialoguePanel(string npcName, string dialogue)
     {
@@ -175,10 +156,10 @@ public class NPCUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Äù½ºÆ® ¿Ï·á º¸»ó ÆĞ³ÎÀ» Ç¥½ÃÇÕ´Ï´Ù.
+    /// í€˜ìŠ¤íŠ¸ ì™„ë£Œ ë³´ìƒ íŒ¨ë„ì„ í‘œì‹œí•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="data">Äù½ºÆ® µ¥ÀÌÅÍ(º¸»ó Á¤º¸ Æ÷ÇÔ)</param>
-    /// <param name="interaction">»óÈ£ÀÛ¿ë Á¾·á¸¦ À§ÇÑ NPCInteraction ÄÄÆ÷³ÍÆ®</param>
+    /// <param name="data">í€˜ìŠ¤íŠ¸ ë°ì´í„°(ë³´ìƒ ì •ë³´ í¬í•¨)</param>
+    /// <param name="interaction">ìƒí˜¸ì‘ìš© ì¢…ë£Œë¥¼ ìœ„í•œ NPCInteraction ì»´í¬ë„ŒíŠ¸</param>
     public void ShowQuestRewardPanel(QuestData data, NPCInteraction interaction)
     {
         HideAllUI();
@@ -193,9 +174,12 @@ public class NPCUIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// ëª¨ë“  UI íŒ¨ë„ì„ ìˆ¨ê¸°ê³  ìƒí˜¸ì‘ìš© í”„ë¡¬í”„íŠ¸ë¥¼ ë¹„í™œì„±í™”í•©ë‹ˆë‹¤.
+    /// </summary>
     public void HideAllUI()
     {
-        // [Ãß°¡ ·ÎÁ÷] »óÈ£ÀÛ¿ë ÇÁ·ÒÇÁÆ®´Â NotificationManager¸¦ ÅëÇØ ¼öµ¿À¸·Î ¼û±é´Ï´Ù.
+        // ìƒí˜¸ì‘ìš© í”„ë¡¬í”„íŠ¸ëŠ” NotificationManagerë¥¼ í†µí•´ ì§ì ‘ ìˆ¨ê¹ë‹ˆë‹¤.
         if (NotificationManager.Instance != null)
         {
             NotificationManager.Instance.HideInteractionPrompt();
@@ -209,36 +193,36 @@ public class NPCUIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// NPC°¡ °¡Áø Æ¯¼ö ±â´É¿¡ µû¶ó Æ¯¼ö ¹öÆ°À» ¼³Á¤ÇÕ´Ï´Ù.
+    /// NPCê°€ ê°€ì§„ íŠ¹ìˆ˜ ê¸°ëŠ¥ì— ë”°ë¼ íŠ¹ìˆ˜ ë²„íŠ¼ì„ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="npc">ÇöÀç »óÈ£ÀÛ¿ë ÁßÀÎ NPC ÄÄÆ÷³ÍÆ®</param>
+    /// <param name="npc">í˜„ì¬ ìƒí˜¸ì‘ìš© ì¤‘ì¸ NPC ì»´í¬ë„ŒíŠ¸</param>
     public void SetSpecialButton(NPC npc)
     {
-        // 1. NPC¿¡°Ô Æ¯¼ö ±â´É ¸ñ·ÏÀ» ¿äÃ»ÇÕ´Ï´Ù.
+        // 1. NPCì—ê²Œ íŠ¹ìˆ˜ ê¸°ëŠ¥ ëª©ë¡ì„ ìš”ì²­í•©ë‹ˆë‹¤.
         List<INPCFunction> functions = npc.GetSpecialFunctions();
 
-        // 2. Æ¯¼ö ±â´ÉÀÌ ÇÏ³ª¶óµµ Á¸ÀçÇÏ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+        // 2. íŠ¹ìˆ˜ ê¸°ëŠ¥ì´ í•˜ë‚˜ë¼ë„ ì¡´ì¬í•˜ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (functions != null && functions.Count > 0)
         {
-            // 3. ±â´ÉÀÌ ÀÖ´Ù¸é ¹öÆ°À» È°¼ºÈ­ÇÏ°í, Ã¹ ¹øÂ° ±â´ÉÀÇ ÀÌ¸§À¸·Î ÅØ½ºÆ®¸¦ ¼³Á¤ÇÕ´Ï´Ù.
-            // ÇöÀç´Â ¿©·¯ ±â´É Áß Ã¹ ¹øÂ° ±â´É¸¸ Ç¥½ÃÇÕ´Ï´Ù.
+            // 3. ê¸°ëŠ¥ì´ ìˆë‹¤ë©´ ë²„íŠ¼ì„ í™œì„±í™”í•˜ê³ , ì²« ë²ˆì§¸ ê¸°ëŠ¥ì˜ ì´ë¦„ìœ¼ë¡œ í…ìŠ¤íŠ¸ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
+            // í˜„ì¬ëŠ” ì—¬ëŸ¬ ê¸°ëŠ¥ ì¤‘ ì²« ë²ˆì§¸ ê¸°ëŠ¥ë§Œ í‘œì‹œí•©ë‹ˆë‹¤.
             specialButton.gameObject.SetActive(true);
             specialButtonText.text = functions[0].FunctionButtonName;
         }
         else
         {
-            // 4. ±â´ÉÀÌ ¾ø´Ù¸é ¹öÆ°À» ºñÈ°¼ºÈ­ÇÕ´Ï´Ù.
+            // 4. ê¸°ëŠ¥ì´ ì—†ë‹¤ë©´ ë²„íŠ¼ì„ ë¹„í™œì„±í™”í•©ë‹ˆë‹¤.
             specialButton.gameObject.SetActive(false);
         }
     }
 
     /// <summary>
-    /// º¸»ó ÆĞ³ÎÀÇ ÅØ½ºÆ®¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+    /// ë³´ìƒ íŒ¨ë„ì˜ í…ìŠ¤íŠ¸ë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="data">Äù½ºÆ® µ¥ÀÌÅÍ(º¸»ó Á¤º¸ Æ÷ÇÔ)</param>
+    /// <param name="data">í€˜ìŠ¤íŠ¸ ë°ì´í„°(ë³´ìƒ ì •ë³´ í¬í•¨)</param>
     private void UpdateRewardTexts(QuestData data)
     {
-        // º¸»ó ¾ÆÀÌÅÛ Á¤º¸
+        // ë³´ìƒ ì•„ì´í…œ ì •ë³´
         if (rewardItemNameText != null)
         {
             if (data.rewardItems.Count > 0)
@@ -246,15 +230,15 @@ public class NPCUIManager : MonoBehaviour
                 string itemString = "";
                 for (int i = 0; i < data.rewardItems.Count; i++)
                 {
-                    // ItemSO°¡ nullÀÎÁö È®ÀÎÇÏ¿© ¿¡·¯¸¦ ¹æÁöÇÕ´Ï´Ù.
+                    // ItemSOê°€ nullì¸ì§€ í™•ì¸í•˜ì—¬ ì—ëŸ¬ë¥¼ ë°©ì§€í•©ë‹ˆë‹¤.
                     if (data.rewardItems[i].itemSO != null)
                     {
                         string itemName = data.rewardItems[i].itemSO.itemName;
-                        itemString += data.rewardItems[i].itemCount > 0 ? $"{itemName} ({data.rewardItems[i].itemCount}°³)" : itemName;
+                        itemString += data.rewardItems[i].itemCount > 0 ? $"{itemName} ({data.rewardItems[i].itemCount}ê°œ)" : itemName;
                     }
                     else
                     {
-                        itemString += "À¯È¿ÇÏÁö ¾ÊÀº ¾ÆÀÌÅÛ";
+                        itemString += "ìœ íš¨í•˜ì§€ ì•Šì€ ì•„ì´í…œ";
                     }
 
                     if (i < data.rewardItems.Count - 1)
@@ -262,29 +246,29 @@ public class NPCUIManager : MonoBehaviour
                         itemString += ", ";
                     }
                 }
-                rewardItemNameText.text = $"º¸»ó ¾ÆÀÌÅÛ: {itemString}";
+                rewardItemNameText.text = $"ë³´ìƒ ì•„ì´í…œ: {itemString}";
             }
             else
             {
-                rewardItemNameText.text = "º¸»ó ¾ÆÀÌÅÛ: ¾øÀ½";
+                rewardItemNameText.text = "ë³´ìƒ ì•„ì´í…œ: ì—†ìŒ";
             }
         }
 
-        // °æÇèÄ¡ º¸»ó ¾÷µ¥ÀÌÆ®
+        // ê²½í—˜ì¹˜ ë³´ìƒ ì—…ë°ì´íŠ¸
         if (rewardExpText != null)
         {
-            rewardExpText.text = data.experienceReward > 0 ? $"º¸»ó °æÇèÄ¡: +{data.experienceReward}" : "º¸»ó °æÇèÄ¡: ¾øÀ½";
+            rewardExpText.text = data.experienceReward > 0 ? $"ë³´ìƒ ê²½í—˜ì¹˜: +{data.experienceReward}" : "ë³´ìƒ ê²½í—˜ì¹˜: ì—†ìŒ";
         }
 
-        // °ñµå º¸»ó ¾÷µ¥ÀÌÆ®
+        // ê³¨ë“œ ë³´ìƒ ì—…ë°ì´íŠ¸
         if (rewardGoldText != null)
         {
-            rewardGoldText.text = data.goldReward > 0 ? $"º¸»ó °ñµå: +{data.goldReward}" : "º¸»ó °ñµå: ¾øÀ½";
+            rewardGoldText.text = data.goldReward > 0 ? $"ë³´ìƒ ê³¨ë“œ: +{data.goldReward}" : "ë³´ìƒ ê³¨ë“œ: ì—†ìŒ";
         }
     }
 
     //----------------------------------------------------------------------------------------------------------------
-    // ¹öÆ° ÀÌº¥Æ® ¸®½º³Ê Ãß°¡/Á¦°Å (º¯°æ ¾øÀ½)
+    // ë²„íŠ¼ ì´ë²¤íŠ¸ ë¦¬ìŠ¤ë„ˆ ì¶”ê°€/ì œê±° (ë³€ê²½ ì—†ìŒ)
     //----------------------------------------------------------------------------------------------------------------
 
     public void AddDialogueButtonListener(UnityEngine.Events.UnityAction action)

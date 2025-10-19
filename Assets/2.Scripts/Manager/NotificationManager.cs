@@ -1,72 +1,71 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using TMPro;
-using UnityEngine.UI; // Image ÄÄÆ÷³ÍÆ® »ç¿ëÀ» À§ÇØ Ãß°¡
 using System.Collections;
 
 /*
                     if (NotificationManager.Instance != null)
                     {
                         NotificationManager.Instance.ShowNotification(
-                            "´øÀü ÀÔÀå ¿Ï·á",
+                            "ë˜ì „ ìž…ìž¥ ì™„ë£Œ",
                             NotificationType.General
                         );
                     }
 */
 /// <summary>
-/// ¾Ë¸² ¸Þ½ÃÁöÀÇ À¯ÇüÀ» Á¤ÀÇÇÕ´Ï´Ù. ÅØ½ºÆ® »ö»ó ¶Ç´Â ±âÅ¸ ½ºÅ¸ÀÏÀ» ±¸ºÐÇÏ´Â µ¥ »ç¿ëµË´Ï´Ù.
-/// SOLID: OCP(°³¹æ-Æó¼â ¿øÄ¢) - »õ·Î¿î ¾Ë¸² À¯ÇüÀÌ Ãß°¡µÇ¾îµµ ShowNotification ¸Þ¼­µå ÀÚÃ¼´Â ´ÝÇôÀÖ½À´Ï´Ù.
+/// ì•Œë¦¼ ë©”ì‹œì§€ì˜ ìœ í˜•ì„ ì •ì˜í•©ë‹ˆë‹¤. í…ìŠ¤íŠ¸ ìƒ‰ìƒ ë˜ëŠ” ê¸°íƒ€ ìŠ¤íƒ€ì¼ì„ êµ¬ë¶„í•˜ëŠ” ë° ì‚¬ìš©ë©ë‹ˆë‹¤.
+/// SOLID: OCP(ê°œë°©-íì‡„ ì›ì¹™) - ìƒˆë¡œìš´ ì•Œë¦¼ ìœ í˜•ì´ ì¶”ê°€ë˜ì–´ë„ ShowNotification ë©”ì„œë“œ ìžì²´ëŠ” ë‹«í˜€ìžˆìŠµë‹ˆë‹¤.
 /// </summary>
 public enum NotificationType
 {
-    General,        // ÀÏ¹Ý ½Ã½ºÅÛ ¸Þ½ÃÁö (¿¹: ÀúÀå ¿Ï·á, Àåºñ ±³Ã¼)
-    Success,        // ±àÁ¤Àû ¸Þ½ÃÁö (¿¹: ·¹º§¾÷, º¸½º Ã³Ä¡, Äù½ºÆ® ¿Ï·á)
-    Warning,        // °æ°í ¸Þ½ÃÁö (¿¹: ÀÎº¥Åä¸® °¡µæ Âü)
-    Interaction     // »óÈ£ÀÛ¿ë ÇÁ·ÒÇÁÆ® (ÀÚµ¿ ¼û±è ¾øÀ½)
+    General,        // ì¼ë°˜ ì‹œìŠ¤í…œ ë©”ì‹œì§€ (ì˜ˆ: ì €ìž¥ ì™„ë£Œ, ìž¥ë¹„ êµì²´)
+    Success,        // ê¸ì •ì  ë©”ì‹œì§€ (ì˜ˆ: ë ˆë²¨ì—…, ë³´ìŠ¤ ì²˜ì¹˜, í€˜ìŠ¤íŠ¸ ì™„ë£Œ)
+    Warning,        // ê²½ê³  ë©”ì‹œì§€ (ì˜ˆ: ì¸ë²¤í† ë¦¬ ê°€ë“ ì°¸)
+    Interaction     // ìƒí˜¸ìž‘ìš© í”„ë¡¬í”„íŠ¸ (ìžë™ ìˆ¨ê¹€ ì—†ìŒ)
 }
 
 /// <summary>
-/// °ÔÀÓ Àü¹ÝÀÇ ¸ðµç ÀÏÈ¸¼º ¾Ë¸²À» °ü¸®ÇÏ´Â ½Ì±ÛÅÏ Å¬·¡½ºÀÔ´Ï´Ù.
-/// (NPC »óÈ£ÀÛ¿ë ÇÁ·ÒÇÁÆ®µµ ÀÌ ½Ã½ºÅÛÀ» ÅëÇØ Ç¥½ÃµË´Ï´Ù.)
-/// SOLID: ´ÜÀÏ Ã¥ÀÓ ¿øÄ¢ (SRP) - ¿ÀÁ÷ ¾Ë¸²Ã¢ Ç¥½Ã ¹× ¼û±è Ã¥ÀÓ¸¸ °¡Áý´Ï´Ù.
+/// ê²Œìž„ ì „ë°˜ì˜ ëª¨ë“  ì¼íšŒì„± ì•Œë¦¼ì„ ê´€ë¦¬í•˜ëŠ” ì‹±ê¸€í„´ í´ëž˜ìŠ¤ìž…ë‹ˆë‹¤.
+/// (NPC ìƒí˜¸ìž‘ìš© í”„ë¡¬í”„íŠ¸ë„ ì´ ì‹œìŠ¤í…œì„ í†µí•´ í‘œì‹œë©ë‹ˆë‹¤.)
+/// SOLID: ë‹¨ì¼ ì±…ìž„ ì›ì¹™ (SRP) - ì˜¤ì§ ì•Œë¦¼ì°½ í‘œì‹œ ë° ìˆ¨ê¹€ ì±…ìž„ë§Œ ê°€ì§‘ë‹ˆë‹¤.
 /// </summary>
 public class NotificationManager : MonoBehaviour
 {
-    // ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º
+    // ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤
     public static NotificationManager Instance { get; private set; }
 
     [Header("UI References")]
-    [Tooltip("¾Ë¸²Ã¢ ÀüÃ¼¸¦ °¨½Î´Â ÃÖ»óÀ§ UI ÆÐ³Î (¹è°æ ÀÌ¹ÌÁö Æ÷ÇÔ)")]
+    [Tooltip("ì•Œë¦¼ì°½ ì „ì²´ë¥¼ ê°ì‹¸ëŠ” ìµœìƒìœ„ UI íŒ¨ë„ (ë°°ê²½ ì´ë¯¸ì§€ í¬í•¨)")]
     public GameObject notificationPanel;
-    [Tooltip("¾Ë¸² ³»¿ëÀÌ Ç¥½ÃµÉ TextMeshProUGUI ÄÄÆ÷³ÍÆ®")]
+    [Tooltip("ì•Œë¦¼ ë‚´ìš©ì´ í‘œì‹œë  TextMeshProUGUI ì»´í¬ë„ŒíŠ¸")]
     public TextMeshProUGUI notificationText;
 
     [Header("Behavior Settings")]
-    [Tooltip("General, Success, Warning Å¸ÀÔ ¾Ë¸²ÀÇ ±âº» Ç¥½Ã ½Ã°£ (ÃÊ)")]
+    [Tooltip("General, Success, Warning íƒ€ìž… ì•Œë¦¼ì˜ ê¸°ë³¸ í‘œì‹œ ì‹œê°„ (ì´ˆ)")]
     public float displayDuration = 3f;
 
     [Header("Notification Styles")]
-    [Tooltip("General Å¸ÀÔ ¾Ë¸²ÀÇ ÅØ½ºÆ® »ö»ó")]
+    [Tooltip("General íƒ€ìž… ì•Œë¦¼ì˜ í…ìŠ¤íŠ¸ ìƒ‰ìƒ")]
     public Color generalColor = Color.white;
-    [Tooltip("Success Å¸ÀÔ ¾Ë¸²ÀÇ ÅØ½ºÆ® »ö»ó (¿¹: ³ì»ö)")]
+    [Tooltip("Success íƒ€ìž… ì•Œë¦¼ì˜ í…ìŠ¤íŠ¸ ìƒ‰ìƒ (ì˜ˆ: ë…¹ìƒ‰)")]
     public Color successColor = Color.green;
-    [Tooltip("Warning Å¸ÀÔ ¾Ë¸²ÀÇ ÅØ½ºÆ® »ö»ó (¿¹: »¡°£»ö)")]
+    [Tooltip("Warning íƒ€ìž… ì•Œë¦¼ì˜ í…ìŠ¤íŠ¸ ìƒ‰ìƒ (ì˜ˆ: ë¹¨ê°„ìƒ‰)")]
     public Color warningColor = Color.red;
-    [Tooltip("Interaction Å¸ÀÔ ¾Ë¸²ÀÇ ÅØ½ºÆ® »ö»ó (¿¹: ³ë¶õ»ö)")]
+    [Tooltip("Interaction íƒ€ìž… ì•Œë¦¼ì˜ í…ìŠ¤íŠ¸ ìƒ‰ìƒ (ì˜ˆ: ë…¸ëž€ìƒ‰)")]
     public Color interactionColor = Color.yellow;
 
-    // ÇöÀç ½ÇÇà ÁßÀÎ ÀÚµ¿ ¼û±è ÄÚ·çÆ¾À» ÃßÀûÇÏ´Â º¯¼ö
-    // »õ·Î¿î ¾Ë¸²ÀÌ µé¾î¿À¸é ±âÁ¸ ÄÚ·çÆ¾À» Áß´ÜÇÏ°í »õ ÄÚ·çÆ¾À» ½ÃÀÛÇÕ´Ï´Ù.
+    // í˜„ìž¬ ì‹¤í–‰ ì¤‘ì¸ ìžë™ ìˆ¨ê¹€ ì½”ë£¨í‹´ì„ ì¶”ì í•˜ëŠ” ë³€ìˆ˜
+    // ìƒˆë¡œìš´ ì•Œë¦¼ì´ ë“¤ì–´ì˜¤ë©´ ê¸°ì¡´ ì½”ë£¨í‹´ì„ ì¤‘ë‹¨í•˜ê³  ìƒˆ ì½”ë£¨í‹´ì„ ì‹œìž‘í•©ë‹ˆë‹¤.
     private Coroutine hideCoroutine;
 
     /// <summary>
-    /// ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     private void Awake()
     {
         if (Instance == null)
         {
             Instance = this;
-            // °ÔÀÓ ½ÃÀÛ ½Ã ¾Ë¸²Ã¢Àº ¼û°ÜÁø »óÅÂ·Î ½ÃÀÛÇÕ´Ï´Ù.
+            // ê²Œìž„ ì‹œìž‘ ì‹œ ì•Œë¦¼ì°½ì€ ìˆ¨ê²¨ì§„ ìƒíƒœë¡œ ì‹œìž‘í•©ë‹ˆë‹¤.
             if (notificationPanel != null)
             {
                 notificationPanel.SetActive(false);
@@ -79,60 +78,60 @@ public class NotificationManager : MonoBehaviour
     }
 
     // ----------------------------------------------------------------------------------------------------------------
-    // °ø°³ API: ¾Ë¸² Ç¥½Ã/¼û±â±â
+    // ê³µê°œ API: ì•Œë¦¼ í‘œì‹œ/ìˆ¨ê¸°ê¸°
     // ----------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// ÀÏÁ¤ ½Ã°£ ÈÄ ÀÚµ¿À¸·Î »ç¶óÁö´Â ¾Ë¸²À» Ç¥½ÃÇÕ´Ï´Ù.
-    /// (General, Success, Warning Å¸ÀÔ¿¡ »ç¿ë)
+    /// ì¼ì • ì‹œê°„ í›„ ìžë™ìœ¼ë¡œ ì‚¬ë¼ì§€ëŠ” ì•Œë¦¼ì„ í‘œì‹œí•©ë‹ˆë‹¤.
+    /// (General, Success, Warning íƒ€ìž…ì— ì‚¬ìš©)
     /// </summary>
-    /// <param name="message">Ç¥½ÃÇÒ ¾Ë¸² ³»¿ë</param>
-    /// <param name="type">¾Ë¸² À¯Çü (±âº»°ª: General)</param>
+    /// <param name="message">í‘œì‹œí•  ì•Œë¦¼ ë‚´ìš©</param>
+    /// <param name="type">ì•Œë¦¼ ìœ í˜• (ê¸°ë³¸ê°’: General)</param>
     public void ShowNotification(string message, NotificationType type = NotificationType.General)
     {
-        // 1. ±âÁ¸ ÀÚµ¿ ¼û±è ÄÚ·çÆ¾ ÁßÁö
+        // 1. ê¸°ì¡´ ìžë™ ìˆ¨ê¹€ ì½”ë£¨í‹´ ì¤‘ì§€
         if (hideCoroutine != null)
         {
             StopCoroutine(hideCoroutine);
         }
 
-        // 2. ½ºÅ¸ÀÏ Àû¿ë
+        // 2. ìŠ¤íƒ€ì¼ ì ìš©
         SetNotificationStyle(type);
 
-        // 3. ÅØ½ºÆ® ¹× ÆÐ³Î ¾÷µ¥ÀÌÆ®
+        // 3. í…ìŠ¤íŠ¸ ë° íŒ¨ë„ ì—…ë°ì´íŠ¸
         notificationText.text = message;
         if (notificationPanel != null)
         { notificationPanel.SetActive(true); }
 
-        // 4. ÀÏÁ¤ ½Ã°£ ÈÄ ¼û±â´Â ÄÚ·çÆ¾ ½ÃÀÛ
+        // 4. ì¼ì • ì‹œê°„ í›„ ìˆ¨ê¸°ëŠ” ì½”ë£¨í‹´ ì‹œìž‘
         hideCoroutine = StartCoroutine(HideAfterDelay(displayDuration));
     }
 
     /// <summary>
-    /// NPC »óÈ£ÀÛ¿ë ÇÁ·ÒÇÁÆ®Ã³·³ ÀÚµ¿À¸·Î »ç¶óÁöÁö ¾Ê°í ¼öµ¿À¸·Î ¼û°Ü¾ß ÇÏ´Â ¾Ë¸²À» Ç¥½ÃÇÕ´Ï´Ù.
-    /// (Interaction Å¸ÀÔ Àü¿ë)
+    /// NPC ìƒí˜¸ìž‘ìš© í”„ë¡¬í”„íŠ¸ì²˜ëŸ¼ ìžë™ìœ¼ë¡œ ì‚¬ë¼ì§€ì§€ ì•Šê³  ìˆ˜ë™ìœ¼ë¡œ ìˆ¨ê²¨ì•¼ í•˜ëŠ” ì•Œë¦¼ì„ í‘œì‹œí•©ë‹ˆë‹¤.
+    /// (Interaction íƒ€ìž… ì „ìš©)
     /// </summary>
-    /// <param name="message">Ç¥½ÃÇÒ »óÈ£ÀÛ¿ë ÇÁ·ÒÇÁÆ® ³»¿ë</param>
+    /// <param name="message">í‘œì‹œí•  ìƒí˜¸ìž‘ìš© í”„ë¡¬í”„íŠ¸ ë‚´ìš©</param>
     public void ShowInteractionPrompt(string message)
     {
-        // ÀÏ¹Ý ¾Ë¸²ÀÌ Ç¥½Ã ÁßÀÏ °æ¿ì ¹æÇØÇÏÁö ¾Êµµ·Ï ÄÚ·çÆ¾¸¸ ÁßÁö (ÆÐ³ÎÀº ³öµÓ´Ï´Ù)
+        // ì¼ë°˜ ì•Œë¦¼ì´ í‘œì‹œ ì¤‘ì¼ ê²½ìš° ë°©í•´í•˜ì§€ ì•Šë„ë¡ ì½”ë£¨í‹´ë§Œ ì¤‘ì§€ (íŒ¨ë„ì€ ë†”ë‘¡ë‹ˆë‹¤)
         if (hideCoroutine != null)
         {
             StopCoroutine(hideCoroutine);
             hideCoroutine = null;
         }
 
-        // Interaction ½ºÅ¸ÀÏ Àû¿ë
+        // Interaction ìŠ¤íƒ€ì¼ ì ìš©
         SetNotificationStyle(NotificationType.Interaction);
 
-        // ÅØ½ºÆ® ¹× ÆÐ³Î ¾÷µ¥ÀÌÆ®
+        // í…ìŠ¤íŠ¸ ë° íŒ¨ë„ ì—…ë°ì´íŠ¸
         notificationText.text = message;
         notificationPanel.SetActive(true);
     }
 
     /// <summary>
-    /// ShowInteractionPrompt·Î Ç¥½ÃµÈ ¾Ë¸²À» ¼öµ¿À¸·Î ¼û±é´Ï´Ù.
-    /// (NPCUIManager¿¡¼­ »óÈ£ÀÛ¿ë Á¾·á ½Ã È£ÃâµÊ)
+    /// ShowInteractionPromptë¡œ í‘œì‹œëœ ì•Œë¦¼ì„ ìˆ˜ë™ìœ¼ë¡œ ìˆ¨ê¹ë‹ˆë‹¤.
+    /// (NPCUIManagerì—ì„œ ìƒí˜¸ìž‘ìš© ì¢…ë£Œ ì‹œ í˜¸ì¶œë¨)
     /// </summary>
     public void HideInteractionPrompt()
     {
@@ -143,13 +142,13 @@ public class NotificationManager : MonoBehaviour
     }
 
     // ----------------------------------------------------------------------------------------------------------------
-    // ³»ºÎ ·ÎÁ÷
+    // ë‚´ë¶€ ë¡œì§
     // ----------------------------------------------------------------------------------------------------------------
 
     /// <summary>
-    /// ¾Ë¸² À¯Çü¿¡ µû¶ó ÅØ½ºÆ®ÀÇ »ö»óÀ» º¯°æÇÕ´Ï´Ù.
+    /// ì•Œë¦¼ ìœ í˜•ì— ë”°ë¼ í…ìŠ¤íŠ¸ì˜ ìƒ‰ìƒì„ ë³€ê²½í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="type">Àû¿ëÇÒ ¾Ë¸² À¯Çü</param>
+    /// <param name="type">ì ìš©í•  ì•Œë¦¼ ìœ í˜•</param>
     private void SetNotificationStyle(NotificationType type)
     {
         Color targetColor;
@@ -170,19 +169,19 @@ public class NotificationManager : MonoBehaviour
                 break;
         }
 
-        // ÅØ½ºÆ® »ö»ó Àû¿ë
+        // í…ìŠ¤íŠ¸ ìƒ‰ìƒ ì ìš©
         if (notificationText != null)
         {
             notificationText.color = targetColor;
         }
 
-        // TODO: (³ªÁß¿¡) ÇÊ¿äÇÏ´Ù¸é ¿©±â¼­ ¹è°æ ÀÌ¹ÌÁöÀÇ »ö»óÀÌ³ª Å×µÎ¸® ÀÌ¹ÌÁö¸¦ º¯°æÇÏ´Â ·ÎÁ÷À» Ãß°¡ÇÒ ¼ö ÀÖ½À´Ï´Ù.
+        // TODO: (ë‚˜ì¤‘ì—) í•„ìš”í•˜ë‹¤ë©´ ì—¬ê¸°ì„œ ë°°ê²½ ì´ë¯¸ì§€ì˜ ìƒ‰ìƒì´ë‚˜ í…Œë‘ë¦¬ ì´ë¯¸ì§€ë¥¼ ë³€ê²½í•˜ëŠ” ë¡œì§ì„ ì¶”ê°€í•  ìˆ˜ ìžˆìŠµë‹ˆë‹¤.
     }
 
     /// <summary>
-    /// ÁöÁ¤µÈ Áö¿¬ ½Ã°£ ÈÄ ¾Ë¸² ÆÐ³ÎÀ» ºñÈ°¼ºÈ­ÇÏ´Â ÄÚ·çÆ¾ÀÔ´Ï´Ù.
+    /// ì§€ì •ëœ ì§€ì—° ì‹œê°„ í›„ ì•Œë¦¼ íŒ¨ë„ì„ ë¹„í™œì„±í™”í•˜ëŠ” ì½”ë£¨í‹´ìž…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="delay">´ë±âÇÒ ½Ã°£ (ÃÊ)</param>
+    /// <param name="delay">ëŒ€ê¸°í•  ì‹œê°„ (ì´ˆ)</param>
     private IEnumerator HideAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
@@ -190,6 +189,6 @@ public class NotificationManager : MonoBehaviour
         {
             notificationPanel.SetActive(false);
         }
-        hideCoroutine = null; // ÄÚ·çÆ¾ÀÌ ¿Ï·áµÇ¾úÀ½À» Ç¥½Ã
+        hideCoroutine = null; // ì½”ë£¨í‹´ì´ ì™„ë£Œë˜ì—ˆìŒì„ í‘œì‹œ
     }
 }
