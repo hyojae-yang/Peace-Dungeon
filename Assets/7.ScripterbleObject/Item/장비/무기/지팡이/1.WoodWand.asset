@@ -24,9 +24,33 @@ MonoBehaviour:
   equipType: 1
   baseStats:
   - statType: 11
-    value: 5000
+    value: 5
     isPercentage: 0
-  additionalStats: []
+  additionalStats:
+  - statType: 10
+    value: 2
+    isPercentage: 0
+  - statType: 11
+    value: 5
+    isPercentage: 0
+  - statType: 13
+    value: 10
+    isPercentage: 0
+  - statType: 15
+    value: 0.01
+    isPercentage: 0
+  - statType: 16
+    value: 1
+    isPercentage: 0
+  - statType: 8
+    value: 1
+    isPercentage: 0
+  - statType: 9
+    value: 2
+    isPercentage: 0
+  - statType: 14
+    value: 0.01
+    isPercentage: 0
   setID: 
   weaponType: 2
   damageType: 1

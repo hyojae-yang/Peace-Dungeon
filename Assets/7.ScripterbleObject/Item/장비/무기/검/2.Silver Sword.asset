@@ -24,23 +24,23 @@ MonoBehaviour:
   equipType: 1
   baseStats:
   - statType: 10
-    value: 5
+    value: 10
     isPercentage: 0
   additionalStats:
   - statType: 10
-    value: 5
-    isPercentage: 0
-  - statType: 12
     value: 10
     isPercentage: 0
+  - statType: 12
+    value: 20
+    isPercentage: 0
   - statType: 15
-    value: 0.01
+    value: 0.02
     isPercentage: 0
   - statType: 16
-    value: 1
+    value: 2
     isPercentage: 0
   - statType: 8
-    value: 2
+    value: 4
     isPercentage: 0
   - statType: 9
     value: 2
@@ -54,9 +54,9 @@ MonoBehaviour:
   setID: 
   weaponType: 1
   damageType: 0
-  attackRange: 2.5
+  attackRange: 3
   attackAngle: 90
-  attackSpeed: 1
-  knockbackForce: 5
+  attackSpeed: 0.9
+  knockbackForce: 6
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 8150743016342531013, guid: d4600bc6446612744ba08173f51bca30, type: 3}

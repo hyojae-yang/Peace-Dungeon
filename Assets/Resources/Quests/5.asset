@@ -13,15 +13,15 @@ MonoBehaviour:
   m_Name: 5
   m_EditorClassIdentifier: 
   questID: 5
-  questTitle: "[\uCC98\uCE58] \uC704\uD611\uC801\uC778 \uB4E4\uC950"
-  questDescription: "\uB4E4\uC950 10\uB9C8\uB9AC \uCC98\uCE58"
+  questTitle: "[\uCC98\uCE58] \uC704\uD611\uC801\uC778 \uB2ED"
+  questDescription: "\uB2ED 50\uB9C8\uB9AC \uCC98\uCE58"
   questGiverName: "\uC7A5\uD544\uC218"
   requiredAffection: -40
   prerequisiteQuests: 04000000
   conditions:
   - conditionType: 2
-    targetID: 4
-    requiredAmount: 10
+    targetID: 3
+    requiredAmount: 50
   isRepeatable: 0
   rewardItems:
   - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}

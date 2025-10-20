@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 3006
   itemName: "\uC6A9\uC554 \uAC80"
   itemDescription: "\uC6A9\uC554\uC73C\uB85C \uB41C \uAC80"
-  itemIcon: {fileID: 21300000, guid: 10fc2e90f3784634baabf084e79a1ff2, type: 3}
+  itemIcon: {fileID: 21300000, guid: 656a192341a0acd4cb9be3670b0ed5ee, type: 3}
   itemPrice: 300
   itemType: 0
   uniqueID: 
@@ -24,39 +24,39 @@ MonoBehaviour:
   equipType: 1
   baseStats:
   - statType: 10
-    value: 5
+    value: 200
     isPercentage: 0
   additionalStats:
   - statType: 10
-    value: 5
+    value: 200
     isPercentage: 0
   - statType: 12
-    value: 10
+    value: 400
     isPercentage: 0
   - statType: 15
-    value: 0.01
+    value: 0.3
     isPercentage: 0
   - statType: 16
-    value: 1
+    value: 30
     isPercentage: 0
   - statType: 8
-    value: 2
+    value: 50
     isPercentage: 0
   - statType: 9
-    value: 2
+    value: 50
     isPercentage: 0
   - statType: 11
-    value: 5
+    value: 200
     isPercentage: 0
   - statType: 14
-    value: 0.01
+    value: 0.05
     isPercentage: 0
   setID: 
   weaponType: 1
   damageType: 0
-  attackRange: 2.5
+  attackRange: 5
   attackAngle: 90
-  attackSpeed: 1
-  knockbackForce: 5
+  attackSpeed: 0.5
+  knockbackForce: 10
   projectilePrefab: {fileID: 0}
   weaponPrefab: {fileID: 8150743016342531013, guid: d0bba81aa4e34c642ae7b42b41156b31, type: 3}

@@ -32,11 +32,27 @@ MonoBehaviour:
   minDungeonCoinReward: 3
   maxDungeonCoinReward: 5
   lootTable:
-  - itemData: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    weight: 0
-  - itemData: {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
-    weight: 0
-  - itemData: {fileID: 11400000, guid: 51f555b80f4794a419056d076dc58c57, type: 2}
-    weight: 0
+  - itemData: {fileID: 11400000, guid: 82a47cb13c3206249ac8a19434e18050, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: 51cb714d43f8b3546a93936396307de6, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: b8665581d02f081428d886d13f1ef888, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: c970f8b7d67057f4fa1ede52ecf6bb9e, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: 22e1e695ccaf8aa4594a925af595a674, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: 9721fdabcc363e440a4b17f4e54f4882, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: d7e52475af6439a4994862b129c7323f, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: d5fd7b7041179ae4cb63a3a52cfa4ce5, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: 31b3e2002aa0c824cb4d1c420f91fd09, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: f82a53bc48703584f983ba36a731161e, type: 2}
+    weight: 50
+  - itemData: {fileID: 11400000, guid: 5b82880b49ff8cb4fac949195219b7ff, type: 2}
+    weight: 10
   minItemDropCount: 5
   maxItemDropCount: 10

@@ -43,10 +43,10 @@ MonoBehaviour:
     value: 2
     isPercentage: 0
   - statType: 9
-    value: 2
+    value: 1
     isPercentage: 0
   - statType: 11
-    value: 5
+    value: 2
     isPercentage: 0
   - statType: 14
     value: 0.01

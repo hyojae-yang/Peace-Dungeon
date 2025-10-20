@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
+  m_Name: 2.TreeSpirit
+  m_EditorClassIdentifier: 
+  monsterID: 2
+  monsterName: "\uB098\uBB34\uC815\uB839"
+  monsterLevel: 0
+  maxHealth: 200
+  maxMana: 0
+  attackPower: 0
+  magicAttackPower: 20
+  defense: 5
+  magicDefense: 30
+  moveSpeed: 0
+  criticalChance: 0
+  criticalDamageMultiplier: 0
+  attackDamageType: 1
+  minExpReward: 10
+  maxExpReward: 20
+  minGoldReward: 20
+  maxGoldReward: 40
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 0
+  lootTable:
+  - itemData: {fileID: 11400000, guid: c88278317a5e87945b847c5ade47e082, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: ae7a5926de962c34391545e9034bacb7, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: b1ec048b028e8824395824bc0b421112, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 8210951da8528f349a577fc17166f7ae, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 71de1c5ff0da03545b1bfde00fae3bb3, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 9dedcb817ddea1548b5f48599efe0af8, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 220617a34c5ad3f4592f2f73777ec19f, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 71aa96103dcb37242b69b34af19abf7b, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: f4797e60a9165e84786516daae8d9588, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: b5ab274876c0b27479fa48cb1fd5fc3e, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 6e97ca2076d5613469769f7b9269877f, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 2feb639ab046f9142bc9fe8ff8c20b92, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: c4967d12af5fd0a4ab9373946f2803a2, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: bc2ff74c1654d8841824ffb828eb763b, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 25c3f97e803bf37448bfa5928f7240e8, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 2c8b5f5b3269293408412c5ec63c5942, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: a453f03f1cff36741aac924b766d7456, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 0e31b20768f1faa4cb600c9f6b3386b7, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 9379ff947f6464e4fbc7516f323e23b3, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: e8ba397af9c2082478393cd8a813b32a, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: 0e4ef8aa8d0215641b3225098583f2b5, type: 2}
+    weight: 0
+  - itemData: {fileID: 11400000, guid: c4967d12af5fd0a4ab9373946f2803a2, type: 2}
+    weight: 0
+  minItemDropCount: 2
+  maxItemDropCount: 4

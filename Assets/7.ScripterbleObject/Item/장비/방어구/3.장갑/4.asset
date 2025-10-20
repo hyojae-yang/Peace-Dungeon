@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 94b0770c7abda4f48b68a4c05b1d7b72, type: 3}
+  m_Name: 4
+  m_EditorClassIdentifier: 
+  itemID: 4604
+  itemName: "\uD50C\uB808\uD2F0\uB118\uC7A5\uAC11"
+  itemDescription: "\uD50C\uB808\uD2F0\uB118\uC73C\uB85C \uB41C \uC7A5\uAC11"
+  itemIcon: {fileID: 21300000, guid: 4daa43d5d765c804e9d5d0ac59c2667c, type: 3}
+  itemPrice: 130
+  itemType: 0
+  uniqueID: 
+  itemGrade: 0
+  equipSlot: 5
+  equipType: 2
+  baseStats:
+  - statType: 8
+    value: 16
+    isPercentage: 0
+  additionalStats:
+  - statType: 8
+    value: 8
+    isPercentage: 0
+  - statType: 9
+    value: 8
+    isPercentage: 0
+  - statType: 10
+    value: 20
+    isPercentage: 0
+  - statType: 11
+    value: 20
+    isPercentage: 0
+  setID: 1
