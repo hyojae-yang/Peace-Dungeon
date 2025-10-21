@@ -5,8 +5,6 @@ using System.Collections;
 /// 나무 정령 몬스터의 특화된 행동 로직을 관리하는 스크립트입니다.
 /// 제자리에서 대기하다가 플레이어 감지 시 '뿌리 묶기' 공격을 준비합니다.
 /// </summary>
-[RequireComponent(typeof(Monster))]
-[RequireComponent(typeof(MonsterCombat))]
 public class TreeSpiritBehavior : MonoBehaviour
 {
     // === 종속성 ===

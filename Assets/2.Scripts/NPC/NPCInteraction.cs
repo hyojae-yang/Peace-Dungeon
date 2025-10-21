@@ -58,7 +58,7 @@ public class NPCInteraction : MonoBehaviour
         {
             // 수정된 부분: NPCUIManager 대신 NotificationManager를 직접 호출합니다.
             // 이렇게 함으로써, 이 NPC가 범위 내에 있을 때 프롬프트가 표시됩니다.
-            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 상호작용");
+            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 상호작용", this.gameObject);
 
             if (Input.GetKeyDown(KeyCode.E) && !isInteracting)
             {
@@ -71,7 +71,7 @@ public class NPCInteraction : MonoBehaviour
             {
                 // ⭐️ 수정된 부분: NPCUIManager 대신 NotificationManager를 직접 호출하여 프롬프트를 숨깁니다.
                 // 이 NPC가 범위 밖으로 나가면 프롬프트를 숨기도록 요청합니다.
-                NotificationManager.Instance.HideInteractionPrompt();
+                NotificationManager.Instance.HideInteractionPrompt(this.gameObject);
             }
             else
             {

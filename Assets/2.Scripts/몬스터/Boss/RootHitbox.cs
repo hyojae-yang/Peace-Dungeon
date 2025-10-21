@@ -77,7 +77,7 @@ public class RootHitbox : MonoBehaviour
             _isHit = true;
 
             // 5. 실제 피해 적용
-            other.GetComponent<IDamageable>()?.TakeDamage(_damage);
+            other.GetComponent<IDamageable>()?.TakeDamage(_damage,DamageType.Physical);
         }
     }
 }

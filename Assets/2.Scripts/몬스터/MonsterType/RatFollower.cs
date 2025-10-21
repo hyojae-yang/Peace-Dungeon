@@ -5,22 +5,16 @@ using System.Collections;
 
 /// <summary>
 /// 쥐 추종자 몬스터의 행동 로직을 담당하는 클래스입니다.
-/// 리더를 추종하며, 무리(Flock) 행동과 공격 행동을 관리합니다.
+/// 리더를 단순 추종하며, 이동 및 공격 행동을 관리합니다. (플로킹 로직 제거)
 /// </summary>
 public class RatFollower : RatBehavior
 {
     private RatLeader leader;
     private MonsterPatrol monsterPatrol; // MonsterPatrol 컴포넌트 참조
 
-    [Header("플로킹 설정")]
-    [Tooltip("추종자들이 서로 유지하려는 최소 거리입니다.")]
-    public float separationDistance = 1.5f;
-    [Tooltip("분리, 정렬, 응집 힘의 가중치입니다.")]
-    public float separationWeight = 1.5f;
-    public float alignmentWeight = 1.0f;
-    public float cohesionWeight = 1.0f;
+    // ⭐️ 플로킹 관련 필드 모두 제거 (스크립트 간소화)
 
-    protected override void Awake()
+    protected override void Awake()
     {
         base.Awake();
         monsterPatrol = GetComponent<MonsterPatrol>();
@@ -33,99 +27,56 @@ public class RatFollower : RatBehavior
 
     public override void UpdateBehavior()
     {
-        // 리더가 존재하지 않거나 죽었으면 무리에서 이탈
-        if (leader == null || leader.GetMonster().currentState == MonsterBase.MonsterState.Dead)
+        // 리더가 존재하지 않거나 죽었으면 무리에서 이탈
+        if (leader == null || leader.GetMonster().currentState == MonsterBase.MonsterState.Dead)
         {
             ExitFlock();
+            return;
         }
-        else
+
+        // 리더가 살아있으면 상태에 따른 행동 수행
+        switch (monster.currentState)
         {
-            // 리더가 살아있으면 상태에 따른 행동 수행
-            switch (monster.currentState)
-            {
-                case MonsterBase.MonsterState.Idle:
-                    // 리더가 지정되지 않은 상태에서 순찰
-                    monsterPatrol.StartPatrol();
-                    break;
-                case MonsterBase.MonsterState.Flocking:
-                    monsterPatrol.StopPatrol(); // 무리 행동 중 순찰 중지
-                    HandleFlocking();
-                    break;
-                case MonsterBase.MonsterState.Attack:
-                    monsterPatrol.StopPatrol(); // 공격 중 순찰 중지
-                    HandleAttack();
-                    break;
-            }
+            case MonsterBase.MonsterState.Idle:
+                monsterPatrol.StartPatrol();
+                break;
+            case MonsterBase.MonsterState.Flocking:
+                monsterPatrol.StopPatrol(); // 추종 상태 중 순찰 중지
+                HandleFlocking(); // 리더를 향해 단순 이동
+                break;
+            case MonsterBase.MonsterState.Attack:
+                monsterPatrol.StopPatrol(); // 공격 중 순찰 중지
+                HandleAttack();
+                break;
         }
     }
 
-    private void HandleFlocking()
+    /// <summary>
+    /// [최종 간소화 로직] 리더를 향해 단순 이동합니다.
+    /// </summary>
+    private void HandleFlocking()
     {
-        // 리더가 무리 상태일 때만 무리 행동을 수행합니다.
-        if (leader.GetMonster().currentState == MonsterBase.MonsterState.Flocking)
+        // 리더의 위치로 이동할 방향을 계산합니다.
+        Vector3 directionToLeader = leader.transform.position - transform.position;
+
+        // 거리가 너무 가까우면 움직임을 멈춰 덜덜거림을 방지합니다.
+        // ⭐️ [덜덜거림 방지]: 리더와의 거리가 1.0f 이하이면 이동하지 않습니다.
+        if (directionToLeader.sqrMagnitude < 1.0f)
         {
-            Vector3 finalDirection = CalculateFlockingForce();
-            Move(finalDirection, monster.monsterData.moveSpeed);
+            // 가까이 붙었으면 덜덜거리지 않도록 이동을 멈춥니다.
+            return;
         }
-        else
-        {
-            // 리더가 Idle 또는 Attack 상태일 때는 리더의 위치로 이동
-            Move(leader.transform.position - transform.position, monster.monsterData.moveSpeed);
-        }
+
+        // Move() 메서드를 사용하여 이동합니다.
+        Move(directionToLeader, monster.monsterData.moveSpeed);
     }
 
-    private Vector3 CalculateFlockingForce()
+    // ⭐️ CalculateFlockingForce() 메서드는 완전히 제거되었습니다.
+
+    private void HandleAttack()
     {
-        Vector3 separationVector = Vector3.zero;
-        Vector3 alignmentVector = Vector3.zero;
-        Vector3 cohesionVector = Vector3.zero;
-        int neighborCount = 0;
-
-        Collider[] colliders = Physics.OverlapSphere(transform.position, flockDetectionRadius, LayerMask.GetMask("Monster"));
-
-        foreach (var collider in colliders)
-        {
-            if (collider.gameObject == this.gameObject) continue;
-
-            RatFollower otherFollower = collider.GetComponent<RatFollower>();
-            if (otherFollower != null)
-            {
-                neighborCount++;
-                Vector3 directionToOther = transform.position - otherFollower.transform.position;
-                float distance = directionToOther.magnitude;
-
-                if (distance < separationDistance)
-                {
-                    separationVector += directionToOther.normalized * (separationDistance / distance);
-                }
-
-                alignmentVector += otherFollower.transform.forward;
-            }
-        }
-
-        cohesionVector = (leader.transform.position - transform.position).normalized;
-
-        if (neighborCount > 0)
-        {
-            alignmentVector /= neighborCount;
-            separationVector /= neighborCount;
-        }
-
-        Vector3 finalDirection = separationVector * separationWeight +
-                                 alignmentVector * alignmentWeight +
-                                 cohesionVector * cohesionWeight;
-
-        if (finalDirection.magnitude < 0.1f)
-        {
-            finalDirection = cohesionVector;
-        }
-
-        return finalDirection.normalized;
-    }
-
-    private void HandleAttack()
-    {
-        if (playerTransform == null)
+        // ... (기존 로직 유지)
+        if (playerTransform == null)
         {
             monster.ChangeState(MonsterBase.MonsterState.Flocking);
             return;
@@ -152,7 +103,7 @@ public class RatFollower : RatBehavior
     {
         leader = null;
         monster.ChangeState(MonsterBase.MonsterState.Idle);
-        monsterPatrol.SetNewPatrolPoint(); // 무리 이탈 후 순찰 지점을 재설정합니다.
+        monsterPatrol.SetNewPatrolPoint();
     }
 
     public void SetLeader(RatLeader newLeader)

@@ -903,9 +903,9 @@ GameObject:
   - component: {fileID: 690260100445786006}
   - component: {fileID: 6670072978514181772}
   - component: {fileID: 7324084241212469773}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Chicken2
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1052,7 +1052,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7094218536885164343}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a2acfc52c7005f343bc27d7ad6946a22, type: 3}
   m_Name: 
@@ -1078,10 +1078,6 @@ MonoBehaviour:
   flockDetectionRadius: 10
   attackCooldown: 1
   attackRange: 2
-  separationDistance: 1.5
-  separationWeight: 1.5
-  alignmentWeight: 1
-  cohesionWeight: 1
 --- !u!1 &7135859357336699427
 GameObject:
   m_ObjectHideFlags: 0

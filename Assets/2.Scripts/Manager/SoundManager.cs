@@ -28,6 +28,30 @@ public struct BGMAudio
 }
 
 /// <summary>
+/// SFX 타입(이름)을 정의하는 열거형입니다. (SRP 지원)
+/// </summary>
+public enum SFXType
+{
+    None,
+    Button_Click,       // 버튼 클릭음
+    Dungeon_Enter,      // 던전 입장음
+    Town_Enter,         // 마을 입장음
+    Shop_Enter,         // 상점 입장음
+    Restaurant_Enter    // 식당 입장음
+}
+
+[System.Serializable]
+/// <summary>
+/// 인스펙터에서 AudioClip을 SFXType과 묶어 편리하게 할당하기 위한 구조체입니다. (SRP 지원)
+/// </summary>
+public struct SFXAudio
+{
+    public SFXType Type;
+    public AudioClip Clip;
+}
+
+
+/// <summary>
 /// SoundManager는 게임 내 모든 사운드(BGM, SFX)의 재생 및 관리를 담당하는 싱글톤 클래스입니다.
 /// 씬 전환 시에도 파괴되지 않고 유지되며, 역할별 AudioSource를 분리하여 관리합니다.
 /// SOLID 규칙 중 SRP(단일 책임 원칙) 및 DIP(의존성 역전 원칙)를 고려하여 설계되었습니다.
@@ -56,7 +80,7 @@ public class SoundManager : MonoBehaviour
 
     [Header("SFX Settings")]
     [SerializeField]
-    // 씬에 배치된 SFX용 AudioSource들을 직접 등록받아 관리하는 리스트입니다.
+    /// 씬에 배치된 SFX용 AudioSource들을 직접 등록받아 관리하는 리스트입니다. (SFX Pool)
     private List<AudioSource> _sfxAudioSources = new List<AudioSource>();
 
     // --- BGM 클립 데이터 관리 ---
@@ -71,6 +95,18 @@ public class SoundManager : MonoBehaviour
     /// </summary>
     private readonly Dictionary<BGMType, AudioClip> _bgmClipsMap = new Dictionary<BGMType, AudioClip>();
 
+    // --- SFX 클립 데이터 관리 (새로 추가) ---
+
+    [Header("SFX Clips")]
+    [Tooltip("인스펙터에서 할당할 SFX 클립 목록입니다. SFXType과 일치하도록 설정해야 합니다.")]
+    [SerializeField]
+    private SFXAudio[] _sfxClipsArray; // 인스펙터 할당용 SFX 클립 배열
+
+    /// <summary>
+    /// SFXType과 AudioClip을 매핑하여 런타임에 빠르게 참조하기 위한 딕셔너리입니다.
+    /// </summary>
+    private readonly Dictionary<SFXType, AudioClip> _sfxClipsMap = new Dictionary<SFXType, AudioClip>();
+
     // --- 초기화 및 생명 주기 ---
 
     private void Awake()
@@ -82,10 +118,11 @@ public class SoundManager : MonoBehaviour
             DontDestroyOnLoad(gameObject);
 
             InitializeBGMCilps();
+            InitializeSFXClips(); // **[추가]** SFX 클립 초기화
             InitializeBGMAudioSource();
 
             // SFX AudioSource는 씬에 배치된 컴포넌트들이 RegisterSFXSource()를 통해 직접 등록합니다.
-            Debug.Log("[SoundManager] 초기화 완료. BGM 클립 맵핑 및 BGM AudioSource 준비 완료.");
+            Debug.Log("[SoundManager] 초기화 완료. 사운드 클립 맵핑 및 BGM AudioSource 준비 완료.");
         }
     }
 
@@ -114,8 +151,8 @@ public class SoundManager : MonoBehaviour
             Debug.LogWarning("[SoundManager] BGM AudioSource가 없어 자동으로 추가되었습니다.");
         }
 
-        _bgmAudioSource.loop = true;          // BGM은 반복
-        _bgmAudioSource.playOnAwake = false;  // 명시적 호출로만 재생
+        _bgmAudioSource.loop = true;        // BGM은 반복
+        _bgmAudioSource.playOnAwake = false; // 명시적 호출로만 재생
         _bgmAudioSource.volume = _maxBGMVolume; // 초기 볼륨 설정
     }
 
@@ -137,6 +174,29 @@ public class SoundManager : MonoBehaviour
                 else
                 {
                     Debug.LogWarning($"[SoundManager] BGM 클립 중복 타입 발견: {bgmAudio.Type}. 무시됩니다.");
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// 인스펙터에서 할당된 SFX 클립 배열을 딕셔너리에 매핑하여 런타임 접근 속도를 최적화합니다.
+    /// </summary>
+    private void InitializeSFXClips()
+    {
+        _sfxClipsMap.Clear();
+
+        foreach (var sfxAudio in _sfxClipsArray)
+        {
+            if (sfxAudio.Clip != null)
+            {
+                if (!_sfxClipsMap.ContainsKey(sfxAudio.Type))
+                {
+                    _sfxClipsMap.Add(sfxAudio.Type, sfxAudio.Clip);
+                }
+                else
+                {
+                    Debug.LogWarning($"[SoundManager] SFX 클립 중복 타입 발견: {sfxAudio.Type}. 무시됩니다.");
                 }
             }
         }
@@ -168,7 +228,7 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // --- BGM 기능 메서드 (수정 및 추가) ---
+    // --- BGM 기능 메서드 (기존과 동일) ---
 
     /// <summary>
     /// 지정된 BGMType의 배경 음악을 페이드 인하며 재생합니다.
@@ -230,8 +290,9 @@ public class SoundManager : MonoBehaviour
         Debug.Log("[SoundManager] BGM 페이드 아웃 시작");
     }
 
-    // 이전에 사용하던 StopBGM은 FadeOutBGM으로 대체됩니다.
-    // 기존의 StopBGM() 코드는 비페이드 정지가 필요할 경우에만 사용합니다.
+    /// <summary>
+    /// BGM을 즉시 정지합니다.
+    /// </summary>
     public void StopBGM()
     {
         if (_bgmAudioSource != null)
@@ -241,67 +302,6 @@ public class SoundManager : MonoBehaviour
             _bgmAudioSource.volume = _maxBGMVolume; // 다음 재생을 위해 볼륨은 유지
         }
         StopExistingFadeCoroutine();
-    }
-
-    // --- 유틸리티 메서드 ---
-
-    /// <summary>
-    /// 현재 실행 중인 BGM 페이드 코루틴을 정지합니다.
-    /// </summary>
-    private void StopExistingFadeCoroutine()
-    {
-        if (_bgmFadeCoroutine != null)
-        {
-            StopCoroutine(_bgmFadeCoroutine);
-            _bgmFadeCoroutine = null;
-        }
-    }
-
-    /// <summary>
-    /// BGM AudioSource의 볼륨을 부드럽게 조절하는 코루틴입니다.
-    /// </summary>
-    /// <param name="targetClip">재생할 새 클립 (null이면 클립 교체 없음)</param>
-    /// <param name="targetVolume">도달할 최종 볼륨</param>
-    /// <param name="duration">페이드에 걸리는 시간</param>
-    /// <param name="stopAfterFade">페이드 아웃 후 정지할지 여부</param>
-    private IEnumerator FadeBGM(AudioClip targetClip, float targetVolume, float duration, bool stopAfterFade = false)
-    {
-        // 페이드 인 시 새 클립 설정 및 재생
-        if (targetClip != null)
-        {
-            // 클립이 바뀌는 순간 볼륨을 0으로 설정하여 노이즈 방지
-            if (_bgmAudioSource.clip != targetClip)
-            {
-                _bgmAudioSource.volume = 0f;
-                _bgmAudioSource.clip = targetClip;
-                _bgmAudioSource.Play();
-            }
-        }
-
-        float startVolume = _bgmAudioSource.volume;
-        float startTime = Time.unscaledTime;
-
-        // 페이드 진행
-        while (Time.unscaledTime < startTime + duration)
-        {
-            float elapsed = Time.unscaledTime - startTime;
-            float newVolume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
-            _bgmAudioSource.volume = newVolume;
-
-            yield return null;
-        }
-
-        // 최종 볼륨 설정 및 후처리
-        _bgmAudioSource.volume = targetVolume;
-
-        if (stopAfterFade && targetVolume <= 0.01f)
-        {
-            _bgmAudioSource.Stop();
-            _bgmAudioSource.clip = null; // 클립도 초기화
-            // 다음 페이드 인을 위해 볼륨은 _maxBGMVolume으로 유지하지 않고 0으로 둠 (StartVolume에 영향)
-        }
-
-        _bgmFadeCoroutine = null; // 코루틴이 정상적으로 종료되었음을 표시
     }
 
     /// <summary>
@@ -319,7 +319,114 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // --- SFX 기능 메서드 (추후 구현 예정) ---
 
-    // public void PlaySFX(AudioClip clip, float volume = 1f) { ... }
+    // --- SFX 기능 메서드 (새로 추가) ---
+
+    /// <summary>
+    /// 지정된 SFXType의 효과음을 재생합니다. AudioSource Pool을 사용하여 유휴 소스에 할당합니다.
+    /// </summary>
+    /// <param name="type">재생할 효과음의 타입</param>
+    /// <param name="volume">재생 볼륨 (0.0f ~ 1.0f). AudioListener.volume의 영향을 받습니다.</param>
+    public void PlaySFX(SFXType type, float volume = 1f)
+    {
+        if (type == SFXType.None) return;
+
+        // 1. 딕셔너리에서 AudioClip을 찾습니다.
+        if (!_sfxClipsMap.TryGetValue(type, out AudioClip clipToPlay) || clipToPlay == null)
+        {
+            Debug.LogWarning($"[SoundManager] 요청된 SFX 타입({type})에 해당하는 클립이 딕셔너리에 없습니다.");
+            return;
+        }
+
+        // 2. 유휴 AudioSource를 찾습니다. (Pooling)
+        AudioSource availableSource = FindAvailableSFXSource();
+
+        // 3. 소스 할당 및 재생
+        if (availableSource != null)
+        {
+            availableSource.clip = clipToPlay;
+            availableSource.volume = Mathf.Clamp01(volume); // 볼륨 클램프 적용
+            availableSource.Play();
+            // Debug.Log($"[SoundManager] SFX 재생: {type}");
+        }
+        else
+        {
+            // 요청하신 정책: 모든 소스가 재생 중일 때 경고 후 재생 건너뛰기
+            Debug.LogWarning("[SoundManager] SFX AudioSource Pool이 가득 찼습니다. 새 소리(" + type + ")를 재생할 수 없습니다.");
+        }
+    }
+
+    // --- 유틸리티 메서드 ---
+
+    /// <summary>
+    /// 현재 재생 중인 BGM 페이드 코루틴을 정지합니다.
+    /// </summary>
+    private void StopExistingFadeCoroutine()
+    {
+        if (_bgmFadeCoroutine != null)
+        {
+            StopCoroutine(_bgmFadeCoroutine);
+            _bgmFadeCoroutine = null;
+        }
+    }
+
+    /// <summary>
+    /// BGM AudioSource의 볼륨을 부드럽게 조절하는 코루틴입니다. (기존과 동일)
+    /// </summary>
+    /// <param name="targetClip">재생할 새 클립 (null이면 클립 교체 없음)</param>
+    /// <param name="targetVolume">도달할 최종 볼륨</param>
+    /// <param name="duration">페이드에 걸리는 시간</param>
+    /// <param name="stopAfterFade">페이드 아웃 후 정지할지 여부</param>
+    private IEnumerator FadeBGM(AudioClip targetClip, float targetVolume, float duration, bool stopAfterFade = false)
+    {
+        // ... (기존 BGM Fade 로직 유지)
+        if (targetClip != null)
+        {
+            if (_bgmAudioSource.clip != targetClip)
+            {
+                _bgmAudioSource.volume = 0f;
+                _bgmAudioSource.clip = targetClip;
+                _bgmAudioSource.Play();
+            }
+        }
+
+        float startVolume = _bgmAudioSource.volume;
+        float startTime = Time.unscaledTime;
+
+        while (Time.unscaledTime < startTime + duration)
+        {
+            float elapsed = Time.unscaledTime - startTime;
+            float newVolume = Mathf.Lerp(startVolume, targetVolume, elapsed / duration);
+            _bgmAudioSource.volume = newVolume;
+
+            yield return null;
+        }
+
+        _bgmAudioSource.volume = targetVolume;
+
+        if (stopAfterFade && targetVolume <= 0.01f)
+        {
+            _bgmAudioSource.Stop();
+            _bgmAudioSource.clip = null;
+        }
+
+        _bgmFadeCoroutine = null;
+    }
+
+    /// <summary>
+    /// 현재 재생 중이 아닌, 유휴 상태의 SFX AudioSource를 찾아 반환합니다. (Pooling)
+    /// </summary>
+    /// <returns>사용 가능한 AudioSource, 없으면 null</returns>
+    private AudioSource FindAvailableSFXSource()
+    {
+        // O(N) 순회로 사용 가능한 소스(isPlaying == false)를 찾습니다.
+        foreach (var source in _sfxAudioSources)
+        {
+            if (source != null && !source.isPlaying)
+            {
+                return source;
+            }
+        }
+        return null;
+    }
 }

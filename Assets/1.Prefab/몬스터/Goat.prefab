@@ -3330,9 +3330,9 @@ GameObject:
   - component: {fileID: 7103224507064561079}
   - component: {fileID: 6936529653332202534}
   - component: {fileID: 1689065229754423212}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Goat
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

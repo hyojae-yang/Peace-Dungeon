@@ -213,7 +213,7 @@ public class RootSummonHandler : MonoBehaviour
 
                 // 데미지 입히는 핵심 호출 (공격 타입: Magic)
                 // [수정] IDamageable 인터페이스와 DamageType.Magic을 사용합니다.
-                damageableTarget.TakeDamage(_magicDamage, DamageType.Magic);
+                damageableTarget.TakeDamage(_magicDamage, DamageType.True);
 
                 // 한 번 피해를 입혔으므로 중복 피해를 방지합니다.
                 _hasDealtDamage = true;

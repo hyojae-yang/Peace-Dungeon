@@ -1,132 +1,177 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System;
 using System.Collections.Generic;
 
-// ÇÃ·¹ÀÌ¾îÀÇ ÀÌµ¿ ¹× Á¡ÇÁ¸¦ Á¦¾îÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-// ÀÌ ½ºÅ©¸³Æ®´Â PlayerCharacterÀÇ ¸â¹ö·Î °ü¸®µË´Ï´Ù.
+// í”Œë ˆì´ì–´ì˜ ì´ë™ ë° ì í”„ë¥¼ ì œì–´í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+// ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” PlayerCharacterì˜ ë©¤ë²„ë¡œ ê´€ë¦¬ë©ë‹ˆë‹¤.
 public class PlayerController : MonoBehaviour
 {
-    // PlayerCharacter ÀÎ½ºÅÏ½º¿¡ ´ëÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
+    // PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ì— ëŒ€í•œ ì°¸ì¡°ì…ë‹ˆë‹¤.
     private PlayerCharacter playerCharacter;
 
-    // ¼Óµµ °ü·Ã º¯¼ö
-    [Header("¼Óµµ ¼³Á¤")]
-    [Tooltip("°È±â ¼ÓµµÀÔ´Ï´Ù. PlayerStats.Instance.moveSpeed¸¦ ÂüÁ¶ÇÏ¿© ½Ç½Ã°£À¸·Î ¾÷µ¥ÀÌÆ®µË´Ï´Ù.")]
-    public float walkSpeed = 10f; // ÃÊ±â °ªÀº ÀÎ½ºÆåÅÍ¿¡¼­ ¼³Á¤µÇÁö¸¸, Start()¿¡¼­ PlayerStatsÀÇ °ªÀ¸·Î µ¤¾î¾¹´Ï´Ù.
-    [Tooltip("´Ş¸®±â ½Ã Àû¿ëµÉ ¼Óµµ ¹èÀ²ÀÔ´Ï´Ù.")]
+    // ì†ë„ ê´€ë ¨ ë³€ìˆ˜
+    [Header("ì†ë„ ì„¤ì •")]
+    [Tooltip("ê±·ê¸° ì†ë„ì…ë‹ˆë‹¤. PlayerStats.Instance.moveSpeedë¥¼ ì°¸ì¡°í•˜ì—¬ ì‹¤ì‹œê°„ìœ¼ë¡œ ì—…ë°ì´íŠ¸ë©ë‹ˆë‹¤.")]
+    public float walkSpeed = 10f; // ì´ˆê¸° ê°’ì€ ì¸ìŠ¤í™í„°ì—ì„œ ì„¤ì •ë˜ì§€ë§Œ, Start()ì—ì„œ PlayerStatsì˜ ê°’ìœ¼ë¡œ ë®ì–´ì”ë‹ˆë‹¤.
+    [Tooltip("ë‹¬ë¦¬ê¸° ì‹œ ì ìš©ë  ì†ë„ ë°°ìœ¨ì…ë‹ˆë‹¤.")]
     public float runSpeedMultiplier = 2f;
-    [Tooltip("Á¡ÇÁ ½Ã Àû¿ëµÉ ÈûÀÇ Å©±âÀÔ´Ï´Ù.")]
+    [Tooltip("ì í”„ ì‹œ ì ìš©ë  í˜ì˜ í¬ê¸°ì…ë‹ˆë‹¤.")]
     public float jumpForce = 5f;
 
-    [Header("È¸Àü ¼³Á¤")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ÀÌµ¿ ¹æÇâÀ¸·Î È¸ÀüÇÏ´Â ¼ÓµµÀÔ´Ï´Ù. °ªÀÌ ³ôÀ»¼ö·Ï ´õ ºü¸£°Ô È¸ÀüÇÕ´Ï´Ù.")]
-    public float rotationSpeed = 10f; // ºÎµå·¯¿î È¸ÀüÀ» À§ÇÑ º¯¼ö
-    // ÄÄÆ÷³ÍÆ® º¯¼ö
+    [Header("íšŒì „ ì„¤ì •")]
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ì´ë™ ë°©í–¥ìœ¼ë¡œ íšŒì „í•˜ëŠ” ì†ë„ì…ë‹ˆë‹¤. ê°’ì´ ë†’ì„ìˆ˜ë¡ ë” ë¹ ë¥´ê²Œ íšŒì „í•©ë‹ˆë‹¤.")]
+    public float rotationSpeed = 10f; // ë¶€ë“œëŸ¬ìš´ íšŒì „ì„ ìœ„í•œ ë³€ìˆ˜
+    // ì»´í¬ë„ŒíŠ¸ ë³€ìˆ˜
     private Rigidbody playerRigidbody;
 
-    [Header("½ºÆù Æ÷ÀÎÆ® ¼³Á¤")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ Ã³À½ ´øÀü¿¡ µé¾î°¥ ¶§ ½ºÆùµÉ À§Ä¡ÀÔ´Ï´Ù.")]
+    [Header("ìŠ¤í° í¬ì¸íŠ¸ ì„¤ì •")]
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ì²˜ìŒ ë˜ì „ì— ë“¤ì–´ê°ˆ ë•Œ ìŠ¤í°ë  ìœ„ì¹˜ì…ë‹ˆë‹¤.")]
     [SerializeField] private Transform dungeonSpawnPoint;
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ´øÀü¿¡¼­ ³ª°¥ ¶§ ½ºÆùµÉ À§Ä¡ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ë˜ì „ì—ì„œ ë‚˜ê°ˆ ë•Œ ìŠ¤í°ë  ìœ„ì¹˜ì…ë‹ˆë‹¤.")]
     [SerializeField] private Transform exitSpawnPoint;
-    [Tooltip("º¸½º·ë ÀÔÀå ½Ã ÇÃ·¹ÀÌ¾î°¡ ÀÌµ¿ÇÒ À§Ä¡ÀÔ´Ï´Ù.")]
+    [Tooltip("ë³´ìŠ¤ë£¸ ì…ì¥ ì‹œ í”Œë ˆì´ì–´ê°€ ì´ë™í•  ìœ„ì¹˜ì…ë‹ˆë‹¤.")]
     [SerializeField] private Transform bossRoomSpawnPoint;
-    // »óÅÂ º¯¼ö
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ¶¥¿¡ ´ê¾Ò´ÂÁö ¿©ºÎ¸¦ ³ªÅ¸³À´Ï´Ù.")]
+    // ìƒíƒœ ë³€ìˆ˜
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ë•…ì— ë‹¿ì•˜ëŠ”ì§€ ì—¬ë¶€ë¥¼ ë‚˜íƒ€ëƒ…ë‹ˆë‹¤.")]
     private bool isGrounded = true;
     public bool canMove = true;
-
+    // ì• ë‹ˆë©”ì´ì…˜ ë¸”ë Œë”©ì„ ìœ„í•œ ë³€ìˆ˜ì…ë‹ˆë‹¤.
+    [Tooltip("ê±·ê¸°/ë‹¬ë¦¬ê¸° ì• ë‹ˆë©”ì´ì…˜ ìƒíƒœ ë³€í™”ë¥¼ ë¶€ë“œëŸ½ê²Œ ë§Œë“¤ê¸° ìœ„í•œ ì†ë„ì…ë‹ˆë‹¤.")]
+    private const float AnimationDamping = 0.1f;
     void Start()
     {
-        // PlayerCharacterÀÇ ÀÎ½ºÅÏ½º¸¦ °¡Á®¿Í¼­ ÂüÁ¶¸¦ È®º¸ÇÕ´Ï´Ù.
+        // PlayerCharacterì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ì„œ ì°¸ì¡°ë¥¼ í™•ë³´í•©ë‹ˆë‹¤.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ½ºÅ©¸³Æ®°¡ Á¦´ë·Î µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ìŠ¤í¬ë¦½íŠ¸ê°€ ì œëŒ€ë¡œ ë™ì‘í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // Rigidbody ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿É´Ï´Ù.
+        // Rigidbody ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
         playerRigidbody = GetComponent<Rigidbody>();
         if (playerRigidbody == null)
         {
-            Debug.LogError("Rigidbody ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®¿¡ Rigidbody¸¦ ºÎÂøÇØ ÁÖ¼¼¿ä.");
+            Debug.LogError("Rigidbody ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸ì— Rigidbodyë¥¼ ë¶€ì°©í•´ ì£¼ì„¸ìš”.");
             return;
         }
 
-        // Ä³¸¯ÅÍ°¡ ³Ñ¾îÁöÁö ¾Êµµ·Ï È¸ÀüÀ» °íÁ¤ÇÕ´Ï´Ù.
+        // ìºë¦­í„°ê°€ ë„˜ì–´ì§€ì§€ ì•Šë„ë¡ íšŒì „ì„ ê³ ì •í•©ë‹ˆë‹¤.
         playerRigidbody.freezeRotation = true;
 
-        // PlayerCharacter¸¦ ÅëÇØ PlayerStatsÀÇ ÀÌµ¿ ¼Óµµ °ªÀ» °¡Á®¿Í ÃÊ±âÈ­ÇÕ´Ï´Ù.
+        // PlayerCharacterë¥¼ í†µí•´ PlayerStatsì˜ ì´ë™ ì†ë„ ê°’ì„ ê°€ì ¸ì™€ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
         if (playerCharacter.playerStats != null)
         {
             walkSpeed = playerCharacter.playerStats.moveSpeed;
         }
         else
         {
-            Debug.LogError("PlayerStats°¡ PlayerCharacter¿¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù. ±âº» walkSpeed¸¦ »ç¿ëÇÕ´Ï´Ù.");
+            Debug.LogError("PlayerStatsê°€ PlayerCharacterì— í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê¸°ë³¸ walkSpeedë¥¼ ì‚¬ìš©í•©ë‹ˆë‹¤.");
         }
+        playerCharacter.animator.SetFloat("Walk", 0);
+        playerCharacter.animator.SetFloat("Run", 0);
     }
     void Update()
     {
-        //Debug.Log("À§Ä¡ º¯°æ: " + transform.position + " by " + this.GetType().Name);
-        // ¶¥¿¡ ´ê¾ÒÀ» ¶§¸¸ Á¡ÇÁ °¡´É
+        //Debug.Log("ìœ„ì¹˜ ë³€ê²½: " + transform.position + " by " + this.GetType().Name);
+        // ë•…ì— ë‹¿ì•˜ì„ ë•Œë§Œ ì í”„ ê°€ëŠ¥
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
+            playerCharacter.animator.SetTrigger("Jump");
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
         }
     }
 
-    // ¹°¸®ÇĞ ¾÷µ¥ÀÌÆ®´Â FixedUpdate¿¡¼­ Ã³¸®ÇÏ´Â °ÍÀÌ ÁÁ½À´Ï´Ù.
+    // ë¬¼ë¦¬í•™ ì—…ë°ì´íŠ¸ëŠ” FixedUpdateì—ì„œ ì²˜ë¦¬í•˜ëŠ” ê²ƒì´ ì¢‹ìŠµë‹ˆë‹¤.
     void FixedUpdate()
     {
-        if (!canMove) return;
-        if (playerCharacter == null || playerCharacter.playerStats == null)
+        if (!canMove)
         {
-            Debug.LogError("PlayerCharacter ¶Ç´Â PlayerStats°¡ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù. ÀÌµ¿ ¼Óµµ¸¦ ¾÷µ¥ÀÌÆ®ÇÒ ¼ö ¾ø½À´Ï´Ù.");
-           
+            // ì›€ì§ì¼ ìˆ˜ ì—†ì„ ë•ŒëŠ” ì†ë„ë¥¼ 0ìœ¼ë¡œ ì„¤ì •í•˜ê³  ì• ë‹ˆë©”ì´ì…˜ì„ ë©ˆì¶¥ë‹ˆë‹¤.
+            playerRigidbody.linearVelocity = new Vector3(0, playerRigidbody.linearVelocity.y, 0);
+
+            // ì• ë‹ˆë©”ì´ì…˜ íŒŒë¼ë¯¸í„°ë¥¼ 0ìœ¼ë¡œ ì„¤ì •í•˜ì—¬ Idle ìƒíƒœë¡œ ëŒì•„ê°‘ë‹ˆë‹¤.
+            // ì›€ì§ì„ ì œì–´ ë¶ˆê°€ëŠ¥ ìƒíƒœì—ì„œëŠ” ì• ë‹ˆë©”ì´ì…˜ì„ ë©ˆì¶¥ë‹ˆë‹¤.
+            playerCharacter.animator.SetFloat("Walk", 0, AnimationDamping, Time.fixedDeltaTime);
+            playerCharacter.animator.SetFloat("Run", 0, AnimationDamping, Time.fixedDeltaTime);
             return;
         }
 
-        // PlayerStatsÀÇ moveSpeed °ªÀÌ ·±Å¸ÀÓ¿¡ º¯°æµÉ ¼ö ÀÖÀ¸¹Ç·Î ¸Å ÇÁ·¹ÀÓ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-        //walkSpeed = playerCharacter.playerStats.moveSpeed;
+        if (playerCharacter == null || playerCharacter.playerStats == null)
+        {
+            Debug.LogError("PlayerCharacter ë˜ëŠ” PlayerStatsê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ì´ë™ ì†ë„ë¥¼ ì—…ë°ì´íŠ¸í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            return;
+        }
 
-        // ÀÔ·Â °ª ¹Ş±â
+        // ì…ë ¥ ê°’ ë°›ê¸°
         float xInput = Input.GetAxis("Horizontal");
         float zInput = Input.GetAxis("Vertical");
 
-        // ´Ş¸®±â ¼Óµµ Àû¿ë
+        // ì´ë™ ì…ë ¥ ë²¡í„° (XZ í‰ë©´)
+        Vector3 rawMovement = new Vector3(xInput, 0f, zInput).normalized;
+
+        // ë‹¬ë¦¬ê¸° ìƒíƒœ í™•ì¸
+        bool isRunning = Input.GetKey(KeyCode.LeftShift);
+
+        // í˜„ì¬ ì ìš©í•  ì´ë™ ì†ë„ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
         float currentSpeed = walkSpeed;
-        if (Input.GetKey(KeyCode.LeftShift))
+        if (isRunning)
         {
             currentSpeed *= runSpeedMultiplier;
         }
 
-        // ÀÌµ¿ º¤ÅÍ °è»ê
-        Vector3 movement = new Vector3(xInput, 0f, zInput).normalized * currentSpeed;
-
-        // Rigidbody¿¡ ¼Óµµ Àû¿ë (YÃà ¼Óµµ À¯Áö)
+        // ì´ë™ ë²¡í„° ê³„ì‚° ë° Rigidbody ì†ë„ ì ìš©
+        Vector3 movement = rawMovement * currentSpeed;
         Vector3 newVelocity = new Vector3(movement.x, playerRigidbody.linearVelocity.y, movement.z);
         playerRigidbody.linearVelocity = newVelocity;
-        // ÀÌµ¿ ÀÔ·ÂÀÌ ÀÖÀ» °æ¿ì¿¡¸¸ È¸ÀüÀ» Ã³¸®ÇÕ´Ï´Ù. (movement.magnitude > 0.1f·Î °øÁß¿¡ ÀÖÀ» ¶§ÀÇ ¹Ì¼¼ÇÑ ¿òÁ÷ÀÓ ¹æÁö)
-        if (movement.magnitude > 0.01f) // ½ÇÁ¦·Î ¿òÁ÷ÀÌ°í ÀÖÀ» ¶§¸¸ È¸Àü
+
+        // ì´ë™ ì…ë ¥ì˜ í¬ê¸°(magnitude)ë¥¼ ê¸°ë°˜ìœ¼ë¡œ ì• ë‹ˆë©”ì´ì…˜ ì†ë„(Amount)ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
+        // ì…ë ¥ì´ ì—†ìœ¼ë©´ 0, ìˆìœ¼ë©´ 1ì— ê°€ê¹Œìš´ ê°’ì´ ë‚˜ì˜µë‹ˆë‹¤.
+        float inputMagnitude = rawMovement.magnitude;
+
+        // ì• ë‹ˆë©”ì´ì…˜ íŒŒë¼ë¯¸í„°ì˜ ëª©í‘œ ê°’
+        float targetWalk = 0.0f;
+        float targetRun = 0.0f;
+
+        if (inputMagnitude > 0.01f)
         {
-            // ÀÌµ¿ ¹æÇâ(movement) º¤ÅÍ¸¦ ¹Ù¶óº¸´Â È¸Àü(Quaternion)À» °è»êÇÕ´Ï´Ù.
-            // Quaternion.LookRotationÀº ZÃàÀÌ movement ¹æÇâÀ» ¹Ù¶óº¸°Ô È¸Àü °ªÀ» ¸¸µé¾î Áİ´Ï´Ù.
-            // movement.normalized¸¦ »ç¿ëÇÏ¿© ¹æÇâ Á¤º¸¸¸ °¡Á®¿É´Ï´Ù.
+            // 1. ì´ë™ ì…ë ¥ì´ ìˆì„ ê²½ìš°, "Walk" íŒŒë¼ë¯¸í„°ëŠ” í•­ìƒ ì¼œì§‘ë‹ˆë‹¤.
+            targetWalk = inputMagnitude;
+
+            // 2. ë‹¬ë¦¬ê¸° ì¤‘ì¼ ë•Œë§Œ "Run" íŒŒë¼ë¯¸í„°ê°€ ì¼œì§‘ë‹ˆë‹¤. (Walk=1, Run=1 ìƒíƒœê°€ ë¨)
+            if (isRunning)
+            {
+                targetRun = inputMagnitude;
+            }
+            // 3. ê±·ê¸° ì¤‘ì¼ ë•ŒëŠ” "Run" íŒŒë¼ë¯¸í„°ê°€ 0ìœ¼ë¡œ ìœ ì§€ë©ë‹ˆë‹¤. (Walk=1, Run=0 ìƒíƒœê°€ ë¨)
+            else
+            {
+                targetRun = 0.0f;
+            }
+        }
+        // ì´ë™ ì…ë ¥ì´ ì—†ì„ ë•Œ(Idle)ëŠ” targetWalkì™€ targetRun ëª¨ë‘ 0ìœ¼ë¡œ ìœ ì§€ë©ë‹ˆë‹¤. (Walk=0, Run=0 ìƒíƒœê°€ ë¨)
+
+        // ê³„ì‚°ëœ ëª©í‘œ ê°’ì„ ì• ë‹ˆë©”ì´í„° íŒŒë¼ë¯¸í„°ì— ë¶€ë“œëŸ½ê²Œ ì ìš©í•©ë‹ˆë‹¤.
+        playerCharacter.animator.SetFloat("Walk", targetWalk, AnimationDamping, Time.fixedDeltaTime);
+        playerCharacter.animator.SetFloat("Run", targetRun, AnimationDamping, Time.fixedDeltaTime);
+
+        // ====================================================================
+
+        // ì´ë™ ì…ë ¥ì´ ìˆì„ ê²½ìš°ì—ë§Œ íšŒì „ì„ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+        if (inputMagnitude > 0.01f) // ì‹¤ì œë¡œ ì›€ì§ì´ê³  ìˆì„ ë•Œë§Œ íšŒì „
+        {
+            // ì´ë™ ë°©í–¥(movement) ë²¡í„°ë¥¼ ë°”ë¼ë³´ëŠ” íšŒì „(Quaternion)ì„ ê³„ì‚°í•©ë‹ˆë‹¤.
             Quaternion targetRotation = Quaternion.LookRotation(new Vector3(movement.x, 0, movement.z).normalized);
 
-            // ÇöÀç È¸Àü(transform.rotation)À» ¸ñÇ¥ È¸Àü(targetRotation)À¸·Î ºÎµå·´°Ô º¸°£ÇÕ´Ï´Ù.
-            // Time.fixedDeltaTimeÀº FixedUpdate ÁÖ±â¿Í µ¿±âÈ­µÇ¾î ÇÁ·¹ÀÓ µå·Ó¿¡ °ü°è¾øÀÌ ÀÏÁ¤ÇÑ È¸Àü ¼Óµµ¸¦ º¸ÀåÇÕ´Ï´Ù.
+            // í˜„ì¬ íšŒì „(transform.rotation)ì„ ëª©í‘œ íšŒì „(targetRotation)ìœ¼ë¡œ ë¶€ë“œëŸ½ê²Œ ë³´ê°„í•©ë‹ˆë‹¤.
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.fixedDeltaTime);
         }
     }
-
-    // ¶¥¿¡ ´ê¾Ò´ÂÁö È®ÀÎ
+    // ë•…ì— ë‹¿ì•˜ëŠ”ì§€ í™•ì¸
     private void OnCollisionEnter(Collision collision)
     {
-        // "Ground" ÅÂ±×¸¦ °¡Áø ¿ÀºêÁ§Æ®¿¡ ´ê¾ÒÀ» ¶§
+        // "Ground" íƒœê·¸ë¥¼ ê°€ì§„ ì˜¤ë¸Œì íŠ¸ì— ë‹¿ì•˜ì„ ë•Œ
         if (collision.gameObject.CompareTag("Ground"))
         {
             isGrounded = true;

@@ -2114,9 +2114,9 @@ GameObject:
   - component: {fileID: 3115860909773497828}
   - component: {fileID: 4417192920256280197}
   - component: {fileID: 131148465733129998}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Wolf
-  m_TagString: Untagged
+  m_TagString: Monster
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2238,7 +2238,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   currentMoveSpeed: 0
-  attackRange: 2.5
+  attackRange: 5
   deathAnimationDuration: 5
   deathSound: {fileID: 0}
 --- !u!65 &5457199562738929228
@@ -2302,7 +2302,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   homePoint: {x: 0, y: 0, z: 0}
-  patrolRadius: 10
+  patrolRadius: 15
   patrolSpeedMultiplier: 0.8
   waitTimeBetweenPatrols: 1
   patrolPointChangeInterval: 5
@@ -2320,10 +2320,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   callForHelpHealthRatio: 0.5
-  flockDetectionRadius: 30
-  attackRange: 3
-  packAttackSpeed: 10
+  flockDetectionRadius: 100
+  attackRange: 5
+  packAttackSpeed: 20
   attackCooldown: 1.5
+  rotationSpeed: 8
+  followerJoinRange: 7
+  followerStoppingDistance: 1
 --- !u!1 &8532066105220811511
 GameObject:
   m_ObjectHideFlags: 0

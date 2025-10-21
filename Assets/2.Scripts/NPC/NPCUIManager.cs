@@ -179,11 +179,6 @@ public class NPCUIManager : MonoBehaviour
     /// </summary>
     public void HideAllUI()
     {
-        // 상호작용 프롬프트는 NotificationManager를 통해 직접 숨깁니다.
-        if (NotificationManager.Instance != null)
-        {
-            NotificationManager.Instance.HideInteractionPrompt();
-        }
         if (dialoguePanel != null) dialoguePanel.SetActive(false);
         if (mainButtonsPanel != null) mainButtonsPanel.SetActive(false);
         if (questAcceptPanel != null) questAcceptPanel.SetActive(false);

@@ -182,35 +182,5 @@ public class MainSceneManager : MonoBehaviour
         // [수정] 3. MainScene으로 즉시 로드하는 대신, 목표를 설정하고 LoadingScene으로 전환
         MainSceneManager.NextSceneToLoad = "MainScene";
         UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene"); // <-- 이 부분 수정
-
-        // [중요] 씬 전환이 일어난 후에는 이 아래의 코드는 실행되지 않거나,
-        // 새 씬의 오브젝트 인스턴스에 접근하므로 오류가 발생할 수 있습니다.
-        // **따라서 아래의 3, 4번 로직은 새 MainScene 인스턴스가 로드된 후에 실행되어야 합니다.**
-
-        // 3. UI 및 플레이어 리셋
-        /*if (playerCanvas != null)
-        {
-            playerCanvas.SetActive(true);
-        }
-        gameOverPanel.SetActive(false);
-        player.SetActive(true);
-        PlayerCharacter.Instance.playerStats.health = PlayerCharacter.Instance.playerStats.MaxHealth;
-        PlayerCharacter.Instance.playerStats.mana = PlayerCharacter.Instance.playerStats.MaxMana;
-        PlayerCharacter.Instance.playerController.outDungeon(); // 플레이어 컨트롤러 상태 리셋
-
-        // 4. 던전 상태 및 보스 파괴 (보스 파괴는 로드 후 잔여 오브젝트 정리 목적으로 실행)
-        //    이 시점에서는 isGameOver가 이미 false이므로 DeadDungeon이 클리어 로직을 실행하지 못합니다.
-        if (DungeonManager.Instance != null)
-        {
-            DungeonManager.Instance.IsInDungeon = false;
-            DungeonManager.Instance._isBossRoomActive = false;
-
-            if (DungeonManager.Instance.currentBossInstance != null)
-            {
-                Destroy(DungeonManager.Instance.currentBossInstance.gameObject);
-                DungeonManager.Instance.currentBossInstance = null; // 인스턴스 참조도 확실히 제거
-            }
-            DungeonManager.Instance.DeadDungeon();
-        }*/
     }
 }

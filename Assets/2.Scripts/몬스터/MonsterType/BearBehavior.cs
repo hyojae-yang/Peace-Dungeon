@@ -23,6 +23,10 @@ public class BearBehavior : MonoBehaviour
     [Tooltip("몬스터가 공격 상태일 때, 다시 추격 상태로 복귀하는 거리입니다. attackRange보다 약간 넓게 설정하여 상태 버벅임을 방지합니다.")]
     [SerializeField] private float chaseRange = 8.0f;
 
+    // ⭐ [추가] 몬스터의 회전 속도 (Chase 상태에서 플레이어를 바라보는 속도)
+    [Tooltip("Chase 상태에서 플레이어를 향해 회전하는 속도입니다.")]
+    [SerializeField] private float rotationSpeed = 10.0f;
+
     // === 일반 공격 설정 변수 ===
     [Header("일반 공격 설정")]
     [Tooltip("일반 공격의 쿨타임입니다.")]
@@ -66,7 +70,7 @@ public class BearBehavior : MonoBehaviour
         monsterPatrol = GetComponent<MonsterPatrol>();
         animator = GetComponent<Animator>(); // Animator 할당
 
-        if (monster == null) Debug.LogError("MonsterBehavior 스크립트는 Monster 컴포넌트를 필요로 합니다!", this);
+        if (monster == null) Debug.LogError("BearBehavior 스크립트는 Monster 컴포넌트를 필요로 합니다!", this);
         if (monsterCombat == null) Debug.LogError("MonsterCombat 컴포넌트를 필요로 합니다!", this);
         if (monsterPatrol == null) Debug.LogError("MonsterPatrol 컴포넌트를 필요로 합니다!", this);
 
@@ -120,39 +124,45 @@ public class BearBehavior : MonoBehaviour
         {
             float distanceToTarget = Vector3.Distance(transform.position, monster.detectableTarget.GetTransform().position);
 
-            // 1. [유예 범위 적용] Chase 상태를 유지하거나 Chase 상태로 전환
-            if (distanceToTarget > attackRange) // 공격 범위 밖 (추격)
+            // 1. [유예 범위 적용] Attack 상태에서 벗어날 때 (Chase로 전환)
+            if (monster.currentState == MonsterBase.MonsterState.Attack && distanceToTarget > chaseRange)
+            {
+                // Attack -> Chase 전환: 애니메이션 및 상태 변경
+                if (animator != null)
+                {
+                    animator.SetFloat("Vert", 1f); // 걷기 베이스
+                    animator.SetFloat("State", 1f); // 뛰기 모션
+                }
+                monsterPatrol.StopPatrol(); // 추격 시작 전 순찰 에이전트 정지
+                monster.ChangeState(MonsterBase.MonsterState.Chase);
+            }
+            // 2. [유예 범위 적용] Chase 상태로 전환/유지 (Attack Range 밖)
+            else if (monster.currentState != MonsterBase.MonsterState.Attack && distanceToTarget > attackRange)
             {
                 if (monster.currentState != MonsterBase.MonsterState.Chase)
                 {
+                    // Patrol/Idle -> Chase 전환: 애니메이션 및 상태 변경
                     if (animator != null)
                     {
                         animator.SetFloat("Vert", 1f); // 걷기 베이스
                         animator.SetFloat("State", 1f); // 뛰기 모션
                     }
-
-                    monsterPatrol.StopPatrol();
+                    monsterPatrol.StopPatrol(); // 순찰 정지
                     monster.ChangeState(MonsterBase.MonsterState.Chase);
                 }
-
-                // Attack 상태에서 chaseRange를 벗어났다면 Chase로 전환되는 로직이 필요하지만, 
-                // 이 구조에서는 distanceToTarget > attackRange 이면 Chase로 전환됨.
-                // Attack 상태 버벅임 방지를 위해 distanceToTarget > chaseRange 일 때만 Chase로 전환되도록 하는 것이 좋음.
-                // ➡️ 이 로직은 하단의 else if (monster.currentState == MonsterBase.MonsterState.Chase) 로직과 충돌하므로, 
-                // 기존 스크립트의 간결성을 위해 일단 유지하고, 다음으로 넘어가겠습니다. (이전 논의에서 제안한 복잡한 유예 범위 로직이 필요합니다.)
+                // Chase 상태일 경우, HandleChaseState에서 이동 로직 수행
             }
-            // 2. [유예 범위 적용] Attack 상태로 전환
-            else // 플레이어와 충분히 가까우면 공격 (distanceToTarget <= attackRange)
+            // 3. Attack 상태로 전환 (Attack Range 안)
+            else if (distanceToTarget <= attackRange)
             {
                 if (monster.currentState != MonsterBase.MonsterState.Attack)
                 {
-                    // [핵심 수정] Attack 상태 진입 시, 즉시 Idle 모션으로 전환 (달리다가 멈춤)
+                    // Attack 상태 진입 시, 즉시 Idle 모션으로 전환 (달리다가 멈춤)
                     if (animator != null)
                     {
                         animator.SetFloat("Vert", 0f);
                         animator.SetFloat("State", 0f);
                     }
-
                     monster.ChangeState(MonsterBase.MonsterState.Attack);
                 }
             }
@@ -178,12 +188,79 @@ public class BearBehavior : MonoBehaviour
         // 상태별 행동 실행
         switch (monster.currentState)
         {
+            case MonsterBase.MonsterState.Chase:
+                HandleChaseState(); // ⬅️ [핵심 추가] Chase 상태 처리
+                break;
             case MonsterBase.MonsterState.Attack:
                 HandleAttackState();
                 break;
             case MonsterBase.MonsterState.Charge:
                 HandleChargeState();
                 break;
+        }
+    }
+
+    /// <summary>
+    /// 플레이어를 추격하는 상태 로직을 처리합니다.
+    /// 몬스터의 기본 이동 속도(moveSpeed)로 플레이어를 향해 이동합니다.
+    /// (단일 책임 원칙: 이동 로직만 담당)
+    /// </summary>
+    private void HandleChaseState()
+    {
+        if (monster.detectableTarget == null) return;
+
+        Transform targetTransform = monster.detectableTarget.GetTransform();
+
+        // 1. 플레이어를 향해 회전
+        RotateTowardsTarget(targetTransform);
+
+        // 2. 플레이어를 향해 이동 (attackRange 직전까지)
+        // 멈출 거리를 attackRange보다 약간 작게 설정하여 공격 범위에 정확히 진입하도록 합니다.
+        MoveTowardsTarget(targetTransform, monster.monsterData.moveSpeed*1.5f, attackRange - 0.1f);
+    }
+
+    /// <summary>
+    /// 몬스터를 지정된 속도로 목표 지점(target)을 향해 이동시킵니다.
+    /// (단일 책임 원칙: 이동 로직 추상화)
+    /// </summary>
+    /// <param name="target">이동할 목표 지점의 Transform.</param>
+    /// <param name="speed">이동 속도.</param>
+    /// <param name="stoppingDistance">멈출 거리.</param>
+    private void MoveTowardsTarget(Transform target, float speed, float stoppingDistance)
+    {
+        // 1. 목표와의 거리를 계산
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        // 2. 멈출 거리보다 멀리 있다면 이동
+        if (distanceToTarget > stoppingDistance)
+        {
+            // 목표 방향 벡터 (XZ 평면만 고려하여 y축 제외)
+            Vector3 direction = target.position - transform.position;
+            Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
+
+            // 이동 (Rigidbody를 사용하지 않는 직접적인 Transform 조작)
+            transform.position += flatDirection.normalized * speed * Time.deltaTime;
+        }
+    }
+
+    /// <summary>
+    /// 몬스터를 지정된 회전 속도로 목표를 향해 부드럽게 회전시킵니다.
+    /// (단일 책임 원칙: 회전 로직 추상화)
+    /// </summary>
+    /// <param name="target">바라볼 목표 지점의 Transform.</param>
+    private void RotateTowardsTarget(Transform target)
+    {
+        // 목표 방향 벡터 (XZ 평면만 고려)
+        Vector3 direction = target.position - transform.position;
+        Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
+
+        if (flatDirection != Vector3.zero)
+        {
+            // 목표 회전값 계산
+            Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
+
+            // 현재 회전값에서 목표 회전값까지 부드럽게 회전 (Slerp 사용)
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
         }
     }
 
@@ -234,7 +311,7 @@ public class BearBehavior : MonoBehaviour
     private void HandleChargeState()
     {
         currentChargeTime += Time.deltaTime;
-        monsterPatrol.StopPatrol(); // 움직임 멈춤
+        monsterPatrol.StopPatrol(); // 움직임 멈춤 (Chase/Attack에서 이미 멈추지만 안전 장치)
 
         if (currentChargeTime >= aoeChargeTime)
         {
@@ -267,7 +344,7 @@ public class BearBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 주변의 모든 생명체에게 마법 피해를 입히는 특수 공격 메서드입니다.
+    /// 마법 피해를 입히는 특수 공격 메서드입니다.
     /// </summary>
     private void PerformAOEAttack()
     {
@@ -296,6 +373,8 @@ public class BearBehavior : MonoBehaviour
     {
         if (aoeVisualObject != null && !aoeVisualObject.activeSelf)
         {
+            // 특수 공격 범위 시각화 오브젝트의 반지름을 aoeAttackRadius에 맞게 크기 조절하는 로직이 필요할 수 있습니다.
+            // (예: aoeVisualObject.transform.localScale = Vector3.one * aoeAttackRadius * 2f;)
             aoeVisualObject.SetActive(true);
         }
     }

@@ -220,6 +220,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             Debug.LogWarning("현재 활성화된 DungeonSpawnManager가 없습니다. 몬스터 스폰이 발생하지 않았습니다!");
         }
+        SoundManager.Instance.PlayBGM(BGMType.Main_B,1.0f);
     }
 
     /// <summary>
@@ -228,7 +229,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
     /// </summary>
     public void ExitDungeon()
     {
-        SoundManager.Instance.PlayBGM(BGMType.Main_A);
+        SoundManager.Instance.PlayBGM(BGMType.Main_A,1.0f);
         if (DungeonScoreManager.Instance != null)
         {
             // 몬스터 파괴가 완료된 후 점수를 계산합니다.
@@ -384,7 +385,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
             // 주입 실패 시 ID 추적도 의미 없으므로 여기서 return 처리하는 것도 고려 가능
         }
 
-        // [핵심 로직 2] ID 추적 (⭐ Monster 컴포넌트를 통해 MonsterData 접근으로 변경 ⭐)
+        // [핵심 로직 2] ID 추적 (Monster 컴포넌트를 통해 MonsterData 접근으로 변경 ⭐)
         // DungeonManager.cs:252 라인의 원래 로직을 이 블록으로 대체합니다.
         if (currentBossInstance.TryGetComponent(out Monster monsterComponent))
         {

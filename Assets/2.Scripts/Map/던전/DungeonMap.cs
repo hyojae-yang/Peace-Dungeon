@@ -21,6 +21,31 @@ public class DungeonMap : MonoBehaviour
     [SerializeField]
     private Transform[] dungeonTiles; // 미리 배치된 던전 타일들을 담을 배열
 
+    // ==========================================================
+    // [추가된 기능] 핵심 목표 타일 및 상태 변수
+    // ==========================================================
+    [Header("핵심 목표 타일")]
+    [Tooltip("이 타일이 SmallMap에 의해 점유되면 CanDungeon이 True가 됩니다. (dungeonTiles 중 하나여야 함)")]
+    [SerializeField]
+    private Transform coreObjectiveTile; // 인스펙터에서 할당할 핵심 타일 (특정 조건 충족용)
+
+    private Vector2Int coreObjectiveCoords; // 핵심 타일의 그리드 좌표 (빠른 검색용)
+
+    // 내부 상태를 저장하는 백킹 필드
+    private bool _canDungeon = false;
+
+    /// <summary>
+    /// 핵심 목표 타일이 SmallMap에 의해 점유되었는지 나타내는 상태 플래그입니다. (Encapsulation)
+    /// 이 값이 True이면 던전의 주요 조건이 충족되었음을 의미합니다.
+    /// 외부에서는 읽기(Get)만 가능하며, 쓰기(Set)는 DungeonMap 내부에서만 가능합니다.
+    /// </summary>
+    public bool CanDungeon
+    {
+        get => _canDungeon;
+        private set => _canDungeon = value;
+    }
+    // ==========================================================
+
     // 배치된 다른 스몰맵 타일들의 위치와 오브젝트를 저장하는 딕셔너리
     // (던전 타일 자체는 여기에 포함되지 않습니다. 유효한 '구역'을 표시하기 위해 사용)
     private Dictionary<Vector2Int, Transform> occupiedTiles = new Dictionary<Vector2Int, Transform>();
@@ -65,6 +90,25 @@ public class DungeonMap : MonoBehaviour
                 Vector2Int gridCoords = GetGridCoordinates(tile.position);
                 validDungeonTileCoords.Add(gridCoords);
             }
+        }
+
+        // ==========================================================
+        // [추가된 기능] 핵심 타일 그리드 좌표 초기화 (Awake 단계에서 1회 수행)
+        // ==========================================================
+        if (coreObjectiveTile != null)
+        {
+            coreObjectiveCoords = GetGridCoordinates(coreObjectiveTile.position);
+
+            // 핵심 타일이 던전 영역 내에 있는지 검사 (선택 사항이지만 안전성 향상)
+            if (!validDungeonTileCoords.Contains(coreObjectiveCoords))
+            {
+                Debug.LogWarning("Core Objective Tile이 Dungeon Tiles 영역 밖에 있습니다. 의도한 동작이 아닐 수 있습니다.");
+            }
+        }
+        else
+        {
+            // 핵심 타일이 없어도 다른 기능은 작동하므로 Error 대신 Warning을 표시
+            Debug.LogWarning("핵심 목표 타일(Core Objective Tile)이 할당되지 않았습니다. CanDungeon 기능이 작동하지 않습니다.");
         }
     }
     // --- [추가된 공개 API 영역] ---
@@ -117,6 +161,8 @@ public class DungeonMap : MonoBehaviour
             AddOccupiedTiles(map);
             // Debug.Log($"Register: 맵 {map.name}의 점유 정보 등록 완료.");
         }
+        // else: 점유 등록 시 CanDungeon 상태 변경은 AddOccupiedTiles 내부에서 처리되므로, 
+        //       여기서는 별도로 호출할 필요 없음.
     }
     // 마우스 위치를 그리드 좌표로 변환하여 반환
     public Vector2Int GetGridCoordinates(Vector3 worldPos)
@@ -148,6 +194,7 @@ public class DungeonMap : MonoBehaviour
             // 2차 검사: 이미 다른 스몰맵이 점유된 위치인지 확인
             if (occupiedTiles.ContainsKey(gridCoords))
             {
+                // 현재 검사 중인 맵 자신이 아니라 다른 맵이 점유하고 있다면 유효하지 않음
                 if (occupiedTiles[gridCoords] != map.transform)
                 {
                     return false; // 다른 스몰맵과 겹치므로 유효하지 않음
@@ -168,7 +215,7 @@ public class DungeonMap : MonoBehaviour
                 Vector3 worldTilePos = targetWorldPos + tileOffset;
                 Vector2Int gridCoords = GetGridCoordinates(worldTilePos);
 
-                // 핵심 수정: 스몰맵의 모든 타일이 던전 범위 안에 있는지 확인
+                // 스몰맵의 모든 타일이 던전 범위 안에 있는지 확인
                 if (!validDungeonTileCoords.Contains(gridCoords))
                 {
                     return false; // 하나라도 던전 범위를 벗어나면 유효하지 않음
@@ -191,6 +238,7 @@ public class DungeonMap : MonoBehaviour
         // Debug.Log($"SnapAndPlace: 맵 {map.name} 위치 {currentMouseWorldPos} 에서 유효성 검사. 결과: {isValidPlacement}");
 
         // 1. 제거 로직: 일단 현재 맵이 점유하고 있던 모든 타일 정보를 제거합니다.
+        // 이 시점에서 CanDungeon 상태가 업데이트됩니다.
         RemoveOccupiedTiles(map);
 
         if (isValidPlacement)
@@ -212,23 +260,31 @@ public class DungeonMap : MonoBehaviour
             if (hasContact) // 던전 타일 위에 놓으려는 경우
             {
                 map.transform.position = snappedPos; // 그리드에 맞춰 스냅된 위치로 배치
-                AddOccupiedTiles(map); // 새로운 위치 정보를 occupiedTiles에 추가
+                // 새로운 위치 정보를 occupiedTiles에 추가하고, 이 내부에서 CanDungeon을 업데이트합니다.
+                AddOccupiedTiles(map);
             }
             else // 던전 타일 외부에 놓으려는 경우
             {
                 // 맵의 transform.position은 이미 currentMouseWorldPos에 있습니다.
-                // 던전 외부는 occupiedTiles에 등록하지 않습니다.
+                // 던전 외부는 occupiedTiles에 등록하지 않습니다. (RemoveOccupiedTiles에서 이미 해제되었으므로 추가 작업 불필요)
             }
         }
         else // IsPlacementValid가 false인 경우 (유효하지 않은 배치: 겹침, 범위를 벗어남 등)
         {
             map.transform.position = offGridPosition; // OffGridPosition으로 이동
+            // RemoveOccupiedTiles에서 이미 점유가 해제되었고, AddOccupiedTiles가 호출되지 않았으므로 
+            // 현재 상태 그대로 유지됩니다.
         }
     }
 
+    /// <summary>
+    /// SmallMap이 점유했던 모든 그리드 타일 정보를 Dictionary에서 제거합니다.
+    /// </summary>
+    /// <param name="map">점유를 해제할 SmallMap 인스턴스</param>
     private void RemoveOccupiedTiles(SmallMap map)
     {
         List<Vector2Int> toRemove = new List<Vector2Int>();
+        // Dictionary를 순회하며 해당 맵이 점유했던 모든 키를 찾습니다.
         foreach (var pair in occupiedTiles)
         {
             if (pair.Value == map.transform)
@@ -236,22 +292,72 @@ public class DungeonMap : MonoBehaviour
                 toRemove.Add(pair.Key);
             }
         }
+        // 찾은 키들을 Dictionary에서 제거합니다.
         foreach (var key in toRemove)
         {
             occupiedTiles.Remove(key);
         }
+
+        // ==========================================================
+        // [추가된 기능] 점유 해제 후, 핵심 타일의 상태를 즉시 업데이트합니다.
+        // OCP: 기존 로직을 보호하고, 새 기능을 확장합니다.
+        // ==========================================================
+        UpdateCanDungeonState();
     }
 
+    /// <summary>
+    /// SmallMap이 현재 위치에서 점유하는 모든 그리드 타일 정보를 Dictionary에 등록합니다.
+    /// </summary>
+    /// <param name="map">점유를 등록할 SmallMap 인스턴스</param>
     private void AddOccupiedTiles(SmallMap map)
     {
+        // SmallMap을 구성하는 모든 타일 오프셋을 순회하며 점유 상태를 등록합니다.
         foreach (Vector3 tileOffset in map.GetRotatedMapTiles())
         {
             Vector3 worldTilePos = map.transform.position + tileOffset;
             Vector2Int gridCoords = GetGridCoordinates(worldTilePos);
             occupiedTiles[gridCoords] = map.transform;
         }
+
+        // ==========================================================
+        // [추가된 기능] 점유 등록 후, 핵심 타일의 상태를 즉시 업데이트합니다.
+        // OCP: 기존 로직을 보호하고, 새 기능을 확장합니다.
+        // ==========================================================
+        UpdateCanDungeonState();
     }
 
+    // ==========================================================
+    // [추가된 기능] 핵심 목표 타일 점유 상태를 업데이트하는 메서드 (SRP)
+    // ==========================================================
+    /// <summary>
+    /// 핵심 목표 타일(coreObjectiveCoords)이 현재 SmallMap에 의해 점유되었는지 확인하고
+    /// CanDungeon 변수의 상태를 업데이트합니다.
+    /// </summary>
+    private void UpdateCanDungeonState()
+    {
+        // 핵심 타일이 인스펙터에 할당되지 않았다면 상태를 False로 유지하고 종료합니다.
+        if (coreObjectiveTile == null)
+        {
+            CanDungeon = false;
+            return;
+        }
+
+        // occupiedTiles 딕셔너리에 핵심 타일의 좌표(Key)가 존재하는지 확인합니다.
+        // 하나라도 점유되어 있다면 True입니다.
+        bool isOccupied = occupiedTiles.ContainsKey(coreObjectiveCoords);
+
+        // CanDungeon 속성(Property)을 통해 값을 안전하게 설정합니다.
+        CanDungeon = isOccupied;
+
+        // Debug.Log($"[Dungeon State] CanDungeon 상태 업데이트됨: {CanDungeon}");
+    }
+    // ==========================================================
+
+    /// <summary>
+    /// 그리드 좌표(Vector2Int)를 월드 위치(Vector3)로 변환하여 반환합니다.
+    /// </summary>
+    /// <param name="gridCoords">변환할 그리드 좌표</param>
+    /// <returns>그리드 중심의 월드 위치</returns>
     private Vector3 GetWorldPosition(Vector2Int gridCoords)
     {
         float x = gridCoords.x * gridSize.x + gridOrigin.x;

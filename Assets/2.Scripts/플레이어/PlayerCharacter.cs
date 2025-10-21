@@ -46,8 +46,9 @@ public class PlayerCharacter : MonoBehaviour
 
     [Tooltip("플레이어가 습득한 패시브 스킬의 효과를 관리하는 PassiveSkillManager 컴포넌트입니다.")]
     public PassiveSkillManager passiveSkillManager;
-    // SkillPointManager는 싱글톤으로 유지됩니다.
-    // 따라서 직접 참조 변수는 필요하지 않습니다.
+
+    [Tooltip("플레이어 애니메이터")]
+    public Animator animator;
 
     /// <summary>
     /// 이 스크립트가 Awake될 때 호출되며, 싱글턴 인스턴스를 초기화하고 모든 시스템 컴포넌트를 할당합니다.
@@ -80,6 +81,7 @@ public class PlayerCharacter : MonoBehaviour
         playerLevelUp = GetComponent<PlayerLevelUp>();
         playerSkillController = GetComponent<PlayerSkillController>();
         passiveSkillManager = GetComponent<PassiveSkillManager>();
+        animator = GetComponent<Animator>();
         // 3. 필수 컴포넌트 누락 여부 확인 (디버깅 목적)
         ValidateSystemReferences();
     }
@@ -98,6 +100,7 @@ public class PlayerCharacter : MonoBehaviour
         if (playerHealth == null) Debug.LogError("PlayerCharacter: 'PlayerHealth' 컴포넌트가 누락되었습니다.");
         if (playerLevelUp == null) Debug.LogError("PlayerCharacter: 'PlayerLevelUp' 컴포넌트가 누락되었습니다.");
         if (playerSkillController == null) Debug.LogError("PlayerCharacter: 'PlayerSkillController' 컴포넌트가 누락되었습니다.");
+        if (animator== null) Debug.LogError("PlayerCharacter: 'Animator' 컴포넌트가 누락되었습니다.");
 
         if (playerStats != null && playerStatSystem != null && playerController != null && playerAttack != null && playerHealth != null && playerLevelUp != null && playerSkillController != null)
         {

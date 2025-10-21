@@ -1,53 +1,52 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
-using System.Diagnostics; // Debug.Log »ç¿ëÀ» À§ÇØ ÇÊ¿äÇÒ ¼ö ÀÖ½À´Ï´Ù.
+using System.Diagnostics;
 
 /// <summary>
-/// »ç½¿ ¸ó½ºÅÍÀÇ °íÀ¯ÇÑ Çàµ¿ ·ÎÁ÷(µµ¸ÁÄ¡±â, °ø°İ)À» ´ã´çÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-/// MonsterPatrol ÄÄÆ÷³ÍÆ®¸¦ Á¦¾îÇÏ°í, µ¥¹ÌÁö ÀÌº¥Æ®¿¡ ¹İÀÀÇÏ¿© Çàµ¿À» ¹Ù²ß´Ï´Ù.
-/// SOLID ¿øÄ¢: SRP(´ÜÀÏ Ã¥ÀÓ ¿øÄ¢)¿¡ µû¶ó »ç½¿ÀÇ °íÀ¯ Çàµ¿ ·ÎÁ÷(Flee, Attack °áÁ¤)¸¸ ´ã´çÇÕ´Ï´Ù.
+/// ì‚¬ìŠ´ ëª¬ìŠ¤í„°ì˜ ê³ ìœ í•œ í–‰ë™ ë¡œì§(ë„ë§ì¹˜ê¸°, ê³µê²©)ì„ ë‹´ë‹¹í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// MonsterPatrol ì»´í¬ë„ŒíŠ¸ë¥¼ ì œì–´í•˜ê³ , ë°ë¯¸ì§€ ì´ë²¤íŠ¸ì— ë°˜ì‘í•˜ì—¬ í–‰ë™ì„ ë°”ê¿‰ë‹ˆë‹¤.
+/// SOLID ì›ì¹™: SRP(ë‹¨ì¼ ì±…ì„ ì›ì¹™)ì— ë”°ë¼ ì‚¬ìŠ´ì˜ ê³ ìœ  í–‰ë™ ë¡œì§(Flee, Attack ê²°ì •)ë§Œ ë‹´ë‹¹í•©ë‹ˆë‹¤.
 /// </summary>
-[RequireComponent(typeof(Monster))]
-[RequireComponent(typeof(MonsterCombat))]
-[RequireComponent(typeof(MonsterPatrol))]
 public class DeerBehavior : MonoBehaviour
 {
-    // === Á¾¼Ó¼º ===
+    // === ì¢…ì†ì„± ===
     private Monster monster;
     private MonsterCombat monsterCombat;
-    private MonsterPatrol monsterPatrol; // MonsterPatrol ÄÄÆ÷³ÍÆ® ÂüÁ¶
+    private MonsterPatrol monsterPatrol; // MonsterPatrol ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
     private Transform playerTransform;
     private Animator animator;
 
-    // === »ç½¿ Çàµ¿ ¼³Á¤ ===
-    [Header("»ç½¿ Çàµ¿ ¼³Á¤")]
-    [Tooltip("ÇÃ·¹ÀÌ¾î °¨Áö ½Ã µµ¸ÁÄ¡±â ½ÃÀÛÇÒ °Å¸®ÀÔ´Ï´Ù.")]
-    public float fleeDistance = 15f;
-    [Tooltip("ÇÃ·¹ÀÌ¾î¿¡°Ô¼­ ÃæºĞÈ÷ ¸Ö¾îÁ®¼­ ¸ØÃâ °Å¸®ÀÔ´Ï´Ù.")]
+    // === ì‚¬ìŠ´ í–‰ë™ ì„¤ì • ===
+    [Header("ì‚¬ìŠ´ í–‰ë™ ì„¤ì •")]
+    // [ì œê±°] ê¸°ì¡´ì˜ fleeDistanceëŠ” Monster.detectionRangeê°€ ëŒ€ì‹ í•©ë‹ˆë‹¤.
+    [Tooltip("í”Œë ˆì´ì–´ì—ê²Œì„œ ì¶©ë¶„íˆ ë©€ì–´ì ¸ì„œ ë©ˆì¶œ ê±°ë¦¬ì…ë‹ˆë‹¤. (ë„ì£¼ ëª©í‘œ ê±°ë¦¬)")]
     public float stopFleeDistance = 20f;
-    [Tooltip("ÇÃ·¹ÀÌ¾î¿¡°Ô µ¥¹ÌÁö¸¦ ÀÔ¾úÀ» ¶§ °ø°İÀ» ½ÃÀÛÇÒ °Å¸®ÀÔ´Ï´Ù.")]
+
+    [Tooltip("í”Œë ˆì´ì–´ì—ê²Œ ë°ë¯¸ì§€ë¥¼ ì…ì—ˆì„ ë•Œ ê³µê²©ì„ ì‹œì‘í•  ê±°ë¦¬ì…ë‹ˆë‹¤.")]
     public float attackDistance = 3f;
-    [Tooltip("°ø°İ ½Ã Ãß°İ ÀÌµ¿ ¼ÓµµÀÔ´Ï´Ù. (Patrol ¼Óµµº¸´Ù »¡¶ó¾ß ÇÔ)")]
+    [Tooltip("ê³µê²© ì‹œ ì¶”ê²© ì´ë™ ì†ë„ì…ë‹ˆë‹¤. (Patrol ì†ë„ë³´ë‹¤ ë¹¨ë¼ì•¼ í•¨)")]
     public float attackSpeed = 6f;
-    [Tooltip("°ø°İ ÄğÅ¸ÀÓÀÔ´Ï´Ù.")]
+    [Tooltip("ê³µê²© ì¿¨íƒ€ì„ì…ë‹ˆë‹¤.")]
     public float attackCooldown = 1.5f;
-    [Tooltip("µµ¸ÁÄ¡´Â ¹æÇâÀ¸·ÎÀÇ ÀÌµ¿ ¼Óµµ ¹èÀ²ÀÔ´Ï´Ù.")]
+    [Tooltip("ë„ë§ì¹˜ëŠ” ë°©í–¥ìœ¼ë¡œì˜ ì´ë™ ì†ë„ ë°°ìœ¨ì…ë‹ˆë‹¤.")]
     public float fleeSpeedMultiplier = 1.5f;
-    [Tooltip("°ø°İ ¾Ö´Ï¸ŞÀÌ¼ÇÀÌ ½ÇÁ¦·Î Àç»ıµÇ´Â ½Ã°£ÀÔ´Ï´Ù. (¾Ö´Ï¸ŞÀÌÅÍ Å¬¸³ ±æÀÌ¿¡ ¸ÂÃç¾ß ÇÔ)")]
-    public float attackAnimationDuration = 0.8f; // °ø°İ Áß ÀÌµ¿ ÁßÁö¸¦ À§ÇÑ ½Ã°£
+    [Tooltip("ê³µê²© ì• ë‹ˆë©”ì´ì…˜ì´ ì‹¤ì œë¡œ ì¬ìƒë˜ëŠ” ì‹œê°„ì…ë‹ˆë‹¤. (ì• ë‹ˆë©”ì´í„° í´ë¦½ ê¸¸ì´ì— ë§ì¶°ì•¼ í•¨)")]
+    public float attackAnimationDuration = 0.8f; // ê³µê²© ì¤‘ ì´ë™ ì¤‘ì§€ë¥¼ ìœ„í•œ ì‹œê°„
+    // [ì¶”ê°€] íšŒì „ ì†ë„ (ë„ì£¼ ì‹œ íƒ€ê²Ÿ ë°˜ëŒ€ ë°©í–¥ìœ¼ë¡œ íšŒì „)
+    [Tooltip("ë„ì£¼/ì¶”ê²© ìƒíƒœì—ì„œ í”Œë ˆì´ì–´ë¥¼ í–¥í•´ íšŒì „í•˜ëŠ” ì†ë„ì…ë‹ˆë‹¤.")]
+    [SerializeField] private float rotationSpeed = 10.0f;
 
-    // === ³»ºÎ º¯¼ö ===
-    private bool hasTakenDamage = false; // µ¥¹ÌÁö¸¦ ÀÔ¾ú´ÂÁö ¿©ºÎ (º¹¼ö½É Æ®¸®°Å)
-    private float lastAttackTime;         // ¸¶Áö¸· °ø°İ ½Ã°£
-    private bool isAttacking = false;    // ÇöÀç °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı Áß ¿©ºÎ (ÀÌµ¿/È¸Àü Á¦¾î¿ë ÇÃ·¡±×)
+    // === ë‚´ë¶€ ë³€ìˆ˜ ===
+    private bool hasTakenDamage = false; // ë°ë¯¸ì§€ë¥¼ ì…ì—ˆëŠ”ì§€ ì—¬ë¶€ (ë³µìˆ˜ì‹¬ íŠ¸ë¦¬ê±°)
+    private float lastAttackTime;        // ë§ˆì§€ë§‰ ê³µê²© ì‹œê°„
+    private bool isAttacking = false;    // í˜„ì¬ ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ ì¤‘ ì—¬ë¶€ (ì´ë™/íšŒì „ ì œì–´ìš© í”Œë˜ê·¸)
 
-    // ±âº» ¼øÂû ¼Óµµ (¾Ö´Ï¸ŞÀÌ¼Ç µ¿±âÈ­¸¦ À§ÇØ Monster Data¿¡¼­ °¡Á®¿À´Â °ÍÀÌ ÀÌ»óÀû)
-    // ÇöÀç ½ºÅ©¸³Æ® ±¸Á¶»ó, °È±â ¼Óµµ¿¡ ÇØ´çÇÏ´Â ¸ó½ºÅÍÀÇ ±âº» ÀÌµ¿ ¼Óµµ¸¦ °¡Á¤ÇÕ´Ï´Ù.
+    // ëª¬ìŠ¤í„°ì˜ ê¸°ë³¸ ê±·ê¸° ì†ë„ ì°¸ì¡°
     private float basePatrolSpeed = 3.0f;
 
     void Awake()
     {
-        // === ÇÊ¼ö ÄÄÆ÷³ÍÆ® ÂüÁ¶ ===
+        // === í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ ì°¸ì¡° ===
         monster = GetComponent<Monster>();
         monsterCombat = GetComponent<MonsterCombat>();
         monsterPatrol = GetComponent<MonsterPatrol>();
@@ -55,25 +54,24 @@ public class DeerBehavior : MonoBehaviour
 
         if (monster == null || monsterCombat == null || monsterPatrol == null || animator == null)
         {
-            UnityEngine.Debug.LogError("DeerBehavior: ÇÊ¼ö ÄÄÆ÷³ÍÆ®(Monster, MonsterCombat, MonsterPatrol, Animator)¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            UnityEngine.Debug.LogError("DeerBehavior: í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸(Monster, MonsterCombat, MonsterPatrol, Animator)ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             enabled = false;
             return;
         }
 
-        // ÇÃ·¹ÀÌ¾î Æ®·£½ºÆû Ã£±â (Tag ±â¹İ)
+        // í”Œë ˆì´ì–´ íŠ¸ëœìŠ¤í¼ ì°¾ê¸° (Tag ê¸°ë°˜)
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject != null)
         {
             playerTransform = playerObject.transform;
         }
 
-        // »ç½¿ ¸ó½ºÅÍ´Â ±âº»ÀûÀ¸·Î ¼øÂû »óÅÂ·Î ½ÃÀÛÇÕ´Ï´Ù.
+        // ì‚¬ìŠ´ ëª¬ìŠ¤í„°ëŠ” ê¸°ë³¸ì ìœ¼ë¡œ ìˆœì°° ìƒíƒœë¡œ ì‹œì‘í•©ë‹ˆë‹¤.
         monster.ChangeState(MonsterBase.MonsterState.Patrol);
-        // ±âº» °È±â ¸ğ¼Ç ¼³Á¤: Vert=1 (¿òÁ÷ÀÓ), State=0 (°È±â)
         animator.SetFloat("Vert", 1f);
         animator.SetFloat("State", 0f);
 
-        // MonsterData¿¡ moveSpeed°¡ ÀÖ´Ù¸é ±âº» ¼øÂû ¼Óµµ·Î »ç¿ë
+        // MonsterDataì— moveSpeedê°€ ìˆë‹¤ë©´ ê¸°ë³¸ ìˆœì°° ì†ë„ë¡œ ì‚¬ìš©
         if (monster.monsterData != null)
         {
             basePatrolSpeed = monster.monsterData.moveSpeed;
@@ -81,19 +79,19 @@ public class DeerBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// ½ºÅ©¸³Æ®°¡ È°¼ºÈ­µÉ ¶§ µ¥¹ÌÁö ÀÌº¥Æ®¸¦ ±¸µ¶ÇÕ´Ï´Ù.
+    /// ìŠ¤í¬ë¦½íŠ¸ê°€ í™œì„±í™”ë  ë•Œ ë°ë¯¸ì§€ ì´ë²¤íŠ¸ë¥¼ êµ¬ë…í•©ë‹ˆë‹¤.
     /// </summary>
     private void OnEnable()
     {
         if (monsterCombat != null)
         {
-            // OCP: MonsterCombatÀÇ ÀÌº¥Æ®¿¡ ÀÇÁ¸ÇÏ¿© À¯¿¬ÇÏ°Ô ¹İÀÀÇÕ´Ï´Ù.
+            // OCP: MonsterCombatì˜ ì´ë²¤íŠ¸ì— ì˜ì¡´í•˜ì—¬ ìœ ì—°í•˜ê²Œ ë°˜ì‘í•©ë‹ˆë‹¤.
             monsterCombat.OnDamageTaken += OnMonsterDamaged;
         }
     }
 
     /// <summary>
-    /// ½ºÅ©¸³Æ®°¡ ºñÈ°¼ºÈ­µÉ ¶§ µ¥¹ÌÁö ÀÌº¥Æ®¸¦ ±¸µ¶ ÇØÁ¦ÇÕ´Ï´Ù.
+    /// ìŠ¤í¬ë¦½íŠ¸ê°€ ë¹„í™œì„±í™”ë  ë•Œ ë°ë¯¸ì§€ ì´ë²¤íŠ¸ë¥¼ êµ¬ë… í•´ì œí•©ë‹ˆë‹¤.
     /// </summary>
     private void OnDisable()
     {
@@ -101,31 +99,28 @@ public class DeerBehavior : MonoBehaviour
         {
             monsterCombat.OnDamageTaken -= OnMonsterDamaged;
         }
-        StopAllCoroutines(); // È¤½Ã ¸ğ¸¦ ÄÚ·çÆ¾ ½ÇÇà Áß´Ü
+        StopAllCoroutines();
     }
 
     /// <summary>
-    /// MonsterCombat¿¡¼­ µ¥¹ÌÁö ÀÌº¥Æ®°¡ ¹ß»ıÇßÀ» ¶§ È£ÃâµË´Ï´Ù.
-    /// »ç½¿ÀÇ Çàµ¿ ÄÁ¼Á: µ¥¹ÌÁö¸¦ ÀÔÀ¸¸é µµ¸ÁÄ¡Áö ¾Ê°í ³¡±îÁö Ãß°İ/°ø°İÇÕ´Ï´Ù.
+    /// MonsterCombatì—ì„œ ë°ë¯¸ì§€ ì´ë²¤íŠ¸ê°€ ë°œìƒí–ˆì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ì‚¬ìŠ´ì˜ í–‰ë™ ì»¨ì…‰: ë°ë¯¸ì§€ë¥¼ ì…ìœ¼ë©´ ë„ë§ì¹˜ì§€ ì•Šê³  ëê¹Œì§€ ì¶”ê²©/ê³µê²©í•©ë‹ˆë‹¤. (ë³µìˆ˜ì‹¬ ë°œë™)
     /// </summary>
-    /// <param name="damage">ÀÔÀº µ¥¹ÌÁö ¾ç</param>
     private void OnMonsterDamaged(float damage)
     {
-        hasTakenDamage = true; // º¹¼ö½É ¹ßµ¿!
-        // µ¥¹ÌÁö¸¦ ÀÔÀ¸¸é Áï½Ã °ø°İ(Ãß°İ) »óÅÂ·Î ÀüÈ¯ÇÕ´Ï´Ù.
+        hasTakenDamage = true; // ë³µìˆ˜ì‹¬ ë°œë™!
+        // ë°ë¯¸ì§€ë¥¼ ì…ìœ¼ë©´ ì¦‰ì‹œ ê³µê²©(ì¶”ê²©) ìƒíƒœë¡œ ì „í™˜í•©ë‹ˆë‹¤.
         monster.ChangeState(MonsterBase.MonsterState.Attack);
-        StopAllCoroutines(); // ÀÌÀü °ø°İ ½ÃÄö½º°¡ ³²¾ÆÀÖ´Ù¸é Áß´Ü
-        isAttacking = false; // °ø°İ ÇÃ·¡±× ÃÊ±âÈ­ (¹Ù·Î Ãß°İ ½ÃÀÛ)
+        StopAllCoroutines();
+        isAttacking = false; // ê³µê²© í”Œë˜ê·¸ ì´ˆê¸°í™” (ë°”ë¡œ ì¶”ê²© ì‹œì‘)
     }
 
     void Update()
     {
-        // === ¸ó½ºÅÍ »óÅÂ È®ÀÎ ¹× ¿¹¿Ü Ã³¸® (Dead, Game Over) ===
+        // === ëª¬ìŠ¤í„° ìƒíƒœ í™•ì¸ ë° ì˜ˆì™¸ ì²˜ë¦¬ (Dead, Game Over) ===
         if (playerTransform == null || monster.currentState == MonsterBase.MonsterState.Dead)
         {
             monsterPatrol.StopPatrol();
-            // Á×¾úÀ» ¶§´Â Idle ¸ğ¼Ç (Vert=0, State=0) ¶Ç´Â Death ¾Ö´Ï¸ŞÀÌ¼ÇÀ» ¼³Á¤ÇØ¾ß ÇÕ´Ï´Ù.
-            // ¿©±â¼­´Â ÀÏ´Ü ÀÌµ¿ ¾Ö´Ï¸ŞÀÌ¼Ç¸¸ ¸ØÃä´Ï´Ù.
             animator.SetFloat("Vert", 0f);
             animator.SetFloat("State", 0f);
             return;
@@ -138,13 +133,15 @@ public class DeerBehavior : MonoBehaviour
             return;
         }
 
+        // í”Œë ˆì´ì–´ì™€ì˜ ê±°ë¦¬ëŠ” ì´ë™/ì •ì§€ ì¡°ê±´ì—ë§Œ ì‚¬ìš©
         float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
-        // === »óÅÂ ¸Ó½Å ½ÇÇà ===
+        // === ìƒíƒœ ë¨¸ì‹  ì‹¤í–‰ ===
         switch (monster.currentState)
         {
             case MonsterBase.MonsterState.Patrol:
-                HandlePatrolState(distanceToPlayer);
+                // â­ [ìˆ˜ì •] distanceToPlayer ì¸ì ì œê±° ë° ë¡œì§ ë³€ê²½
+                HandlePatrolState();
                 break;
 
             case MonsterBase.MonsterState.Flee:
@@ -157,35 +154,36 @@ public class DeerBehavior : MonoBehaviour
         }
     }
 
-    // === »óÅÂº° Àü¿ë ÇÚµé·¯ ¸Ş¼­µå (SRP Àû¿ë ¹× ÄÚµå Á¤¸®) ===
+    // === ìƒíƒœë³„ ì „ìš© í•¸ë“¤ëŸ¬ ë©”ì„œë“œ (SRP ì ìš© ë° ì½”ë“œ ì •ë¦¬) ===
 
     /// <summary>
-    /// ¼øÂû »óÅÂ ·ÎÁ÷À» Ã³¸®ÇÕ´Ï´Ù.
+    /// ìˆœì°° ìƒíƒœ ë¡œì§ì„ ì²˜ë¦¬í•©ë‹ˆë‹¤. í”Œë ˆì´ì–´ ê°ì§€ ì‹œ Flee ìƒíƒœë¡œ ì „í™˜í•©ë‹ˆë‹¤.
     /// </summary>
-    private void HandlePatrolState(float distanceToPlayer)
+    private void HandlePatrolState()
     {
-        // °È±â ¸ğ¼Ç ¼³Á¤ (Vert=1, State=0)
+        // ê±·ê¸° ëª¨ì…˜ ì„¤ì • (Vert=1, State=0)
         animator.SetFloat("Vert", 1f);
         animator.SetFloat("State", 0f);
 
-        // µ¥¹ÌÁö¸¦ ÀÔÁö ¾Ê¾Ò°í, ÇÃ·¹ÀÌ¾î¸¦ °¨ÁöÇÏ¸é µµ¸Á »óÅÂ·Î ÀüÈ¯
-        if (!hasTakenDamage && distanceToPlayer < fleeDistance)
+        // â­ [í•µì‹¬ ìˆ˜ì •] Monster.csì—ì„œ ì‹œì•¼ê° ê°ì§€ë¥¼ í–ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        // ë°ë¯¸ì§€ë¥¼ ì…ì§€ ì•Šì•˜ê³ , Monsterê°€ í”Œë ˆì´ì–´ë¥¼ ê°ì§€í–ˆë‹¤ë©´ ë„ë§ ìƒíƒœë¡œ ì „í™˜
+        if (!hasTakenDamage && monster.detectableTarget != null)
         {
             monster.ChangeState(MonsterBase.MonsterState.Flee);
-            monsterPatrol.StopPatrol(); // ¼øÂû ÁßÁö
+            monsterPatrol.StopPatrol(); // ìˆœì°° ì¤‘ì§€
         }
         else
         {
-            monsterPatrol.StartPatrol(); // ¼øÂû °è¼Ó
+            monsterPatrol.StartPatrol(); // ìˆœì°° ê³„ì†
         }
     }
 
     /// <summary>
-    /// µµ¸Á »óÅÂ ·ÎÁ÷À» Ã³¸®ÇÕ´Ï´Ù.
+    /// ë„ë§ ìƒíƒœ ë¡œì§ì„ ì²˜ë¦¬í•©ë‹ˆë‹¤.
     /// </summary>
     private void HandleFleeState(float distanceToPlayer)
     {
-        // µ¥¹ÌÁö¸¦ ÀÔÀº ÈÄ¿¡´Â Flee »óÅÂ¿¡ ¸Ó¹°Áö ¾Ê½À´Ï´Ù.
+        // 1. ë³µìˆ˜ì‹¬ì´ ë°œë™ë˜ë©´ Flee ìƒíƒœë¥¼ ë²—ì–´ë‚©ë‹ˆë‹¤.
         if (hasTakenDamage)
         {
             monster.ChangeState(MonsterBase.MonsterState.Attack);
@@ -193,16 +191,39 @@ public class DeerBehavior : MonoBehaviour
             return;
         }
 
-        monsterPatrol.StopPatrol();
-        FleeFromPlayer(distanceToPlayer);
+        // 2. í”Œë ˆì´ì–´ ê°ì§€ í•´ì œ ë˜ëŠ” ì¶©ë¶„í•œ ê±°ë¦¬ë¥¼ í™•ë³´í–ˆëŠ”ì§€ í™•ì¸
+        // í”Œë ˆì´ì–´ë¥¼ ë†“ì¹˜ê³ (detectableTarget == null) ì¶©ë¶„í•œ ê±°ë¦¬ë¥¼ í™•ë³´í–ˆìœ¼ë©´ Patrolë¡œ ë³µê·€
+        if (monster.detectableTarget == null && distanceToPlayer > stopFleeDistance)
+        {
+            // ì¶©ë¶„íˆ ë©€ë¦¬ ë„ë§ì³¤ìœ¼ë©´ ë‹¤ì‹œ Patrol ìƒíƒœë¡œ ëŒì•„ê°‘ë‹ˆë‹¤.
+            monster.ChangeState(MonsterBase.MonsterState.Patrol);
+            return;
+        }
 
-        // µµ¸ÁÄ¡´Â »óÅÂ´Â ¶Ù´Â ¸ğ¼Ç (Vert=1, State=1)À» »ç¿ëÇÕ´Ï´Ù.
-        animator.SetFloat("Vert", 1f);
-        animator.SetFloat("State", 1f);
+        // 3. ë„ì£¼ ì‹¤í–‰: ë„ì£¼ ëª©í‘œ ê±°ë¦¬ì— ë„ë‹¬í•˜ì§€ ì•Šì•˜ê±°ë‚˜(distanceToPlayer < stopFleeDistance) 
+        // ì•„ì§ í”Œë ˆì´ì–´ê°€ ì‹œì•¼ ë‚´ì— ìˆìœ¼ë©´ ê³„ì† ë„ë§ì¹©ë‹ˆë‹¤.
+        if (distanceToPlayer < stopFleeDistance || monster.detectableTarget != null)
+        {
+            monsterPatrol.StopPatrol();
+
+            // â­ [ë³€ê²½] MoveAwayFromTarget ë° RotateTowardsTarget í—¬í¼ ë©”ì„œë“œ ì‚¬ìš©
+            MoveAwayFromTarget(playerTransform, basePatrolSpeed * fleeSpeedMultiplier, stopFleeDistance);
+            RotateAwayFromTarget(playerTransform);
+
+            // ë„ë§ì¹˜ëŠ” ìƒíƒœëŠ” ë›°ëŠ” ëª¨ì…˜ (Vert=1, State=1)ì„ ì‚¬ìš©í•©ë‹ˆë‹¤.
+            animator.SetFloat("Vert", 1f);
+            animator.SetFloat("State", 1f);
+        }
+        else
+        {
+            // ëª©í‘œ ê±°ë¦¬ì— ë„ë‹¬í–ˆê³  í”Œë ˆì´ì–´ë¥¼ ë†“ì³¤ë‹¤ë©´ ì •ì§€ í›„ Patrolë¡œ ë³µê·€ (ìœ„ì˜ ì¡°ê±´ì—ì„œ ì´ë¯¸ ì²˜ë¦¬ë¨)
+            animator.SetFloat("Vert", 0f);
+            animator.SetFloat("State", 0f);
+        }
     }
 
     /// <summary>
-    /// Ãß°İ ¹× °ø°İ »óÅÂ ·ÎÁ÷À» Ã³¸®ÇÕ´Ï´Ù.
+    /// í”Œë ˆì´ì–´ë¥¼ ì¶”ê²© ë° ê³µê²©í•˜ëŠ” ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤. (ë°ë¯¸ì§€ë¥¼ ì…ì€ í›„ì˜ ë³µìˆ˜ í–‰ë™)
     /// </summary>
     private void HandleAttackState(float distanceToPlayer)
     {
@@ -211,109 +232,143 @@ public class DeerBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î¿¡°Ô¼­ µµ¸ÁÄ¡´Â ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù. (µ¥¹ÌÁö¸¦ ÀÔ±â ÀüÀÇ ±âº» Çàµ¿)
-    /// </summary>
-    private void FleeFromPlayer(float distanceToPlayer)
-    {
-        if (distanceToPlayer < stopFleeDistance)
-        {
-            // µµ¸Á ·ÎÁ÷: ÇÃ·¹ÀÌ¾î ¹İ´ë ¹æÇâÀ¸·Î ÀÌµ¿
-            Vector3 fleeDirection = (transform.position - playerTransform.position).normalized;
-            transform.Translate(fleeDirection * basePatrolSpeed * fleeSpeedMultiplier * Time.deltaTime, Space.World);
-
-            // ÀÌµ¿ ¹æÇâÀ¸·Î ºÎµå·´°Ô È¸Àü
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(fleeDirection.x, 0, fleeDirection.z));
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-        }
-        else
-        {
-            // ÃæºĞÈ÷ ¸Ö¸® µµ¸ÁÃÆÀ¸¸é ´Ù½Ã Patrol »óÅÂ·Î µ¹¾Æ°©´Ï´Ù.
-            monster.ChangeState(MonsterBase.MonsterState.Patrol);
-        }
-    }
-
-    /// <summary>
-    /// ÇÃ·¹ÀÌ¾î¸¦ Ãß°İ ¹× °ø°İÇÏ´Â ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù. (µ¥¹ÌÁö¸¦ ÀÔÀº ÈÄÀÇ º¹¼ö Çàµ¿)
+    /// í”Œë ˆì´ì–´ë¥¼ ì¶”ê²© ë° ê³µê²©í•˜ëŠ” ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤. (ë°ë¯¸ì§€ë¥¼ ì…ì€ í›„ì˜ ë³µìˆ˜ í–‰ë™)
     /// </summary>
     private void AttackPlayer(float distanceToPlayer)
     {
-        // isAttacking ÇÃ·¡±× È®ÀÎ: °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı ÁßÀÌ¸é ÀÌµ¿/È¸Àü ·ÎÁ÷ °Ç³Ê¶Ù°í ¸ØÃçÀÖ½À´Ï´Ù. (¿ì¿ÕÁÂ¿Õ ¹®Á¦ ÇØ°á)
+        // isAttacking í”Œë˜ê·¸ í™•ì¸: ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ ì¤‘ì´ë©´ ì´ë™/íšŒì „ ë¡œì§ ê±´ë„ˆë›°ê³  ë©ˆì¶°ìˆìŠµë‹ˆë‹¤.
         if (isAttacking)
         {
-            // °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı Áß¿¡´Â ¸ØÃç¼­ Idle ¸ğ¼Ç (Vert=0, State=0)À» °­Á¦ÇÏ¿© Ãæµ¹ ¹æÁö
             animator.SetFloat("Vert", 0f);
             animator.SetFloat("State", 0f);
             return;
         }
 
-        // isAttackingÀÌ falseÀÏ ¶§ (Ãß°İ ¶Ç´Â °ø°İ ÁØºñ)
+        // isAttackingì´ falseì¼ ë•Œ (ì¶”ê²© ë˜ëŠ” ê³µê²© ì¤€ë¹„)
         if (distanceToPlayer > attackDistance)
         {
-            // === Ãß°İ ·ÎÁ÷ (¶Ù´Â ¸ğ¼Ç Àû¿ë) ===
-            Vector3 direction = (playerTransform.position - transform.position).normalized;
-            transform.position += direction * attackSpeed * Time.deltaTime;
+            // === ì¶”ê²© ë¡œì§ (ë›°ëŠ” ëª¨ì…˜ ì ìš©) ===
+            // [ë³€ê²½] í—¬í¼ ë©”ì„œë“œ ì‚¬ìš©
+            MoveTowardsTarget(playerTransform, attackSpeed, attackDistance - 0.1f);
+            RotateTowardsTarget(playerTransform);
 
-            // Ãß°İ ¹æÇâÀ¸·Î È¸Àü
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
-
-            // '¶Ù´Â' ¾Ö´Ï¸ŞÀÌ¼Ç ¼³Á¤ (Vert=1, State=1)
+            // 'ë›°ëŠ”' ì• ë‹ˆë©”ì´ì…˜ ì„¤ì • (Vert=1, State=1)
             animator.SetFloat("Vert", 1f);
             animator.SetFloat("State", 1f);
         }
         else
         {
-            // === °ø°İ ÁØºñ ¹× ½ÇÇà ===
-            // °ø°İ ¹üÀ§ ¾ÈÀÌ¸é ÇÃ·¹ÀÌ¾î¸¦ ¹Ù¶óº¸°í °ø°İ ½ÇÇà
-            Vector3 directionToPlayer = (playerTransform.position - transform.position).normalized;
-            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(directionToPlayer.x, 0, directionToPlayer.z));
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 10f); // ºü¸£°Ô ¹Ù¶óº¸±â
+            // === ê³µê²© ì¤€ë¹„ ë° ì‹¤í–‰ ===
+            // ê³µê²© ë²”ìœ„ ì•ˆì´ë©´ í”Œë ˆì´ì–´ë¥¼ ë°”ë¼ë³´ê³  ê³µê²© ì‹¤í–‰
+            RotateTowardsTarget(playerTransform, 10f); // ë¹ ë¥´ê²Œ ë°”ë¼ë³´ê¸°
 
             PerformAttack();
-            // isAttacking ÇÃ·¡±×°¡ true°¡ µÇ¸é¼­ ´ÙÀ½ UpdateºÎÅÍ´Â ÀÌµ¿/È¸ÀüÀÌ Áß´ÜµË´Ï´Ù.
+            // isAttacking í”Œë˜ê·¸ê°€ trueê°€ ë˜ë©´ì„œ ë‹¤ìŒ Update()ë¶€í„°ëŠ” ì´ë™/íšŒì „ì´ ì¤‘ë‹¨ë©ë‹ˆë‹¤.
         }
     }
 
     /// <summary>
-    /// °ø°İ ÄğÅ¸ÀÓÀ» È®ÀÎÇÏ°í °ø°İ ½ÃÄö½º ÄÚ·çÆ¾À» ½ÃÀÛÇÕ´Ï´Ù.
+    /// ê³µê²© ì¿¨íƒ€ì„ì„ í™•ì¸í•˜ê³  ê³µê²© ì‹œí€€ìŠ¤ ì½”ë£¨í‹´ì„ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
     private void PerformAttack()
     {
-        // ÄğÅ¸ÀÓÀÌ Áö³µ´ÂÁö È®ÀÎ
         if (Time.time > lastAttackTime + attackCooldown)
         {
-            // °ø°İ ½ÃÄö½º ÄÚ·çÆ¾ ½ÃÀÛ
             StartCoroutine(AttackSequenceCoroutine());
         }
     }
 
     /// <summary>
-    /// °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı, µ¥¹ÌÁö Àû¿ë, ÄğÅ¸ÀÓ ¼³Á¤À» ´ã´çÇÏ´Â ÄÚ·çÆ¾ÀÔ´Ï´Ù.
-    /// ÀÌ ÄÚ·çÆ¾ÀÌ ½ÇÇàµÇ´Â µ¿¾È isAttacking ÇÃ·¡±×°¡ true·Î À¯ÁöµÇ¾î ¸ó½ºÅÍÀÇ ÀÌµ¿À» ¸·½À´Ï´Ù.
+    /// ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ, ë°ë¯¸ì§€ ì ìš©, ì¿¨íƒ€ì„ ì„¤ì •ì„ ë‹´ë‹¹í•˜ëŠ” ì½”ë£¨í‹´ì…ë‹ˆë‹¤.
+    /// ì´ ì½”ë£¨í‹´ì´ ì‹¤í–‰ë˜ëŠ” ë™ì•ˆ isAttacking í”Œë˜ê·¸ê°€ trueë¡œ ìœ ì§€ë˜ì–´ ëª¬ìŠ¤í„°ì˜ ì´ë™ì„ ë§‰ìŠµë‹ˆë‹¤.
     /// </summary>
     private IEnumerator AttackSequenceCoroutine()
     {
-        // 1. °ø°İ ½ÃÀÛ - ÀÌµ¿ ÁßÁö
+        // 1. ê³µê²© ì‹œì‘ - ì´ë™ ì¤‘ì§€
         isAttacking = true;
-        animator.SetTrigger("Attack"); // °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Æ®¸®°Å
+        animator.SetTrigger("Attack"); // ê³µê²© ì• ë‹ˆë©”ì´ì…˜ íŠ¸ë¦¬ê±°
 
-        // °ø°İ ¾Ö´Ï¸ŞÀÌ¼ÇÀÌ ³¡³¯ ¶§±îÁö ¸ØÃçÀÖµµ·Ï ´ë±â
+        // ê³µê²© ì• ë‹ˆë©”ì´ì…˜ì´ ëë‚  ë•Œê¹Œì§€ ë©ˆì¶°ìˆë„ë¡ ëŒ€ê¸°
         yield return new WaitForSeconds(attackAnimationDuration);
 
-        // 2. ½ÇÁ¦ µ¥¹ÌÁö Àû¿ë
+        // 2. ì‹¤ì œ ë°ë¯¸ì§€ ì ìš©
         IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
         if (playerDamageable != null)
         {
             playerDamageable.TakeDamage(monster.monsterData.attackPower);
         }
 
-        // 3. °ø°İ Á¾·á ¹× ÄğÅ¸ÀÓ ¼³Á¤
+        // 3. ê³µê²© ì¢…ë£Œ ë° ì¿¨íƒ€ì„ ì„¤ì •
         lastAttackTime = Time.time;
-        isAttacking = false; // ÀÌµ¿ ·ÎÁ÷ Àç°³ Çã¿ë (´ÙÀ½ Update()ºÎÅÍ Ãß°İ ½ÃÀÛ)
+        isAttacking = false; // ì´ë™ ë¡œì§ ì¬ê°œ í—ˆìš© (ë‹¤ìŒ Update()ë¶€í„° ì¶”ê²© ì‹œì‘)
+    }
+    /// <summary>
+    /// ëª¬ìŠ¤í„°ë¥¼ ì§€ì •ëœ ì†ë„ë¡œ ëª©í‘œ ì§€ì (target)ì„ í–¥í•´ ì´ë™ì‹œí‚µë‹ˆë‹¤. (ì¶”ê²©)
+    /// </summary>
+    private void MoveTowardsTarget(Transform target, float speed, float stoppingDistance)
+    {
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        if (distanceToTarget > stoppingDistance)
+        {
+            // ëª©í‘œ ë°©í–¥ ë²¡í„° (XZ í‰ë©´ë§Œ ê³ ë ¤)
+            Vector3 direction = target.position - transform.position;
+            Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
+
+            transform.position += flatDirection.normalized * speed * Time.deltaTime;
+        }
     }
 
-    private void OnDrawGizmosSelected()
+    /// <summary>
+    /// ëª¬ìŠ¤í„°ë¥¼ ì§€ì •ëœ ì†ë„ë¡œ ëª©í‘œ ì§€ì (target)ì—ê²Œì„œ ë©€ì–´ì§€ë„ë¡ ì´ë™ì‹œí‚µë‹ˆë‹¤. (ë„ì£¼)
+    /// </summary>
+    private void MoveAwayFromTarget(Transform target, float speed, float stoppingDistance)
     {
-        // ±âÁî¸ğ ½Ã°¢È­ ·ÎÁ÷
+        float distanceToTarget = Vector3.Distance(transform.position, target.position);
+
+        // stopFleeDistanceë³´ë‹¤ ê°€ê¹Œìš¸ ë•Œë§Œ ë„ë§ì¹©ë‹ˆë‹¤.
+        // ë˜ëŠ” ì•„ì§ í”Œë ˆì´ì–´ê°€ ì‹œì•¼ ë‚´ì— ìˆëŠ” ê²½ìš° (HandleFleeStateì—ì„œ ì œì–´)
+        if (distanceToTarget < stoppingDistance || monster.detectableTarget != null)
+        {
+            // ë„ì£¼ ë°©í–¥ ë²¡í„° = (ëª¬ìŠ¤í„° ìœ„ì¹˜ - íƒ€ê²Ÿ ìœ„ì¹˜) (XZ í‰ë©´ë§Œ ê³ ë ¤)
+            Vector3 direction = transform.position - target.position;
+            Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
+
+            // ì´ë™
+            transform.position += flatDirection.normalized * speed * Time.deltaTime;
+        }
+    }
+
+    /// <summary>
+    /// ëª¬ìŠ¤í„°ë¥¼ ëª©í‘œë¥¼ í–¥í•´ ë¶€ë“œëŸ½ê²Œ íšŒì „ì‹œí‚µë‹ˆë‹¤. (ì¶”ê²©)
+    /// </summary>
+    private void RotateTowardsTarget(Transform target, float slerpSpeed = -1f)
+    {
+        float finalSpeed = (slerpSpeed > 0) ? slerpSpeed : rotationSpeed;
+
+        Vector3 direction = target.position - transform.position;
+        Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
+
+        if (flatDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, finalSpeed * Time.deltaTime);
+        }
+    }
+
+    /// <summary>
+    /// ëª¬ìŠ¤í„°ë¥¼ ëª©í‘œì˜ ë°˜ëŒ€ ë°©í–¥ìœ¼ë¡œ ë¶€ë“œëŸ½ê²Œ íšŒì „ì‹œí‚µë‹ˆë‹¤. (ë„ì£¼)
+    /// </summary>
+    private void RotateAwayFromTarget(Transform target)
+    {
+        // ë„ë§ ë°©í–¥ = íƒ€ê²Ÿ ë°˜ëŒ€ ë°©í–¥
+        Vector3 direction = transform.position - target.position;
+        Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
+
+        if (flatDirection != Vector3.zero)
+        {
+            Quaternion targetRotation = Quaternion.LookRotation(flatDirection);
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+        }
     }
 }

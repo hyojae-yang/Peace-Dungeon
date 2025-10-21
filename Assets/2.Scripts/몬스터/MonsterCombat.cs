@@ -1,9 +1,9 @@
-using UnityEngine;
-using System; // ÀÌº¥Æ® »ç¿ëÀ» À§ÇØ System ³×ÀÓ½ºÆäÀÌ½º Ãß°¡
+ï»¿using UnityEngine;
+using System; // ì´ë²¤íŠ¸ ì‚¬ìš©ì„ ìœ„í•´ System ë„¤ì„ìŠ¤í˜ì´ìŠ¤ ì¶”ê°€
 
 /// <summary>
-/// ¸ó½ºÅÍÀÇ ÀüÅõ ·ÎÁ÷(ÇÇÇØ Ã³¸®, °ø°İ)À» ´ã´çÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-/// IDamageable ÀÎÅÍÆäÀÌ½º¸¦ ±¸ÇöÇÏ¿© ÇÇÇØ¸¦ ÀÔÀ» ¼ö ÀÖµµ·Ï ÇÕ´Ï´Ù.
+/// ëª¬ìŠ¤í„°ì˜ ì „íˆ¬ ë¡œì§(í”¼í•´ ì²˜ë¦¬, ê³µê²©)ì„ ë‹´ë‹¹í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// IDamageable ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í•˜ì—¬ í”¼í•´ë¥¼ ì…ì„ ìˆ˜ ìˆë„ë¡ í•©ë‹ˆë‹¤.
 /// </summary>
 public class MonsterCombat : MonoBehaviour, IDamageable
 {
@@ -11,29 +11,31 @@ public class MonsterCombat : MonoBehaviour, IDamageable
     AudioSource audioSource;
     public AudioClip hitSound;
     private float currentHealth;
+    [SerializeField]
+    private GameObject hitObject;
 
-    // === ÀÌº¥Æ® ===
-    // µ¥¹ÌÁö¸¦ ÀÔ¾úÀ» ¶§ ´Ù¸¥ ½ºÅ©¸³Æ®¿¡ ¾Ë¸®´Â ±âÁ¸ ÀÌº¥Æ®
-    public event Action<float> OnDamageTaken;
+Â  Â  // === ì´ë²¤íŠ¸ ===
+Â  Â  // ë°ë¯¸ì§€ë¥¼ ì…ì—ˆì„ ë•Œ ë‹¤ë¥¸ ìŠ¤í¬ë¦½íŠ¸ì— ì•Œë¦¬ëŠ” ê¸°ì¡´ ì´ë²¤íŠ¸
+Â  Â  public event Action<float> OnDamageTaken;
 
-    // 1. Ãß°¡µÈ ÈÅ: ÇöÀç Ã¼·Â °ªÀÌ º¯°æµÉ ¶§¸¶´Ù ³²Àº Ã¼·ÂÀ» ¿ÜºÎ¿¡ ¾Ë¸³´Ï´Ù.
-    /// <summary>
-    /// ÇöÀç Ã¼·Â °ªÀÌ º¯°æµÉ ¶§ ³²Àº Ã¼·Â °ªÀ» ÀÎÀÚ·Î Àü´ŞÇÏ´Â ÀÌº¥Æ®. (º¸½º UI ½Ã½ºÅÛÀÌ »ç¿ë)
-    /// </summary>
-    public event Action<float> OnHealthUpdated; // <<<< --- Ãß°¡µÈ ºÎºĞ
+Â  Â  // 1. ì¶”ê°€ëœ í›…: í˜„ì¬ ì²´ë ¥ ê°’ì´ ë³€ê²½ë  ë•Œë§ˆë‹¤ ë‚¨ì€ ì²´ë ¥ì„ ì™¸ë¶€ì— ì•Œë¦½ë‹ˆë‹¤.
+Â  Â  /// <summary>
+Â  Â  /// í˜„ì¬ ì²´ë ¥ ê°’ì´ ë³€ê²½ë  ë•Œ ë‚¨ì€ ì²´ë ¥ ê°’ì„ ì¸ìë¡œ ì „ë‹¬í•˜ëŠ” ì´ë²¤íŠ¸. (ë³´ìŠ¤ UI ì‹œìŠ¤í…œì´ ì‚¬ìš©)
+Â  Â  /// </summary>
+Â  Â  public event Action<float> OnHealthUpdated; // <<<< --- ì¶”ê°€ëœ ë¶€ë¶„
 
-    // 2. Ãß°¡µÈ ÈÅ: ¸ó½ºÅÍ/º¸½º°¡ »ç¸ÁÇÒ ¶§ ¿ÜºÎ¿¡ ¾Ë¸³´Ï´Ù.
-    /// <summary>
-    /// ¸ó½ºÅÍ/º¸½º°¡ »ç¸Á Ã³¸® Á÷Àü¿¡ È£ÃâµÇ´Â ÀÌº¥Æ®. (º¸½º UI ½Ã½ºÅÛÀÌ »ç¿ë)
-    /// </summary>
-    public event Action OnDefeated; // <<<< --- Ãß°¡µÈ ºÎºĞ
+Â  Â  // 2. ì¶”ê°€ëœ í›…: ëª¬ìŠ¤í„°/ë³´ìŠ¤ê°€ ì‚¬ë§í•  ë•Œ ì™¸ë¶€ì— ì•Œë¦½ë‹ˆë‹¤.
+Â  Â  /// <summary>
+Â  Â  /// ëª¬ìŠ¤í„°/ë³´ìŠ¤ê°€ ì‚¬ë§ ì²˜ë¦¬ ì§ì „ì— í˜¸ì¶œë˜ëŠ” ì´ë²¤íŠ¸. (ë³´ìŠ¤ UI ì‹œìŠ¤í…œì´ ì‚¬ìš©)
+Â  Â  /// </summary>
+Â  Â  public event Action OnDefeated; // <<<< --- ì¶”ê°€ëœ ë¶€ë¶„
 
-    private void Awake()
+Â  Â  private void Awake()
     {
         monsterBase = GetComponent<MonsterBase>();
         if (monsterBase == null)
         {
-            Debug.LogError("MonsterCombat: MonsterBase ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("MonsterCombat: MonsterBase ì»´í¬ë„ŒíŠ¸ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
         audioSource = GetComponent<AudioSource>();
@@ -41,8 +43,8 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         currentHealth = monsterBase.monsterData.maxHealth;
     }
 
-    // --- IDamageable ÀÎÅÍÆäÀÌ½º ±¸Çö ---
-    public void TakeDamage(float damage)
+Â  Â  // --- IDamageable ì¸í„°í˜ì´ìŠ¤ êµ¬í˜„ ---
+Â  Â  public void TakeDamage(float damage)
     {
         TakeDamage(damage, DamageType.Physical);
     }
@@ -70,19 +72,19 @@ public class MonsterCombat : MonoBehaviour, IDamageable
             audioSource.PlayOneShot(hitSound);
         }
 
-        // ±âÁ¸ ÀÌº¥Æ® È£Ãâ
-        OnDamageTaken?.Invoke(finalDamage);
+Â  Â  Â  Â  // ê¸°ì¡´ ì´ë²¤íŠ¸ í˜¸ì¶œ
+Â  Â  Â  Â  OnDamageTaken?.Invoke(finalDamage);
 
-        // 3. ÈÅ È£Ãâ: Ã¼·Â º¯°æ ÈÄ, ÇöÀç ³²Àº Ã¼·ÂÀ» ¿ÜºÎ¿¡ ¾Ë¸³´Ï´Ù.
-        // OCP: ÀÌ ÄÚµå´Â MonsterCombatÀÇ ±â´É(µ¥¹ÌÁö Ã³¸®)À» ¹Ù²ÙÁö ¾Ê°í È®Àå Æ÷ÀÎÆ®¸¸ Á¦°øÇÕ´Ï´Ù.
-        OnHealthUpdated?.Invoke(currentHealth); // <<<< --- Ãß°¡µÈ ºÎºĞ
+Â  Â  Â  Â  // 3. í›… í˜¸ì¶œ: ì²´ë ¥ ë³€ê²½ í›„, í˜„ì¬ ë‚¨ì€ ì²´ë ¥ì„ ì™¸ë¶€ì— ì•Œë¦½ë‹ˆë‹¤.
+Â  Â  Â  Â  // OCP: ì´ ì½”ë“œëŠ” MonsterCombatì˜ ê¸°ëŠ¥(ë°ë¯¸ì§€ ì²˜ë¦¬)ì„ ë°”ê¾¸ì§€ ì•Šê³  í™•ì¥ í¬ì¸íŠ¸ë§Œ ì œê³µí•©ë‹ˆë‹¤.
+Â  Â  Â  Â  OnHealthUpdated?.Invoke(currentHealth); // <<<< --- ì¶”ê°€ëœ ë¶€ë¶„
 
-        if (currentHealth <= 0)
+Â  Â  Â  Â  if (currentHealth <= 0)
         {
-            // 4. ÈÅ È£Ãâ: »ç¸Á Ã³¸®(Die) Á÷Àü¿¡ »ç¸Á ÀÌº¥Æ®¸¦ ¿ÜºÎ¿¡ ¾Ë¸³´Ï´Ù.
-            OnDefeated?.Invoke(); // <<<< --- Ãß°¡µÈ ºÎºĞ
+Â  Â  Â  Â  Â  Â  // 4. í›… í˜¸ì¶œ: ì‚¬ë§ ì²˜ë¦¬(Die) ì§ì „ì— ì‚¬ë§ ì´ë²¤íŠ¸ë¥¼ ì™¸ë¶€ì— ì•Œë¦½ë‹ˆë‹¤.
+Â  Â  Â  Â  Â  Â  OnDefeated?.Invoke(); // <<<< --- ì¶”ê°€ëœ ë¶€ë¶„
 
-            monsterBase.Die();
+Â  Â  Â  Â  Â  Â  monsterBase.Die();
         }
     }
     public float GetCurrentHealth()

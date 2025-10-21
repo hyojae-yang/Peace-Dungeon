@@ -10,7 +10,18 @@ public class DungeonDoor : MonoBehaviour
     /// <param name="collision">충돌한 Collider의 정보.</param>
     private void OnCollisionEnter(Collision collision)
     {
-
+        if(DungeonMap.Instance.CanDungeon == false)
+        {
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    "던전 조각이 배치되어있지 않습니다.",
+                    NotificationType.General
+                );
+            }
+            // 던전 입장이 불가능한 상태라면 아무 동작도 하지 않습니다.
+            return;
+        }
         // 단일 책임 원칙 (SRP): 충돌 감지 및 UI 호출 역할만 수행합니다.
         // OCP: 태그 비교는 확장 가능성이 낮은 부분이므로 그대로 유지합니다.
         if (collision.gameObject.CompareTag("Player"))

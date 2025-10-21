@@ -47,7 +47,7 @@ public class DungeonFrameInteraction : MonoBehaviour
             // [수정] 2. NotificationManager를 사용하여 상호작용 프롬프트 표시
             if (NotificationManager.Instance != null)
             {
-                NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매");
+                NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매", this.gameObject);
             }
             // if (interactionUI != null) { interactionUI.SetActive(true); } // <--- 기존 로직 제거
         }
@@ -63,7 +63,7 @@ public class DungeonFrameInteraction : MonoBehaviour
             // [수정] 3. NotificationManager를 사용하여 상호작용 프롬프트 숨김
             if (NotificationManager.Instance != null)
             {
-                NotificationManager.Instance.HideInteractionPrompt();
+                NotificationManager.Instance.HideInteractionPrompt(this.gameObject);
             }
             // if (interactionUI != null) { interactionUI.SetActive(false); } // <--- 기존 로직 제거
         }
@@ -111,7 +111,7 @@ public class DungeonFrameInteraction : MonoBehaviour
         // 다만, 인벤토리가 열릴 때 알림을 확실히 숨기려면 아래를 추가할 수 있습니다.
         if (NotificationManager.Instance != null)
         {
-            NotificationManager.Instance.HideInteractionPrompt();
+            NotificationManager.Instance.HideInteractionPrompt(this.gameObject);
         }
 
         // === 핵심 수정 부분 (유지) ===
@@ -163,7 +163,7 @@ public class DungeonFrameInteraction : MonoBehaviour
         // 인벤토리를 닫은 후, 플레이어가 아직 영역 내에 있다면 알림을 다시 띄워줍니다.
         if (isPlayerInZone && NotificationManager.Instance != null)
         {
-            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매");
+            NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매", this.gameObject);
         }
     }
 }

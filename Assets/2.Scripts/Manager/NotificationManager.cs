@@ -56,7 +56,7 @@ public class NotificationManager : MonoBehaviour
     // 현재 실행 중인 자동 숨김 코루틴을 추적하는 변수
     // 새로운 알림이 들어오면 기존 코루틴을 중단하고 새 코루틴을 시작합니다.
     private Coroutine hideCoroutine;
-
+    private GameObject currentInteractionCaller = null;
     /// <summary>
     /// 싱글턴 인스턴스를 초기화합니다.
     /// </summary>
@@ -112,14 +112,19 @@ public class NotificationManager : MonoBehaviour
     /// (Interaction 타입 전용)
     /// </summary>
     /// <param name="message">표시할 상호작용 프롬프트 내용</param>
-    public void ShowInteractionPrompt(string message)
+    /// <param name="caller">프롬프트를 표시하는 것을 요청한 GameObject입니다.</param>
+    public void ShowInteractionPrompt(string message, GameObject caller) // ⭐️ caller 인수가 추가됨
     {
-        // 일반 알림이 표시 중일 경우 방해하지 않도록 코루틴만 중지 (패널은 놔둡니다)
+        // 일반 알림이 표시 중일 경우 방해하지 않도록 코루틴만 중지 (기존과 동일)
         if (hideCoroutine != null)
         {
             StopCoroutine(hideCoroutine);
             hideCoroutine = null;
         }
+
+        // 현재 요청자(caller)를 무조건 새로운 요청자로 업데이트하여 권한을 부여합니다.
+        // Update() 기반 환경에서는 가장 최근에 호출한 객체의 프롬프트가 표시됩니다.
+        currentInteractionCaller = caller;
 
         // Interaction 스타일 적용
         SetNotificationStyle(NotificationType.Interaction);
@@ -131,14 +136,21 @@ public class NotificationManager : MonoBehaviour
 
     /// <summary>
     /// ShowInteractionPrompt로 표시된 알림을 수동으로 숨깁니다.
-    /// (NPCUIManager에서 상호작용 종료 시 호출됨)
     /// </summary>
-    public void HideInteractionPrompt()
+    /// <param name="caller">프롬프트 숨김을 요청한 GameObject입니다.</param>
+    public void HideInteractionPrompt(GameObject caller) // caller 인수가 추가됨
     {
-        if (notificationPanel != null)
+        // 숨김을 요청한 객체가 현재 알림을 표시하고 있는 객체와 일치할 때만 숨깁니다.
+        if (currentInteractionCaller == caller)
         {
-            notificationPanel.SetActive(false);
+            if (notificationPanel != null)
+            {
+                notificationPanel.SetActive(false);
+            }
+            // 숨김 처리가 완료되면 권한도 해제합니다.
+            currentInteractionCaller = null;
         }
+        // 요청 객체가 다르면 (다른 NPC가 프롬프트를 띄우고 있는 중이라면) 아무것도 하지 않습니다.
     }
 
     // ----------------------------------------------------------------------------------------------------------------
