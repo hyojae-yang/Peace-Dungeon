@@ -67,8 +67,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "\uC774\uB984"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: f4008034c0b9fde44b80273f32c12aef, type: 2}
-  m_sharedMaterial: {fileID: -5328993777208809961, guid: f4008034c0b9fde44b80273f32c12aef, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
+  m_sharedMaterial: {fileID: -62101135459675642, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

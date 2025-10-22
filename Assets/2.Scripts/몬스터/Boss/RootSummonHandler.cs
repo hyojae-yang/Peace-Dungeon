@@ -208,9 +208,6 @@ public class RootSummonHandler : MonoBehaviour
 
             if (damageableTarget != null)
             {
-                // 4. 피해 입히기 및 플래그 설정
-                Debug.Log($"RootSummonHandler: 플레이어('{other.gameObject.name}')에게 피해 발생! 데미지: {_magicDamage} (타입: 마법)");
-
                 // 데미지 입히는 핵심 호출 (공격 타입: Magic)
                 // [수정] IDamageable 인터페이스와 DamageType.Magic을 사용합니다.
                 damageableTarget.TakeDamage(_magicDamage, DamageType.True);

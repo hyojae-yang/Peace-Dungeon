@@ -204,15 +204,19 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
     /// </summary>
     private void HandleDungeonEntry()
     {
-        // ----------------------------------------------------------------------
-        // [핵심 수정 3] 모든 매니저에게 스폰 명령 반복문 적용
-        // ----------------------------------------------------------------------
+        if (DungeonScoreManager.Instance != null)
+        {
+            DungeonScoreManager.Instance.ResetScore();
+        }
+        else
+        {
+            Debug.LogError("DungeonScoreManager 인스턴스를 찾을 수 없어 점수 시스템 초기화에 실패했습니다!");
+        }
+
         if (activeSpawnManagers.Count > 0)
         {
-            // OCP(개방-폐쇄 원칙): 새로운 스폰 매니저가 추가되어도 이 코드는 변경할 필요가 없습니다.
             foreach (DungeonSpawnManager manager in activeSpawnManagers)
             {
-                // 각 스폰 매니저가 자신에게 할당된 몬스터를 스폰합니다.
                 manager.SpawnAllMonsters();
             }
         }
@@ -220,20 +224,21 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             Debug.LogWarning("현재 활성화된 DungeonSpawnManager가 없습니다. 몬스터 스폰이 발생하지 않았습니다!");
         }
-        SoundManager.Instance.PlayBGM(BGMType.Main_B,1.0f);
+        SoundManager.Instance.PlayBGM(BGMType.Main_B, 1.0f);
     }
 
     /// <summary>
     /// 플레이어가 던전에서 나갈 때 호출되는 메서드입니다.
-    /// 몬스터를 정리하고, 점수를 계산하여 보상을 지급합니다.
+    /// 점수를 계산하고 보상을 지급하며, 몬스터를 정리합니다.
     /// </summary>
     public void ExitDungeon()
     {
-        SoundManager.Instance.PlayBGM(BGMType.Main_A,1.0f);
+        SoundManager.Instance.PlayBGM(BGMType.Main_A, 1.0f);
+        int finalScore = 0;
+
         if (DungeonScoreManager.Instance != null)
         {
-            // 몬스터 파괴가 완료된 후 점수를 계산합니다.
-            int finalScore = DungeonScoreManager.Instance.CalculateFinalScore();
+            finalScore = DungeonScoreManager.Instance.CalculateFinalScore();
 
             // 계산된 점수에 따라 보상 시스템을 호출합니다.
             if (DungeonRewardSystem.Instance != null && !MainSceneManager.Instance.isGameOver)
@@ -251,21 +256,18 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         }
 
         // ----------------------------------------------------------------------
-        // [핵심 수정 4] ExitDungeon에서도 모든 매니저에게 정리 명령 적용
+        // 💡 핵심 수정 3: 몬스터 정리는 점수 계산 및 보상 지급 이후에 수행합니다.
+        // (잔존 몬스터를 정리하는 역할만 수행)
         // ----------------------------------------------------------------------
         if (activeSpawnManagers.Count > 0)
         {
-            // 던전에서 나갈 때 몬스터 정리 메서드를 호출합니다.
             foreach (DungeonSpawnManager manager in activeSpawnManagers)
             {
                 manager.DestroyAllMonsters();
             }
         }
-        // =======================================================
-        // [핵심 추가] 던전 퇴장 이벤트 호출 (정상 퇴장)
-        // =======================================================
+
         OnDungeonExit?.Invoke();
-        // =======================================================
     }
     /// <summary>
     /// 플레이어가 죽어서 던전에서 나갈 때 호출되는 메서드입니다.

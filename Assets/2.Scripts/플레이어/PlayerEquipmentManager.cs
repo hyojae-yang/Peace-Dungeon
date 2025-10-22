@@ -297,10 +297,14 @@ public class PlayerEquipmentManager : MonoBehaviour
             }
 
             // PlayerAttack 스크립트의 참조를 통해 무기 데이터를 업데이트합니다.
-            if (playerCharacter.playerAttack != null)
-            {
-                playerCharacter.playerAttack.UpdateEquippedWeapon(weapon);
-            }
+            if (playerCharacter != null && playerCharacter.playerAttack != null) // 👈 이중 확인
+            {
+                playerCharacter.playerAttack.UpdateEquippedWeapon(weapon);
+            }
+            else
+            {
+                Debug.LogError("PlayerAttack 컴포넌트가 로드 시점에 할당되지 않았습니다. 무기 데이터 갱신 실패.");
+            }
         }
 
         onEquipmentChanged?.Invoke();

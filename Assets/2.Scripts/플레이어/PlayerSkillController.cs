@@ -173,7 +173,14 @@ public class PlayerSkillController : MonoBehaviour
 
         if (playerStatsInstance.mana < currentLevelInfo.manaCost)
         {
-            Debug.Log("마나가 부족합니다!");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    "마나가 부족합니다!",
+                    NotificationType.Warning
+                );
+            }
+            //Debug.Log("마나가 부족합니다!");
             return;
         }
 
@@ -182,7 +189,7 @@ public class PlayerSkillController : MonoBehaviour
             float remainingCooldown = cooldownTimers[skill.skillId] - Time.time;
             return;
         }
-
+        playerCharacter.animator.SetTrigger("UseSkill");
         playerStatsInstance.mana -= currentLevelInfo.manaCost;
         cooldownTimers[skill.skillId] = Time.time + currentLevelInfo.cooldown;
 
@@ -205,14 +212,28 @@ public class PlayerSkillController : MonoBehaviour
         // 실제 스킬 레벨이 1 미만이면 등록을 거부합니다.
         if (realSkillLevel < 1)
         {
-            Debug.LogWarning($"[스킬 등록 실패] '{skillToRegister.skillName}' 스킬은 레벨이 1 미만이므로 등록할 수 없습니다.");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    $"[스킬 등록 실패] '{skillToRegister.skillName}' 스킬은 레벨이 1 미만이므로 등록할 수 없습니다.",
+                    NotificationType.Warning
+                );
+            }
+            //Debug.LogWarning($"[스킬 등록 실패] '{skillToRegister.skillName}' 스킬은 레벨이 1 미만이므로 등록할 수 없습니다.");
             return;
         }
 
         // 패시브 스킬은 등록할 수 없습니다.
         if (skillToRegister == null || skillToRegister.skillType == SkillType.Passive)
         {
-            Debug.LogWarning("패시브 스킬은 액티브 슬롯에 등록할 수 없습니다.");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    "패시브 스킬은 액티브 슬롯에 등록할 수 없습니다.",
+                    NotificationType.Warning
+                );
+            }
+            //Debug.LogWarning("패시브 스킬은 액티브 슬롯에 등록할 수 없습니다.");
             return;
         }
 

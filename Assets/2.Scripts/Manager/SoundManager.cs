@@ -120,9 +120,6 @@ public class SoundManager : MonoBehaviour
             InitializeBGMCilps();
             InitializeSFXClips(); // **[추가]** SFX 클립 초기화
             InitializeBGMAudioSource();
-
-            // SFX AudioSource는 씬에 배치된 컴포넌트들이 RegisterSFXSource()를 통해 직접 등록합니다.
-            Debug.Log("[SoundManager] 초기화 완료. 사운드 클립 맵핑 및 BGM AudioSource 준비 완료.");
         }
     }
 

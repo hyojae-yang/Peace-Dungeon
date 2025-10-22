@@ -437,6 +437,8 @@ public class InventoryManager : MonoBehaviour, ISavable
             // === 장착 슬롯 로드 및 장비 아이템 분리 로직 ===
             playerCharacter.playerEquipmentManager.UnequipAll();
 
+            // 1단계: 장착할 아이템 리스트를 임시로 저장합니다.
+            List<(EquipmentItemSO, EquipSlot)> itemsToEquipLater = new List<(EquipmentItemSO, EquipSlot)>();
             // 장착된 아이템의 유니크 ID 목록을 HashSet에 담아 빠르게 확인합니다.
             HashSet<string> equippedUniqueIDs = new HashSet<string>();
             foreach (var equippedSlot in loadedData.equippedSlots)
@@ -469,13 +471,28 @@ public class InventoryManager : MonoBehaviour, ISavable
                 }
             }
 
-            // 마지막으로, 장착된 아이템 슬롯 정보를 기반으로 장착을 완료합니다.
+            // 2단계: 장착 정보를 임시 리스트에 담습니다.
             foreach (var equippedSlot in loadedData.equippedSlots)
             {
                 if (tempEquipmentDict.TryGetValue(equippedSlot.uniqueID, out EquipmentItemSO equipmentToEquip))
                 {
-                    playerCharacter.playerEquipmentManager.EquipItem(equipmentToEquip, equippedSlot.equipSlot);
+                    // 즉시 착용하지 않고, 리스트에 정보를 담아둡니다.
+                    itemsToEquipLater.Add((equipmentToEquip, equippedSlot.equipSlot));
                 }
+            }
+
+            // 3단계: PlayerCharacter의 준비 이벤트에 실제 장착 로직을 등록합니다.
+            if (playerCharacter != null)
+            {
+                playerCharacter.OnAllSystemsInitialized += () =>
+                {
+                    // 이 코드는 PlayerAttack을 포함한 모든 시스템이 준비된 후에 실행됩니다.
+                    foreach (var itemEntry in itemsToEquipLater)
+                    {
+                        // EquipItem(EquipmentItemSO, EquipSlot) 오버로드를 사용합니다.
+                        playerCharacter.playerEquipmentManager.EquipItem(itemEntry.Item1, itemEntry.Item2);
+                    }
+                };
             }
 
             // UI 갱신을 위해 이벤트 호출

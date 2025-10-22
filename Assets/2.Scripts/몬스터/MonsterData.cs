@@ -55,6 +55,7 @@ public class MonsterData : ScriptableObject
     [Tooltip("몬스터가 죽었을 때 드롭할 아이템의 최대 개수입니다.")]
     public int maxItemDropCount = 1;
 
+    public int score; // 몬스터 처치 시 획득하는 점수
     /// <summary>
     /// 아이템 드롭 테이블의 각 항목을 정의하는 구조체입니다.
     /// 이 구조체는 MonsterData 스크립터블 오브젝트에서 사용됩니다.

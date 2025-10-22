@@ -70,13 +70,7 @@ public class RootHitbox : MonoBehaviour
         // 2. 플레이어 태그 확인 (이 게임의 플레이어가 "Player" 태그를 사용한다고 가정)
         if (other.CompareTag("Player"))
         {
-            // 3. 데미지 적용
-            Debug.Log($"RootHitbox: {gameObject.name}이(가) 플레이어에게 {_damage} 데미지 적용! (OnTriggerEnter)");
-
-            // 4. 타격 플래그 설정: 한 공격 동작 당 한 번만 데미지를 입힙니다.
             _isHit = true;
-
-            // 5. 실제 피해 적용
             other.GetComponent<IDamageable>()?.TakeDamage(_damage,DamageType.Physical);
         }
     }

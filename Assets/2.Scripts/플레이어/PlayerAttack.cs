@@ -63,6 +63,7 @@ public class PlayerAttack : MonoBehaviour
         // 무기가 장착되었는지, 마우스 왼쪽 버튼이 눌렸는지, 공격 쿨타임이 지났는지 확인합니다.
         if (equippedWeapon != null && Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + equippedWeapon.attackSpeed)
         {
+            PlayerCharacter.Instance.animator.SetTrigger("Attack"); // 공격 애니메이션 트리거 설정
             Attack();
             lastAttackTime = Time.time; // 공격 시간 업데이트
         }

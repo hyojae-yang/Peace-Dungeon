@@ -54,7 +54,6 @@ public class BossUIAdapter : MonoBehaviour
             // 2. 보스 소환 이벤트 발생 (UI 활성화 및 초기 체력/이름 설정용)
             // DIP: 구체적인 UI 관리자(BossPanelManager)를 호출하지 않고, 추상적인 이벤트를 발생시킵니다.
             BossEvents.RaiseBossSpawned(this, bossName, maxHealth);
-            Debug.Log($"[BossUIAdapter] '{bossName}' 소환 및 UI 이벤트 발생.");
         }
     }
 

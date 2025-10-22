@@ -166,10 +166,6 @@ public class DungeonRewardSystem : MonoBehaviour
         // 6. 모든 보상 데이터를 UI 매니저로 전달하여 화면에 표시합니다.
         if (DungeonUIManager.Instance != null)
         {
-            // [수정 전]: DungeonUIManager.Instance.ShowResultsScreen(finalScore, finalGold, finalExp, acquiredItemNames);
-
-            // [수정 후]: DungeonUIManager의 메서드 시그니처가 변경될 예정이므로, 
-            //            코인 인수를 추가하여 호출하도록 수정합니다.
             DungeonUIManager.Instance.ShowResultsScreen(finalScore, finalGold, finalExp, finalCoins, acquiredItemNames);
         }
         else

@@ -133,7 +133,14 @@ public class PlayerStatSystem : MonoBehaviour, ISavable
         vitality = tempVitality;
 
         UpdateFinalStats();
-        Debug.Log("스탯이 최종적으로 적용되었습니다!");
+        if (NotificationManager.Instance != null)
+        {
+            NotificationManager.Instance.ShowNotification(
+                "스탯이 최종적으로 적용되었습니다!",
+                NotificationType.General
+            );
+        }
+       // Debug.Log("스탯이 최종적으로 적용되었습니다!");
     }
 
     /// <summary>
@@ -388,7 +395,14 @@ public class PlayerStatSystem : MonoBehaviour, ISavable
     {
         if (tempStatPoints <= 0)
         {
-            Debug.LogWarning("스탯 포인트가 부족합니다!");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    "스탯 포인트가 부족합니다!",
+                    NotificationType.General
+                );
+            }
+            //Debug.LogWarning("스탯 포인트가 부족합니다!");
             return;
         }
         tempStatPoints--;

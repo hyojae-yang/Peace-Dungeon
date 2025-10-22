@@ -25,7 +25,7 @@ public abstract class RatBehavior : MonoBehaviour
     [Tooltip("일반 공격 쿨타임입니다.")]
     public float attackCooldown = 1.0f;
     [Tooltip("일반 공격이 가능한 거리입니다.")]
-    public float attackRange = 1.5f;
+    public float attackRange = 3.0f;
 
     protected float lastAttackTime;
     protected Vector3 currentPatrolPoint;

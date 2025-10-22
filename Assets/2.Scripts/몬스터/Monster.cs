@@ -16,7 +16,9 @@ public class Monster : MonsterBase, IDetectable
     public float detectionAngle = 120f;
     [Tooltip("플레이어 레이어 마스크입니다.")]
     public LayerMask playerLayer;
-
+    [Header("점수 설정")]
+    [Tooltip("이 몬스터를 처치했을 때 획득할 점수입니다.")]
+    private int scoreValue = 0;
     // [수정] currentMoveSpeed는 이동 로직이 Behavior로 위임되면서 더 이상 Monster 내부에서 사용되지 않지만,
     // 외부 Behavior 스크립트에서 참조용으로 사용될 수 있으므로 일단 public으로 유지합니다. (혹은 private/속성으로 변경 권장)
     [HideInInspector] // Inspector에 노출되지 않도록 처리
@@ -48,8 +50,12 @@ public class Monster : MonsterBase, IDetectable
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
 
-        // [수정] 이동 로직이 Behavior로 위임되었지만, 기본 속도를 초기화하여 Base 스펙을 유지합니다.
-        currentMoveSpeed = monsterData.moveSpeed;
+        if (monsterData != null)
+        {
+            // [MonsterData.score] 필드가 있다고 가정합니다. (없다면 MonsterData에 추가 필요)
+            scoreValue = monsterData.score;
+            currentMoveSpeed = monsterData.moveSpeed;
+        }
     }
 
     private void Update()
@@ -149,6 +155,20 @@ public class Monster : MonsterBase, IDetectable
     {
         // ... (이하 Die 로직 유지)
         ChangeState(MonsterState.Dead);
+        // Destroy()가 호출되기 전에 점수 보고를 완료하여 타이밍 문제를 방지합니다.
+        if (DungeonScoreManager.Instance != null && scoreValue > 0)
+        {
+            DungeonScoreManager.Instance.AddScore(scoreValue);
+            // Debug.Log($"[Monster:Die] 점수 {scoreValue} 보고 완료!"); // 디버그 로그
+        }
+        else if (scoreValue <= 0)
+        {
+            Debug.LogWarning($"[Monster:Die] 몬스터({gameObject.name})의 점수({scoreValue})가 0 이하입니다. 점수 보고를 건너뜁니다.");
+        }
+        else
+        {
+            Debug.LogError("[Monster:Die] DungeonScoreManager 인스턴스를 찾을 수 없어 점수 보고에 실패했습니다!");
+        }
         loot.GiveReward();
 
         if (monsterData != null)

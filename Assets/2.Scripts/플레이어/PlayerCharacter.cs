@@ -1,76 +1,80 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾î¿Í °ü·ÃµÈ ¸ğµç ÁÖ¿ä ½Ã½ºÅÛÀ» °ü¸®ÇÏ´Â Áß¾Ó Çãºê ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ½Ì±ÛÅÏ ÆĞÅÏÀ¸·Î ±¸ÇöµÇ¾î ¾îµğ¼­µç ½±°Ô Á¢±ÙÇÒ ¼ö ÀÖ½À´Ï´Ù.
-/// ÀÌ ½ºÅ©¸³Æ®´Â ÀÚ½ÅÀÌ ºÎÂøµÈ °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ Á¸ÀçÇÏ´Â ´Ù¸¥ ½Ã½ºÅÛ ½ºÅ©¸³Æ®µéÀÇ ÂüÁ¶¸¦ ÅëÇÕÇÏ¿© °ü¸®ÇÏ´Â ¿ªÇÒ¸¸ ¼öÇàÇÕ´Ï´Ù.
+/// í”Œë ˆì´ì–´ì™€ ê´€ë ¨ëœ ëª¨ë“  ì£¼ìš” ì‹œìŠ¤í…œì„ ê´€ë¦¬í•˜ëŠ” ì¤‘ì•™ í—ˆë¸Œ ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì‹±ê¸€í„´ íŒ¨í„´ìœ¼ë¡œ êµ¬í˜„ë˜ì–´ ì–´ë””ì„œë“  ì‰½ê²Œ ì ‘ê·¼í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+/// ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” ìì‹ ì´ ë¶€ì°©ëœ ê²Œì„ ì˜¤ë¸Œì íŠ¸ì— ì¡´ì¬í•˜ëŠ” ë‹¤ë¥¸ ì‹œìŠ¤í…œ ìŠ¤í¬ë¦½íŠ¸ë“¤ì˜ ì°¸ì¡°ë¥¼ í†µí•©í•˜ì—¬ ê´€ë¦¬í•˜ëŠ” ì—­í• ë§Œ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 /// </summary>
 public class PlayerCharacter : MonoBehaviour
 {
-    // === ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ===
-    // PlayerCharacter Å¬·¡½ºÀÇ À¯ÀÏÇÑ ÀÎ½ºÅÏ½º¸¦ ÀúÀåÇÏ´Â Á¤Àû ¼Ó¼ºÀÔ´Ï´Ù.
-    // ¿ÜºÎ¿¡¼­ PlayerCharacter.Instance¸¦ ÅëÇØ Á¢±ÙÇÒ ¼ö ÀÖ½À´Ï´Ù.
+    // === ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ ===
+    // PlayerCharacter í´ë˜ìŠ¤ì˜ ìœ ì¼í•œ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì €ì¥í•˜ëŠ” ì •ì  ì†ì„±ì…ë‹ˆë‹¤.
+    // ì™¸ë¶€ì—ì„œ PlayerCharacter.Instanceë¥¼ í†µí•´ ì ‘ê·¼í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     public static PlayerCharacter Instance;
 
-    // === ÂüÁ¶ ½Ã½ºÅÛ ===
-    // ÇÃ·¹ÀÌ¾î ½Ã½ºÅÛÀÇ ÇÙ½É ÄÄÆ÷³ÍÆ®µéÀ» ´ã´Â °ø°³ ¸â¹ö º¯¼öµéÀÔ´Ï´Ù.
-    // ÀÌ º¯¼öµéÀº Inspector¿¡¼­ Á÷Á¢ ÇÒ´çÇÏ°Å³ª, Awake ¸Ş¼­µå¿¡¼­ ÀÚµ¿À¸·Î ÇÒ´çµË´Ï´Ù.
-    [Header("ÇÙ½É ½Ã½ºÅÛ ÂüÁ¶")]
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ½ºÅÈ µ¥ÀÌÅÍ¸¦ ÀúÀå ¹× °ü¸®ÇÏ´Â PlayerStats ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    // === ì°¸ì¡° ì‹œìŠ¤í…œ ===
+    // í”Œë ˆì´ì–´ ì‹œìŠ¤í…œì˜ í•µì‹¬ ì»´í¬ë„ŒíŠ¸ë“¤ì„ ë‹´ëŠ” ê³µê°œ ë©¤ë²„ ë³€ìˆ˜ë“¤ì…ë‹ˆë‹¤.
+    // ì´ ë³€ìˆ˜ë“¤ì€ Inspectorì—ì„œ ì§ì ‘ í• ë‹¹í•˜ê±°ë‚˜, Awake ë©”ì„œë“œì—ì„œ ìë™ìœ¼ë¡œ í• ë‹¹ë©ë‹ˆë‹¤.
+    [Header("í•µì‹¬ ì‹œìŠ¤í…œ ì°¸ì¡°")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ìŠ¤íƒ¯ ë°ì´í„°ë¥¼ ì €ì¥ ë° ê´€ë¦¬í•˜ëŠ” PlayerStats ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerStats playerStats;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ½ºÅÈ ½Ã½ºÅÛÀ» Á¦¾îÇÏ´Â PlayerStatSystem ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ìŠ¤íƒ¯ ì‹œìŠ¤í…œì„ ì œì–´í•˜ëŠ” PlayerStatSystem ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerStatSystem playerStatSystem;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ÀÎº¥Åä¸® ½Ã½ºÅÛÀ» ÂüÁ¶ÇÕ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ì¸ë²¤í† ë¦¬ ì‹œìŠ¤í…œì„ ì°¸ì¡°í•©ë‹ˆë‹¤.")]
     public InventoryManager inventoryManager;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ Àåºñ °ü¸® ½Ã½ºÅÛÀ» Á¦¾îÇÏ´Â PlayerEquipmentManager ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ì¥ë¹„ ê´€ë¦¬ ì‹œìŠ¤í…œì„ ì œì–´í•˜ëŠ” PlayerEquipmentManager ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerEquipmentManager playerEquipmentManager;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ÀÌµ¿À» Á¦¾îÇÏ´Â PlayerController ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ì´ë™ì„ ì œì–´í•˜ëŠ” PlayerController ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerController playerController;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ °ø°İÀ» Á¦¾îÇÏ´Â PlayerAttack ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ê³µê²©ì„ ì œì–´í•˜ëŠ” PlayerAttack ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerAttack playerAttack;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ Ã¼·Â ¹× µ¥¹ÌÁö ·ÎÁ÷À» Ã³¸®ÇÏ´Â PlayerHealth ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ì²´ë ¥ ë° ë°ë¯¸ì§€ ë¡œì§ì„ ì²˜ë¦¬í•˜ëŠ” PlayerHealth ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerHealth playerHealth;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ·¹º§¾÷À» °ü¸®ÇÏ´Â PlayerLevelUp ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ë ˆë²¨ì—…ì„ ê´€ë¦¬í•˜ëŠ” PlayerLevelUp ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerLevelUp playerLevelUp;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ½ºÅ³ »ç¿ë ¹× °ü¸®¸¦ ´ã´çÇÏ´Â PlayerSkillController ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ì˜ ìŠ¤í‚¬ ì‚¬ìš© ë° ê´€ë¦¬ë¥¼ ë‹´ë‹¹í•˜ëŠ” PlayerSkillController ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PlayerSkillController playerSkillController;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ½ÀµæÇÑ ÆĞ½Ãºê ½ºÅ³ÀÇ È¿°ú¸¦ °ü¸®ÇÏ´Â PassiveSkillManager ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ìŠµë“í•œ íŒ¨ì‹œë¸Œ ìŠ¤í‚¬ì˜ íš¨ê³¼ë¥¼ ê´€ë¦¬í•˜ëŠ” PassiveSkillManager ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     public PassiveSkillManager passiveSkillManager;
 
-    [Tooltip("ÇÃ·¹ÀÌ¾î ¾Ö´Ï¸ŞÀÌÅÍ")]
+    [Tooltip("í”Œë ˆì´ì–´ ì• ë‹ˆë©”ì´í„°")]
     public Animator animator;
 
     /// <summary>
-    /// ÀÌ ½ºÅ©¸³Æ®°¡ AwakeµÉ ¶§ È£ÃâµÇ¸ç, ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º¸¦ ÃÊ±âÈ­ÇÏ°í ¸ğµç ½Ã½ºÅÛ ÄÄÆ÷³ÍÆ®¸¦ ÇÒ´çÇÕ´Ï´Ù.
+    /// ëª¨ë“  í•˜ìœ„ ì‹œìŠ¤í…œ(Inventory, Attack, Stats ë“±)ì˜ ì´ˆê¸°í™”ê°€ ì™„ë£Œë˜ì—ˆìŒì„ ì™¸ë¶€ì— ì•Œë¦¬ëŠ” ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
+    /// </summary>
+    public event System.Action OnAllSystemsInitialized;
+    /// <summary>
+    /// ì´ ìŠ¤í¬ë¦½íŠ¸ê°€ Awakeë  ë•Œ í˜¸ì¶œë˜ë©°, ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì´ˆê¸°í™”í•˜ê³  ëª¨ë“  ì‹œìŠ¤í…œ ì»´í¬ë„ŒíŠ¸ë¥¼ í• ë‹¹í•©ë‹ˆë‹¤.
     /// </summary>
     private void Awake()
     {
-        // 1. ½Ì±ÛÅÏ ÀÎ½ºÅÏ½º ÇÒ´ç ¹× Áßº¹ ÀÎ½ºÅÏ½º ÆÄ±«
+        // 1. ì‹±ê¸€í„´ ì¸ìŠ¤í„´ìŠ¤ í• ë‹¹ ë° ì¤‘ë³µ ì¸ìŠ¤í„´ìŠ¤ íŒŒê´´
         if (Instance == null)
         {
             Instance = this;
-            // ¾ÀÀÌ º¯°æµÇ¾îµµ ÆÄ±«µÇÁö ¾Ê°Ô ÇÏ·Á¸é ¾Æ·¡ ÁÖ¼®À» ÇØÁ¦ÇÏ¼¼¿ä.
+            // ì”¬ì´ ë³€ê²½ë˜ì–´ë„ íŒŒê´´ë˜ì§€ ì•Šê²Œ í•˜ë ¤ë©´ ì•„ë˜ ì£¼ì„ì„ í•´ì œí•˜ì„¸ìš”.
             // DontDestroyOnLoad(gameObject);
         }
         else
         {
-            Debug.LogWarning("PlayerCharacterÀÇ ÀÎ½ºÅÏ½º°¡ ÀÌ¹Ì Á¸ÀçÇÕ´Ï´Ù. »õ ¿ÀºêÁ§Æ®¸¦ ÆÄ±«ÇÕ´Ï´Ù.");
+            Debug.LogWarning("PlayerCharacterì˜ ì¸ìŠ¤í„´ìŠ¤ê°€ ì´ë¯¸ ì¡´ì¬í•©ë‹ˆë‹¤. ìƒˆ ì˜¤ë¸Œì íŠ¸ë¥¼ íŒŒê´´í•©ë‹ˆë‹¤.");
             Destroy(gameObject);
-            return; // Áßº¹ ÀÎ½ºÅÏ½ºÀÌ¹Ç·Î ¾Æ·¡ ÄÚµå´Â ½ÇÇàÇÏÁö ¾Ê½À´Ï´Ù.
+            return; // ì¤‘ë³µ ì¸ìŠ¤í„´ìŠ¤ì´ë¯€ë¡œ ì•„ë˜ ì½”ë“œëŠ” ì‹¤í–‰í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
         }
 
-        // 2. ¸ğµç ½Ã½ºÅÛ ÄÄÆ÷³ÍÆ® ÀÚµ¿ ÇÒ´ç
-        // ¸ğµç ½ºÅ©¸³Æ®°¡ °°Àº °ÔÀÓ ¿ÀºêÁ§Æ®¿¡ ºÎÂøµÇ¾î ÀÖ´Ù´Â °¡Á¤ÇÏ¿¡ GetComponent¸¦ »ç¿ëÇÕ´Ï´Ù.
+        // 2. ëª¨ë“  ì‹œìŠ¤í…œ ì»´í¬ë„ŒíŠ¸ ìë™ í• ë‹¹
+        // ëª¨ë“  ìŠ¤í¬ë¦½íŠ¸ê°€ ê°™ì€ ê²Œì„ ì˜¤ë¸Œì íŠ¸ì— ë¶€ì°©ë˜ì–´ ìˆë‹¤ëŠ” ê°€ì •í•˜ì— GetComponentë¥¼ ì‚¬ìš©í•©ë‹ˆë‹¤.
         playerStats = GetComponent<PlayerStats>();
         playerStatSystem = GetComponent<PlayerStatSystem>();
         inventoryManager = GetComponent<InventoryManager>();
@@ -82,25 +86,32 @@ public class PlayerCharacter : MonoBehaviour
         playerSkillController = GetComponent<PlayerSkillController>();
         passiveSkillManager = GetComponent<PassiveSkillManager>();
         animator = GetComponent<Animator>();
-        // 3. ÇÊ¼ö ÄÄÆ÷³ÍÆ® ´©¶ô ¿©ºÎ È®ÀÎ (µğ¹ö±ë ¸ñÀû)
+        // 3. í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ ëˆ„ë½ ì—¬ë¶€ í™•ì¸ (ë””ë²„ê¹… ëª©ì )
         ValidateSystemReferences();
     }
+    private void Start()
+    {
+        // Awakeì—ì„œ ëª¨ë“  ì°¸ì¡°ê°€ ì™„ë£Œë˜ì—ˆê³ , ì´ì œ ëª¨ë“  ì»´í¬ë„ŒíŠ¸ì˜ Start()ê°€ í˜¸ì¶œë  ì°¨ë¡€ì…ë‹ˆë‹¤.
+        // ëª¨ë“  ì»´í¬ë„ŒíŠ¸ì˜ Start()ê°€ ëë‚¬ë‹¤ê³  ê°€ì •í•œ í›„, ìµœì¢…ì ìœ¼ë¡œ ì´ˆê¸°í™” ì™„ë£Œë¥¼ ì•Œë¦½ë‹ˆë‹¤.
+        // ì´ ì‹œì (LateUpdate ë˜ëŠ” Startì˜ ë§ˆì§€ë§‰)ì´ ê°€ì¥ ì•ˆì „í•©ë‹ˆë‹¤.
 
+        OnAllSystemsInitialized?.Invoke();
+    }
     /// <summary>
-    /// ¸ğµç ½Ã½ºÅÛ ÄÄÆ÷³ÍÆ®°¡ Á¤»óÀûÀ¸·Î ÇÒ´çµÇ¾ú´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ëª¨ë“  ì‹œìŠ¤í…œ ì»´í¬ë„ŒíŠ¸ê°€ ì •ìƒì ìœ¼ë¡œ í• ë‹¹ë˜ì—ˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     private void ValidateSystemReferences()
     {
-        if (playerStats == null) Debug.LogError("PlayerCharacter: 'PlayerStats' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerStatSystem == null) Debug.LogError("PlayerCharacter: 'PlayerStatSystem' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (inventoryManager == null) Debug.LogError("PlayerCharacter: 'InventoryManager' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerEquipmentManager == null) Debug.LogError("PlayerCharacter: 'PlayerEquipmentManager' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerController == null) Debug.LogError("PlayerCharacter: 'PlayerController' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerAttack == null) Debug.LogError("PlayerCharacter: 'PlayerAttack' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerHealth == null) Debug.LogError("PlayerCharacter: 'PlayerHealth' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerLevelUp == null) Debug.LogError("PlayerCharacter: 'PlayerLevelUp' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (playerSkillController == null) Debug.LogError("PlayerCharacter: 'PlayerSkillController' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
-        if (animator== null) Debug.LogError("PlayerCharacter: 'Animator' ÄÄÆ÷³ÍÆ®°¡ ´©¶ôµÇ¾ú½À´Ï´Ù.");
+        if (playerStats == null) Debug.LogError("PlayerCharacter: 'PlayerStats' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerStatSystem == null) Debug.LogError("PlayerCharacter: 'PlayerStatSystem' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (inventoryManager == null) Debug.LogError("PlayerCharacter: 'InventoryManager' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerEquipmentManager == null) Debug.LogError("PlayerCharacter: 'PlayerEquipmentManager' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerController == null) Debug.LogError("PlayerCharacter: 'PlayerController' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerAttack == null) Debug.LogError("PlayerCharacter: 'PlayerAttack' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerHealth == null) Debug.LogError("PlayerCharacter: 'PlayerHealth' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerLevelUp == null) Debug.LogError("PlayerCharacter: 'PlayerLevelUp' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (playerSkillController == null) Debug.LogError("PlayerCharacter: 'PlayerSkillController' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
+        if (animator== null) Debug.LogError("PlayerCharacter: 'Animator' ì»´í¬ë„ŒíŠ¸ê°€ ëˆ„ë½ë˜ì—ˆìŠµë‹ˆë‹¤.");
 
         if (playerStats != null && playerStatSystem != null && playerController != null && playerAttack != null && playerHealth != null && playerLevelUp != null && playerSkillController != null)
         {
