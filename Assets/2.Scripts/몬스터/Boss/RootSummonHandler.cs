@@ -5,8 +5,6 @@ using System.Collections;
 /// ForestBoss에 의해 소환된 개별 뿌리 오브젝트의 생명 주기와 동작을 관리하는 핸들러입니다.
 /// (단일 책임 원칙 준수)
 /// </summary>
-[RequireComponent(typeof(BoxCollider))] // 피해 판정 영역
-[RequireComponent(typeof(Rigidbody))] // 물리 상호작용 없이 IsTrigger로 사용
 public class RootSummonHandler : MonoBehaviour
 {
     // === 종속성 (인스펙터 할당 필수) ===

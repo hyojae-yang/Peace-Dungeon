@@ -150,6 +150,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitSound: {fileID: 0}
+  hitObject: {fileID: 0}
 --- !u!114 &5631343964066522486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -177,4 +178,4 @@ MonoBehaviour:
   detectionRange: 9
   aoeAttackCooldown: 10
   aoeChargeTime: 1.5
-  rootTrapPrefab: {fileID: 1724717068696300086, guid: 47e8e3a1e7f9edc4294e434d11110882, type: 3}
+  rootTrapPrefab: {fileID: 4757993748068594409, guid: 91db3b238af7c4646b719d31eb32b5f2, type: 3}

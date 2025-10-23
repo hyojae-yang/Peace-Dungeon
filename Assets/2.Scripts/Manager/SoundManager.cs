@@ -11,10 +11,10 @@ public enum BGMType
     None,       // 0: 기본값 또는 정지 상태
     Title,      // 1: 타이틀 씬 BGM
     Loading,    // 2: 로딩 씬 BGM
-    Main_A,     // 3: 메인 씬 BGM A
-    Main_B,     // 4: 메인 씬 BGM B
-    Main_C,     // 5: 메인 씬 BGM C
-    Main_D      // 6: 메인 씬 BGM D
+    Main_A,     // 3: 메인 씬 BGM
+    Main_B,     // 4: 던전입장 씬 BGM
+    Main_C,     // 5: 보스룸 씬 BGM
+    Main_D      // 6: 사망 씬 BGM
 }
 
 [System.Serializable]
@@ -269,7 +269,7 @@ public class SoundManager : MonoBehaviour
         StopExistingFadeCoroutine();
         _bgmFadeCoroutine = StartCoroutine(FadeBGM(clipToPlay, _maxBGMVolume, fadeDuration));
 
-        Debug.Log($"[SoundManager] BGM 재생 및 페이드 인 시작: {type}");
+        //Debug.Log($"[SoundManager] BGM 재생 및 페이드 인 시작: {type}");
     }
 
     /// <summary>
@@ -284,7 +284,7 @@ public class SoundManager : MonoBehaviour
         StopExistingFadeCoroutine();
         _bgmFadeCoroutine = StartCoroutine(FadeBGM(null, 0f, fadeDuration, true));
 
-        Debug.Log("[SoundManager] BGM 페이드 아웃 시작");
+        //Debug.Log("[SoundManager] BGM 페이드 아웃 시작");
     }
 
     /// <summary>
@@ -352,7 +352,19 @@ public class SoundManager : MonoBehaviour
             Debug.LogWarning("[SoundManager] SFX AudioSource Pool이 가득 찼습니다. 새 소리(" + type + ")를 재생할 수 없습니다.");
         }
     }
+    /// <summary>
+    /// 모든 UI 버튼 클릭 이벤트를 처리하기 위한 편의 메서드입니다. (SRP 위반 최소화를 위해 명확하게 주석 처리)
+    /// 버튼 OnClick()에 직접 연결할 수 있도록 매개변수 없이 구현되었습니다.
+    /// 모든 버튼의 사운드는 SFXType.Button_Click으로 통일됩니다.
+    /// </summary>
+    public void PlayButtonSFX()
+    {
+        // 모든 버튼은 Button_Click SFX를 재생합니다.
+        const SFXType buttonSfx = SFXType.Button_Click;
+        const float defaultVolume = 1f;
 
+        PlaySFX(buttonSfx, defaultVolume);
+    }
     // --- 유틸리티 메서드 ---
 
     /// <summary>

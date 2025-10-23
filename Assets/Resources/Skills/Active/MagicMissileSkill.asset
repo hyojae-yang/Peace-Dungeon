@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: 1004
   skillName: "\uB9C8\uBC95\uBBF8\uC0AC\uC77C"
-  skillImage: {fileID: 0}
+  skillImage: {fileID: 21300000, guid: 163a986b118914343b7d29b1fd3a2bb4, type: 3}
   skillType: 0
   damageType: 1
   skillDescription: "\uBAAC\uC2A4\uD130\uB97C \uD5A5\uD574 \uBBF8\uC0AC\uC77C\uC744
@@ -22,7 +22,7 @@ MonoBehaviour:
   statFormatString: "\uAE30\uBCF8 \uB370\uBBF8\uC9C0: {BaseDamage}\\n\uD22C\uC0AC\uCCB4
     \uAC2F\uC218:{ProjectileCount}\\n\uB9C8\uB098 \uC18C\uBAA8: {ManaCost}\\n\uCFE8\uD0C0\uC784:
     {Cooldown}\uCD08"
-  requiredLevel: 1
+  requiredLevel: 30
   levelInfo:
   - manaCost: 30
     cooldown: 20

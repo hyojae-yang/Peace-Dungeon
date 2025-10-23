@@ -304,6 +304,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hitSound: {fileID: 0}
+  hitObject: {fileID: 0}
 --- !u!114 &8999192889082747891
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -340,7 +341,6 @@ MonoBehaviour:
   minionPrefabs:
   - {fileID: 6009522441560749080, guid: c0d76ac9706567d45ae06ee93c5aae66, type: 3}
   - {fileID: 483987322422019827, guid: 20f11513772e41e499b8204dd19dd1e3, type: 3}
-  - {fileID: 7094218536885164343, guid: f70ea5bd5fcf0f340ad3927e93d323db, type: 3}
   - {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
   - {fileID: 855980508687128763, guid: 31493d236f0b4f8489b1f5104f8ae301, type: 3}
   - {fileID: 7328140957996147453, guid: 3fd38f141ae796e46a28c94b49982913, type: 3}

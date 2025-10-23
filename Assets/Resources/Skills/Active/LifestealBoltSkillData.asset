@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   skillId: 1003
   skillName: "\uD761\uD608\uAD6C"
-  skillImage: {fileID: 0}
+  skillImage: {fileID: 21300000, guid: 351356f2056180f43b87847b4f6815eb, type: 3}
   skillType: 0
   damageType: 0
   skillDescription: "\uD761\uD608\uAD6C\uB97C \uC18C\uD658\uD558\uACE0 \uD574\uB2F9
@@ -22,7 +22,7 @@ MonoBehaviour:
     \uC785\uD788\uACE0 \uCCB4\uB825\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   statFormatString: "\uAE30\uBCF8 \uB370\uBBF8\uC9C0: {BaseDamage}\\n\uD761\uD608\uB960:{LifestealRate}\\n\uB9C8\uB098
     \uC18C\uBAA8: {ManaCost}\\n\uCFE8\uD0C0\uC784: {Cooldown}\uCD08"
-  requiredLevel: 1
+  requiredLevel: 20
   levelInfo:
   - manaCost: 20
     cooldown: 10
