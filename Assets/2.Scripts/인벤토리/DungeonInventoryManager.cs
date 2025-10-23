@@ -61,11 +61,6 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
         {
             SaveManager.Instance.RegisterSavable(this);
         }
-        else
-        {
-            Debug.LogError("SaveManager.Instance를 찾을 수 없습니다. 저장/로드 기능이 작동하지 않습니다.");
-        }
-
 
         // === 추가된 코드: 저장된 데이터가 없을 경우에만 초기 아이템을 추가합니다. ===
         if (SaveManager.Instance != null && !SaveManager.Instance.HasLoadedData)

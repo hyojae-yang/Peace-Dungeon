@@ -49,8 +49,6 @@ public class SetBonusDataManager : MonoBehaviour
             }
             setBonusDataMap.Add(data.setID, data);
         }
-
-        Debug.Log($"<color=blue>세트 보너스 데이터 로드 완료:</color> 총 {setBonusDataMap.Count}개의 세트 데이터를 로드했습니다.");
     }
 
     /// <summary>

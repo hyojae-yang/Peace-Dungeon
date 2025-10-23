@@ -1,121 +1,342 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
+using UnityEngine;
+using System.Linq; // ì¥ë¹„ ì œê±° ì‹œ LINQë¥¼ ì‚¬ìš©í•˜ê¸° ìœ„í•´ ì¶”ê°€
 
 /// <summary>
-/// ÀÎº¥Åä¸®ÀÇ ¸ğµç ÇÙ½É ·ÎÁ÷À» Ã³¸®ÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-/// InventoryData¸¦ Á÷Á¢ Á¶ÀÛÇÏ¸ç, MonoBehaviour°¡ ¾Æ´Õ´Ï´Ù.
+/// ì¸ë²¤í† ë¦¬ì˜ ëª¨ë“  í•µì‹¬ ë¡œì§ì„ ì²˜ë¦¬í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// InventoryDataì˜ 7ê°œ ë…ë¦½ëœ ì €ì¥ì†Œë¥¼ ì§ì ‘ ì¡°ì‘í•˜ë©°, MonoBehaviourê°€ ì•„ë‹™ë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (SRP) ë° ê°œë°©-íì‡„ ì›ì¹™ (OCP)ì„ ì¤€ìˆ˜í•©ë‹ˆë‹¤.
 /// </summary>
 public class InventoryLogic
 {
-    // === ÀÎº¥Åä¸®¿¡ ¾ÆÀÌÅÛÀ» Ãß°¡ÇÏ´Â ·ÎÁ÷ ===
+    // =======================================================================
+    // === ìƒìˆ˜: ì¸ë²¤í† ë¦¬ íŒ¨ë„ë³„ ìµœëŒ€ í¬ê¸° ì •ì˜ ===
+    // =======================================================================
+
+    /// <summary> ì¥ë¹„ ì•„ì´í…œ íŒ¨ë„ì˜ ìµœëŒ€ í¬ê¸°ì…ë‹ˆë‹¤. </summary>
+    private const int EQUIPMENT_PANEL_SIZE = 64;
+
+    /// <summary> ì¼ë°˜ ì•„ì´í…œ íŒ¨ë„ì˜ ìµœëŒ€ í¬ê¸°ì…ë‹ˆë‹¤. </summary>
+    private const int GENERAL_PANEL_SIZE = 80;
+
+    // =======================================================================
+    // === í—¬í¼ ë©”ì„œë“œ: ì•„ì´í…œ-ì¸ë²¤í† ë¦¬ ë§¤í•‘ (SOLID: SRP) ===
+    // =======================================================================
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡ ¾ÆÀÌÅÛÀ» Ãß°¡ÇÕ´Ï´Ù.
-    /// ¾ÆÀÌÅÛÀÇ maxStackÀ» °í·ÁÇÏ¿© °ãÄ¡±â ¹× »õ ½½·Ô Ãß°¡¸¦ Ã³¸®ÇÕ´Ï´Ù.
+    /// BaseItemSOë¥¼ ê¸°ë°˜ìœ¼ë¡œ í•´ë‹¹ ì•„ì´í…œì´ ì†í•´ì•¼ í•  Listì™€ ê·¸ Listì˜ ìµœëŒ€ í¬ê¸°ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” 7ê°œë¡œ ë¶„ë¦¬ëœ ì¸ë²¤í† ë¦¬ êµ¬ì¡°ë¥¼ ì¶”ìƒí™”í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="data">¾ÆÀÌÅÛ µ¥ÀÌÅÍ¸¦ ´ã°í ÀÖ´Â InventoryData ScriptableObjectÀÔ´Ï´Ù.</param>
-    /// <param name="itemToAdd">Ãß°¡ÇÒ ¾ÆÀÌÅÛ Á¤º¸ÀÔ´Ï´Ù.</param>
-    /// <param name="amount">Ãß°¡ÇÒ ¾ÆÀÌÅÛÀÇ °³¼öÀÔ´Ï´Ù.</param>
-    /// <param name="inventorySize">ÀÎº¥Åä¸®ÀÇ ÃÖ´ë ½½·Ô °³¼öÀÔ´Ï´Ù.</param>
-    /// <returns>¾ÆÀÌÅÛ Ãß°¡¿¡ ¼º°øÇß´ÂÁö ¿©ºÎ¸¦ ¹İÈ¯ÇÕ´Ï´Ù.</returns>
-    public bool AddItem(InventoryData data, BaseItemSO itemToAdd, int amount, int inventorySize)
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„° SO</param>
+    /// <param name="itemSO">ë§¤í•‘í•  ì•„ì´í…œ SO</param>
+    /// <returns>ëŒ€ìƒ List<ItemData>ì™€ ìµœëŒ€ í¬ê¸°(maxSize) íŠœí”Œ</returns>
+    private (List<ItemData> list, int maxSize) GetInventoryMapping(InventoryData data, BaseItemSO itemSO)
     {
-        // 1. °ãÃÄÁú ¼ö ÀÖ´Â ¾ÆÀÌÅÛ ½½·ÔÀ» Ã£½À´Ï´Ù. (maxStackÀÌ 1º¸´Ù Å« °æ¿ì)
-        // Àåºñ ¾ÆÀÌÅÛÀº °ãÃÄÁöÁö ¾ÊÀ¸¹Ç·Î ÀÌ ·çÇÁ¸¦ °Ç³Ê¶İ´Ï´Ù.
-        for (int i = 0; i < data.inventoryItems.Count; i++)
+        // 1. ì¼ë°˜ ì•„ì´í…œ (ItemType ê¸°ì¤€ ë¶„ê¸°)
+        switch (itemSO.itemType)
         {
-            if (data.inventoryItems[i].itemSO == itemToAdd && data.inventoryItems[i].stackCount < itemToAdd.maxStack)
-            {
-                // 2. °°Àº ¾ÆÀÌÅÛÀÌ ÀÖ°í, ¾ÆÁ÷ °¡µæ Â÷Áö ¾Ê¾Ò´Ù¸é °³¼ö¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-                data.inventoryItems[i].stackCount += amount;
-                return true;
-            }
-        }
+            case ItemType.Consumable: return (data.consumableItems, GENERAL_PANEL_SIZE);
+            case ItemType.Material: return (data.materialItems, GENERAL_PANEL_SIZE);
+            case ItemType.Quest: return (data.questItems, GENERAL_PANEL_SIZE);
+            case ItemType.Special: return (data.specialItems, GENERAL_PANEL_SIZE);
 
-        // 3. ÀÎº¥Åä¸®°¡ ²Ë Ã¡´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-        if (data.inventoryItems.Count >= inventorySize)
+            // 2. ì¥ë¹„ ì•„ì´í…œ (EquipmentItemSO ìºìŠ¤íŒ… í›„ EquipType ê¸°ì¤€ ë¶„ê¸°)
+            case ItemType.Equipment:
+                // ì¥ë¹„ ì•„ì´í…œ SOê°€ ë§ëŠ”ì§€ í™•ì¸í•˜ê³ , ë§ë‹¤ë©´ EquipTypeìœ¼ë¡œ í•œ ë²ˆ ë” ë¶„ê¸°í•©ë‹ˆë‹¤.
+                if (itemSO is EquipmentItemSO equipmentSO)
+                {
+                    switch (equipmentSO.equipType)
+                    {
+                        case EquipType.Weapon: return (data.weaponItems, EQUIPMENT_PANEL_SIZE);
+                        case EquipType.Armor: return (data.armorItems, EQUIPMENT_PANEL_SIZE);
+                        case EquipType.Accessory: return (data.accessoryItems, EQUIPMENT_PANEL_SIZE);
+                        // ì¥ë¹„ íƒ€ì…ì´ ì •ì˜ë˜ì§€ ì•Šì€ ê²½ìš°
+                        default: return (null, 0);
+                    }
+                }
+                // ItemTypeì€ Equipmentì¸ë°, EquipmentItemSOê°€ ì•„ë‹Œ ê²½ìš° (ë°ì´í„° ì˜¤ë¥˜)
+                return (null, 0);
+
+            // ì²˜ë¦¬ë˜ì§€ ì•Šì€ ItemType
+            default: return (null, 0);
+        }
+    }
+
+    /// <summary>
+    /// GetInventoryMappingì˜ ê²°ê³¼ë¥¼ ê¸°ë°˜ìœ¼ë¡œ ItemData ë¦¬ìŠ¤íŠ¸ë§Œ ë°˜í™˜í•˜ëŠ” í—¬í¼ ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// </summary>
+    private List<ItemData> GetTargetList(InventoryData data, BaseItemSO itemSO)
+    {
+        return GetInventoryMapping(data, itemSO).list;
+    }
+
+    // =======================================================================
+    // === ì¸ë²¤í† ë¦¬ì— ì•„ì´í…œì„ ì¶”ê°€í•˜ëŠ” ë¡œì§ (ë‹¨ì¼ AddItemë¡œ OCP êµ¬í˜„) ===
+    // =======================================================================
+
+    /// <summary>
+    /// ì¸ë²¤í† ë¦¬ì— ì•„ì´í…œì„ ì¶”ê°€í•©ë‹ˆë‹¤. (7ê°œ ë…ë¦½ëœ íŒ¨ë„ ì²˜ë¦¬)
+    /// ì•„ì´í…œì˜ maxStackì„ ê³ ë ¤í•˜ì—¬ ê²¹ì¹˜ê¸° ë° ìƒˆ ìŠ¬ë¡¯ ì¶”ê°€ë¥¼ ì²˜ë¦¬í•©ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„°ë¥¼ ë‹´ê³  ìˆëŠ” InventoryData ScriptableObjectì…ë‹ˆë‹¤.</param>
+    /// <param name="itemToAdd">ì¶”ê°€í•  ì•„ì´í…œ ì •ë³´ì…ë‹ˆë‹¤.</param>
+    /// <param name="amount">ì¶”ê°€í•  ì•„ì´í…œì˜ ê°œìˆ˜ì…ë‹ˆë‹¤.</param>
+    /// <returns>ì•„ì´í…œ ì¶”ê°€ì— ì„±ê³µí–ˆëŠ”ì§€ ì—¬ë¶€ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
+    public bool AddItem(InventoryData data, BaseItemSO itemToAdd, int amount)
+    {
+        if (itemToAdd == null || amount <= 0) return false;
+
+        // 1. ì•„ì´í…œì´ ë“¤ì–´ê°ˆ íƒ€ê²Ÿ ë¦¬ìŠ¤íŠ¸ì™€ ìµœëŒ€ í¬ê¸°ë¥¼ ê²°ì •í•©ë‹ˆë‹¤.
+        var mapping = GetInventoryMapping(data, itemToAdd);
+        List<ItemData> targetList = mapping.list;
+        int maxSize = mapping.maxSize;
+
+        if (targetList == null || maxSize == 0)
         {
+            Debug.LogError($"[InventoryLogic] ì•„ì´í…œ {itemToAdd.itemName} ({itemToAdd.itemType})ì— í•´ë‹¹í•˜ëŠ” ìœ íš¨í•œ ì¸ë²¤í† ë¦¬ íŒ¨ë„ì„ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return false;
         }
 
-        // 4. ±âÁ¸¿¡ ¾ø´ø ¾ÆÀÌÅÛÀÌ°Å³ª, °ãÄ¥ ¼ö ¾ø´Â ¾ÆÀÌÅÛ(Àåºñ µî)ÀÌ¶ó¸é »õ·Î Ãß°¡ÇÕ´Ï´Ù.
-        data.inventoryItems.Add(new ItemData(itemToAdd, amount));
+        int remainingAmount = amount;
+
+        // 2. ê²¹ì³ì§ˆ ìˆ˜ ìˆëŠ” ì•„ì´í…œ ìŠ¬ë¡¯ì„ ì°¾ìŠµë‹ˆë‹¤. (ì¥ë¹„(maxStack=1)ëŠ” ì´ ë£¨í”„ë¥¼ ê±´ë„ˆëœë‹ˆë‹¤.)
+        if (itemToAdd.maxStack > 1)
+        {
+            // ì´ ë¡œì§ì€ ì˜¤ì§ targetListì— ëŒ€í•´ì„œë§Œ ì‹¤í–‰ë©ë‹ˆë‹¤.
+            var existingItems = targetList.Where(i =>
+                i.itemSO.itemID == itemToAdd.itemID && i.stackCount < itemToAdd.maxStack
+            );
+
+            foreach (var existingItem in existingItems.ToList()) // ToList()ë¡œ ë³µì‚¬í•˜ì—¬ ì•ˆì „í•˜ê²Œ ìˆœíšŒ
+            {
+                int spaceLeft = itemToAdd.maxStack - existingItem.stackCount;
+                int addAmount = Mathf.Min(remainingAmount, spaceLeft);
+                existingItem.stackCount += addAmount;
+                remainingAmount -= addAmount;
+
+                if (remainingAmount <= 0) break;
+            }
+        }
+
+        // 3. ë‚¨ì€ ì•„ì´í…œì„ ìƒˆ ìŠ¬ë¡¯ì— ì¶”ê°€í•©ë‹ˆë‹¤.
+        while (remainingAmount > 0)
+        {
+            // íƒ€ê²Ÿ ì¸ë²¤í† ë¦¬ê°€ ê½‰ ì°¼ëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+            if (targetList.Count >= maxSize)
+            {
+                return false; // í•´ë‹¹ íŒ¨ë„ì´ ê½‰ ì°¼ìœ¼ë¯€ë¡œ ì‹¤íŒ¨ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
+            }
+
+            int newStackAmount = Mathf.Min(remainingAmount, itemToAdd.maxStack);
+
+            // ì¥ë¹„ ì•„ì´í…œì€ í•­ìƒ 1ìŠ¤íƒìœ¼ë¡œ ì¶”ê°€ë©ë‹ˆë‹¤. (maxStack=1ì´ë¯€ë¡œ newStackAmount=1)
+            targetList.Add(new ItemData(itemToAdd, newStackAmount));
+            remainingAmount -= newStackAmount;
+        }
+
         return true;
     }
 
-    // === ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀ» Á¦°ÅÇÏ´Â ·ÎÁ÷ ===
+    // =======================================================================
+    // === ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œì„ ì œê±°í•˜ëŠ” ë¡œì§ ===
+    // =======================================================================
 
     /// <summary>
-    /// ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀ» Á¦°ÅÇÕ´Ï´Ù.
+    /// ì¸ë²¤í† ë¦¬ì—ì„œ íŠ¹ì • ì•„ì´í…œ IDë¥¼ ê°€ì§„ ì•„ì´í…œì„ ì œê±°í•©ë‹ˆë‹¤. (7ê°œ íŒ¨ë„ ëª¨ë‘ ì²˜ë¦¬)
     /// </summary>
-    /// <param name="data">¾ÆÀÌÅÛ µ¥ÀÌÅÍ¸¦ ´ã°í ÀÖ´Â InventoryData ScriptableObjectÀÔ´Ï´Ù.</param>
-    /// <param name="itemToRemove">Á¦°ÅÇÒ ¾ÆÀÌÅÛ Á¤º¸ÀÔ´Ï´Ù.</param>
-    /// <param name="amount">Á¦°ÅÇÒ ¾ÆÀÌÅÛÀÇ °³¼öÀÔ´Ï´Ù.</param>
-    /// <returns>¾ÆÀÌÅÛ Á¦°Å¿¡ ¼º°øÇß´ÂÁö ¿©ºÎ¸¦ ¹İÈ¯ÇÕ´Ï´Ù.</returns>
-    public bool RemoveItem(InventoryData data, BaseItemSO itemToRemove, int amount)
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„°ë¥¼ ë‹´ê³  ìˆëŠ” InventoryData ScriptableObjectì…ë‹ˆë‹¤.</param>
+    /// <param name="itemToRemoveSO">ì œê±°í•  ì•„ì´í…œ ì •ë³´ì…ë‹ˆë‹¤.</param>
+    /// <param name="amount">ì œê±°í•  ì•„ì´í…œì˜ ê°œìˆ˜ì…ë‹ˆë‹¤.</param>
+    /// <returns>ì•„ì´í…œ ì œê±°ì— ì„±ê³µí–ˆëŠ”ì§€ ì—¬ë¶€ë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
+    public bool RemoveItem(InventoryData data, BaseItemSO itemToRemoveSO, int amount)
     {
-        // Á¦°ÅÇÒ ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®¿¡¼­ Ã£½À´Ï´Ù.
-        // ¿©·¯ ½½·Ô¿¡ ³ª´µ¾î ÀÖÀ» ¼ö ÀÖÀ¸¹Ç·Î, Àç°í°¡ ÃæºĞÇÑ ½½·ÔÀ» Ã£½À´Ï´Ù.
-        for (int i = 0; i < data.inventoryItems.Count; i++)
+        if (itemToRemoveSO == null || amount <= 0) return false;
+
+        // 1. íƒ€ê²Ÿ ë¦¬ìŠ¤íŠ¸ë¥¼ ê²°ì •í•©ë‹ˆë‹¤. (7ê°œ ì¤‘ 1ê°œ)
+        List<ItemData> targetList = GetTargetList(data, itemToRemoveSO);
+        if (targetList == null) return false;
+
+        // 2. í•´ë‹¹ ë¦¬ìŠ¤íŠ¸ ë‚´ì—ì„œ ì¶©ë¶„í•œ ìˆ˜ëŸ‰ì´ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤. (ì„±ëŠ¥ì„ ìœ„í•´ Count ì „ì— ê²€ì‚¬)
+        int currentCount = targetList.Where(i => i.itemSO.itemID == itemToRemoveSO.itemID).Sum(i => i.stackCount);
+        if (currentCount < amount)
         {
-            if (data.inventoryItems[i].itemSO == itemToRemove)
+            //Debug.LogWarning($"ì œê±° ì‹¤íŒ¨: {itemToRemoveSO.itemName} ({itemToRemoveSO.itemID}) ì¬ê³  ë¶€ì¡±. (í•„ìš”: {amount}, í˜„ì¬: {currentCount})");
+            return false;
+        }
+
+        int remainingAmount = amount;
+
+        // 3. ì—­ìˆœìœ¼ë¡œ ìˆœíšŒí•˜ë©° ì œê±°í•©ë‹ˆë‹¤. (ë¦¬ìŠ¤íŠ¸ ì¤‘ê°„ ì œê±° ì‹œ ì¸ë±ìŠ¤ ì˜¤ë¥˜ ë°©ì§€)
+        for (int i = targetList.Count - 1; i >= 0 && remainingAmount > 0; i--)
+        {
+            ItemData itemData = targetList[i];
+
+            // ì¥ë¹„ ì•„ì´í…œ(maxStack=1)ì€ BaseItemSO ë¹„êµë¡œ ì œê±°í•˜ë©´ ì•ˆ ë©ë‹ˆë‹¤. 
+            // ì¥ë¹„ëŠ” í•­ìƒ RemoveItem(uniqueID)ë¡œë§Œ ì œê±°ë˜ë„ë¡ ìœ ë„í•©ë‹ˆë‹¤.
+            if (itemData.itemSO is EquipmentItemSO) continue;
+
+            if (itemData.itemSO.itemID == itemToRemoveSO.itemID)
             {
-                // 2. °³¼ö°¡ ÃæºĞÇÑÁö È®ÀÎÇÕ´Ï´Ù.
-                if (data.inventoryItems[i].stackCount >= amount)
+                int removeAmount = Mathf.Min(remainingAmount, itemData.stackCount);
+                itemData.stackCount -= removeAmount;
+                remainingAmount -= removeAmount;
+
+                if (itemData.stackCount <= 0)
                 {
-                    // 3. °³¼ö¸¦ Â÷°¨ÇÏ°í, 0ÀÌ µÇ¸é ½½·ÔÀ» Á¦°ÅÇÕ´Ï´Ù.
-                    data.inventoryItems[i].stackCount -= amount;
-                    if (data.inventoryItems[i].stackCount <= 0)
-                    {
-                        data.inventoryItems.RemoveAt(i);
-                    }
-                    return true;
+                    targetList.RemoveAt(i);
                 }
             }
         }
-        return false;
+
+        // ì¥ë¹„ ì•„ì´í…œì˜ ê²½ìš°, RemoveItem(uniqueID)ë¥¼ ì‚¬ìš©í•´ì•¼ ì •í™•í•œ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.
+        // ë”°ë¼ì„œ ì´ ë©”ì„œë“œëŠ” ì¼ë°˜ ì•„ì´í…œ(ì†Œëª¨í’ˆ, ì¬ë£Œ ë“±) ì œê±°ì—ë§Œ ì£¼ë¡œ ì‚¬ìš©ë©ë‹ˆë‹¤.
+        return remainingAmount == 0;
     }
 
-    // === Àåºñ ¾ÆÀÌÅÛ ÀåÂø ¹× ÇØÁ¦ ·ÎÁ÷ ===
-
     /// <summary>
-    /// ÀÎº¥Åä¸®ÀÇ Àåºñ ¾ÆÀÌÅÛÀ» ÀåÂøÇÕ´Ï´Ù.
+    /// íŠ¹ì • ê³ ìœ  IDë¥¼ ê°€ì§„ ì¥ë¹„ ì•„ì´í…œ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì¸ë²¤í† ë¦¬ì—ì„œ ì œê±°í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤. (ì¥ë¹„ ì „ìš©)
+    /// ì´ ë©”ì„œë“œëŠ” ì¥ë¹„ ì°©ìš© ë˜ëŠ” ë²„ë¦¬ê¸°(Unique ì¥ë¹„) ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="data">¾ÆÀÌÅÛ µ¥ÀÌÅÍ¸¦ ´ã°í ÀÖ´Â InventoryData ScriptableObjectÀÔ´Ï´Ù.</param>
-    /// <param name="itemToEquip">ÀåÂøÇÒ Àåºñ ¾ÆÀÌÅÛ Á¤º¸ÀÔ´Ï´Ù.</param>
-    /// <param name="inventorySize">ÀÎº¥Åä¸®ÀÇ ÃÖ´ë ½½·Ô °³¼öÀÔ´Ï´Ù.</param>
-    public void EquipItem(InventoryData data, EquipmentItemSO itemToEquip, int inventorySize)
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„°ë¥¼ ë‹´ê³  ìˆëŠ” InventoryData ScriptableObjectì…ë‹ˆë‹¤.</param>
+    /// <param name="uniqueID">ì œê±°í•  ì¥ë¹„ ì•„ì´í…œì˜ ê³ ìœ  ID</param>
+    /// <returns>ì•„ì´í…œ ì œê±° ì„±ê³µ ì—¬ë¶€</returns>
+    public bool RemoveItem(InventoryData data, string uniqueID)
     {
-        // ÇöÀç ÀåÂøµÈ ½½·Ô¿¡ ÀÌ¹Ì ¾ÆÀÌÅÛÀÌ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-        if (data.equippedItems.ContainsKey(itemToEquip.equipSlot))
+        if (string.IsNullOrEmpty(uniqueID)) return false;
+
+        // 1. 3ê°œì˜ ì¥ë¹„ ë¦¬ìŠ¤íŠ¸ë¥¼ ìˆœíšŒí•˜ë©° í•´ë‹¹ uniqueIDë¥¼ ê°€ì§„ ì•„ì´í…œì„ ì°¾ìŠµë‹ˆë‹¤.
+        List<List<ItemData>> equipmentLists = new List<List<ItemData>>
         {
-            // ÀÌ¹Ì Àåºñ°¡ ÀÖ´Ù¸é, ±âÁ¸ Àåºñ¸¦ ÇØÁ¦ÇÏ°í ÀÎº¥Åä¸®·Î µÇµ¹¸³´Ï´Ù.
-            UnEquipItem(data, itemToEquip.equipSlot, inventorySize);
+            data.weaponItems,
+            data.armorItems,
+            data.accessoryItems
+        };
+
+        foreach (var list in equipmentLists)
+        {
+            // 2. ê° ë¦¬ìŠ¤íŠ¸ë¥¼ ì—­ìˆœìœ¼ë¡œ ìˆœíšŒí•˜ë©° ì œê±°í•©ë‹ˆë‹¤.
+            for (int i = list.Count - 1; i >= 0; i--)
+            {
+                ItemData itemData = list[i];
+
+                // ItemDataì˜ itemSOê°€ EquipmentItemSO íƒ€ì…ì¸ì§€ í™•ì¸
+                if (itemData.itemSO is EquipmentItemSO equipmentSO)
+                {
+                    if (equipmentSO.uniqueID == uniqueID)
+                    {
+                        // ì¥ë¹„ëŠ” í•­ìƒ 1ìŠ¤íƒì´ë¯€ë¡œ, ë°”ë¡œ ì œê±°í•©ë‹ˆë‹¤.
+                        list.RemoveAt(i);
+                        //Debug.Log($"ì¥ë¹„ ì œê±° ì„±ê³µ: ID {uniqueID} from {list}");
+                        return true; // ì œê±° ì„±ê³µ
+                    }
+                }
+            }
         }
 
-        // ÀÎº¥Åä¸®¿¡¼­ ¾ÆÀÌÅÛÀ» Á¦°ÅÇÕ´Ï´Ù. (ÀåÂø ½Ã ÀÎº¥Åä¸®¿¡¼­ »ç¶óÁ®¾ß ÇÏ¹Ç·Î)
-        RemoveItem(data, itemToEquip, 1);
+        //Debug.LogWarning($"ì¥ë¹„ ì œê±° ì‹¤íŒ¨: ì¸ë²¤í† ë¦¬ì—ì„œ ê³ ìœ  ID '{uniqueID}'ë¥¼ ê°€ì§„ ì¥ë¹„ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+        return false; // ì œê±° ì‹¤íŒ¨
+    }
 
-        // Àåºñ ½½·Ô¿¡ »õ·Î¿î ¾ÆÀÌÅÛÀ» Ãß°¡ÇÕ´Ï´Ù.
-        data.equippedItems.Add(itemToEquip.equipSlot, itemToEquip);
+    // =======================================================================
+    // === ì¥ë¹„ ì•„ì´í…œ ì¥ì°© ë° í•´ì œ ë¡œì§ ===
+    // =======================================================================
+
+    /// <summary>
+    /// ì¸ë²¤í† ë¦¬ì˜ ì¥ë¹„ ì•„ì´í…œì„ ì¥ì°©í•©ë‹ˆë‹¤. (7ê°œ íŒ¨ë„ ëŒ€ì‘)
+    /// </summary>
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„°ë¥¼ ë‹´ê³  ìˆëŠ” InventoryData ScriptableObjectì…ë‹ˆë‹¤.</param>
+    /// <param name="itemToEquip">ì¥ì°©í•  ì¥ë¹„ ì•„ì´í…œ ì •ë³´ì…ë‹ˆë‹¤.</param>
+    /// <param name="inventorySize">ê¸°ì¡´ í˜¸í™˜ì„± ìœ ì§€ë¥¼ ìœ„í•´ ë‚¨ê²¨ë‘” ë§¤ê°œë³€ìˆ˜ (ì´ì œ ì‚¬ìš©ë˜ì§€ ì•ŠìŒ)</param>
+    public void EquipItem(InventoryData data, EquipmentItemSO itemToEquip, int inventorySize)
+    {
+        if (itemToEquip == null) return;
+
+        // 1. í˜„ì¬ ì¥ì°©ëœ ìŠ¬ë¡¯ì— ì´ë¯¸ ì•„ì´í…œì´ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        if (data.equippedItems.ContainsKey(itemToEquip.equipSlot))
+        {
+            // 2. ì´ë¯¸ ì¥ë¹„ê°€ ìˆë‹¤ë©´, ê¸°ì¡´ ì¥ë¹„ë¥¼ í•´ì œí•˜ê³  ì¸ë²¤í† ë¦¬ë¡œ ë˜ëŒë¦½ë‹ˆë‹¤.
+            // AddItemì˜ ì‹œê·¸ë‹ˆì²˜ê°€ ë³€ê²½ë˜ì—ˆìœ¼ë¯€ë¡œ, UnEquipItemë„ ë³€ê²½ë˜ì–´ì•¼ í•©ë‹ˆë‹¤.
+            // (UnEquipItemì˜ ë¡œì§ì€ ì•„ë˜ì—ì„œ ìˆ˜ì •ë©ë‹ˆë‹¤.)
+            UnEquipItem(data, itemToEquip.equipSlot);
+        }
+
+        // 3. ì¸ë²¤í† ë¦¬ì—ì„œ ì•„ì´í…œì„ ì œê±°í•©ë‹ˆë‹¤. (ì¥ì°© ì‹œ ì¸ë²¤í† ë¦¬ì—ì„œ ì‚¬ë¼ì ¸ì•¼ í•˜ë¯€ë¡œ)
+        // ì¥ë¹„ ì•„ì´í…œì€ ê³ ìœ  IDë¡œ ì •í™•í•˜ê²Œ ì œê±°í•©ë‹ˆë‹¤.
+        // inventorySize ë§¤ê°œë³€ìˆ˜ëŠ” í˜¸í™˜ì„± ìœ ì§€ë¥¼ ìœ„í•´ ì œê±°í–ˆìŠµë‹ˆë‹¤.
+        RemoveItem(data, itemToEquip.uniqueID);
+
+        // 4. ì¥ë¹„ ìŠ¬ë¡¯ì— ìƒˆë¡œìš´ ì•„ì´í…œì„ ì¶”ê°€í•©ë‹ˆë‹¤.
+        if (data.equippedItems.ContainsKey(itemToEquip.equipSlot))
+        {
+            // ì´ì „ì— UnEquipItemì—ì„œ ì œê±°ëœ í›„, ë‹¤ì‹œ Addí•˜ëŠ” ê²½ìš°ì— ëŒ€ë¹„
+            data.equippedItems[itemToEquip.equipSlot] = itemToEquip;
+        }
+        else
+        {
+            data.equippedItems.Add(itemToEquip.equipSlot, itemToEquip);
+        }
     }
 
     /// <summary>
-    /// ÀåÂøµÈ ¾ÆÀÌÅÛÀ» ÇØÁ¦ÇÏ°í ÀÎº¥Åä¸®·Î µÇµ¹¸³´Ï´Ù.
+    /// ì¥ì°©ëœ ì•„ì´í…œì„ í•´ì œí•˜ê³  ì¸ë²¤í† ë¦¬ë¡œ ë˜ëŒë¦½ë‹ˆë‹¤. (7ê°œ íŒ¨ë„ ëŒ€ì‘)
     /// </summary>
-    /// <param name="data">¾ÆÀÌÅÛ µ¥ÀÌÅÍ¸¦ ´ã°í ÀÖ´Â InventoryData ScriptableObjectÀÔ´Ï´Ù.</param>
-    /// <param name="slotToUnEquip">ÇØÁ¦ÇÒ Àåºñ ½½·ÔÀÇ Å¸ÀÔÀÔ´Ï´Ù.</param>
-    /// <param name="inventorySize">ÀÎº¥Åä¸®ÀÇ ÃÖ´ë ½½·Ô °³¼öÀÔ´Ï´Ù.</param>
-    public void UnEquipItem(InventoryData data, EquipSlot slotToUnEquip, int inventorySize)
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„°ë¥¼ ë‹´ê³  ìˆëŠ” InventoryData ScriptableObjectì…ë‹ˆë‹¤.</param>
+    /// <param name="slotToUnEquip">í•´ì œí•  ì¥ë¹„ ìŠ¬ë¡¯ì˜ íƒ€ì…ì…ë‹ˆë‹¤.</param>
+    // ê¸°ì¡´ ë§¤ê°œë³€ìˆ˜ì˜€ë˜ int inventorySizeë¥¼ ì œê±°í•˜ê³  ì˜¤ë²„ë¡œë”© ë˜ëŠ” ê¸°ë³¸ê°’ ì²˜ë¦¬ë¥¼ í†µí•´ í˜¸í™˜ì„±ì„ ìœ ì§€í•´ì•¼ í•©ë‹ˆë‹¤.
+    // ì—¬ê¸°ì„œëŠ” ë§¤ê°œë³€ìˆ˜ë¥¼ ì œê±°í•˜ëŠ” ê²ƒì´ ë¡œì§ìƒ ìì—°ìŠ¤ëŸ¬ì›Œ ì œê±°í•©ë‹ˆë‹¤. (Managerì—ì„œ í˜¸ì¶œí•  ë•Œ ì¡°ì • í•„ìš”)
+    public void UnEquipItem(InventoryData data, EquipSlot slotToUnEquip)
     {
         if (data.equippedItems.ContainsKey(slotToUnEquip))
         {
             EquipmentItemSO itemToUnEquip = data.equippedItems[slotToUnEquip];
 
-            // ÀåÂøµÈ ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®·Î µÇµ¹¸³´Ï´Ù.
-            AddItem(data, itemToUnEquip, 1, inventorySize);
+            // 1. ì¥ì°©ëœ ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ë¡œ ë˜ëŒë¦½ë‹ˆë‹¤.
+            // AddItem ë©”ì„œë“œì˜ ì‹œê·¸ë‹ˆì²˜ê°€ ë³€ê²½ë˜ì—ˆìœ¼ë¯€ë¡œ, ì´ì œ inventorySize ë§¤ê°œë³€ìˆ˜ ì—†ì´ í˜¸ì¶œí•©ë‹ˆë‹¤.
+            // AddItem(data, itemToUnEquip, 1)ë§Œ í˜¸ì¶œí•˜ë©´ 7ê°œ íŒ¨ë„ ë¡œì§ì— ì˜í•´ ìë™ìœ¼ë¡œ ì ì ˆí•œ ì¥ë¹„ íŒ¨ë„ì— ì¶”ê°€ë©ë‹ˆë‹¤.
+            bool success = AddItem(data, itemToUnEquip, 1);
 
-            // Àåºñ ½½·Ô¿¡¼­ ¾ÆÀÌÅÛÀ» Á¦°ÅÇÕ´Ï´Ù.
-            data.equippedItems.Remove(slotToUnEquip);
+            if (success)
+            {
+                // 2. ì¸ë²¤í† ë¦¬ì— ë˜ëŒë¦¬ëŠ” ë° ì„±ê³µí–ˆë‹¤ë©´, ì¥ë¹„ ìŠ¬ë¡¯ì—ì„œ ì•„ì´í…œì„ ì œê±°í•©ë‹ˆë‹¤.
+                data.equippedItems.Remove(slotToUnEquip);
+            }
+            // ì¸ë²¤í† ë¦¬ ê³µê°„ ë¶€ì¡±ìœ¼ë¡œ í•´ì œ ì‹¤íŒ¨ ì‹œ (ì¥ì°© ìƒíƒœ ìœ ì§€)
+            else
+            {
+                Debug.LogWarning($"ì¥ë¹„ í•´ì œ ì‹¤íŒ¨: ì¸ë²¤í† ë¦¬ ê³µê°„ ë¶€ì¡±ìœ¼ë¡œ {itemToUnEquip.itemName}ì„ ë˜ëŒë¦´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
+            }
         }
+    }
+
+    // =======================================================================
+    // === ì•„ì´í…œ ì¹´ìš´íŠ¸ ë¡œì§ ì¶”ê°€ (InventoryManagerì—ì„œ ìœ„ì„ë°›ì„ ì˜ˆì •) ===
+    // =======================================================================
+
+    /// <summary>
+    /// ì¸ë²¤í† ë¦¬ ë‚´ì˜ ëª¨ë“  7ê°œ íŒ¨ë„ì—ì„œ íŠ¹ì • ì•„ì´í…œ IDì˜ ì´ ê°œìˆ˜ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="data">ì•„ì´í…œ ë°ì´í„°ë¥¼ ë‹´ê³  ìˆëŠ” InventoryData ScriptableObjectì…ë‹ˆë‹¤.</param>
+    /// <param name="itemID">ê°œìˆ˜ë¥¼ í™•ì¸í•  ì•„ì´í…œ IDì…ë‹ˆë‹¤.</param>
+    /// <returns>ì´ ê°œìˆ˜</returns>
+    public int GetItemCount(InventoryData data, int itemID)
+    {
+        int totalCount = 0;
+
+        // 7ê°œì˜ ëª¨ë“  ë¦¬ìŠ¤íŠ¸ë¥¼ í¬í•¨í•˜ëŠ” ë¦¬ìŠ¤íŠ¸ë¥¼ ë§Œë“­ë‹ˆë‹¤. (ë°˜ë³µë˜ëŠ” ì½”ë“œ ì¤„ì´ê¸°)
+        List<List<ItemData>> allLists = new List<List<ItemData>>
+        {
+            data.weaponItems, data.armorItems, data.accessoryItems,
+            data.consumableItems, data.materialItems, data.questItems, data.specialItems
+        };
+
+        foreach (var list in allLists)
+        {
+            // ê° ë¦¬ìŠ¤íŠ¸ì—ì„œ ì•„ì´í…œ IDê°€ ì¼ì¹˜í•˜ëŠ” ëª¨ë“  ìŠ¤íƒì˜ ê°œìˆ˜ë¥¼ í•©ì‚°í•©ë‹ˆë‹¤.
+            totalCount += list
+                .Where(itemData => itemData.itemSO.itemID == itemID)
+                .Sum(itemData => itemData.stackCount);
+        }
+
+        return totalCount;
     }
 }

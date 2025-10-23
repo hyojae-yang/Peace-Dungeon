@@ -290,3 +290,20 @@ public class PetSystemSaveData // 기존 PetSaveData와 PetSystemSaveData를 통
     /// </summary>
     public bool isMangChiSummoned = false;
 }
+/// <summary>
+/// PlayerSkillController의 상태를 저장하기 위한 데이터 전송 객체(DTO)입니다.
+/// 스킬 슬롯 할당 정보와 쿨타임 정보를 저장합니다.
+/// </summary>
+[Serializable]
+public class PlayerSkillControllerSaveData
+{
+    // 스킬 슬롯에 할당된 스킬의 고유 ID 배열입니다.
+    // SkillData 자체를 저장할 수 없으므로, ID만 저장합니다.
+    public int[] assignedSkillIds;
+
+    // 현재 쿨타임이 진행 중인 스킬의 ID 목록입니다.
+    public List<int> cooldownSkillIds;
+
+    // 쿨타임이 끝나는 Time.time 값을 저장합니다. (Time.time은 로드 시 보정이 필요합니다.)
+    public List<float> cooldownEndTimes;
+}

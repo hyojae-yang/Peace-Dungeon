@@ -121,10 +121,12 @@ public abstract class SkillData : ScriptableObject
     /// <summary>
     /// 스킬의 고유한 효과를 발동시키는 추상 메서드입니다.
     /// 모든 자식 스크립트가 이 메서드를 반드시 구현해야 합니다.
+    /// OCP 원칙: 스킬의 논리적 실행 성공 여부를 반환합니다.
     /// </summary>
     /// <param name="spawnPoint">스킬 효과가 발동될 위치</param>
     /// <param name="playerStats">스킬 발동 시 필요한 플레이어의 현재 능력치</param>
     /// <param name="skillLevel">현재 스킬의 레벨</param>
-    public abstract void Execute(Transform spawnPoint, PlayerStats playerStats, int skillLevel);
+    /// <returns>스킬의 효과가 논리적으로 성공적으로 발동되었으면 true, 실패했으면 false를 반환합니다.</returns>
+    public abstract bool Execute(Transform spawnPoint, PlayerStats playerStats, int skillLevel); // <--- [핵심 수정] bool 반환
 }
 

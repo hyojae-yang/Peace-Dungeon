@@ -56,10 +56,6 @@ public class PetManager : MonoBehaviour, ISavable
                 MainSceneManager.OnGameOver += SavePetDeathState;
             }
         }
-        else
-        {
-            Debug.LogError("[PetManager] SaveManager 인스턴스를 찾을 수 없습니다! 저장/로드 불가.");
-        }
     }
 
     // === ISavable 구현 메서드 (저장 및 로드의 핵심) ===

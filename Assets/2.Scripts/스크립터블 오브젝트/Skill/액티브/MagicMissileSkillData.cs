@@ -7,7 +7,7 @@ using System.Collections.Generic;
 /// 타겟팅 및 추적 로직은 MagicMissileProjectile에 위임합니다.
 /// </summary>
 [CreateAssetMenu(fileName = "MagicMissileSkill", menuName = "Skill/Magic Missile Skill")]
-public class MagicMissileSkillData : SkillData
+public class MagicMissileSkillData : ActiveSkillData
 {
     // === 필드 정의 ===
 
@@ -30,43 +30,53 @@ public class MagicMissileSkillData : SkillData
 
     /// <summary>
     /// 스킬을 발동하는 메인 메서드입니다.
-    /// SkillData Base 클래스의 추상 메서드 시그니처에 맞춰 Execute를 오버라이드합니다.
-    /// OCP (개방-폐쇄 원칙): 투사체 종류가 바뀌어도 이 메서드의 핵심 로직은 바뀌지 않습니다.
+    /// 스킬 실행의 논리적 성공 여부를 반환합니다. 타겟이 없을 경우 false를 반환하여 비용 소모를 막습니다.
     /// </summary>
     /// <param name="caster">스킬을 시전하는 주체의 Transform (투사체의 생성 위치 기준)</param>
-    /// <param name="playerStats">시전자의 PlayerStats 정보 (마나/쿨타임 체크에 사용)</param>
+    /// <param name="playerStats">시전자의 PlayerStats 정보</param>
     /// <param name="skillLevel">현재 스킬의 레벨 (스탯 계산에 사용)</param>
-    public override void Execute(Transform caster, PlayerStats playerStats, int skillLevel)
+    /// <returns>스킬 발동에 성공하면 true, 타겟이 없거나 치명적인 오류 발생 시 false 반환.</returns>
+    public override bool Execute(Transform caster, PlayerStats playerStats, int skillLevel) // <--- [핵심 수정] bool 반환
     {
-        // 1. 스킬 사용 가능 여부 확인 및 마나 소모 (Base 클래스 또는 별도의 관리자에서 처리한다고 가정)
-        // 실제 구현에서는 이 부분에 마나/쿨타임 체크 로직이 들어갑니다.
-
-        // 2. 투사체 생성에 필요한 스탯을 추출합니다.
-        // [수정] GetStatValueForLevel 보조 메서드를 사용하여 정확한 스탯 값을 가져옵니다.
+        // 1. 투사체 생성에 필요한 스탯을 추출합니다.
+        // GetStatValueForLevel 보조 메서드를 사용하여 정확한 스탯 값을 가져옵니다.
         float damage = GetStatValueForLevel(StatType.BaseDamage, skillLevel);
         int projectileCount = (int)GetStatValueForLevel(StatType.ProjectileCount, skillLevel);
 
-        // 3. 발사 전에 타겟이 있는지 확인하여 스킬 발동을 무효화할지 결정합니다. (예외 처리 1번)
-        // 몬스터가 없는데 스킬이 발동되면 마나 낭비이므로, 사전에 체크합니다.
+        // 2. 발사 전에 타겟이 있는지 확인하여 스킬 발동을 무효화할지 결정합니다.
         if (!IsTargetAvailable(caster.position))
         {
-            Debug.Log("매직 미사일: 타겟팅 범위 내에 유효한 몬스터가 없어 스킬 발동을 취소합니다.");
-            return;
+            // 타겟이 없으면 논리적으로 스킬 발동 실패로 간주합니다.
+            return false; // <--- [핵심 추가] 논리적 실패 시 false 반환
         }
 
-        // 4. 모든 조건이 충족되면 투사체 생성 로직을 시작합니다.
-        SpawnProjectiles(caster, damage, projectileCount);
+        // 3. 모든 조건이 충족되면 투사체 생성 로직을 시작합니다.
+        // 투사체 생성에 실패하면 false를 반환합니다.
+        if (!SpawnProjectiles(caster, damage, projectileCount))
+        {
+            return false;
+        }
+
+        // 4. 성공적으로 발동되었으므로 true를 반환하여 비용을 소모하게 합니다.
+        return true; // <--- 논리적 성공 시 true 반환
     }
+
     /// <summary>
     /// 스탯에 정의된 개수만큼 매직 미사일 투사체를 생성하고 초기화합니다.
     /// SRP: 오직 투사체 생성과 위치 계산 책임만을 집니다.
-    /// [수정] damageType 인자를 투사체 초기화 시 함께 전달합니다.
     /// </summary>
     /// <param name="caster">시전자의 Transform</param>
     /// <param name="damage">각 투사체가 가할 기본 데미지</param>
     /// <param name="count">생성할 투사체의 총 개수</param>
-    private void SpawnProjectiles(Transform caster, float damage, int count)
+    /// <returns>투사체 생성 및 초기화 성공 시 true, 실패 시 false를 반환합니다.</returns>
+    private bool SpawnProjectiles(Transform caster, float damage, int count) // <--- [추가 수정] bool 반환
     {
+        if (missilePrefab == null)
+        {
+            Debug.LogError("MagicMissileSkillData: 투사체 프리팹(missilePrefab)이 할당되지 않았습니다!");
+            return false;
+        }
+
         float startAngle = caster.eulerAngles.y;
 
         for (int i = 0; i < count; i++)
@@ -83,15 +93,21 @@ public class MagicMissileSkillData : SkillData
             if (missile != null)
             {
                 // 3. 투사체 초기화 (데이터 주입)
-                // [수정] 상속받은 DamageType 필드를 함께 전달합니다.
                 missile.Initialize(damage, maxTargetingRange, monsterLayer, this.damageType);
             }
             else
             {
-                Debug.LogError("MagicMissileSkillData: 투사체 프리팹에 MagicMissileProjectile 컴포넌트가 없습니다!");
+                Debug.LogError($"MagicMissileSkillData: 할당된 프리팹 '{missilePrefab.name}'에 MagicMissileProjectile 컴포넌트가 없습니다!");
+                // 치명적인 오류이므로 스킬 발동 실패로 간주합니다.
+                // 이미 생성된 투사체가 있어도 마나 소모 방지를 위해 false 반환
+                return false;
             }
         }
+
+        // 투사체 생성이 성공적으로 완료되었습니다.
+        return true;
     }
+
     /// <summary>
     /// 스킬 발동 전에, 투사체가 타겟을 찾을 수 있는 범위 내에 몬스터가 있는지 확인합니다.
     /// (스킬 발동 무효화 예외 처리 1번을 위한 메서드입니다.)
@@ -144,7 +160,6 @@ public class MagicMissileSkillData : SkillData
         }
 
         // 5. 스탯을 찾지 못했거나 stats 배열이 null인 경우
-        // Debug.LogWarning($"Skill ID {skillId}: Level {skillLevel}에서 StatType {statType}을 찾을 수 없습니다. 0f를 반환합니다.");
         return 0f;
     }
 }

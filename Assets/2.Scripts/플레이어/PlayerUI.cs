@@ -27,6 +27,9 @@ public class PlayerUI : MonoBehaviour
     [Tooltip("레벨을 표시할 TextMeshProUGUI 컴포넌트를 할당하세요.")]
     public TextMeshProUGUI levelText;
     public TextMeshProUGUI GoldText;
+    public TextMeshProUGUI HpText;
+    public TextMeshProUGUI MpText;
+    public TextMeshProUGUI ExpText;
 
     private void Start()
     {
@@ -72,5 +75,8 @@ public class PlayerUI : MonoBehaviour
         // === 텍스트 업데이트 ===
         levelText.text = "Lv. " + playerCharacter.playerStats.level.ToString();
         GoldText.text = playerCharacter.playerStats.gold.ToString() + "원";
+        HpText.text = Mathf.FloorToInt(playerCharacter.playerStats.health).ToString() + " / " + Mathf.FloorToInt(playerCharacter.playerStats.MaxHealth).ToString();
+        MpText.text = Mathf.FloorToInt(playerCharacter.playerStats.mana).ToString() + " / " + Mathf.FloorToInt(playerCharacter.playerStats.MaxMana).ToString();
+        ExpText.text = Mathf.FloorToInt(playerCharacter.playerStats.experience).ToString() + " / " + Mathf.FloorToInt(playerCharacter.playerStats.requiredExperience).ToString();
     }
 }

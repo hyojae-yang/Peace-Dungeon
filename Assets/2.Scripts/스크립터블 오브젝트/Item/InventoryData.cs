@@ -1,30 +1,69 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÀÎº¥Åä¸® ¹× Àåºñ µ¥ÀÌÅÍ¸¦ ´ã´Â ScriptableObject Å¬·¡½ºÀÔ´Ï´Ù.
-/// ÀÌ Å¬·¡½º´Â ¿ÀÁ÷ µ¥ÀÌÅÍ ÀúÀå ¿ªÇÒ¸¸ ÇÏ¸ç, ·ÎÁ÷À» Æ÷ÇÔÇÏÁö ¾Ê½À´Ï´Ù.
+/// ì¸ë²¤í† ë¦¬ ë° ì¥ë¹„ ë°ì´í„°ë¥¼ ë‹´ëŠ” ScriptableObject í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// ì´ í´ë˜ìŠ¤ëŠ” ì˜¤ì§ ë°ì´í„° ì €ì¥ ì—­í• ë§Œ í•˜ë©°, ë¡œì§ì„ í¬í•¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
+/// SOLID: ë‹¨ì¼ ì±…ì„ ì›ì¹™ (SRP - Data Storage).
 /// </summary>
 [CreateAssetMenu(fileName = "InventoryData", menuName = "Data/Inventory Data", order = 1)]
 public class InventoryData : ScriptableObject
 {
-    // === ÀÎº¥Åä¸® µ¥ÀÌÅÍ ===
-    // ItemData ¸®½ºÆ®·Î º¯°æÇÏ¿© ¾ÆÀÌÅÛÀÇ °íÀ¯¼º°ú °³¼ö¸¦ ÇÔ²² °ü¸®ÇÕ´Ï´Ù.
-    [Tooltip("ÇÃ·¹ÀÌ¾îÀÇ ÀÎº¥Åä¸®¿¡ ÀÖ´Â ¸ğµç ¾ÆÀÌÅÛ°ú ±× °³¼ö¸¦ ÀúÀåÇÕ´Ï´Ù.")]
-    public List<ItemData> inventoryItems = new List<ItemData>();
+    // =======================================================================
+    // === ì¸ë²¤í† ë¦¬ ë°ì´í„°: 7ê°œì˜ ë…ë¦½ëœ ì €ì¥ì†Œ (ê³ ê°ë‹˜ ìš”êµ¬ì‚¬í•­) ===
+    // =======================================================================
 
-    // === ÀåÂø Àåºñ µ¥ÀÌÅÍ ===
-    // Key: ÀåÂø ½½·Ô (EquipSlot), Value: Àåºñ ¾ÆÀÌÅÛ Á¤º¸ (EquipmentItemSO)
-    [Tooltip("ÇÃ·¹ÀÌ¾î°¡ ÇöÀç ÀåÂøÇÏ°í ÀÖ´Â Àåºñ ¾ÆÀÌÅÛÀ» ÀúÀåÇÕ´Ï´Ù.")]
+    [Header("1. ì¥ë¹„ ì•„ì´í…œ ì €ì¥ì†Œ (ê° 64ì¹¸)")]
+    [Tooltip("ë¬´ê¸°ë¥˜ ì¥ë¹„ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> weaponItems = new List<ItemData>();
+
+    [Tooltip("ë°©ì–´êµ¬ë¥˜ ì¥ë¹„ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> armorItems = new List<ItemData>();
+
+    [Tooltip("ì¥ì‹ êµ¬ë¥˜ ì¥ë¹„ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> accessoryItems = new List<ItemData>();
+
+    [Header("2. ì¼ë°˜ ì•„ì´í…œ ì €ì¥ì†Œ (ê° 80ì¹¸)")]
+    [Tooltip("ì†Œëª¨í’ˆ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> consumableItems = new List<ItemData>();
+
+    [Tooltip("ì¬ë£Œ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> materialItems = new List<ItemData>();
+
+    [Tooltip("í€˜ìŠ¤íŠ¸ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> questItems = new List<ItemData>();
+
+    [Tooltip("íŠ¹ìˆ˜ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ì…ë‹ˆë‹¤.")]
+    public List<ItemData> specialItems = new List<ItemData>();
+
+    // =======================================================================
+    // === ì¥ì°© ì¥ë¹„ ë°ì´í„° (ê¸°ì¡´ ìœ ì§€) ===
+    // =======================================================================
+
+    // Key: ì¥ì°© ìŠ¬ë¡¯ (EquipSlot), Value: ì¥ë¹„ ì•„ì´í…œ ì •ë³´ (EquipmentItemSO)
+    [Tooltip("í”Œë ˆì´ì–´ê°€ í˜„ì¬ ì¥ì°©í•˜ê³  ìˆëŠ” ì¥ë¹„ ì•„ì´í…œì„ ì €ì¥í•©ë‹ˆë‹¤.")]
     public Dictionary<EquipSlot, EquipmentItemSO> equippedItems = new Dictionary<EquipSlot, EquipmentItemSO>();
 
+    // =======================================================================
+    // === ì´ˆê¸°í™” ===
+    // =======================================================================
+
     /// <summary>
-    /// ÀÎº¥Åä¸® ¹× Àåºñ µñ¼Å³Ê¸®¸¦ ÃÊ±âÈ­ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// ¿¡µğÅÍ¿¡¼­ ÇÃ·¹ÀÌ ¸ğµå¿¡ ÁøÀÔÇÏ°Å³ª °ÔÀÓÀ» Àç½ÃÀÛÇÒ ¶§ µ¥ÀÌÅÍ¸¦ ¸®¼ÂÇÏ´Â µ¥ »ç¿ëµË´Ï´Ù.
+    /// ì¸ë²¤í† ë¦¬ ë° ì¥ë¹„ ë”•ì…”ë„ˆë¦¬ë¥¼ ì´ˆê¸°í™”í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// ì—ë””í„°ì—ì„œ í”Œë ˆì´ ëª¨ë“œì— ì§„ì…í•˜ê±°ë‚˜ ê²Œì„ì„ ì¬ì‹œì‘í•  ë•Œ ë°ì´í„°ë¥¼ ë¦¬ì…‹í•˜ëŠ” ë° ì‚¬ìš©ë©ë‹ˆë‹¤.
     /// </summary>
     public void Initialize()
     {
-        inventoryItems.Clear();
+        // ğŸš¨ 7ê°œì˜ ëª¨ë“  ë…ë¦½ëœ ì•„ì´í…œ ë¦¬ìŠ¤íŠ¸ë¥¼ ë¹„ì›ë‹ˆë‹¤.
+        weaponItems.Clear();
+        armorItems.Clear();
+        accessoryItems.Clear();
+        consumableItems.Clear();
+        materialItems.Clear();
+        questItems.Clear();
+        specialItems.Clear();
+
+        // ì¥ì°© ìŠ¬ë¡¯ ë°ì´í„°ë„ ë¹„ì›ë‹ˆë‹¤.
         equippedItems.Clear();
     }
 }

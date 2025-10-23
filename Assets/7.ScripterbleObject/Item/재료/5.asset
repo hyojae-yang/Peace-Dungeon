@@ -13,9 +13,9 @@ MonoBehaviour:
   m_Name: 5
   m_EditorClassIdentifier: 
   itemID: 8005
-  itemName: "\uC5F0\uAF43\uC528\uC557"
-  itemDescription: "\uC774\uB7F0 \uAC74 \uC65C \uC788\uB294 \uAC78\uAE4C"
-  itemIcon: {fileID: 0}
+  itemName: "\uC5F0\uAF43"
+  itemDescription: "\uC774\uC05C \uAF43\uC774\uB2E4"
+  itemIcon: {fileID: 21300000, guid: 446d69cfbce3940418c7d3f7f3adce9c, type: 3}
   itemPrice: 10
   itemType: 2
   recipeIDs: 

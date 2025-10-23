@@ -250,7 +250,7 @@ public class SoundManager : MonoBehaviour
         // 1. 딕셔너리에서 AudioClip을 찾습니다.
         if (!_bgmClipsMap.TryGetValue(type, out AudioClip clipToPlay) || clipToPlay == null)
         {
-            Debug.LogWarning($"[SoundManager] 요청된 BGM 타입({type})에 해당하는 클립이 딕셔너리에 없습니다.");
+            //Debug.LogWarning($"[SoundManager] 요청된 BGM 타입({type})에 해당하는 클립이 딕셔너리에 없습니다.");
             return;
         }
 

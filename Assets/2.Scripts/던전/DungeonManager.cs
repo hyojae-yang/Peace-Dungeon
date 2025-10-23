@@ -510,7 +510,6 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             // 로드된 기록을 메모리 딕셔너리에 적용
             this.bossFirstKillRecords = loadedData.bossFirstKillRecords;
-            Debug.Log($"DungeonManager 데이터 로드 완료. 보스 기록 {this.bossFirstKillRecords.Count}개");
         }
     }
 }

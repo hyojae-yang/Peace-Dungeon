@@ -12,3 +12,164 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c18af41ace7c6934182a0504cc88b676, type: 3}
   m_Name: InventoryData
   m_EditorClassIdentifier: 
+  inventoryItems:
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1
+  - itemSO: {fileID: 0}
+    stackCount: 1

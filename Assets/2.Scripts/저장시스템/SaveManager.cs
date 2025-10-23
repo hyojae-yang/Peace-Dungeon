@@ -137,7 +137,7 @@ public class SaveManager : MonoBehaviour
         loadedSaveData = JsonConvert.DeserializeObject<Dictionary<string, SaveDataContainer>>(json, settings);
         IsNewGame = false; // 성공적으로 로드했으므로 '새로하기'가 아닙니다.
         // --- 여기까지 수정해야 할 코드입니다. ---
-        Debug.Log("게임 로드 완료!");
+       // Debug.Log("게임 로드 완료!");
     }
     /// <summary>
     /// 저장 파일이 존재하는지 확인하는 메서드입니다.
@@ -259,7 +259,6 @@ public class SaveManager : MonoBehaviour
         if (File.Exists(saveFilePath))
         {
             File.Delete(saveFilePath);
-            Debug.Log("기존 세이브 파일 삭제 완료!");
         }
 
         // 2. 메모리 내 데이터 초기화

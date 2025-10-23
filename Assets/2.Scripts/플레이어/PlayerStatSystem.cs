@@ -493,6 +493,16 @@ public class PlayerStatSystem : MonoBehaviour, ISavable
             // 스탯 포인트를 로드한 후에는 최종 스탯을 다시 계산합니다.
             // 이로써 저장된 스탯 포인트가 항상 최신 로직으로 최종 능력치를 갱신합니다.
             UpdateFinalStats();
+            // PlayerStats에 로드된 체력/마나를 최종 Max 값으로 강제로 보정합니다. (풀 회복 보장)
+            // 이 보정은 '현재 체력'이 '최종 최대 체력'을 초과하지 않도록 보장하는 역할도 겸합니다.
+            if (playerCharacter != null && playerCharacter.playerStats != null)
+            {
+                // 이 시점의 playerStats.MaxHealth는 이미 UpdateFinalStats()를 통해 최종 계산된 값입니다.
+                // 저장된 health 값(loadedData.health)이 MaxHealth(최종)를 넘지 않도록 보정합니다.
+                // (만약 저장 시 풀 체력이었다면, 이 코드는 풀 체력을 보장하는 역할을 합니다.)
+                playerCharacter.playerStats.health = Mathf.Min(playerCharacter.playerStats.health, playerCharacter.playerStats.MaxHealth);
+                playerCharacter.playerStats.mana = Mathf.Min(playerCharacter.playerStats.mana, playerCharacter.playerStats.MaxMana);
+            }
         }
         else
         {

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 8010
   itemName: "\uC18C\uAE08"
   itemDescription: "\uC9DC\uB2E4"
-  itemIcon: {fileID: 0}
+  itemIcon: {fileID: 21300000, guid: d128d7dce84dcc649a0c049a76daf0ab, type: 3}
   itemPrice: 10
   itemType: 2
   recipeIDs: 

@@ -1,0 +1,105 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4650ed9464865344a9ad48e72862a9f0, type: 3}
+  m_Name: LifestealBoltSkillData
+  m_EditorClassIdentifier: 
+  skillId: 1003
+  skillName: "\uD761\uD608\uAD6C"
+  skillImage: {fileID: 0}
+  skillType: 0
+  damageType: 0
+  skillDescription: "\uD761\uD608\uAD6C\uB97C \uC18C\uD658\uD558\uACE0 \uD574\uB2F9
+    \uAD6C\uC5D0 \uB2FF\uC740 \uBAAC\uC2A4\uD130\uC5D0\uAC8C \uB370\uBBF8\uC9C0\uB97C
+    \uC785\uD788\uACE0 \uCCB4\uB825\uC744 \uD68C\uBCF5\uD569\uB2C8\uB2E4."
+  statFormatString: "\uAE30\uBCF8 \uB370\uBBF8\uC9C0: {BaseDamage}\\n\uD761\uD608\uB960:{LifestealRate}\\n\uB9C8\uB098
+    \uC18C\uBAA8: {ManaCost}\\n\uCFE8\uD0C0\uC784: {Cooldown}\uCD08"
+  requiredLevel: 1
+  levelInfo:
+  - manaCost: 20
+    cooldown: 10
+    stats:
+    - statType: 0
+      value: 60
+      isPercentage: 0
+    - statType: 17
+      value: 0.1
+      isPercentage: 0
+    - statType: 2
+      value: 20
+      isPercentage: 0
+    - statType: 1
+      value: 10
+      isPercentage: 0
+  - manaCost: 30
+    cooldown: 14
+    stats:
+    - statType: 0
+      value: 60
+      isPercentage: 0
+    - statType: 17
+      value: 0.2
+      isPercentage: 0
+    - statType: 2
+      value: 30
+      isPercentage: 0
+    - statType: 1
+      value: 14
+      isPercentage: 0
+  - manaCost: 40
+    cooldown: 18
+    stats:
+    - statType: 0
+      value: 80
+      isPercentage: 0
+    - statType: 17
+      value: 0.3
+      isPercentage: 0
+    - statType: 2
+      value: 40
+      isPercentage: 0
+    - statType: 1
+      value: 18
+      isPercentage: 0
+  - manaCost: 50
+    cooldown: 22
+    stats:
+    - statType: 0
+      value: 100
+      isPercentage: 0
+    - statType: 17
+      value: 0.4
+      isPercentage: 0
+    - statType: 2
+      value: 40
+      isPercentage: 0
+    - statType: 1
+      value: 22
+      isPercentage: 0
+  - manaCost: 60
+    cooldown: 25
+    stats:
+    - statType: 0
+      value: 120
+      isPercentage: 0
+    - statType: 17
+      value: 0.5
+      isPercentage: 0
+    - statType: 2
+      value: 60
+      isPercentage: 0
+    - statType: 1
+      value: 25
+      isPercentage: 0
+  animationTriggerName: UseSkill3
+  castingEffectPrefab: {fileID: 0}
+  activationDelay: 1.5
+  lifestealBoltPrefab: {fileID: 5066218759511040677, guid: bddd735eccb173345bb5e29a90ab1ccd, type: 3}
