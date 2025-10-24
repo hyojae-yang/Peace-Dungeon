@@ -161,10 +161,10 @@ public class Monster : MonsterBase, IDetectable
             DungeonScoreManager.Instance.AddScore(scoreValue);
             // Debug.Log($"[Monster:Die] 점수 {scoreValue} 보고 완료!"); // 디버그 로그
         }
-        else if (scoreValue <= 0)
+        /*else if (scoreValue <= 0)
         {
             Debug.LogWarning($"[Monster:Die] 몬스터({gameObject.name})의 점수({scoreValue})가 0 이하입니다. 점수 보고를 건너뜁니다.");
-        }
+        }*/
         else
         {
             Debug.LogError("[Monster:Die] DungeonScoreManager 인스턴스를 찾을 수 없어 점수 보고에 실패했습니다!");

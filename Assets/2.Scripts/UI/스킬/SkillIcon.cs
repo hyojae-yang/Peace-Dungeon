@@ -142,7 +142,7 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             if (NotificationManager.Instance != null)
             {
                 NotificationManager.Instance.ShowNotification(
-                    $"{skillData.skillName} 스킬은 레벨이 부족하여 사용할 수 없습니다.",
+                    $"{skillData.skillName} 스킬은 \n레벨이 부족하여 사용할 수 없습니다.",
                     NotificationType.Warning
                 );
             }

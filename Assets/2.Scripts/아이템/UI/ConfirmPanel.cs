@@ -1,131 +1,158 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
 /// <summary>
-/// ¾ÆÀÌÅÛ ¹ö¸®±â È®ÀÎÃ¢ÀÇ UI¿Í ·ÎÁ÷À» °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// »ç¿ëÀÚ¿¡°Ô ¹ö¸± °³¼ö¸¦ ÀÔ·Â¹Ş°í ÃÖÁ¾ÀûÀ¸·Î InventoryManager¿¡ Á¦°Å¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+/// ì•„ì´í…œ ë²„ë¦¬ê¸° í™•ì¸ì°½ì˜ UIì™€ ë¡œì§ì„ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì‚¬ìš©ìì—ê²Œ ë²„ë¦´ ê°œìˆ˜ë¥¼ ì…ë ¥ë°›ê³  ìµœì¢…ì ìœ¼ë¡œ InventoryManagerì— ì œê±°ë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
+/// SOLID: OCP(InventoryManagerì˜ ì—¬ëŸ¬ ì˜¤ë²„ë¡œë“œë¥¼ í˜¸ì¶œí•˜ì—¬ ë¡œì§ ë¶„ë¦¬ ìœ ì§€), SRP(UI ê´€ë¦¬ì— ì§‘ì¤‘).
 /// </summary>
 public class ConfirmPanel : MonoBehaviour
 {
-    // === ÀÎ½ºÆåÅÍ¿¡ ÇÒ´çÇÒ UI ÄÄÆ÷³ÍÆ® ===
-    [Tooltip("¾ÆÀÌÅÛÀÇ ¾ÆÀÌÄÜÀ» Ç¥½ÃÇÒ Image ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    // === ì¸ìŠ¤í™í„°ì— í• ë‹¹í•  UI ì»´í¬ë„ŒíŠ¸ ===
+    [Tooltip("ì•„ì´í…œì˜ ì•„ì´ì½˜ì„ í‘œì‹œí•  Image ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private Image itemIconImage;
 
-    [Tooltip("¾ÆÀÌÅÛÀÇ ÀÌ¸§À» Ç¥½ÃÇÒ TextMeshProUGUI ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("ì•„ì´í…œì˜ ì´ë¦„ì„ í‘œì‹œí•  TextMeshProUGUI ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private TextMeshProUGUI itemNameText;
 
-    [Tooltip("¹ö¸± °³¼ö¸¦ ÀÔ·Â¹ŞÀ» InputField ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù. Àåºñ ¾ÆÀÌÅÛÀÇ °æ¿ì nullÀÏ ¼ö ÀÖ½À´Ï´Ù.")]
+    [Tooltip("ë²„ë¦´ ê°œìˆ˜ë¥¼ ì…ë ¥ë°›ì„ InputField ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤. ì¥ë¹„ ì•„ì´í…œì˜ ê²½ìš° nullì¼ ìˆ˜ ìˆìŠµë‹ˆë‹¤.")]
     [SerializeField] private TMP_InputField countInputField;
 
-    [Tooltip("'È®ÀÎ' ¹öÆ° ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("'í™•ì¸' ë²„íŠ¼ ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private Button confirmButton;
 
-    [Tooltip("'Ãë¼Ò' ¹öÆ° ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    [Tooltip("'ì·¨ì†Œ' ë²„íŠ¼ ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private Button cancelButton;
 
-    // === ³»ºÎ µ¥ÀÌÅÍ º¯¼ö ===
+    // === ë‚´ë¶€ ë°ì´í„° ë³€ìˆ˜ ===
     private BaseItemSO currentItem;
     private int currentItemCount;
     private PlayerCharacter playerCharacter;
 
     private void Awake()
     {
-        // PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£¾Æ ÂüÁ¶¸¦ È®º¸ÇÕ´Ï´Ù.
+        // PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì•„ ì°¸ì¡°ë¥¼ í™•ë³´í•©ë‹ˆë‹¤.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("ConfirmPanel: PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("ConfirmPanel: PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // PlayerCharacter¸¦ ÅëÇØ InventoryManager¿¡ Á¢±ÙÇÕ´Ï´Ù.
+        // PlayerCharacterë¥¼ í†µí•´ InventoryManagerì— ì ‘ê·¼í•©ë‹ˆë‹¤.
         if (playerCharacter.inventoryManager == null)
         {
-            Debug.LogError("ConfirmPanel: InventoryManager°¡ PlayerCharacter¿¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("ConfirmPanel: InventoryManagerê°€ PlayerCharacterì— í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ¹öÆ°¿¡ Å¬¸¯ ÀÌº¥Æ® ¸®½º³Ê¸¦ Ãß°¡ÇÕ´Ï´Ù.
+        // ë²„íŠ¼ì— í´ë¦­ ì´ë²¤íŠ¸ ë¦¬ìŠ¤ë„ˆë¥¼ ì¶”ê°€í•©ë‹ˆë‹¤.
         confirmButton.onClick.AddListener(OnConfirmButtonClicked);
         cancelButton.onClick.AddListener(OnCancelButtonClicked);
     }
 
     /// <summary>
-    /// InventoryUIController·ÎºÎÅÍ ¾ÆÀÌÅÛ Á¤º¸¸¦ ¹Ş¾Æ UI¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// InventoryUIControllerë¡œë¶€í„° ì•„ì´í…œ ì •ë³´ë¥¼ ë°›ì•„ UIë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="item">¹ö¸± ¾ÆÀÌÅÛÀÇ µ¥ÀÌÅÍ</param>
-    /// <param name="count">¼ÒÁöÇÏ°í ÀÖ´Â ¾ÆÀÌÅÛÀÇ ÃÑ °³¼ö</param>
+    /// <param name="item">ë²„ë¦´ ì•„ì´í…œì˜ ë°ì´í„°</param>
+    /// <param name="count">ì†Œì§€í•˜ê³  ìˆëŠ” ì•„ì´í…œì˜ ì´ ê°œìˆ˜</param>
     public void Initialize(BaseItemSO item, int count)
     {
-        // Àü´Ş¹ŞÀº µ¥ÀÌÅÍ¸¦ ³»ºÎ º¯¼ö¿¡ ÀúÀåÇÕ´Ï´Ù.
+        // ì „ë‹¬ë°›ì€ ë°ì´í„°ë¥¼ ë‚´ë¶€ ë³€ìˆ˜ì— ì €ì¥í•©ë‹ˆë‹¤.
         this.currentItem = item;
         this.currentItemCount = count;
 
-        // UI¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+        // UIë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
         itemIconImage.sprite = item.itemIcon;
         itemNameText.text = item.itemName;
 
-        // countInputField°¡ ÇÒ´çµÇ¾î ÀÖ´Ù¸é(nullÀÌ ¾Æ´Ï¶ó¸é) ÅØ½ºÆ®¸¦ ÃÊ±âÈ­ÇÕ´Ï´Ù.
+        // countInputFieldê°€ í• ë‹¹ë˜ì–´ ìˆë‹¤ë©´(nullì´ ì•„ë‹ˆë¼ë©´) í…ìŠ¤íŠ¸ë¥¼ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
         if (countInputField != null)
         {
-            countInputField.text = "1"; // ÃÊ±â ÀÔ·Â°ªÀ» 1·Î ¼³Á¤ÇÕ´Ï´Ù.
+            countInputField.text = "1"; // ì´ˆê¸° ì…ë ¥ê°’ì„ 1ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
         }
     }
 
     /// <summary>
-    /// 'È®ÀÎ' ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
-    /// ÀÔ·ÂµÈ °³¼ö¸¸Å­ ¾ÆÀÌÅÛÀ» ¹ö¸®´Â ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù.
+    /// 'í™•ì¸' ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ì…ë ¥ëœ ê°œìˆ˜ë§Œí¼ ì•„ì´í…œì„ ë²„ë¦¬ëŠ” ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤.
+    /// ğŸš¨ [ìˆ˜ì •]: ì¥ë¹„ ì•„ì´í…œ(EquipmentItemSO)ì¼ ê²½ìš° UniqueIDë¡œ ì œê±°í•˜ëŠ” ë¡œì§ì„ ë¶„ê¸°í•©ë‹ˆë‹¤.
     /// </summary>
     private void OnConfirmButtonClicked()
     {
         int countToDiscard = 0;
 
-        // countInputField°¡ ÇÒ´çµÇ¾î ÀÖ´Ù¸é °ªÀ» °¡Á®¿À°í, ¾Æ´Ï¸é ±âº»°ªÀÎ 1À» »ç¿ëÇÕ´Ï´Ù.
+        // countInputFieldê°€ í• ë‹¹ë˜ì–´ ìˆë‹¤ë©´ ê°’ì„ ê°€ì ¸ì˜¤ê³ , ì•„ë‹ˆë©´ ê¸°ë³¸ê°’ì¸ 1ì„ ì‚¬ìš©í•©ë‹ˆë‹¤.
         if (countInputField != null)
         {
-            // ÀÔ·Â ÇÊµåÀÇ ÅØ½ºÆ®¸¦ Á¤¼ö·Î º¯È¯ÇÕ´Ï´Ù.
+            // ì…ë ¥ í•„ë“œì˜ í…ìŠ¤íŠ¸ë¥¼ ì •ìˆ˜ë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
             if (!int.TryParse(countInputField.text, out countToDiscard))
             {
-                Debug.LogWarning("¼ıÀÚ¸¸ ÀÔ·ÂÇØÁÖ¼¼¿ä.");
+                Debug.LogWarning("ìˆ«ìë§Œ ì…ë ¥í•´ì£¼ì„¸ìš”.");
                 return;
             }
         }
         else
         {
-            // Àåºñ ¾ÆÀÌÅÛ°ú °°ÀÌ InputField°¡ ¾ø´Â °æ¿ì, ¹ö¸± °³¼ö¸¦ 1·Î °íÁ¤ÇÕ´Ï´Ù.
+            // ì¥ë¹„ ì•„ì´í…œê³¼ ê°™ì´ InputFieldê°€ ì—†ëŠ” ê²½ìš°, ë²„ë¦´ ê°œìˆ˜ë¥¼ 1ë¡œ ê³ ì •í•©ë‹ˆë‹¤.
             countToDiscard = 1;
         }
 
-        // À¯È¿¼º °Ë»ç: 0º¸´Ù Å©°í ¼ÒÁö °³¼öº¸´Ù ÀÛ°Å³ª °°ÀºÁö È®ÀÎÇÕ´Ï´Ù.
+        // ìœ íš¨ì„± ê²€ì‚¬: 0ë³´ë‹¤ í¬ê³  ì†Œì§€ ê°œìˆ˜ë³´ë‹¤ ì‘ê±°ë‚˜ ê°™ì€ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         if (countToDiscard > 0 && countToDiscard <= currentItemCount)
         {
             if (playerCharacter != null && playerCharacter.inventoryManager != null)
             {
-                // InventoryManager¿¡ ¾ÆÀÌÅÛ Á¦°Å¸¦ ¿äÃ»ÇÕ´Ï´Ù.
-                playerCharacter.inventoryManager.RemoveItem(currentItem, countToDiscard);
+                // ----------------------------------------------------
+                // ğŸš¨ í•µì‹¬ ìˆ˜ì •: ì•„ì´í…œ ìœ í˜•ì— ë”°ë¼ InventoryManagerì˜ ì ì ˆí•œ ë©”ì„œë“œë¥¼ í˜¸ì¶œí•©ë‹ˆë‹¤.
+                // ----------------------------------------------------
+                if (currentItem is EquipmentItemSO equipmentItem)
+                {
+                    // [1] ì¥ë¹„ ì•„ì´í…œì¸ ê²½ìš°: UniqueIDë¡œ ì œê±° ìš”ì²­ (ì¥ë¹„ëŠ” ë¬´ì¡°ê±´ 1ê°œì”© ì œê±°)
+                    // í˜„ì¬ currentItemì´ EquipmentItemSO í…œí”Œë¦¿ì´ë¼ë„,
+                    // ì¸ë²¤í† ë¦¬ ë‚´ì—ì„œëŠ” ê³ ìœ  ì¸ìŠ¤í„´ìŠ¤(uniqueIDë¥¼ ê°€ì§„)ê°€ ItemDataë¡œ ì €ì¥ë˜ì–´ ìˆìŠµë‹ˆë‹¤.
+                    // ì¥ë¹„ ì•„ì´í…œ ì œê±°ëŠ” í•­ìƒ RemoveItem(string uniqueID)ë¥¼ í˜¸ì¶œí•´ì•¼ í•©ë‹ˆë‹¤.
+                    // NOTE: InventorySlotì—ì„œ ItemDataë¥¼ ì§ì ‘ ê°€ì ¸ì™€ UniqueIDë¥¼ ì „ë‹¬í•˜ëŠ” ê²ƒì´ ê°€ì¥ ì •í™•í•˜ì§€ë§Œ, 
+                    // í˜„ì¬ êµ¬ì¡°ìƒ currentItemì— ItemData.itemSO (EquipmentItemSO)ê°€ í• ë‹¹ë˜ì–´ ìˆë‹¤ê³  ê°€ì •í•˜ê³  ì§„í–‰í•©ë‹ˆë‹¤.
+                    // **ë§Œì•½ currentItemì´ ê³ ìœ  IDë¥¼ ê°€ì§„ ì¸ìŠ¤í„´ìŠ¤ê°€ ì•„ë‹ˆë¼ í…œí”Œë¦¿ì´ë¼ë©´ ì—¬ê¸°ì„œ ë¬¸ì œê°€ ë°œìƒí•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.**
+                    // í•˜ì§€ë§Œ í˜„ì¬ ì¸ë²¤í† ë¦¬ì˜ ItemDataëŠ” SO ì¸ìŠ¤í„´ìŠ¤ë¥¼ ë‹´ê³  ìˆë‹¤ê³  ê°€ì •í•©ë‹ˆë‹¤.
+                    bool success = playerCharacter.inventoryManager.RemoveItem(equipmentItem.uniqueID);
 
-                // ÀÛ¾÷ ¿Ï·á ÈÄ È®ÀÎÃ¢À» ´İ½À´Ï´Ù.
+                    if (!success)
+                    {
+                        Debug.LogWarning($"<color=red>ì¥ë¹„ ì•„ì´í…œ ë²„ë¦¬ê¸° ì‹¤íŒ¨:</color> ê³ ìœ  ID '{equipmentItem.uniqueID}'ë¥¼ ê°€ì§„ ì•„ì´í…œì„ ì¸ë²¤í† ë¦¬ì—ì„œ ì°¾ì§€ ëª»í–ˆìŠµë‹ˆë‹¤. (í…œí”Œë¦¿ í• ë‹¹ ë¬¸ì œ ê°€ëŠ¥ì„±)");
+                        return;
+                    }
+                }
+                else
+                {
+                    // [2] ì¼ë°˜(ìŠ¤íƒ ê°€ëŠ¥) ì•„ì´í…œì¸ ê²½ìš°: ItemSOì™€ ê°œìˆ˜ë¡œ ì œê±° ìš”ì²­
+                    playerCharacter.inventoryManager.RemoveItem(currentItem, countToDiscard);
+                }
+                // ----------------------------------------------------
+
+                // ì‘ì—… ì™„ë£Œ í›„ í™•ì¸ì°½ì„ ë‹«ìŠµë‹ˆë‹¤.
                 gameObject.SetActive(false);
             }
             else
             {
-                Debug.LogError("ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ ¶Ç´Â ÀÎº¥Åä¸® °ü¸®ÀÚ¸¦ Ã£À» ¼ö ¾ø¾î ¾ÆÀÌÅÛÀ» ¹ö¸± ¼ö ¾ø½À´Ï´Ù.");
+                Debug.LogError("í”Œë ˆì´ì–´ ìºë¦­í„° ë˜ëŠ” ì¸ë²¤í† ë¦¬ ê´€ë¦¬ìë¥¼ ì°¾ì„ ìˆ˜ ì—†ì–´ ì•„ì´í…œì„ ë²„ë¦´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             }
         }
         else
         {
-            Debug.LogWarning("Àß¸øµÈ ÀÔ·Â°ªÀÔ´Ï´Ù! ¹ö¸± °³¼ö¸¦ ´Ù½Ã È®ÀÎÇØÁÖ¼¼¿ä.");
-            // »ç¿ëÀÚ¿¡°Ô °æ°í ¸Ş½ÃÁö¸¦ Ç¥½ÃÇÏ´Â UI¸¦ Ãß°¡ÇÒ ¼ö ÀÖ½À´Ï´Ù.
+            Debug.LogWarning("ì˜ëª»ëœ ì…ë ¥ê°’ì…ë‹ˆë‹¤! ë²„ë¦´ ê°œìˆ˜ë¥¼ ë‹¤ì‹œ í™•ì¸í•´ì£¼ì„¸ìš”.");
+            // ì‚¬ìš©ìì—ê²Œ ê²½ê³  ë©”ì‹œì§€ë¥¼ í‘œì‹œí•˜ëŠ” UIë¥¼ ì¶”ê°€í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
         }
     }
 
     /// <summary>
-    /// 'Ãë¼Ò' ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
+    /// 'ì·¨ì†Œ' ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
     private void OnCancelButtonClicked()
     {
-        // È®ÀÎÃ¢À» ´İ½À´Ï´Ù.
+        // í™•ì¸ì°½ì„ ë‹«ìŠµë‹ˆë‹¤.
         gameObject.SetActive(false);
     }
 }

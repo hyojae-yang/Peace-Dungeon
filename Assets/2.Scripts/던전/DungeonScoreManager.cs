@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 
 /// <summary>
 /// 던전의 점수를 관리하는 매니저 클래스입니다.
@@ -12,6 +13,10 @@ public class DungeonScoreManager : MonoBehaviour
     // 대신, 몬스터가 처치될 때마다 점수를 누적할 변수를 사용합니다.
     private int currentDungeonScore = 0;
 
+    [Tooltip("던전 입장 시 활성화될 점수 패널입니다.")]
+    [SerializeField] private GameObject scorePanel;
+    [Tooltip("알림창에 표시될 점수 컴포넌트입니다.")]
+    [SerializeField] private TextMeshProUGUI scoreText;
     private void Awake()
     {
         if (Instance == null)
@@ -23,10 +28,21 @@ public class DungeonScoreManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-
+        scorePanel.SetActive(false);
         // 참고: totalScore는 던전마다 초기화되어야 하므로 Awake에서는 초기화하지 않습니다.
     }
-
+    private void Update()
+    {
+        if(DungeonManager.Instance.IsInDungeon)
+        {
+            scorePanel.SetActive(true);
+            scoreText.text = $"{currentDungeonScore}";
+        }
+        else
+        {
+            scorePanel.SetActive(false);
+        }
+    }
     /// <summary>
     /// 던전 진입 시 DungeonManager에 의해 호출되어 점수 누적 시스템을 0으로 초기화합니다.
     /// </summary>

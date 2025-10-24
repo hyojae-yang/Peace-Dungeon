@@ -147,26 +147,71 @@ public class ShopManager : MonoBehaviour, INPCFunction
         ShopUIManager.Instance.CloseConfirmationPanel();
     }
 
-    // 수정된 메서드: 수량(quantity) 인자 추가
     /// <summary>
     /// 인벤토리의 아이템을 상점에 판매하는 로직을 처리합니다.
+    /// 장비와 일반 아이템을 구분하여 InventoryManager에 올바른 제거 요청을 합니다.
     /// </summary>
-    /// <param name="itemToSell">판매할 아이템의 데이터입니다.</param>
-    /// <param name="quantity">판매할 아이템의 수량입니다.</param>
+    /// <param name="itemToSell">판매할 아이템의 ItemData 인스턴스입니다.</param>
+    /// <param name="quantity">판매할 아이템의 수량입니다. (장비의 경우 항상 1)</param>
     public void SellItem(ItemData itemToSell, int quantity)
     {
-        // 판매 로직은 ItemData를 받아서 처리합니다.
-        // ItemData는 stackCount를 포함하고 있으므로, 정확한 판매 수량을 알 수 있습니다.
-        if (PlayerCharacter.Instance.inventoryManager.RemoveItem(itemToSell.itemSO.itemID, quantity))
+        if (itemToSell == null || itemToSell.itemSO == null || quantity <= 0)
         {
-            // 판매 가격은 구매 가격의 50%로 가정
-            int sellPrice = (int)(itemToSell.itemSO.itemPrice * quantity * 0.5f);
-            PlayerCharacter.Instance.playerStats.gold += sellPrice;
-            Debug.Log($"{itemToSell.itemSO.itemName}을(를) {quantity}개 판매했습니다. 획득 골드: {sellPrice}");
+            ShopUIManager.Instance.CloseConfirmationPanel();
+            return;
         }
 
-        // 판매 후 판매 패널 UI를 갱신하고 확인 창을 닫습니다.
+        // 판매 가격은 구매 가격의 50%로 가정
+        // 장비/일반 아이템 모두 이 공식 사용
+        int sellPrice = (int)(itemToSell.itemSO.itemPrice * quantity * 0.5f);
+        bool removalSuccess = false;
+
+        // 1. 장비 아이템인지 확인합니다.
+        if (itemToSell.itemSO is EquipmentItemSO equipmentSO)
+        {
+            // 1-1. 장비는 항상 1개씩 판매되어야 하며, 고유 ID로 제거합니다.
+            if (quantity != 1)
+            {
+                Debug.LogError("장비 아이템은 1개씩만 판매할 수 있습니다.");
+                ShopUIManager.Instance.CloseConfirmationPanel();
+                return;
+            }
+
+            // InventoryManager에 uniqueID 기반 제거 요청
+            // InventoryManager에는 public bool RemoveItem(string uniqueID) 오버로드가 필요합니다.
+            removalSuccess = PlayerCharacter.Instance.inventoryManager.RemoveItem(equipmentSO.uniqueID);
+
+            if (removalSuccess)
+            {
+                Debug.Log($"장비 {itemToSell.itemSO.itemName} (ID: {equipmentSO.uniqueID.Substring(0, 8)})을(를) 판매했습니다.");
+            }
+        }
+        else
+        {
+            // 1-2. 일반 아이템은 ItemID와 수량으로 제거합니다.
+            // InventoryManager에는 public bool RemoveItem(int itemID, int quantity) 오버로드가 필요합니다.
+            removalSuccess = PlayerCharacter.Instance.inventoryManager.RemoveItem(itemToSell.itemSO.itemID, quantity);
+
+            if (removalSuccess)
+            {
+                Debug.Log($"{itemToSell.itemSO.itemName}을(를) {quantity}개 판매했습니다.");
+            }
+        }
+
+        // 2. 제거 성공 시 골드 추가
+        if (removalSuccess)
+        {
+            PlayerCharacter.Instance.playerStats.gold += sellPrice;
+            Debug.Log($"획득 골드: {sellPrice}. 현재 골드: {PlayerCharacter.Instance.playerStats.gold}");
+        }
+        else
+        {
+            Debug.LogWarning($"아이템 판매 실패: {itemToSell.itemSO.itemName}을(를) 인벤토리에서 제거할 수 없습니다. (재고 부족, 장착 중 등 오류)");
+        }
+
+        // 3. UI 갱신 및 확인 창 닫기
         ShopUIManager.Instance.CloseConfirmationPanel();
+        // 판매 패널을 다시 열어 (갱신) 인벤토리 변경 사항을 반영합니다.
         ShopUIManager.Instance.OpenSellPanel();
     }
 }

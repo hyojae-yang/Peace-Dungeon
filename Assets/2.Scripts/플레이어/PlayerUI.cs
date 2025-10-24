@@ -75,8 +75,8 @@ public class PlayerUI : MonoBehaviour
         // === 텍스트 업데이트 ===
         levelText.text = "Lv. " + playerCharacter.playerStats.level.ToString();
         GoldText.text = playerCharacter.playerStats.gold.ToString() + "원";
-        HpText.text = Mathf.FloorToInt(playerCharacter.playerStats.health).ToString() + " / " + Mathf.FloorToInt(playerCharacter.playerStats.MaxHealth).ToString();
-        MpText.text = Mathf.FloorToInt(playerCharacter.playerStats.mana).ToString() + " / " + Mathf.FloorToInt(playerCharacter.playerStats.MaxMana).ToString();
-        ExpText.text = Mathf.FloorToInt(playerCharacter.playerStats.experience).ToString() + " / " + Mathf.FloorToInt(playerCharacter.playerStats.requiredExperience).ToString();
+        HpText.text = Mathf.FloorToInt(playerCharacter.playerStats.health).ToString("F0") + " / " + Mathf.FloorToInt(playerCharacter.playerStats.MaxHealth).ToString("F0");
+        MpText.text = Mathf.FloorToInt(playerCharacter.playerStats.mana).ToString("F0") + " / " + Mathf.FloorToInt(playerCharacter.playerStats.MaxMana).ToString("F0");
+        ExpText.text = Mathf.FloorToInt(playerCharacter.playerStats.experience).ToString("F0") + " / " + Mathf.FloorToInt(playerCharacter.playerStats.requiredExperience).ToString("F0");
     }
 }

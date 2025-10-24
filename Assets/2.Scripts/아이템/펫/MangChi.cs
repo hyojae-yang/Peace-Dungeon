@@ -489,7 +489,7 @@ public class MangChi : MonoBehaviour
                 if (NotificationManager.Instance != null)
                 {
                     NotificationManager.Instance.ShowNotification(
-                        $"망치가 {itemName} 아이템을 획득했습니다!",
+                        $"망치가 {itemName}를(을) \n획득했습니다!",
                         NotificationType.Success // Success 타입으로 호출
                     );
                 }

@@ -11,9 +11,6 @@ public class MonsterCombat : MonoBehaviour, IDamageable
     AudioSource audioSource;
     public AudioClip hitSound;
     private float currentHealth;
-    [SerializeField]
-    private GameObject hitObject;
-
     // === 이벤트 ===
     // 데미지를 입었을 때 다른 스크립트에 알리는 기존 이벤트
     public event Action<float> OnDamageTaken;
@@ -39,7 +36,6 @@ public class MonsterCombat : MonoBehaviour, IDamageable
             return;
         }
         audioSource = GetComponent<AudioSource>();
-
         currentHealth = monsterBase.monsterData.maxHealth;
     }
 
@@ -71,7 +67,6 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         {
             audioSource.PlayOneShot(hitSound);
         }
-
         // 기존 이벤트 호출
         OnDamageTaken?.Invoke(finalDamage);
 

@@ -31,6 +31,9 @@ public class ShopUIManager : MonoBehaviour
     [Tooltip("NPC의 이름을 표시할 텍스트 컴포넌트입니다.")]
     [SerializeField]
     private TextMeshProUGUI npcNameText;
+    [Tooltip("보유골드를 표시할 텍스트 컴포넌트입니다.")]
+    [SerializeField]
+    private TextMeshProUGUI goldText;
 
     [Header("Item Containers")]
     [Tooltip("구매 아이템 목록을 배치할 Scroll View의 Content입니다.")]
@@ -101,7 +104,7 @@ public class ShopUIManager : MonoBehaviour
     {
         if (shopPanel != null) shopPanel.SetActive(false);
         if (mainShopPanel != null) mainShopPanel.SetActive(false);
-        if (buyPanel != null) buyPanel.SetActive(false);
+        if (buyPanel != null) buyPanel.SetActive(true);
         if (sellPanel != null) sellPanel.SetActive(false);
         // 확인 창도 초기에는 비활성화 상태로 둡니다.
         if (confirmationPanel != null) confirmationPanel.SetActive(false);
@@ -124,11 +127,15 @@ public class ShopUIManager : MonoBehaviour
         {
             npcNameText.text = $"{npcName}의 잡화점";
         }
-
+        // 보유골드를 UI에 표시합니다.
+        if (goldText != null)
+        {
+            goldText.text = PlayerCharacter.Instance.playerStats.gold.ToString() + " 원";
+        }
         // 메인 상점 UI를 활성화하고, 구매/판매 패널은 비활성화합니다.
         shopPanel.SetActive(true);
         mainShopPanel.SetActive(true);
-        buyPanel.SetActive(false);
+        buyPanel.SetActive(true);
         sellPanel.SetActive(false);
         confirmationPanel.SetActive(false); // 혹시 모를 경우를 대비해 비활성화
     }
@@ -263,6 +270,11 @@ public class ShopUIManager : MonoBehaviour
     /// </summary>
     public void CloseConfirmationPanel()
     {
+        // 보유골드를 UI에 표시합니다.
+        if (goldText != null)
+        {
+            goldText.text = PlayerCharacter.Instance.playerStats.gold.ToString() + " 원";
+        }
         confirmationPanel.SetActive(false);
     }
 

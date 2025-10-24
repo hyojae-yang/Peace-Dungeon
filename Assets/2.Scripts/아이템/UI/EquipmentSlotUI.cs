@@ -1,93 +1,108 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾î Àåºñ ½½·Ô UI¸¦ °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ¸¶¿ì½º ¿À¹ö, Å¬¸¯ µî ÀÌº¥Æ®¸¦ Ã³¸®ÇÏ°í, Àåºñ ÇØÁ¦ ·ÎÁ÷À» PlayerEquipmentManager¿¡ ¿äÃ»ÇÕ´Ï´Ù.
+/// í”Œë ˆì´ì–´ ì¥ë¹„ ìŠ¬ë¡¯ UIë¥¼ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ë§ˆìš°ìŠ¤ ì˜¤ë²„, í´ë¦­ ë“± ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•˜ê³ , ì¥ë¹„ í•´ì œ ë¡œì§ì„ PlayerEquipmentManagerì— ìš”ì²­í•©ë‹ˆë‹¤.
 /// </summary>
 public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
 {
-    // === Àåºñ ½½·ÔÀÇ Âø¿ë ºÎÀ§ ¼³Á¤ (À¯´ÏÆ¼ ÀÎ½ºÆåÅÍ¿¡¼­ ¼³Á¤) ===
-    [Tooltip("ÀÌ ½½·ÔÀÌ ´ã´çÇÏ´Â Àåºñ Âø¿ë ºÎÀ§¸¦ ¼³Á¤ÇÕ´Ï´Ù. (¿¹: Weapon, Helmet, Accessory1 µî)")]
-    public EquipSlot equipSlotType; // ½ÇÁ¦ Âø¿ë ºÎÀ§
+    // === ì¥ë¹„ ìŠ¬ë¡¯ì˜ ì°©ìš© ë¶€ìœ„ ì„¤ì • (ìœ ë‹ˆí‹° ì¸ìŠ¤í™í„°ì—ì„œ ì„¤ì •) ===
+    [Tooltip("ì´ ìŠ¬ë¡¯ì´ ë‹´ë‹¹í•˜ëŠ” ì¥ë¹„ ì°©ìš© ë¶€ìœ„ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤. (ì˜ˆ: Weapon, Helmet, Accessory1 ë“±)")]
+    public EquipSlot equipSlotType; // ì‹¤ì œ ì°©ìš© ë¶€ìœ„
 
-    // === ÂüÁ¶ º¯¼ö ===
-    [Tooltip("Àåºñ ¾ÆÀÌÅÛÀÇ ¾ÆÀÌÄÜÀ» Ç¥½ÃÇÒ Image ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.")]
+    // === ì°¸ì¡° ë³€ìˆ˜ ===
+    [Tooltip("ì¥ë¹„ ì•„ì´í…œì˜ ì•„ì´ì½˜ì„ í‘œì‹œí•  Image ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
     [SerializeField] private Image iconImage;
 
-    [Header("UI µ¿Àû »ı¼º")]
-    [Tooltip("Àåºñ ¾ÆÀÌÅÛ ÅøÆÁÀ» Ç¥½ÃÇÒ ÇÁ¸®ÆÕÀÔ´Ï´Ù.")]
+    [Header("UI ë™ì  ìƒì„±")]
+    [Tooltip("ì¥ë¹„ ì•„ì´í…œ íˆ´íŒì„ í‘œì‹œí•  í”„ë¦¬íŒ¹ì…ë‹ˆë‹¤.")]
     [SerializeField] private GameObject tooltipPrefab;
 
-    [Tooltip("ÅøÆÁ ÆĞ³ÎÀÌ ¸¶¿ì½º Æ÷ÀÎÅÍ·ÎºÎÅÍ ¾ó¸¶³ª ¶³¾îÁ®¼­ ³ªÅ¸³¯Áö ¼³Á¤ÇÕ´Ï´Ù.")]
+    [Tooltip("íˆ´íŒ íŒ¨ë„ì´ ë§ˆìš°ìŠ¤ í¬ì¸í„°ë¡œë¶€í„° ì–¼ë§ˆë‚˜ ë–¨ì–´ì ¸ì„œ ë‚˜íƒ€ë‚ ì§€ ì„¤ì •í•©ë‹ˆë‹¤.")]
     private Vector3 tooltipOffset = new Vector3(-200, 50, 0);
 
-    // === ³»ºÎ µ¥ÀÌÅÍ ===
+    // === ë‚´ë¶€ ë°ì´í„° ===
     private EquipmentItemSO currentEquippedItem;
-    private GameObject instantiatedTooltip;
+    // private GameObject instantiatedTooltip; // (ê¸°ì¡´) ì´ ë³€ìˆ˜ëŠ” ì•„ë˜ static ë³€ìˆ˜ë¡œ ëŒ€ì²´ë˜ì—ˆìŠµë‹ˆë‹¤.
     private PlayerCharacter playerCharacter;
+
+    /// <summary>
+    /// í˜„ì¬ í™œì„±í™”ëœ ì¥ë¹„ íˆ´íŒ ì¸ìŠ¤í„´ìŠ¤ì…ë‹ˆë‹¤.
+    /// ì¥ë¹„ ì°½ íˆ´íŒì€ ì”¬ì— ë‹¨ í•˜ë‚˜ë§Œ í™œì„±í™”ë˜ë¯€ë¡œ staticìœ¼ë¡œ ê´€ë¦¬í•˜ë©°,
+    /// ì¥ë¹„ UIë¥¼ ë‹«ëŠ” ìƒìœ„ ì»¨íŠ¸ë¡¤ëŸ¬(ì˜ˆ: EquipmentUIController)ì—ì„œ ì ‘ê·¼í•˜ì—¬ ê°•ì œ íŒŒê´´í•  ìˆ˜ ìˆë„ë¡ í•©ë‹ˆë‹¤. (ë¬¸ì œ í•´ê²°ì˜ í•µì‹¬)
+    /// </summary>
+    public static GameObject currentActiveEquipTooltip;
 
     private void Awake()
     {
-        // PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£¾Æ ÂüÁ¶¸¦ È®º¸ÇÕ´Ï´Ù.
+        // PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì•„ ì°¸ì¡°ë¥¼ í™•ë³´í•©ë‹ˆë‹¤.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("EquipmentSlotUI: PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("EquipmentSlotUI: PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // PlayerCharacter¸¦ ÅëÇØ PlayerEquipmentManager¿¡ Á¢±ÙÇÕ´Ï´Ù.
+        // PlayerCharacterë¥¼ í†µí•´ PlayerEquipmentManagerì— ì ‘ê·¼í•©ë‹ˆë‹¤.
         if (playerCharacter.playerEquipmentManager == null)
         {
-            Debug.LogError("EquipmentSlotUI: PlayerEquipmentManager°¡ PlayerCharacter¿¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("EquipmentSlotUI: PlayerEquipmentManagerê°€ PlayerCharacterì— í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
     }
 
     /// <summary>
-    /// Àåºñ ½½·Ô¿¡ ¾ÆÀÌÅÛÀ» ½Ã°¢ÀûÀ¸·Î ¾÷µ¥ÀÌÆ®ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ì¥ë¹„ ìŠ¬ë¡¯ì— ì•„ì´í…œì„ ì‹œê°ì ìœ¼ë¡œ ì—…ë°ì´íŠ¸í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="item">ÀåÂøµÈ ¾ÆÀÌÅÛ µ¥ÀÌÅÍ (nullÀÏ °æ¿ì ½½·ÔÀ» ºñ¿ó´Ï´Ù)</param>
+    /// <param name="item">ì¥ì°©ëœ ì•„ì´í…œ ë°ì´í„° (nullì¼ ê²½ìš° ìŠ¬ë¡¯ì„ ë¹„ì›ë‹ˆë‹¤)</param>
     public void UpdateSlot(EquipmentItemSO item)
     {
         currentEquippedItem = item;
 
         if (currentEquippedItem != null)
         {
-            // ¾ÆÀÌÅÛÀÌ Á¸ÀçÇÏ¸é ¾ÆÀÌÄÜÀ» Ç¥½ÃÇÏ°í ÀÌ¹ÌÁöÀÇ »ö»óÀ» ºÒÅõ¸íÇÏ°Ô ¸¸µì´Ï´Ù.
+            // ì•„ì´í…œì´ ì¡´ì¬í•˜ë©´ ì•„ì´ì½˜ì„ í‘œì‹œí•˜ê³  ì´ë¯¸ì§€ì˜ ìƒ‰ìƒì„ ë¶ˆíˆ¬ëª…í•˜ê²Œ ë§Œë“­ë‹ˆë‹¤.
             iconImage.sprite = currentEquippedItem.itemIcon;
-            iconImage.color = Color.white; // ¾ÆÀÌÄÜÀÌ º¸ÀÌµµ·Ï »ö»ó º¯°æ
+            iconImage.color = Color.white; // ì•„ì´ì½˜ì´ ë³´ì´ë„ë¡ ìƒ‰ìƒ ë³€ê²½
         }
         else
         {
-            // ¾ÆÀÌÅÛÀÌ ¾øÀ¸¸é ¾ÆÀÌÄÜÀ» Áö¿ì°í Åõ¸íÇÏ°Ô ¸¸µì´Ï´Ù.
+            // ì•„ì´í…œì´ ì—†ìœ¼ë©´ ì•„ì´ì½˜ì„ ì§€ìš°ê³  íˆ¬ëª…í•˜ê²Œ ë§Œë“­ë‹ˆë‹¤.
             iconImage.sprite = null;
-            iconImage.color = new Color(1, 1, 1, 0); // ¿ÏÀüÈ÷ Åõ¸íÇÏ°Ô ¸¸µì´Ï´Ù.
+            iconImage.color = new Color(1, 1, 1, 0); // ì™„ì „íˆ íˆ¬ëª…í•˜ê²Œ ë§Œë“­ë‹ˆë‹¤.
         }
     }
 
-    // === ¸¶¿ì½º ÀÌº¥Æ® Ã³¸® ===
+    // === ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ì²˜ë¦¬ ===
 
     /// <summary>
-    /// ¸¶¿ì½º Æ÷ÀÎÅÍ°¡ UI ½½·Ô¿¡ ÁøÀÔÇßÀ» ¶§ È£ÃâµË´Ï´Ù.
-    /// ÀåÂøµÈ ¾ÆÀÌÅÛÀÌ ÀÖÀ» ¶§¸¸ ÅøÆÁÀ» ¶ç¿ó´Ï´Ù.
+    /// ë§ˆìš°ìŠ¤ í¬ì¸í„°ê°€ UI ìŠ¬ë¡¯ì— ì§„ì…í–ˆì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ì¥ì°©ëœ ì•„ì´í…œì´ ìˆì„ ë•Œë§Œ íˆ´íŒì„ ë„ì›ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="eventData">¸¶¿ì½º ÀÌº¥Æ® µ¥ÀÌÅÍ</param>
+    /// <param name="eventData">ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ë°ì´í„°</param>
     public void OnPointerEnter(PointerEventData eventData)
     {
-        // ÀåÂøµÈ ¾ÆÀÌÅÛÀÌ ÀÖ°í, ÅøÆÁ ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇ¾î ÀÖÀ¸¸ç, ÅøÆÁÀÌ ¾ÆÁ÷ »ı¼ºµÇÁö ¾Ê¾Ò´Ù¸é
-        if (currentEquippedItem != null && tooltipPrefab != null && instantiatedTooltip == null)
+        // ì¥ì°©ëœ ì•„ì´í…œì´ ìˆê³ , íˆ´íŒ í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì–´ ìˆë‹¤ë©´
+        if (currentEquippedItem != null && tooltipPrefab != null)
         {
+            // [ìˆ˜ì •ëœ ë¡œì§ 1] ìƒˆë¡œìš´ íˆ´íŒì„ ìƒì„±í•˜ê¸° ì „ì—, í˜„ì¬ í™œì„±í™”ëœ ì¥ë¹„ íˆ´íŒì´ ìˆë‹¤ë©´ íŒŒê´´í•˜ì—¬ ì”ìƒ ë° ì¤‘ë³µì„ ë°©ì§€í•©ë‹ˆë‹¤.
+            if (currentActiveEquipTooltip != null)
+            {
+                Destroy(currentActiveEquipTooltip);
+                currentActiveEquipTooltip = null; // ì •ì  ì°¸ì¡° í•´ì œ
+            }
+
             Canvas canvas = GetComponentInParent<Canvas>();
             if (canvas != null)
             {
-                instantiatedTooltip = Instantiate(tooltipPrefab, canvas.transform);
-                instantiatedTooltip.transform.position = Input.mousePosition + tooltipOffset;
+                // íˆ´íŒì„ ìƒˆë¡œ ìƒì„±í•˜ê³  static ë³€ìˆ˜ì— í• ë‹¹í•©ë‹ˆë‹¤.
+                currentActiveEquipTooltip = Instantiate(tooltipPrefab, canvas.transform);
+                currentActiveEquipTooltip.transform.position = Input.mousePosition + tooltipOffset;
 
-                // »ı¼ºµÈ ÅøÆÁ ½ºÅ©¸³Æ®¸¦ Ã£¾Æ ¾ÆÀÌÅÛ Á¤º¸¸¦ Àü´ŞÇÕ´Ï´Ù.
-                ItemTooltip tooltip = instantiatedTooltip.GetComponent<ItemTooltip>();
+                // ìƒì„±ëœ íˆ´íŒ ìŠ¤í¬ë¦½íŠ¸ë¥¼ ì°¾ì•„ ì•„ì´í…œ ì •ë³´ë¥¼ ì „ë‹¬í•©ë‹ˆë‹¤.
+                ItemTooltip tooltip = currentActiveEquipTooltip.GetComponent<ItemTooltip>();
                 if (tooltip != null)
                 {
                     tooltip.SetupTooltip(currentEquippedItem);
@@ -97,26 +112,26 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
 
     /// <summary>
-    /// ¸¶¿ì½º Æ÷ÀÎÅÍ°¡ UI ½½·Ô¿¡¼­ ¹ş¾î³µÀ» ¶§ È£ÃâµË´Ï´Ù.
+    /// ë§ˆìš°ìŠ¤ í¬ì¸í„°ê°€ UI ìŠ¬ë¡¯ì—ì„œ ë²—ì–´ë‚¬ì„ ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="eventData">¸¶¿ì½º ÀÌº¥Æ® µ¥ÀÌÅÍ</param>
+    /// <param name="eventData">ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ë°ì´í„°</param>
     public void OnPointerExit(PointerEventData eventData)
     {
-        // »ı¼ºµÈ ÅøÆÁÀ» ÆÄ±«ÇÕ´Ï´Ù.
-        if (instantiatedTooltip != null)
+        // [ìˆ˜ì •ëœ ë¡œì§ 2] static ë³€ìˆ˜ë¥¼ ì‚¬ìš©í•˜ì—¬ íˆ´íŒì„ íŒŒê´´í•˜ê³  ì°¸ì¡°ë¥¼ í•´ì œí•©ë‹ˆë‹¤.
+        if (currentActiveEquipTooltip != null)
         {
-            Destroy(instantiatedTooltip);
-            instantiatedTooltip = null;
+            Destroy(currentActiveEquipTooltip);
+            currentActiveEquipTooltip = null;
         }
     }
 
     /// <summary>
-    /// ¸¶¿ì½º Å¬¸¯ ÀÌº¥Æ®¸¦ Ã³¸®ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ë§ˆìš°ìŠ¤ í´ë¦­ ì´ë²¤íŠ¸ë¥¼ ì²˜ë¦¬í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="eventData">¸¶¿ì½º ÀÌº¥Æ® µ¥ÀÌÅÍ</param>
+    /// <param name="eventData">ë§ˆìš°ìŠ¤ ì´ë²¤íŠ¸ ë°ì´í„°</param>
     public void OnPointerClick(PointerEventData eventData)
     {
-        // ¸¶¿ì½º ¿À¸¥ÂÊ ¹öÆ° Å¬¸¯À» °¨ÁöÇÕ´Ï´Ù.
+        // ë§ˆìš°ìŠ¤ ì˜¤ë¥¸ìª½ ë²„íŠ¼ í´ë¦­ì„ ê°ì§€í•©ë‹ˆë‹¤.
         if (eventData.button == PointerEventData.InputButton.Right)
         {
             OnRightClick();
@@ -124,18 +139,18 @@ public class EquipmentSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExit
     }
 
     /// <summary>
-    /// Àåºñ ÇØÁ¦ ·ÎÁ÷À» PlayerEquipmentManager¿¡°Ô ¿äÃ»ÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ì¥ë¹„ í•´ì œ ë¡œì§ì„ PlayerEquipmentManagerì—ê²Œ ìš”ì²­í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
     public void OnRightClick()
     {
         if (currentEquippedItem != null && playerCharacter != null && playerCharacter.playerEquipmentManager != null)
         {
-            // PlayerCharacter¸¦ ÅëÇØ PlayerEquipmentManager¿¡ Àåºñ ÇØÁ¦ ·ÎÁ÷À» ¿äÃ»ÇÕ´Ï´Ù.
+            // PlayerCharacterë¥¼ í†µí•´ PlayerEquipmentManagerì— ì¥ë¹„ í•´ì œ ë¡œì§ì„ ìš”ì²­í•©ë‹ˆë‹¤.
             playerCharacter.playerEquipmentManager.UnEquipItem(equipSlotType);
         }
         else
         {
-            Debug.LogWarning("ÀåÂøµÈ ¾ÆÀÌÅÛÀÌ ¾ø°Å³ª PlayerEquipmentManager¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("ì¥ì°©ëœ ì•„ì´í…œì´ ì—†ê±°ë‚˜ PlayerEquipmentManagerë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 }

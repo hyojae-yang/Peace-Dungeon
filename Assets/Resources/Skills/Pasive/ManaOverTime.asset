@@ -12,14 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3bc8dbbac8dbaf4b96cc2b6c597d05b, type: 3}
   m_Name: ManaOverTime
   m_EditorClassIdentifier: 
-  skillId: 2003
+  skillId: 2009
   skillName: "\uB9C8\uB098\uD68C\uBCF5"
   skillImage: {fileID: 21300000, guid: 34f36580145b7e940a6ad8b8d53235f8, type: 3}
   skillType: 1
   damageType: 0
   skillDescription: "1\uCD08\uB9C8\uB2E4 \uB9C8\uB098\uB97C \uD68C\uBCF5\uD569\uB2C8\uB2E4."
   statFormatString: "\uCD08\uB2F9 \uB9C8\uB098 \uD68C\uBCF5: {HealOverTime}%"
-  requiredLevel: 20
+  requiredLevel: 25
   levelInfo:
   - manaCost: 0
     cooldown: 0

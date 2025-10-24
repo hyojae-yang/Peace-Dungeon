@@ -761,7 +761,7 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         //Debug.Log("<color=red>★★★ FOREST BOSS: 분노(ENRAGE) 상태 활성화! (단발성 이벤트) ★★★</color>");
         if (NotificationManager.Instance != null)
         {
-            NotificationManager.Instance.ShowNotification($"타락한 숲지기: 분노 상태 활성화!", NotificationType.Warning);
+            NotificationManager.Instance.ShowNotification($"분노 상태 활성화!", NotificationType.Warning);
         }
         Renderer renderer = GetComponentInChildren<Renderer>();
         if (renderer != null)

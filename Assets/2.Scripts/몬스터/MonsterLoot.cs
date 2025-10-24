@@ -171,6 +171,10 @@ public class MonsterLoot : MonoBehaviour
 
                         // 6-3. 생성된 아이템을 인벤토리에 추가
                         PlayerCharacter.Instance.inventoryManager.AddItem(generatedItem, 1);
+                        if (NotificationManager.Instance != null)
+                        {
+                            NotificationManager.Instance.ShowNotification($"{generatedItem.itemName}를(을)\n 획득하였습니다.", NotificationType.General);
+                        }
                         // Debug.Log($"장비 아이템 드롭: {generatedItem.itemName} ({randomGrade})");
                     }
                     else
@@ -184,6 +188,10 @@ public class MonsterLoot : MonoBehaviour
                 {
                     // 장비 아이템이 아닌 일반 아이템은 바로 인벤토리에 추가합니다.
                     PlayerCharacter.Instance.inventoryManager.AddItem(selectedItemData, 1);
+                    if (NotificationManager.Instance != null)
+                    {
+                        NotificationManager.Instance.ShowNotification($"{selectedItemData.itemName}를(을)\n 획득하였습니다.", NotificationType.General);
+                    }
                     // Debug.Log($"일반 아이템 드롭: {selectedItemData.itemName}");
                 }
             }

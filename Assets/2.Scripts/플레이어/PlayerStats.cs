@@ -138,7 +138,6 @@ public class PlayerStats : MonoBehaviour, ISavable
 
             // === 스킬 딕셔너리 복구 ===
             this.skillLevels = loadedData.skillLevels;
-
             // 체력/마나가 최대치를 초과하지 않도록 보정하는 로직을 추가하는 것도 고려할 수 있습니다.
             // 예: this.health = Mathf.Min(loadedData.health, this.MaxHealth);
         }

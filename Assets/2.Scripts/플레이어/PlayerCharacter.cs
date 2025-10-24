@@ -142,7 +142,16 @@ public class PlayerCharacter : MonoBehaviour
             // Debug.Log("[PlayerCharacter] 모든 핵심 시스템 참조 확인 완료.");
         }
     }
-
+    public void FinalizeStatsAfterLoad()
+    {
+        // MaxHealth가 최종적으로 계산된 상태에서
+        // 현재 체력/마나가 MaxHealth/MaxMana로 채워지도록 보정합니다.
+        if (playerStats != null)
+        {
+            playerStats.health = playerStats.MaxHealth;
+            playerStats.mana = playerStats.MaxMana;
+        }
+    }
     private void OnDestroy()
     {
         // 널 체크를 추가하여 안전성을 높입니다.

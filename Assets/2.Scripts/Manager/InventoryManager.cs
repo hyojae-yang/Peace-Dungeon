@@ -103,6 +103,10 @@ public class InventoryManager : MonoBehaviour, ISavable
         if (success)
         {
             OnItemAdded?.Invoke(item.itemID, amount);
+            /*if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification($"{item.itemName}를(을)\n 획득하였습니다.", NotificationType.General);
+            }*/
         }
         else
         {

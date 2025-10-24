@@ -82,14 +82,6 @@ public class MonsterPatrol : MonoBehaviour
         if (monsterBase != null && monsterBase.currentState == MonsterState.Dead)
         {
             StopPatrol(); // 코루틴이 실행 중이면 멈춥니다.
-
-            // 1. 순찰 컴포넌트 자체를 비활성화하여 Update 및 기타 이벤트 호출을 중단합니다.
-            enabled = false;
-
-            // 2. 오브젝트 풀로 반환합니다. (Object Pooling 가정)
-            // 실제 Object Pool Manager가 있다면 여기서 반환 메서드를 호출해야 합니다.
-            gameObject.SetActive(false);
-
             return;
         }
 

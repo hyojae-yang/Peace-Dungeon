@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// 플레이어의 공격 로직을 제어하는 스크립트입니다.
@@ -59,7 +60,11 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
-        // 1. 공격 조건 확인
+        //    이것이 UI 클릭(버튼, 인벤토리 등) 시 공격이 나가지 않게 하는 상식적인 작동의 핵심입니다.
+        if (IsPointerOverUI())
+        {
+            return; // UI 상호작용이 최우선이므로, 게임플레이 로직을 즉시 중단합니다.
+        }
         // 무기가 장착되었는지, 마우스 왼쪽 버튼이 눌렸는지, 공격 쿨타임이 지났는지 확인합니다.
         if (equippedWeapon != null && Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + equippedWeapon.attackSpeed)
         {
@@ -230,5 +235,20 @@ public class PlayerAttack : MonoBehaviour
                     break;
             }
         }
+    }
+    /// <summary>
+    /// 현재 마우스 포인터가 Unity UI 엘리먼트 위에 있는지 확인합니다.
+    /// SOLID 원칙: 단일 책임 원칙(SRP)을 유지하기 위해 별도 메서드로 분리했습니다.
+    /// </summary>
+    /// <returns>마우스가 UI 위에 있으면 참(true)을 반환합니다.</returns>
+    private bool IsPointerOverUI()
+    {
+        // EventSystem은 씬에 하나만 존재하며, 현재 마우스/터치 입력이 UI 요소를 덮고 있는지 확인합니다.
+        if (EventSystem.current != null)
+        {
+            // [팩트] 이 함수는 마우스가 UI 요소 위에 있을 때 True를 반환합니다.
+            return EventSystem.current.IsPointerOverGameObject();
+        }
+        return false;
     }
 }

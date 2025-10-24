@@ -54,7 +54,7 @@ MonoBehaviour:
   setID: 
   weaponType: 2
   damageType: 1
-  attackRange: 11
+  attackRange: 16
   attackAngle: 180
   attackSpeed: 1.4
   knockbackForce: 0

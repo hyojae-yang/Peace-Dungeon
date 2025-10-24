@@ -435,7 +435,7 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                 if (NotificationManager.Instance != null)
                 {
                     NotificationManager.Instance.ShowNotification(
-                        "보스 처치 완료! 마을 조각을 획득했습니다.",
+                        "보스 처치 완료! \n 마을 조각을 획득했습니다.",
                         NotificationType.Success // Success 타입으로 호출
                     );
                 }

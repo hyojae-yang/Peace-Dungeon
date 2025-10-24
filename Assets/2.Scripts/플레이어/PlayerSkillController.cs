@@ -278,7 +278,7 @@ public class PlayerSkillController : MonoBehaviour, ISavable
 
         if (realSkillLevel < 1)
         {
-            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification($"[스킬 등록 실패] '{skillToRegister.skillName}' 스킬은 레벨이 1 미만이므로 등록할 수 없습니다.", NotificationType.Warning);
+            if (NotificationManager.Instance != null) NotificationManager.Instance.ShowNotification($"[스킬 등록 실패] '{skillToRegister.skillName}' \n스킬은 레벨이 1 미만이므로 등록할 수 없습니다.", NotificationType.Warning);
             return;
         }
 
