@@ -34254,6 +34254,7 @@ GameObject:
   - component: {fileID: 564450293}
   - component: {fileID: 564450295}
   - component: {fileID: 564450285}
+  - component: {fileID: 564450296}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -34301,7 +34302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemTemplate: {fileID: 11400000, guid: 263ab1e05d353fb4086e2ffcd3e51c89, type: 2}
+  itemTemplate: {fileID: 11400000, guid: 529b04942c1f00940a2e9670e8e32f76, type: 2}
   itemGrade: 4
 --- !u!114 &564450287
 MonoBehaviour:
@@ -34442,6 +34443,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mangChiPrefab: {fileID: 8179126157510140887, guid: d1dcf334fc92936449cdef7084355cfc, type: 3}
+--- !u!114 &564450296
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564450280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30e2989ac6ca8014fa9a008e714682f4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damageTextPrefab: {fileID: 1235011018987461951, guid: ff217c5ae14623a4d8a36b6c85355e70, type: 3}
+  targetCanvas: {fileID: 586175175}
 --- !u!1001 &564879260
 PrefabInstance:
   m_ObjectHideFlags: 0

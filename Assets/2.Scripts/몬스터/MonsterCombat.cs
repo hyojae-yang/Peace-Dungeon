@@ -7,7 +7,7 @@ using System; // 이벤트 사용을 위해 System 네임스페이스 추가
 /// </summary>
 public class MonsterCombat : MonoBehaviour, IDamageable
 {
-    private MonsterBase monsterBase;
+    public MonsterBase monsterBase{get; private set; }
     AudioSource audioSource;
     public AudioClip hitSound;
     private float currentHealth;
@@ -73,8 +73,13 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         // 3. 훅 호출: 체력 변경 후, 현재 남은 체력을 외부에 알립니다.
         // OCP: 이 코드는 MonsterCombat의 기능(데미지 처리)을 바꾸지 않고 확장 포인트만 제공합니다.
         OnHealthUpdated?.Invoke(currentHealth); // <<<< --- 추가된 부분
-
-        if (currentHealth <= 0)
+        // OCP: 전투 로직은 그대로 두고, 시각 효과 기능만 추가합니다.
+        if (DamageTextManager.Instance != null)
+        {
+            // finalDamage, 몬스터 위치, 데미지 유형(type)을 전달
+            DamageTextManager.Instance.ShowDamage(finalDamage, transform.position, type);
+        }
+        if (currentHealth <= 0)
         {
             // 4. 훅 호출: 사망 처리(Die) 직전에 사망 이벤트를 외부에 알립니다.
             OnDefeated?.Invoke(); // <<<< --- 추가된 부분
