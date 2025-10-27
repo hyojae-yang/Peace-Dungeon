@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿// PlayerSkillController.cs (수정)
+using UnityEngine;
 using System;
-using System.Collections; // 코루틴을 사용하기 위해 System.Collections 네임스페이스 추가
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -183,6 +184,32 @@ public class PlayerSkillController : MonoBehaviour, ISavable
 
         if (activeSkill != null)
         {
+            // ⭐ 핵심 추가 로직: 마우스 조준이 필요한 스킬인지 확인 및 정보 주입 (ISP 원칙 준수)
+            IHasAiming aimingSkill = activeSkill as IHasAiming;
+
+            if (aimingSkill != null)
+            {
+                // 1. 마우스 목표 위치 계산 (Raycast 사용)
+                Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+                Vector3 targetPosition;
+
+                // Raycast는 '지면'이나 '몬스터' 등 목표를 맞추는 데 사용합니다. LayerMask를 사용하는 것이 권장됩니다.
+                // 여기서는 LayerMask 없이 모든 Collider를 대상으로 기본 Raycast를 시도합니다.
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    targetPosition = hit.point;
+                }
+                else
+                {
+                    // 아무것도 맞추지 못하면, 카메라 Z축 방향으로 임의의 먼 지점(50m)을 목표로 설정
+                    targetPosition = ray.GetPoint(50f);
+                }
+
+                // 2. 파이어볼 스킬에 마우스 목표 위치 주입 (의존성 주입)
+                aimingSkill.SetTargetPosition(targetPosition);
+            }
+            // ⭐ 추가 로직 끝
+
             // 4. 모션 및 캐스팅 이펙트 발동 (선-소모와 동시에 실행)
             playerCharacter.animator.SetTrigger(activeSkill.animationTriggerName);
 
@@ -196,7 +223,7 @@ public class PlayerSkillController : MonoBehaviour, ISavable
                 playerCharacter.playerController.canMove = false; // 움직임 비활성화
             }
             // 5. 딜레이 및 효과 발동을 코루틴에 위임
-            // 코루틴 시작 시, 스킬 발동에 필요한 모든 정보(ActiveSkillData, PlayerStats, LevelInfo)를 전달합니다.
+            // ProcessSkillActivation 시그니처 변경 없음 (기존 로직 유지)
             Coroutine newActivation = StartCoroutine(
                 ProcessSkillActivation(activeSkill, playerStatsInstance, currentLevelInfo, currentSkillLevel)
             );
@@ -230,13 +257,12 @@ public class PlayerSkillController : MonoBehaviour, ISavable
         // --- 딜레이 종료, 스킬 효과 발동 시점 ---
 
         // 2. 스킬 발동 처리 및 성공 여부 확인
-        // Execute 메서드가 논리적 성공 여부(bool)를 반환합니다.
+        // ⭐ Execute 시그니처 변경 없이 그대로 호출합니다.
         bool skillSucceeded = activeSkill.Execute(skillSpawnPoint, playerStats, skillLevel);
 
         if (skillSucceeded)
         {
             // 스킬 발동이 논리적으로 성공했으므로, 선-소모한 리소스는 유지됩니다.
-           // Debug.Log($"[Skill Use Success] {activeSkill.skillName} 스킬 효과 발동 성공!");
         }
         else
         {

@@ -190,7 +190,7 @@ public class MonsterLoot : MonoBehaviour
                     PlayerCharacter.Instance.inventoryManager.AddItem(selectedItemData, 1);
                     if (NotificationManager.Instance != null)
                     {
-                        NotificationManager.Instance.ShowNotification($"{selectedItemData.itemName}를(을)\n 획득하였습니다.", NotificationType.General);
+                        NotificationManager.Instance.ShowNotification($"{selectedItemData.itemName}를(을) 획득하였습니다.", NotificationType.General);
                     }
                     // Debug.Log($"일반 아이템 드롭: {selectedItemData.itemName}");
                 }

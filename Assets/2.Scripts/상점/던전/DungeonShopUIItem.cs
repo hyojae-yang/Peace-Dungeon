@@ -34,6 +34,7 @@ public class DungeonShopUIItem : MonoBehaviour
 
         // 3. 구매 버튼 리스너 연결
         buyButton.onClick.RemoveAllListeners(); // 기존 리스너 제거 (재사용 시 필요)
+        buyButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
         buyButton.onClick.AddListener(OnBuyButtonClick);
     }
 

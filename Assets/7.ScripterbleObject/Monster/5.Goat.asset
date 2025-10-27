@@ -15,13 +15,13 @@ MonoBehaviour:
   monsterID: 5
   monsterName: "\uC0B0\uC591"
   monsterLevel: 0
-  maxHealth: 100
+  maxHealth: 150
   maxMana: 30
   attackPower: 50
   magicAttackPower: 0
-  defense: 5
-  magicDefense: 5
-  moveSpeed: 5
+  defense: 15
+  magicDefense: 15
+  moveSpeed: 6
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0

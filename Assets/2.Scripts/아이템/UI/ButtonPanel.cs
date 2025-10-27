@@ -60,18 +60,21 @@ public class ButtonPanel : MonoBehaviour
         // EquipButton은 EquipmentItemSO 타입일 때만 작동하도록 안전 장치 추가
         if (equipButton != null && currentItem != null && currentItem.itemType == ItemType.Equipment)
         {
+            equipButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             equipButton.onClick.AddListener(OnEquipButtonClicked);
         }
 
         // UseButton은 ConsumableItemSO 타입일 때만 작동하도록 안전 장치 추가
         if (useButton != null && currentItem != null && currentItem.itemType == ItemType.Consumable)
         {
+            useButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             useButton.onClick.AddListener(OnUseButtonClicked);
         }
 
         // DiscardButton은 항상 작동하지만, currentItem이 null이 아닐 때만 유효합니다.
         if (discardButton != null && currentItem != null)
         {
+            discardButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             discardButton.onClick.AddListener(OnDiscardButtonClicked);
         }
     }

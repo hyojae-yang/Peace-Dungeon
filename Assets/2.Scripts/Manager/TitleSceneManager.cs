@@ -200,7 +200,7 @@ public class TitleSceneManager : MonoBehaviour
     /// SoundManager 인스턴스 존재 여부를 확인하고 SFX를 안전하게 재생하는 헬퍼 메서드입니다.
     /// 버튼 OnClick() 이벤트에 연결되어 단일 책임 원칙을 보조합니다.
     /// </summary>
-    private void PlayButtonSFXSafely()
+    public void PlayButtonSFXSafely()
     {
         if (SoundManager.Instance != null)
         {

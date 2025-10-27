@@ -26,5 +26,5 @@ MonoBehaviour:
       value: 10
       isPercentage: 0
     - statType: 12
-      value: 100
+      value: 50
       isPercentage: 0

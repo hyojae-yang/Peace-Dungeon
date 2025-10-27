@@ -40,6 +40,7 @@ public class QuestButton : MonoBehaviour
         // 버튼 클릭 이벤트에 액션 추가
         if (button != null)
         {
+            button.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             button.onClick.AddListener(() => onClickAction.Invoke(this.questID));
         }
     }

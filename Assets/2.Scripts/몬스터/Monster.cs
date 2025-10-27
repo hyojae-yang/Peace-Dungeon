@@ -156,15 +156,11 @@ public class Monster : MonsterBase, IDetectable
         // ... (이하 Die 로직 유지)
         ChangeState(MonsterState.Dead);
         // Destroy()가 호출되기 전에 점수 보고를 완료하여 타이밍 문제를 방지합니다.
-        if (DungeonScoreManager.Instance != null && scoreValue > 0)
+        if (DungeonScoreManager.Instance != null)
         {
             DungeonScoreManager.Instance.AddScore(scoreValue);
             // Debug.Log($"[Monster:Die] 점수 {scoreValue} 보고 완료!"); // 디버그 로그
         }
-        /*else if (scoreValue <= 0)
-        {
-            Debug.LogWarning($"[Monster:Die] 몬스터({gameObject.name})의 점수({scoreValue})가 0 이하입니다. 점수 보고를 건너뜁니다.");
-        }*/
         else
         {
             Debug.LogError("[Monster:Die] DungeonScoreManager 인스턴스를 찾을 수 없어 점수 보고에 실패했습니다!");

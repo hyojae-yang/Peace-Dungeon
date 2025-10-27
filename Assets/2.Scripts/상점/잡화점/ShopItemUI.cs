@@ -71,6 +71,8 @@ public class ShopItemUI : MonoBehaviour
             // 기존 리스너를 모두 제거하여 중복 연결을 방지합니다.
             actionButton.onClick.RemoveAllListeners();
             // 새로운 리스너를 추가합니다.
+
+            actionButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             actionButton.onClick.AddListener(() => onButtonClick?.Invoke());
         }
 

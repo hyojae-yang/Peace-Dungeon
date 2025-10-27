@@ -18,13 +18,13 @@ MonoBehaviour:
   - requiredCount: 3
     bonusStats:
     - statType: 8
-      value: 10
+      value: 80
       isPercentage: 0
   - requiredCount: 6
     bonusStats:
     - statType: 9
-      value: 10
+      value: 80
       isPercentage: 0
     - statType: 12
-      value: 100
+      value: 400
       isPercentage: 0

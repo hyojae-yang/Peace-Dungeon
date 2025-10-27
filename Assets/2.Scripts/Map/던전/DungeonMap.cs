@@ -348,8 +348,12 @@ public class DungeonMap : MonoBehaviour
 
         // CanDungeon 속성(Property)을 통해 값을 안전하게 설정합니다.
         CanDungeon = isOccupied;
-
         // Debug.Log($"[Dungeon State] CanDungeon 상태 업데이트됨: {CanDungeon}");
+        if(CanDungeon)
+        {
+            // 현재 오브젝트에 붙어있는 DungeonPlacementTrigger를 찾아 이벤트를 발생시킵니다.
+            GetComponent<DungeonPlacementTrigger>()?.NotifyPlacementCompleted();
+        }
     }
     // ==========================================================
 

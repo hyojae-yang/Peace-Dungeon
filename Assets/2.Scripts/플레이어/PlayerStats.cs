@@ -29,7 +29,7 @@ public class PlayerStats : MonoBehaviour, ISavable
 
     // === 실시간 능력치 (게임 플레이 중 변하는 스탯) ===
     [Header("실시간 능력치")]
-    public string characterName = "Hero";
+    public string characterName = "홍길동";
     public int gold = 0;
     public int level = 1;
     public int experience = 0;

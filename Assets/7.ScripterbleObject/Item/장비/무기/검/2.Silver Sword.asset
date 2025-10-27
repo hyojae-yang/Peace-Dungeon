@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uC740\uAC80"
   itemDescription: "\uC740\uC73C\uB85C \uB41C \uAC80"
   itemIcon: {fileID: 21300000, guid: 2c6f684758360cf4cb93608d29afa4b0, type: 3}
-  itemPrice: 300
+  itemPrice: 600
   itemType: 0
   uniqueID: 
   itemGrade: 0
@@ -37,7 +37,7 @@ MonoBehaviour:
     value: 0.02
     isPercentage: 0
   - statType: 16
-    value: 2
+    value: 0.2
     isPercentage: 0
   - statType: 8
     value: 4
@@ -54,7 +54,7 @@ MonoBehaviour:
   setID: 
   weaponType: 1
   damageType: 0
-  attackRange: 6.5
+  attackRange: 4.5
   attackAngle: 90
   attackSpeed: 0.9
   knockbackForce: 6

@@ -20,7 +20,7 @@ MonoBehaviour:
   skillDescription: "\uB9C8\uBC95\uACF5\uACA9\uB825\uC774 \uC601\uAD6C\uC801\uC73C\uB85C
     \uC99D\uAC00\uD569\uB2C8\uB2E4."
   statFormatString: "\uB9C8\uBC95\uACF5\uACA9\uB825 \uC99D\uAC00: {MagicAttackPower}"
-  requiredLevel: 1
+  requiredLevel: 20
   levelInfo:
   - manaCost: 0
     cooldown: 0

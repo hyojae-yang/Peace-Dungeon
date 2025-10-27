@@ -1,66 +1,87 @@
+ï»¿// FireballProjectile.cs
 using UnityEngine;
 
-// ÆÄÀÌ¾îº¼ Åõ»çÃ¼ÀÇ ¿òÁ÷ÀÓ, Ãæµ¹ Ã³¸®, ±×¸®°í ¼ö¸íÀ» °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
+// íŒŒì´ì–´ë³¼ íˆ¬ì‚¬ì²´ì˜ ì›€ì§ì„, ì¶©ëŒ ì²˜ë¦¬, ê·¸ë¦¬ê³  ìˆ˜ëª…ì„ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
 public class FireballProjectile : MonoBehaviour
 {
-    [Header("¼³Á¤")]
-    [Tooltip("ÆÄÀÌ¾îº¼ÀÌ ³¯¾Æ°¡´Â ¼ÓµµÀÔ´Ï´Ù.")]
+    [Header("ì„¤ì •")]
+    [Tooltip("íŒŒì´ì–´ë³¼ì´ ë‚ ì•„ê°€ëŠ” ì†ë„ì…ë‹ˆë‹¤.")]
     public float moveSpeed = 10f;
 
-    [Tooltip("ÆÄÀÌ¾îº¼ÀÌ ÀÚµ¿À¸·Î »ç¶óÁö´Â ½Ã°£(ÃÊ)ÀÔ´Ï´Ù. ³Ê¹« ¿À·¡ ³¯¾Æ°¡´Â °ÍÀ» ¹æÁöÇÕ´Ï´Ù.")]
+    [Tooltip("íŒŒì´ì–´ë³¼ì´ ìë™ìœ¼ë¡œ ì‚¬ë¼ì§€ëŠ” ì‹œê°„(ì´ˆ)ì…ë‹ˆë‹¤. ë„ˆë¬´ ì˜¤ë˜ ë‚ ì•„ê°€ëŠ” ê²ƒì„ ë°©ì§€í•©ë‹ˆë‹¤.")]
     public float lifetime = 5f;
 
-    [Tooltip("ÆÄÀÌ¾îº¼ÀÌ »ı¼ºµÈ ÈÄ Ãæµ¹À» ¹«½ÃÇÒ ½Ã°£(ÃÊ)ÀÔ´Ï´Ù. ÇÃ·¹ÀÌ¾î¿ÍÀÇ Áï½Ã Ãæµ¹À» ¹æÁöÇÕ´Ï´Ù.")]
-    public float ignoreCollisionDuration = 0.2f; // ¿¹½Ã: 0.2ÃÊ µ¿¾È Ãæµ¹ ¹«½Ã
+    [Tooltip("íŒŒì´ì–´ë³¼ì´ ìƒì„±ëœ í›„ ì¶©ëŒì„ ë¬´ì‹œí•  ì‹œê°„(ì´ˆ)ì…ë‹ˆë‹¤. í”Œë ˆì´ì–´ì™€ì˜ ì¦‰ì‹œ ì¶©ëŒì„ ë°©ì§€í•©ë‹ˆë‹¤.")]
+    public float ignoreCollisionDuration = 0.2f; // ì˜ˆì‹œ: 0.2ì´ˆ ë™ì•ˆ ì¶©ëŒ ë¬´ì‹œ
 
-    private float damage; // PlayerSkillController·ÎºÎÅÍ Àü´Ş¹ŞÀ» µ¥¹ÌÁö º¯¼ö
-    private float startTime; // ÆÄÀÌ¾îº¼ÀÌ »ı¼ºµÈ ½Ã°£
-    private DamageType damageType; // Ãß°¡µÈ µ¥¹ÌÁö Å¸ÀÔ º¯¼ö
+    private float damage; // PlayerSkillControllerë¡œë¶€í„° ì „ë‹¬ë°›ì„ ë°ë¯¸ì§€ ë³€ìˆ˜
+    private float startTime; // íŒŒì´ì–´ë³¼ì´ ìƒì„±ëœ ì‹œê°„
+    private DamageType damageType; // ì¶”ê°€ëœ ë°ë¯¸ì§€ íƒ€ì… ë³€ìˆ˜
+
+    // â­ ìƒˆë¡œ ì¶”ê°€: íˆ¬ì‚¬ì²´ì˜ ì´ë™ ë°©í–¥ì„ ì €ì¥í•  ë³€ìˆ˜ (ê¸°ë³¸ê°’ì€ ë¡œì»¬ Zì¶•)
+    private Vector3 moveDirection = Vector3.forward;
 
     void Start()
     {
-        startTime = Time.time; // ÇöÀç ½Ã°£ ±â·Ï
+        startTime = Time.time; // í˜„ì¬ ì‹œê°„ ê¸°ë¡
 
-        // ÀÏÁ¤ ½Ã°£ ÈÄ ½º½º·Î ÆÄ±«µÇµµ·Ï Å¸ÀÌ¸Ó¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+        // ì¼ì • ì‹œê°„ í›„ ìŠ¤ìŠ¤ë¡œ íŒŒê´´ë˜ë„ë¡ íƒ€ì´ë¨¸ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
         Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
-        // ¸Å ÇÁ·¹ÀÓ¸¶´Ù ÆÄÀÌ¾îº¼À» ¾ÕÀ¸·Î ÀÌµ¿½ÃÅµ´Ï´Ù.
-        transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+        // â­ ìˆ˜ì •: ë§¤ í”„ë ˆì„ë§ˆë‹¤ íŒŒì´ì–´ë³¼ì„ 'ì£¼ì…ëœ ë°©í–¥'ìœ¼ë¡œ ì´ë™ì‹œí‚µë‹ˆë‹¤.
+        // ê¸°ì¡´: transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
+        transform.position += moveDirection * moveSpeed * Time.deltaTime;
     }
 
     /// <summary>
-    /// PlayerSkillController·ÎºÎÅÍ ÃÖÁ¾ µ¥¹ÌÁö °ª°ú Å¸ÀÔÀ» Àü´Ş¹Ş´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// PlayerSkillControllerë¡œë¶€í„° ìµœì¢… ë°ë¯¸ì§€ ê°’ê³¼ íƒ€ì…ì„ ì „ë‹¬ë°›ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="finalDamage">°è»êµÈ ÃÖÁ¾ µ¥¹ÌÁö</param>
-    /// <param name="type">µ¥¹ÌÁö Å¸ÀÔ (¹°¸®, ¸¶¹ı µî)</param>
+    /// <param name="finalDamage">ê³„ì‚°ëœ ìµœì¢… ë°ë¯¸ì§€</param>
+    /// <param name="type">ë°ë¯¸ì§€ íƒ€ì… (ë¬¼ë¦¬, ë§ˆë²• ë“±)</param>
     public void SetDamage(float finalDamage, DamageType type)
     {
         damage = finalDamage;
         damageType = type;
     }
 
-    // Äİ¶óÀÌ´õ¿¡ ºÎµúÇûÀ» ¶§ È£ÃâµÇ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    // Is Trigger°¡ Ã¼Å©µÈ Äİ¶óÀÌ´õ¿Í Ãæµ¹ÇßÀ» ¶§ ÀÛµ¿ÇÕ´Ï´Ù.
+    /// <summary>
+    /// â­ ìƒˆë¡œ ì¶”ê°€: ì™¸ë¶€(FireballSkillData)ë¡œë¶€í„° íˆ¬ì‚¬ì²´ì˜ ë°œì‚¬ ë°©í–¥ì„ ì£¼ì…ë°›ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="direction">ê³„ì‚°ëœ ë°œì‚¬ ë°©í–¥ ë²¡í„°</param>
+    public void SetDirection(Vector3 direction)
+    {
+        // ë°©í–¥ ë²¡í„°ë¥¼ ì €ì¥í•˜ê³  ì •ê·œí™”í•©ë‹ˆë‹¤.
+        moveDirection = direction.normalized;
+
+        // ì‹œê°ì ìœ¼ë¡œ íˆ¬ì‚¬ì²´ê°€ ë‚ ì•„ê°€ëŠ” ë°©í–¥ì„ ë°”ë¼ë³´ë„ë¡ íšŒì „ì‹œí‚µë‹ˆë‹¤.
+        if (moveDirection != Vector3.zero)
+        {
+            transform.rotation = Quaternion.LookRotation(moveDirection);
+        }
+    }
+
+    // ì½œë¼ì´ë”ì— ë¶€ë”ªí˜”ì„ ë•Œ í˜¸ì¶œë˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    // Is Triggerê°€ ì²´í¬ëœ ì½œë¼ì´ë”ì™€ ì¶©ëŒí–ˆì„ ë•Œ ì‘ë™í•©ë‹ˆë‹¤.
     void OnTriggerEnter(Collider other)
     {
-        // ÀÏÁ¤ ½Ã°£ µ¿¾ÈÀº Ãæµ¹À» ¹«½ÃÇÕ´Ï´Ù.
+        // ì¼ì • ì‹œê°„ ë™ì•ˆì€ ì¶©ëŒì„ ë¬´ì‹œí•©ë‹ˆë‹¤.
         if (Time.time < startTime + ignoreCollisionDuration)
         {
             return;
         }
 
-        // Ãæµ¹ÇÑ ´ë»óÀÌ IDamageable ÀÎÅÍÆäÀÌ½º¸¦ °¡Áö°í ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+        // ì¶©ëŒí•œ ëŒ€ìƒì´ IDamageable ì¸í„°í˜ì´ìŠ¤ë¥¼ ê°€ì§€ê³  ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
         IDamageable damageableObject = other.GetComponent<IDamageable>();
         if (damageableObject != null)
         {
-            // IDamageable ÀÎÅÍÆäÀÌ½º¸¦ °¡Áø °´Ã¼¿¡°Ô µ¥¹ÌÁö¸¦ ÀÔÈü´Ï´Ù.
+            // IDamageable ì¸í„°í˜ì´ìŠ¤ë¥¼ ê°€ì§„ ê°ì²´ì—ê²Œ ë°ë¯¸ì§€ë¥¼ ì…í™ë‹ˆë‹¤.
             damageableObject.TakeDamage(damage, damageType);
         }
 
-        // ¸ó½ºÅÍ³ª ÁöÇüÁö¹°¿¡ ´êÀ¸¸é Áï½Ã ÆÄ±«µË´Ï´Ù.
+        // ëª¬ìŠ¤í„°ë‚˜ ì§€í˜•ì§€ë¬¼ì— ë‹¿ìœ¼ë©´ ì¦‰ì‹œ íŒŒê´´ë©ë‹ˆë‹¤.
         Destroy(gameObject);
     }
 }

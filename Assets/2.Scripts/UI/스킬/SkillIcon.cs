@@ -164,20 +164,30 @@ public class SkillIcon : MonoBehaviour, IPointerEnterHandler, IPointerExitHandle
             }
         }
         // 우클릭 시: 등록/해제 패널 활성화
-        else if (eventData.button == PointerEventData.InputButton.Right)
+        else if (eventData.button == PointerEventData.InputButton.Right)
         {
-            if (registrationPanel != null)
+            // [핵심 수정 부분 시작] SkillType을 확인하여 액티브 스킬일 경우에만 등록 패널을 띄웁니다.
+            if (skillData.skillType == SkillType.Active)
             {
-                registrationPanel.SetActive(true);
-                // 등록/해제 패널이 띄워지므로, 툴팁을 비활성화하고 플래그를 true로 설정합니다.
-                if (skillTooltip != null) skillTooltip.gameObject.SetActive(false);
-                isPanelActive = true;
+                if (registrationPanel != null)
+                {
+                    registrationPanel.SetActive(true);
+                    // 등록/해제 패널이 띄워지므로, 툴팁을 비활성화하고 플래그를 true로 설정합니다.
+                    if (skillTooltip != null) skillTooltip.gameObject.SetActive(false);
+                    isPanelActive = true;
+                }
+                else
+                {
+                    Debug.LogWarning("Registration Panel이 할당되지 않았습니다.");
+                }
             }
-            else
+            // 패시브 스킬일 경우, 이 블록을 그냥 지나가므로 아무 동작도 하지 않습니다. (요청하신 기능)
+            else
             {
-                Debug.LogWarning("Registration Panel이 할당되지 않았습니다.");
+                // 필요하다면 여기에 "패시브 스킬은 등록할 수 없습니다"와 같은 알림을 추가할 수 있습니다.
             }
-        }
+            // [핵심 수정 부분 끝]
+        }
     }
 
     /// <summary>

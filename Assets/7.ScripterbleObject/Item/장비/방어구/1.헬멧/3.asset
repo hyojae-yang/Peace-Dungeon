@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uCCA0\uD5EC\uBA67"
   itemDescription: "\uCCA0\uB85C \uB41C \uD5EC\uBA67"
   itemIcon: {fileID: 21300000, guid: 283909d0944e0aa4089efed3b294d737, type: 3}
-  itemPrice: 180
+  itemPrice: 450
   itemType: 0
   uniqueID: 
   itemGrade: 0

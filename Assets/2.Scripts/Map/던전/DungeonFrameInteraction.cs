@@ -101,7 +101,7 @@ public class DungeonFrameInteraction : MonoBehaviour
         {
             dungeonCamera.Priority = 20;
         }
-
+        GetComponent<FrameUITrigger>()?.NotifyFrameUIOpened();
         // if (interactionUI != null) // <--- 기존 로직 제거
         // {
         //     interactionUI.SetActive(false); // <--- 기존 로직 제거

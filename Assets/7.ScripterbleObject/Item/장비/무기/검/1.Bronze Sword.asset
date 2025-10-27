@@ -37,7 +37,7 @@ MonoBehaviour:
     value: 0.01
     isPercentage: 0
   - statType: 16
-    value: 1
+    value: 0.1
     isPercentage: 0
   - statType: 8
     value: 2
@@ -54,7 +54,7 @@ MonoBehaviour:
   setID: 
   weaponType: 1
   damageType: 0
-  attackRange: 6
+  attackRange: 4
   attackAngle: 90
   attackSpeed: 1
   knockbackForce: 5

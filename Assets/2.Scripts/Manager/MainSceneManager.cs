@@ -78,6 +78,17 @@ public class MainSceneManager : MonoBehaviour
         }
     }
     /// <summary>
+    /// SoundManager 인스턴스 존재 여부를 확인하고 SFX를 안전하게 재생하는 헬퍼 메서드입니다.
+    /// 버튼 OnClick() 이벤트에 연결되어 단일 책임 원칙을 보조합니다.
+    /// </summary>
+    public void PlayButtonSFXSafely()
+    {
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayButtonSFX();
+        }
+    }
+    /// <summary>
     /// 이벤트를 통해 패널 활성화 신호를 받으면 호출되는 메서드입니다.
     /// 활성화된 패널이 팝업 패널이면 PlayerCanvas를 비활성화하고, 던전 캔버스라면 상태 변수를 업데이트합니다.
     /// </summary>

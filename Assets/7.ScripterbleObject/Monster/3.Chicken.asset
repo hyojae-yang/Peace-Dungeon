@@ -15,13 +15,13 @@ MonoBehaviour:
   monsterID: 3
   monsterName: "\uB2ED"
   monsterLevel: 0
-  maxHealth: 30
+  maxHealth: 50
   maxMana: 0
-  attackPower: 5
+  attackPower: 20
   magicAttackPower: 0
-  defense: 1
-  magicDefense: 1
-  moveSpeed: 3
+  defense: 5
+  magicDefense: 5
+  moveSpeed: 4
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0

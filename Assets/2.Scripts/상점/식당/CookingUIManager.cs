@@ -75,6 +75,7 @@ public class CookingUIManager : MonoBehaviour
         // 요리하기 버튼에 클릭 리스너 추가
         if (craftButton != null)
         {
+            craftButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             craftButton.onClick.AddListener(OnCraftButtonClicked);
         }
         // 초기에는 UI를 비활성화합니다.

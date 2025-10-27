@@ -3473,7 +3473,7 @@ Animator:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6053599658678463011}
   m_Enabled: 1
-  m_Avatar: {fileID: 9000000, guid: 09603d8a1b58af2488f8f148863bcf79, type: 3}
+  m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 6580e09e55c44164dbdba2b34dacb14d, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
@@ -3515,7 +3515,7 @@ Rigidbody:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6053599658678463011}
   serializedVersion: 4
-  m_Mass: 1
+  m_Mass: 2
   m_Drag: 0
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
@@ -3608,12 +3608,12 @@ MonoBehaviour:
   baseMaxMana: 50
   baseAttackPower: 10
   baseMagicAttackPower: 5
-  baseDefense: 500
-  baseMagicDefense: 500
+  baseDefense: 5
+  baseMagicDefense: 5
   baseCriticalChance: 0.05
   baseCriticalDamageMultiplier: 1.5
   baseMoveSpeed: 5
-  characterName: Hero
+  characterName: "\uD64D\uAE38\uB3D9"
   gold: 0
   level: 1
   experience: 0
@@ -3718,7 +3718,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   skillSpawnPoint: {fileID: 4836869752522272726}
-  castingEffectSpawnPoint: {fileID: 0}
+  castingEffectSpawnPoint: {fileID: 8460594232285218631}
 --- !u!114 &3578312240763337132
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3732,8 +3732,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   allSkills:
-  - {fileID: 11400000, guid: 6c372f8db9b645249905de6fe7f4c451, type: 2}
   - {fileID: 11400000, guid: fc17c0fc791538a4f825536e209c61d3, type: 2}
+  - {fileID: 11400000, guid: a95924f33befb0c479c2905399f2b515, type: 2}
+  - {fileID: 11400000, guid: bbce7cbdc8b0452498b47b14873249e7, type: 2}
+  - {fileID: 11400000, guid: 47d95684af5803740b7a4f07dafd9c09, type: 2}
+  - {fileID: 11400000, guid: 2c37c59706086dd4ba190166b8505caa, type: 2}
+  - {fileID: 11400000, guid: 99205372e6de58c4682fb8de3856d146, type: 2}
+  - {fileID: 11400000, guid: 4ddb6951420f5f04a8a1c111b9dee961, type: 2}
+  - {fileID: 11400000, guid: 6c372f8db9b645249905de6fe7f4c451, type: 2}
   - {fileID: 11400000, guid: 5580acb70138245448d3f149aa9f778c, type: 2}
 --- !u!114 &8800812389607288424
 MonoBehaviour:

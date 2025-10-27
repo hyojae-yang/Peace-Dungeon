@@ -19,7 +19,7 @@ MonoBehaviour:
   damageType: 0
   skillDescription: "\uCCB4\uB825\uC774 \uC601\uAD6C\uC801\uC73C\uB85C \uC99D\uAC00\uD569\uB2C8\uB2E4."
   statFormatString: "\uCCB4\uB825 \uC99D\uAC00: {MaxHealth}"
-  requiredLevel: 1
+  requiredLevel: 10
   levelInfo:
   - manaCost: 0
     cooldown: 0

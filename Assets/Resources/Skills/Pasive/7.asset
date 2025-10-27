@@ -20,7 +20,7 @@ MonoBehaviour:
   skillDescription: "\uC774\uB3D9\uC18D\uB3C4\uAC00 \uC601\uAD6C\uC801\uC73C\uB85C
     \uC99D\uAC00\uD569\uB2C8\uB2E4."
   statFormatString: "\uC774\uB3D9\uC18D\uB3C4 \uC99D\uAC00: {MoveSpeed}"
-  requiredLevel: 1
+  requiredLevel: 30
   levelInfo:
   - manaCost: 0
     cooldown: 0
