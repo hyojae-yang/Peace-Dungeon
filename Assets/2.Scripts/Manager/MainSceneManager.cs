@@ -160,7 +160,14 @@ public class MainSceneManager : MonoBehaviour
     {
         if (DungeonManager.Instance.IsInDungeon)
         {
-            Debug.Log("던전 내부에서는 저장할 수 없습니다.");
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    "던전 내부에서는 저장할 수 없습니다.",
+                    NotificationType.General
+                );
+            }
+            //Debug.Log("던전 내부에서는 저장할 수 없습니다.");
             return;
         }
         SaveManager.Instance.SaveGame();

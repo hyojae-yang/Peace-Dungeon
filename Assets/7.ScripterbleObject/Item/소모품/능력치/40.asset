@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 7040
   itemName: "\uC2E4\uD328\uC791 \uC694\uB9AC"
   itemDescription: "\uB2E4\uB978 \uC758\uBBF8\uB85C \uB300\uB2E8\uD55C \uAC78 \uB9CC\uB4E4\uC5B4
-    \uB0B8 \uAC83 \uAC19\uB2E4"
+    \uB0B8 \uAC83 \uAC19\uB2E4\n\u314D...\uD30C\uC774\uD305!"
   itemIcon: {fileID: 21300000, guid: d7cc9838242b4b64093a487b9a6292a0, type: 3}
   itemPrice: 5
   itemType: 1

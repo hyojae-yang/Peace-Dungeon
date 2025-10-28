@@ -40,4 +40,15 @@ public class ConsumableItemSO : BaseItemSO
             // 예를 들어, effect.statType이 MaxHealth라면, playerStats.health를 증가시키는 식입니다.
         }
     }
+    /// <summary>
+    /// 소모품이 현재 플레이어 상태 및 게임 환경에서 사용 가능한지 여부를 반환합니다.
+    /// 하위 클래스에서 오버라이드하여 구체적인 유효성 검사 로직을 구현합니다.
+    /// </summary>
+    /// <param name="player">아이템을 사용할 플레이어 캐릭터</param>
+    /// <returns>사용 가능하다면 true, 아니라면 false</returns>
+    public virtual bool CanUse(PlayerCharacter player)
+    {
+        // 기본적으로 모든 소모품은 사용 가능하다고 가정합니다.
+        return true;
+    }
 }

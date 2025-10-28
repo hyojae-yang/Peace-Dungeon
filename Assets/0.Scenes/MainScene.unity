@@ -19841,65 +19841,86 @@ MonoBehaviour:
     goldMultiplier: 5
     expMultiplier: 5
   itemRewards:
+  - targetScore: 0
+    itemData: {fileID: 11400000, guid: bd10088ae36d55649bf3e3d1c3d48aeb, type: 2}
+    itemGrade: 0
   - targetScore: 25
     itemData: {fileID: 11400000, guid: e55a100330fc9944fa9b2020b32f37aa, type: 2}
     itemGrade: 0
   - targetScore: 50
-    itemData: {fileID: 11400000, guid: 529b04942c1f00940a2e9670e8e32f76, type: 2}
-    itemGrade: 3
-  - targetScore: 75
     itemData: {fileID: 11400000, guid: 0bf6d8fc660766e42a683f6f41225d24, type: 2}
     itemGrade: 0
+  - targetScore: 75
+    itemData: {fileID: 11400000, guid: 133754b948f641d438541e6e2e77bca6, type: 2}
+    itemGrade: 0
   - targetScore: 100
-    itemData: {fileID: 11400000, guid: 44735197101296340af672c351b76f6a, type: 2}
-    itemGrade: 3
-  - targetScore: 125
-    itemData: {fileID: 11400000, guid: 16566f997da869d43a32148df0bf3439, type: 2}
+    itemData: {fileID: 11400000, guid: 4e8bbeafca287e04a818e72f8820c887, type: 2}
     itemGrade: 0
   - targetScore: 150
-    itemData: {fileID: 11400000, guid: 181db9b9167cd944b8ce400bfee879ca, type: 2}
-    itemGrade: 3
-  - targetScore: 175
-    itemData: {fileID: 11400000, guid: 0b509c7ab02ec0f4f9454e7f131f6023, type: 2}
-    itemGrade: 3
+    itemData: {fileID: 11400000, guid: b1165ecc038e0d744a78750960abf870, type: 2}
+    itemGrade: 0
   - targetScore: 200
-    itemData: {fileID: 11400000, guid: 263ab1e05d353fb4086e2ffcd3e51c89, type: 2}
-    itemGrade: 3
-  - targetScore: 225
-    itemData: {fileID: 11400000, guid: 0a5b89af39ebfa64b89ecfdf6d1610dc, type: 2}
-    itemGrade: 3
+    itemData: {fileID: 11400000, guid: 402bab9ab9745e24da60ae6ddcf6a4ab, type: 2}
+    itemGrade: 0
   - targetScore: 250
-    itemData: {fileID: 11400000, guid: c414fd07d09763b4f8ce4ece70c4d6e3, type: 2}
+    itemData: {fileID: 11400000, guid: 25f99a425245b38478e48c036dca928a, type: 2}
+    itemGrade: 0
+  - targetScore: 300
+    itemData: {fileID: 11400000, guid: b742d67876a33bc41af13a98942c936b, type: 2}
+    itemGrade: 0
+  - targetScore: 350
+    itemData: {fileID: 11400000, guid: 615b18de75f607c49922b1fb82c4911a, type: 2}
+    itemGrade: 0
+  - targetScore: 400
+    itemData: {fileID: 11400000, guid: 16566f997da869d43a32148df0bf3439, type: 2}
+    itemGrade: 0
+  - targetScore: 450
+    itemData: {fileID: 11400000, guid: 2b4c02136d2ff684d9ac9df436aecef3, type: 2}
+    itemGrade: 0
+  - targetScore: 500
+    itemData: {fileID: 11400000, guid: 50c73009e6ab66a409cb1785b7610492, type: 2}
+    itemGrade: 0
+  - targetScore: 600
+    itemData: {fileID: 11400000, guid: a7c8061e15d500247953f676b596a516, type: 2}
+    itemGrade: 0
+  - targetScore: 700
+    itemData: {fileID: 11400000, guid: 901b4282e96ad9245a56ee571b7f07cf, type: 2}
+    itemGrade: 0
+  - targetScore: 800
+    itemData: {fileID: 11400000, guid: ec1f883608f0e54418489ed1161cfc0e, type: 2}
+    itemGrade: 0
+  - targetScore: 900
+    itemData: {fileID: 11400000, guid: 673dab93469210b46965b12e0b5d5938, type: 2}
+    itemGrade: 0
+  - targetScore: 950
+    itemData: {fileID: 11400000, guid: 0b509c7ab02ec0f4f9454e7f131f6023, type: 2}
+    itemGrade: 0
+  - targetScore: 1000
+    itemData: {fileID: 11400000, guid: 5d777cc90021e854daf51de54c70eef9, type: 2}
+    itemGrade: 0
+  - targetScore: 100
+    itemData: {fileID: 11400000, guid: 529b04942c1f00940a2e9670e8e32f76, type: 2}
     itemGrade: 3
-  - targetScore: 275
-    itemData: {fileID: 11400000, guid: 0f5e09a94cc3d99438d240946e545af8, type: 2}
+  - targetScore: 150
+    itemData: {fileID: 11400000, guid: 44735197101296340af672c351b76f6a, type: 2}
     itemGrade: 3
   - targetScore: 300
-    itemData: {fileID: 11400000, guid: b2a0a7aecbd653243b7ae589abb684e2, type: 2}
-    itemGrade: 3
-  - targetScore: 325
-    itemData: {fileID: 11400000, guid: b742d67876a33bc41af13a98942c936b, type: 2}
+    itemData: {fileID: 11400000, guid: 181db9b9167cd944b8ce400bfee879ca, type: 2}
     itemGrade: 3
   - targetScore: 350
-    itemData: {fileID: 11400000, guid: ed4d888399a3bc2478606e67b129e438, type: 2}
-    itemGrade: 3
-  - targetScore: 375
-    itemData: {fileID: 11400000, guid: c43844e953a565946aa1d9da1cbe2206, type: 2}
-    itemGrade: 3
-  - targetScore: 400
-    itemData: {fileID: 11400000, guid: 9bb2cef33753f674cab94484267e5bd6, type: 2}
-    itemGrade: 3
-  - targetScore: 425
-    itemData: {fileID: 11400000, guid: 402bab9ab9745e24da60ae6ddcf6a4ab, type: 2}
-    itemGrade: 3
-  - targetScore: 450
-    itemData: {fileID: 11400000, guid: 51cb714d43f8b3546a93936396307de6, type: 2}
-    itemGrade: 3
-  - targetScore: 475
-    itemData: {fileID: 11400000, guid: 2b4c02136d2ff684d9ac9df436aecef3, type: 2}
+    itemData: {fileID: 11400000, guid: 263ab1e05d353fb4086e2ffcd3e51c89, type: 2}
     itemGrade: 3
   - targetScore: 500
-    itemData: {fileID: 11400000, guid: b8665581d02f081428d886d13f1ef888, type: 2}
+    itemData: {fileID: 11400000, guid: c414fd07d09763b4f8ce4ece70c4d6e3, type: 2}
+    itemGrade: 3
+  - targetScore: 550
+    itemData: {fileID: 11400000, guid: b2a0a7aecbd653243b7ae589abb684e2, type: 2}
+    itemGrade: 3
+  - targetScore: 700
+    itemData: {fileID: 11400000, guid: ed4d888399a3bc2478606e67b129e438, type: 2}
+    itemGrade: 3
+  - targetScore: 300
+    itemData: {fileID: 11400000, guid: 181db9b9167cd944b8ce400bfee879ca, type: 2}
     itemGrade: 3
   coinRewardTiers:
   - minScore: 100
@@ -29291,7 +29312,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &460946875
@@ -31418,7 +31439,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &506646302
@@ -35020,7 +35041,6 @@ GameObject:
   - component: {fileID: 564450293}
   - component: {fileID: 564450295}
   - component: {fileID: 564450296}
-  - component: {fileID: 564450285}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -35056,20 +35076,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   skillPointText: {fileID: 1919124143}
---- !u!114 &564450285
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 564450280}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  itemTemplate: {fileID: 11400000, guid: 529b04942c1f00940a2e9670e8e32f76, type: 2}
-  itemGrade: 4
 --- !u!114 &564450287
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -36421,8 +36427,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -200}
-  m_SizeDelta: {x: 500, y: 200}
+  m_AnchoredPosition: {x: 175, y: 0}
+  m_SizeDelta: {x: 400, y: 600}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &591719578
 MonoBehaviour:
@@ -36471,15 +36477,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 512
+  m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -44279,7 +44285,7 @@ Transform:
   m_GameObject: {fileID: 732189576}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 100, y: 0, z: 30}
+  m_LocalPosition: {x: 80, y: 0, z: 30}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -51851,7 +51857,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &841936329
@@ -55844,7 +55850,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &898935749
@@ -60552,8 +60558,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -50}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -200, y: -200}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &967234688
 MonoBehaviour:
@@ -60602,8 +60608,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -81934,7 +81940,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1277555386
@@ -81967,7 +81973,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4294901760
   m_fontColor: {r: 0, g: 0, b: 1, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -84938,7 +84944,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1316415456
@@ -85384,8 +85390,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 150}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -200, y: 100}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1317148858
 MonoBehaviour:
@@ -85434,8 +85440,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -88866,8 +88872,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 250}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -200, y: 250}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1401158441
 MonoBehaviour:
@@ -88916,8 +88922,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -101490,6 +101496,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1589949018}
+  - component: {fileID: 1589949019}
   - component: {fileID: 1589949017}
   m_Layer: 0
   m_Name: Test
@@ -101497,7 +101504,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1589949017
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -101505,15 +101512,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589949016}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3e93403bcc6ed8c418384615d6d42431, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  startLevel: 1
-  endLevel: 10
-  monsterData1: {fileID: 11400000, guid: 3826ea43bf431d1419b9ef69aa13a5bc, type: 2}
-  monsterData2: {fileID: 11400000, guid: 272f3cafcc21fda4d9f55ab484062001, type: 2}
+  startLevel: 20
+  endLevel: 35
+  monsterData1: {fileID: 11400000, guid: ba72cd74611dc0d45a893d0733c3f530, type: 2}
+  monsterData2: {fileID: 11400000, guid: eb89f5f40b9eff54a8c29db2f793ee9c, type: 2}
 --- !u!4 &1589949018
 Transform:
   m_ObjectHideFlags: 0
@@ -101529,6 +101536,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1589949019
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1589949016}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemTemplate: {fileID: 11400000, guid: 308b5e36584827f41be7240d45325638, type: 2}
+  itemGrade: 4
 --- !u!1 &1591735275
 GameObject:
   m_ObjectHideFlags: 0
@@ -101952,8 +101973,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 50}
-  m_SizeDelta: {x: 500, y: 100}
+  m_AnchoredPosition: {x: -200, y: -50}
+  m_SizeDelta: {x: 300, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1594307097
 MonoBehaviour:
@@ -102002,8 +102023,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 45
+  m_fontSizeBase: 45
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -117399,7 +117420,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1832935866
@@ -121274,7 +121295,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.000015258789, y: 0}
+  m_AnchoredPosition: {x: -10, y: -10}
   m_SizeDelta: {x: 50, y: 25}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1888563397
@@ -133094,8 +133115,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 65
-  m_fontSizeBase: 65
+  m_fontSize: 60
+  m_fontSizeBase: 60
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -134044,7 +134065,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2109177827
 RectTransform:
   m_ObjectHideFlags: 0

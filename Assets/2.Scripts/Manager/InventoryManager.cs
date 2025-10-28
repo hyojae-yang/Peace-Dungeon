@@ -239,19 +239,38 @@ public class InventoryManager : MonoBehaviour, ISavable
     }
 
     /// <summary>
-    /// 소모 아이템을 사용하고 인벤토리에서 제거합니다. (기존 시그니처 유지)
+    /// 소모 아이템을 사용하고 인벤토리에서 제거합니다. 
+    /// (UseItem 호출 전, CanUse()를 통해 유효성 검사를 수행하여 소모를 제어합니다.)
     /// </summary>
     public void UseItem(ConsumableItemSO itemToUse)
     {
+        // 1. 기본 유효성 검사
         if (itemToUse == null || playerCharacter == null)
         {
             Debug.LogError("아이템 또는 플레이어 캐릭터가 유효하지 않습니다.");
             return;
         }
 
-        itemToUse.Use(playerCharacter);
-        // 🚨 [로직 위임] RemoveItem이 이미 위임되어 있으므로, 이 메서드는 변경할 필요가 없습니다.
-        RemoveItem(itemToUse, 1);
+        // 2. 🚨 추가된 핵심 로직: 아이템의 사용 가능 여부를 먼저 확인합니다.
+        //    ReturnScrollSO의 경우, 이 시점에서 던전 상태(비보스룸, 내부)를 체크합니다.
+        if (itemToUse.CanUse(playerCharacter))
+        {
+            // 3. 사용 가능할 때만 핵심 로직(아이템 사용 및 소모)을 실행합니다.
+
+            // 아이템의 실제 기능(던전 탈출, 체력 회복 등)을 실행합니다.
+            itemToUse.Use(playerCharacter);
+
+            // 아이템 사용이 성공했을 때만 인벤토리에서 제거합니다.
+            RemoveItem(itemToUse, 1);
+
+        }
+        else
+        {
+            // 4. 사용 불가할 경우, 아이템 소모 및 Use() 호출을 모두 건너뜁니다.
+            //    (CanUse() 메서드 내부에서 이미 경고 메시지가 출력되었을 수 있습니다.)
+            //Debug.LogWarning($"{itemToUse.itemName}은(는) 현재 상태에서 사용할 수 없어 소모되지 않았습니다.");
+            // 여기서 return을 통해 메서드 종료.
+        }
     }
 
     /// <summary>

@@ -513,3 +513,28 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         }
     }
 }
+/*if( DungeonManager.Instance._isInDungeon && !DungeonManager.Instance._isBossRoomActive)
+
+{
+
+    // 1. 플레이어를 던전 밖으로 이동시킵니다.
+
+    PlayerCharacter.Instance.playerController.outDungeon();
+
+
+
+    // 2. 몬스터 정리 및 보상 지급 로직을 담당하는 ExitDungeon()을 호출합니다.
+
+    // (ExitDungeon() 내부 로직이 IsInDungeon 상태에 의존하지 않지만, 호출 순서의 명확성을 위해 이 위치를 유지합니다.)
+
+    DungeonManager.Instance.ExitDungeon();
+
+
+
+    // 3. 마지막으로 DungeonManager의 상태를 '던전 밖'으로 변경합니다.
+
+    //    이 변경으로 DungeonManager의 IsInDungeon Setter 내부 로직(HandleDungeonEntry)은 실행되지 않습니다.
+
+    DungeonManager.Instance.IsInDungeon = false;
+
+}*/

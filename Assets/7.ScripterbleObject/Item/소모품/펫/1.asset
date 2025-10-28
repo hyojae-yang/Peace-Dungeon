@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uB9DD\uCE58"
   itemDescription: "\uADC0\uC5FD\uB2E4"
   itemIcon: {fileID: 21300000, guid: 5f26211c8465fc0448bc1a3f16897f38, type: 3}
-  itemPrice: 0
+  itemPrice: 5000
   itemType: 1
   consumptionEffects: []
   maxStackCount: 99

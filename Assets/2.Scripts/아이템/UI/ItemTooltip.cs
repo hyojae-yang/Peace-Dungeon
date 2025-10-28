@@ -198,6 +198,7 @@ public class ItemTooltip : MonoBehaviour
         switch (grade)
         {
             case ItemGrade.Common: return Color.gray;
+            case ItemGrade.Uncommon: return new Color(0.1f, 0.6f, 0.1f);
             case ItemGrade.Rare: return new Color(0.2f, 0.5f, 1f);
             case ItemGrade.Epic: return new Color(0.6f, 0.2f, 0.8f);
             case ItemGrade.Legendary: return new Color(1f, 0.8f, 0.2f);
@@ -215,6 +216,7 @@ public class ItemTooltip : MonoBehaviour
         switch (grade)
         {
             case ItemGrade.Common: return "ÀÏ¹Ý";
+            case ItemGrade.Uncommon: return "°í±Þ";
             case ItemGrade.Rare: return "Èñ±Í";
             case ItemGrade.Epic: return "¿µ¿õ";
             case ItemGrade.Legendary: return "Àü¼³";

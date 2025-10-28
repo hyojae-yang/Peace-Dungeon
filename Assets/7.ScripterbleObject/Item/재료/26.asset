@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uC5D0\uBA54\uB784\uB4DC"
   itemDescription: "\uCD08\uB85D\uCD08\uB85D \uD558\uB2E4"
   itemIcon: {fileID: 21300000, guid: d8d1fb42398265e42ad11d3b9278253e, type: 3}
-  itemPrice: 10
+  itemPrice: 500
   itemType: 2
   recipeIDs: 
   maxStackCount: 99

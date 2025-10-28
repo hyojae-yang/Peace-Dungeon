@@ -100,7 +100,7 @@ public class PlayerLevelUp : MonoBehaviour
         // 레벨업 시 스탯 포인트를 지급합니다. (기존 로직 유지)
         if (playerCharacter.playerStatSystem != null)
         {
-            playerCharacter.playerStatSystem.statPoints += 5;
+            playerCharacter.playerStatSystem.statPoints += 4;
 
             // 레벨업에 따른 스탯 증가 로직을 PlayerStatSystem에 위임합니다.
             playerCharacter.playerStatSystem.UpdateFinalStats();

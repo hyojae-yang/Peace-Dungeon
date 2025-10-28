@@ -175,7 +175,7 @@ public class MonsterLoot : MonoBehaviour
                         {
                             NotificationManager.Instance.ShowNotification($"{generatedItem.itemName}를(을)\n 획득하였습니다.", NotificationType.General);
                         }
-                        // Debug.Log($"장비 아이템 드롭: {generatedItem.itemName} ({randomGrade})");
+                       // Debug.Log($"장비 아이템 드롭: {generatedItem.itemName} ({randomGrade})");
                     }
                     else
                     {

@@ -19,16 +19,16 @@ MonoBehaviour:
   maxMana: 0
   attackPower: 300
   magicAttackPower: 500
-  defense: 50
-  magicDefense: 100
+  defense: 100
+  magicDefense: 150
   moveSpeed: 0
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
-  minExpReward: 100
-  maxExpReward: 200
-  minGoldReward: 5000
-  maxGoldReward: 10000
+  minExpReward: 5000
+  maxExpReward: 10000
+  minGoldReward: 50000
+  maxGoldReward: 100000
   minDungeonCoinReward: 3
   maxDungeonCoinReward: 5
   lootTable:

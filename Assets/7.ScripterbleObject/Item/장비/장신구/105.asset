@@ -16,7 +16,7 @@ MonoBehaviour:
   itemName: "\uC5D0\uBA54\uB784\uB4DC\uBAA9\uAC78\uC774"
   itemDescription: "\uB9C8\uB098\uAC00 \uC624\uB978\uB2E4"
   itemIcon: {fileID: 21300000, guid: 1a0cf83189121fc49952e9fbe1282bf4, type: 3}
-  itemPrice: 500
+  itemPrice: 5000
   itemType: 0
   uniqueID: 
   itemGrade: 0
@@ -24,7 +24,7 @@ MonoBehaviour:
   equipType: 3
   baseStats:
   - statType: 13
-    value: 160
+    value: 60
     isPercentage: 0
   additionalStats:
   - statType: 8

@@ -96,7 +96,7 @@ public class DungeonUIManager : MonoBehaviour
         goldText.text = $"»πµÊ«— ∞ÒµÂ: {gold}";
         expText.text = $"»πµÊ«— ∞Ê«Ëƒ°: {exp}";
         // [√ﬂ∞°] ¥¯¿¸ ƒ⁄¿Œ ≈ÿΩ∫∆Æ æ˜µ•¿Ã∆Æ
-        coinText.text = $"»πµÊ«— ¥¯¿¸ ƒ⁄¿Œ: {finalCoins}";
+        coinText.text = $"»πµÊ«— ¥¯¿¸ƒ⁄¿Œ: {finalCoins}";
         if (itemNames.Count > 0)
         {
             itemText.text = "»πµÊ«— æ∆¿Ã≈€:\n" + string.Join("\n", itemNames);

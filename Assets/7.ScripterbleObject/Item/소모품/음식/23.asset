@@ -14,13 +14,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 6523
   itemName: "\uB9D1\uC740\uC0D8\uBB3C"
-  itemDescription: "\uD22C\uBA85\uD55C \uBB3C"
+  itemDescription: "\uCCB4\uB825\uC744 300,\uB9C8\uB098\uB97C 200 \uD68C\uBCF5\uD569\uB2C8\uB2E4.\n\uD22C\uBA85\uD55C
+    \uBB3C"
   itemIcon: {fileID: 21300000, guid: 731b5804ecb35c9459a272bf33324ad2, type: 3}
-  itemPrice: 30
+  itemPrice: 600
   itemType: 1
   consumptionEffects:
+  - statType: 12
+    value: 300
+    isPercentage: 0
   - statType: 13
-    value: 10
+    value: 200
     isPercentage: 0
   maxStackCount: 99
   effectDuration: 0

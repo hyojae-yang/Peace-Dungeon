@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 1
   m_EditorClassIdentifier: 
   itemsToSell:
+  - {fileID: 11400000, guid: 308b5e36584827f41be7240d45325638, type: 2}
   - {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
   - {fileID: 11400000, guid: b5ecaf83bf4e4614d97f7ef898e7e152, type: 2}
   - {fileID: 11400000, guid: 38ec64708ece91444bf1914e8c03fffa, type: 2}

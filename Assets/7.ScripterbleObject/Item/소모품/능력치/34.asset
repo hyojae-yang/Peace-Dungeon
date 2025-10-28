@@ -14,17 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 7034
   itemName: "\uC232\uC18D \uC2A4\uD14C\uC774\uD06C"
-  itemDescription: "\uBD84\uBA85 \uACE0\uAE30\uC778\uB370 \uD480\uB9DB \uB0A0 \uAC83
-    \uAC19\uC740 \uC774\uB984\uC774\uB2E4"
+  itemDescription: "\uACF5\uACA9\uB825\uC744 1.5\uB9CC\uD07C \uC601\uAD6C\uC801\uC73C\uB85C
+    \uC62C\uB824\uC900\uB2E4.\n\uBD84\uBA85 \uACE0\uAE30\uC778\uB370 \uD480\uB9DB
+    \uB0A0 \uAC83 \uAC19\uC740 \uC774\uB984\uC774\uB2E4"
   itemIcon: {fileID: 21300000, guid: c784c0e86bf48a84d996184ef8a00013, type: 3}
-  itemPrice: 120
+  itemPrice: 3500
   itemType: 1
   consumptionEffects:
-  - statType: 9
-    value: 5
-    isPercentage: 0
-  - statType: 8
-    value: 3
+  - statType: 10
+    value: 1.5
     isPercentage: 0
   maxStackCount: 99
   effectDuration: 60

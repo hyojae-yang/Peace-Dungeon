@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemID: 6512
   itemName: "\uB9D1\uC740 \uBB3C"
-  itemDescription: "\uAEA0\uB057\uD55C \uBB3C\uC774\uB2E4."
+  itemDescription: "\uAE68\uB057\uD55C \uBB3C\uC774\uB2E4."
   itemIcon: {fileID: 21300000, guid: f7cbc91af2bbd334f9fed3b38fda45b9, type: 3}
   itemPrice: 10
   itemType: 1

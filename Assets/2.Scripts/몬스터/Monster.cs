@@ -39,6 +39,7 @@ public class Monster : MonsterBase, IDetectable
     [Tooltip("사망 애니메이션이 재생되는 시간입니다. 이 시간 후 오브젝트가 파괴됩니다.")]
     public float deathAnimationDuration = 5.0f;
     public AudioClip deathSound;
+    Rigidbody rb;
 
     private void Awake()
     {
@@ -49,6 +50,7 @@ public class Monster : MonsterBase, IDetectable
         if (loot == null) Debug.LogError("MonsterLoot 컴포넌트를 찾을 수 없습니다!");
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+        rb = GetComponent<Rigidbody>();
 
         if (monsterData != null)
         {
@@ -180,7 +182,9 @@ public class Monster : MonsterBase, IDetectable
         {
             audioSource.PlayOneShot(deathSound);
         }
-
+        GetComponent<Collider>().enabled = false;
+        if (rb != null)
+        { rb.isKinematic = true; }
         if (animator != null)
         {
             animator.SetTrigger("Die");
