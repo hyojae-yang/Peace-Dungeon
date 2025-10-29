@@ -10,7 +10,18 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 {
     // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
     private PlayerCharacter playerCharacter;
+    // 데미지 효과를 표시할 UI Image 컴포넌트에 대한 참조입니다.
+    [Header("UI Feedback")]
+    [Tooltip("화면 가장자리에 붉은색 효과를 표시할 Image 컴포넌트")]
+    [SerializeField]
+    private UnityEngine.UI.Image damageVignetteImage;
 
+    [Tooltip("데미지 효과가 사라지는 데 걸리는 시간입니다.")]
+    [SerializeField]
+    private float fadeDuration = 0.5f;
+
+    // 현재 페이드 아웃 코루틴이 실행 중인지 확인하는 변수 (중복 실행 방지)
+    private Coroutine fadeOutCoroutine = null;
     void Start()
     {
         // PlayerCharacter의 인스턴스를 가져와서 참조를 확보합니다.
@@ -100,13 +111,68 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         }
 
         playerCharacter.playerStats.health -= finalDamage;
-
+        // [추가] 데미지 효과 재생
+        ShowDamageEffect();
         if (playerCharacter.playerStats.health <= 0)
         {
             Die();
         }
     }
+    /// <summary>
+    /// 데미지 효과(붉은색 화면 오버레이)를 표시하고 서서히 사라지게 합니다.
+    /// </summary>
+    private void ShowDamageEffect()
+    {
+        if (damageVignetteImage == null)
+        {
+            Debug.LogWarning("Damage Vignette Image가 할당되지 않아 데미지 효과를 재생할 수 없습니다.");
+            return;
+        }
 
+        // 이미 코루틴이 실행 중이라면 중지하고 재시작하여 효과를 갱신합니다.
+        if (fadeOutCoroutine != null)
+        {
+            StopCoroutine(fadeOutCoroutine);
+        }
+
+        // 새 코루틴 시작
+        fadeOutCoroutine = StartCoroutine(FadeDamageVignette());
+    }
+
+    /// <summary>
+    /// 붉은색 화면 효과의 투명도를 즉시 최대로 설정한 후 서서히 0으로 페이드 아웃 시킵니다.
+    /// </summary>
+    private IEnumerator FadeDamageVignette()
+    {
+        // 1. 최대 투명도 설정 (즉시 효과가 나타나도록)
+        // 데미지 시 표시할 최대 투명도를 여기서 설정합니다. (0.0f ~ 1.0f)
+        float maxAlpha = 0.6f; 
+        Color startColor = damageVignetteImage.color;
+        startColor.a = maxAlpha;
+        damageVignetteImage.color = startColor;
+
+        float timer = 0f;
+        
+        // 2. 시간 경과에 따라 투명도를 0으로 감소 (페이드 아웃)
+        while (timer < fadeDuration)
+        {
+            timer += Time.deltaTime;
+            float currentAlpha = Mathf.Lerp(maxAlpha, 0f, timer / fadeDuration);
+            
+            Color newColor = damageVignetteImage.color;
+            newColor.a = currentAlpha;
+            damageVignetteImage.color = newColor;
+
+            yield return null; // 다음 프레임까지 대기
+        }
+
+        // 3. 완전히 사라진 후 투명도를 0으로 확정합니다.
+        Color finalColor = damageVignetteImage.color;
+        finalColor.a = 0f;
+        damageVignetteImage.color = finalColor;
+
+        fadeOutCoroutine = null; // 코루틴이 완료되었음을 표시
+    }
     /// <summary>
     /// 플레이어가 죽었을 때 호출될 메서드
     /// </summary>

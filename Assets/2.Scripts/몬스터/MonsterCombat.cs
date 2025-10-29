@@ -11,6 +11,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
     AudioSource audioSource;
     public AudioClip hitSound;
     private float currentHealth;
+    public ParticleSystem hitVFX;
     // === 이벤트 ===
     // 데미지를 입었을 때 다른 스크립트에 알리는 기존 이벤트
     public event Action<float> OnDamageTaken;
@@ -73,6 +74,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         // 3. 훅 호출: 체력 변경 후, 현재 남은 체력을 외부에 알립니다.
         // OCP: 이 코드는 MonsterCombat의 기능(데미지 처리)을 바꾸지 않고 확장 포인트만 제공합니다.
         OnHealthUpdated?.Invoke(currentHealth); // <<<< --- 추가된 부분
+        hitVFX?.Play(true); // true 인자를 넘겨 자식 파티클 시스템도 함께 재생
         // OCP: 전투 로직은 그대로 두고, 시각 효과 기능만 추가합니다.
         if (DamageTextManager.Instance != null)
         {

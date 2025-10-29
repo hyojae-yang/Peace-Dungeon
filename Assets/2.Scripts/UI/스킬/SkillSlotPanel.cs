@@ -46,14 +46,15 @@ public class SkillSlotPanel : MonoBehaviour
 
     /// <summary>
     /// PlayerSkillController의 OnSkillSlotChanged 이벤트로부터 호출되어 UI를 업데이트합니다.
+    /// [변경점]: 스킬 등록 시, maxCooldown을 계산하여 SkillSlotUI.SetMaxCooldown을 호출합니다.
     /// </summary>
-    /// <param name="slotIndex">변경이 발생한 슬롯의 인덱스</param>
-    /// <param name="data">새롭게 등록된 스킬 데이터. 해제 시에는 null입니다.</param>
     private void UpdateSkillSlotUI(int slotIndex, SkillData data)
     {
         if (slotIndex >= 0 && slotIndex < skillUIs.Length)
         {
             float manaCost = 0f;
+            float maxCoolTime = 0f; // 쿨타임 최대치 변수 추가
+
             if (data != null)
             {
                 // SkillPointManager의 싱글턴 인스턴스를 통해 스킬 레벨을 가져옵니다.
@@ -66,12 +67,24 @@ public class SkillSlotPanel : MonoBehaviour
                         if (stat.statType == StatType.ManaCost)
                         {
                             manaCost = stat.value;
-                            break;
+                        }
+                        // 쿨타임도 여기서 한 번만 가져옵니다.
+                        else if (stat.statType == StatType.Cooldown)
+                        {
+                            maxCoolTime = stat.value;
                         }
                     }
                 }
             }
+
+            // 1. UI 업데이트 (이미지, 마나 등)
             skillUIs[slotIndex].UpdateUI(data, manaCost);
+
+            // 2. 쿨타임 최대값 설정 (스킬 등록 시에만 한 번 호출)
+            if (data != null)
+            {
+                skillUIs[slotIndex].SetMaxCooldown(maxCoolTime);
+            }
         }
         else
         {
@@ -81,15 +94,17 @@ public class SkillSlotPanel : MonoBehaviour
 
     /// <summary>
     /// PlayerSkillController의 OnCooldownUpdated 이벤트로부터 호출되어 쿨타임 UI를 업데이트합니다.
+    /// [변경점]: maxCooldown을 제거하고 remainingCooldown만 SkillSlotUI에 전달하도록 변경합니다.
     /// </summary>
     /// <param name="slotIndex">쿨타임이 갱신된 슬롯의 인덱스</param>
     /// <param name="remainingCooldown">남은 쿨타임 시간 (초)</param>
-    /// <param name="maxCooldown">스킬의 최대 쿨타임 시간 (초)</param>
-    private void UpdateCooldownUI(int slotIndex, float remainingCooldown, float maxCooldown)
+    /// <param name="maxCooldown">!! 이제 SkillSlotUI에 전달하지 않습니다 !!</param>
+    private void UpdateCooldownUI(int slotIndex, float remainingCooldown, float maxCooldown) // maxCooldown 인수는 유지 (PlayerSkillController의 이벤트 시그니처가 변경되지 않았다고 가정)
     {
         if (slotIndex >= 0 && slotIndex < skillUIs.Length)
         {
-            skillUIs[slotIndex].UpdateCooldownUI(remainingCooldown, maxCooldown);
+            // UpdateCooldownUI는 이제 remainingCooldown만 받습니다!
+            skillUIs[slotIndex].UpdateCooldownUI(remainingCooldown);
         }
         else
         {

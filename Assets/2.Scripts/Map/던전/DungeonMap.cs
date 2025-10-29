@@ -30,7 +30,10 @@ public class DungeonMap : MonoBehaviour
     private Transform coreObjectiveTile; // 인스펙터에서 할당할 핵심 타일 (특정 조건 충족용)
 
     private Vector2Int coreObjectiveCoords; // 핵심 타일의 그리드 좌표 (빠른 검색용)
-
+    [SerializeField]
+    private Transform[] denialTiles;// 빌리지맵 범위
+    // occupiedTiles에 값으로 등록되어 겹침을 유도할 더미 Transform
+    private Transform DUMMY_DENIAL_MAP; //
     // 내부 상태를 저장하는 백킹 필드
     private bool _canDungeon = false;
 
@@ -91,7 +94,31 @@ public class DungeonMap : MonoBehaviour
                 validDungeonTileCoords.Add(gridCoords);
             }
         }
+        // ==========================================================
+        // [고객님 요청] Denial Tile 영구 점유 로직
+        // ==========================================================
+        if (denialTiles != null && denialTiles.Length > 0)
+        {
+            // DUMMY_DENIAL_MAP 초기화
+            DUMMY_DENIAL_MAP = this.transform;
 
+            int registeredCount = 0;
+
+            foreach (Transform denialTile in denialTiles) // 배열 순회
+            {
+                if (denialTile != null)
+                {
+                    Vector2Int denialCoords = GetGridCoordinates(denialTile.position);
+
+                    // occupiedTiles에 등록합니다.
+                    // Dictionary에 이미 키가 있더라도 덮어씁니다 (여러 타일이 같은 위치에 할당될 경우).
+                    occupiedTiles[denialCoords] = DUMMY_DENIAL_MAP;
+                    registeredCount++;
+                }
+            }
+        }
+        //
+        // ==========================================================
         // ==========================================================
         // [추가된 기능] 핵심 타일 그리드 좌표 초기화 (Awake 단계에서 1회 수행)
         // ==========================================================
@@ -339,6 +366,7 @@ public class DungeonMap : MonoBehaviour
         if (coreObjectiveTile == null)
         {
             CanDungeon = false;
+
             return;
         }
 
@@ -349,7 +377,8 @@ public class DungeonMap : MonoBehaviour
         // CanDungeon 속성(Property)을 통해 값을 안전하게 설정합니다.
         CanDungeon = isOccupied;
         // Debug.Log($"[Dungeon State] CanDungeon 상태 업데이트됨: {CanDungeon}");
-        if(CanDungeon)
+
+        if (CanDungeon)
         {
             // 현재 오브젝트에 붙어있는 DungeonPlacementTrigger를 찾아 이벤트를 발생시킵니다.
             GetComponent<DungeonPlacementTrigger>()?.NotifyPlacementCompleted();

@@ -20,6 +20,8 @@ public class ItemGiver : MonoBehaviour
 
     private void Awake()
     {
+        //게임 시간은 0.5배속도로 시작
+
         // PlayerCharacter 인스턴스를 찾아 참조를 확보합니다.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
@@ -40,18 +42,18 @@ public class ItemGiver : MonoBehaviour
     /// <summary>
     /// 매 프레임마다 키 입력을 확인하여 아이템을 생성하고 인벤토리에 지급합니다.
     /// Z 키: 장비 아이템 생성 및 지급
-    /// C 키: 소모품 아이템 생성 및 지급
+    /// X 키: 소모품 아이템 생성 및 지급
     /// </summary>
     private void Update()
     {
-        // Q 키를 누르면 장비 아이템을 지급합니다.
+        // Z 키를 누르면 장비 아이템을 지급합니다.
         if (Input.GetKeyDown(KeyCode.Z))
         {
             GiveGeneratedItem();
         }
 
-        // E 키를 누르면 소모품 아이템을 지급합니다.
-        if (Input.GetKeyDown(KeyCode.C))
+        // X 키를 누르면 소모품 아이템을 지급합니다.
+        if (Input.GetKeyDown(KeyCode.X))
         {
             GiveConsumableItem();
         }

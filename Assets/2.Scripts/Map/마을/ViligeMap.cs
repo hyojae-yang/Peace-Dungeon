@@ -21,6 +21,10 @@ public class ViligeMap : MonoBehaviour
     [SerializeField]
     private Transform[] dungeonTiles; // 미리 배치된 던전 타일들을 담을 배열
 
+    [SerializeField]
+    private Transform[] denialTiles;// 던전 맵 범위
+    // occupiedTiles에 값으로 등록되어 겹침을 유도할 더미 Transform
+    private Transform DUMMY_DENIAL_MAP; //
     // 배치된 다른 스몰맵 타일들의 위치와 오브젝트를 저장하는 딕셔너리
     // (던전 타일 자체는 여기에 포함되지 않습니다. 유효한 '구역'을 표시하기 위해 사용)
     private Dictionary<Vector2Int, Transform> occupiedTiles = new Dictionary<Vector2Int, Transform>();
@@ -64,6 +68,29 @@ public class ViligeMap : MonoBehaviour
             {
                 Vector2Int gridCoords = GetGridCoordinates(tile.position);
                 validDungeonTileCoords.Add(gridCoords);
+            }
+        }
+        // ==========================================================
+        // [고객님 요청] Denial Tile 영구 점유 로직
+        // ==========================================================
+        if (denialTiles != null && denialTiles.Length > 0)
+        {
+            // DUMMY_DENIAL_MAP 초기화
+            DUMMY_DENIAL_MAP = this.transform;
+
+            int registeredCount = 0;
+
+            foreach (Transform denialTile in denialTiles) // 배열 순회
+            {
+                if (denialTile != null)
+                {
+                    Vector2Int denialCoords = GetGridCoordinates(denialTile.position);
+
+                    // occupiedTiles에 등록합니다.
+                    // Dictionary에 이미 키가 있더라도 덮어씁니다 (여러 타일이 같은 위치에 할당될 경우).
+                    occupiedTiles[denialCoords] = DUMMY_DENIAL_MAP;
+                    registeredCount++;
+                }
             }
         }
     }

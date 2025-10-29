@@ -73,13 +73,6 @@ public class ShopManager : MonoBehaviour, INPCFunction
         {
             Debug.LogError("ShopUIManager 인스턴스를 찾을 수 없습니다.");
         }
-
-        // 새로 추가된 부분: NPC와의 상호작용을 종료합니다.
-        // 이렇게 하면 대화 UI가 사라지고 상점 UI만 남게 됩니다.
-        if (GetComponentInParent<NPCInteraction>() != null)
-        {
-            GetComponentInParent<NPCInteraction>().EndInteraction();
-        }
     }
 
     //----------------------------------------------------------------------------------------------------------------

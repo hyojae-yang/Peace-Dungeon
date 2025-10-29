@@ -58,5 +58,5 @@ MonoBehaviour:
   attackAngle: 180
   attackSpeed: 1.4
   knockbackForce: 0
-  projectilePrefab: {fileID: 451114298932106328, guid: 6da4592f61419564ebfbb6b39bc8ec5c, type: 3}
+  projectilePrefab: {fileID: 451114298932106328, guid: efb820e043fe71a4786903761dcd4467, type: 3}
   weaponPrefab: {fileID: 8150743016342531013, guid: fb70d7c5653e5de4bb0e4f4e883e9210, type: 3}

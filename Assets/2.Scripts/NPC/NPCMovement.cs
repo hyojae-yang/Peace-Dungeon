@@ -44,6 +44,8 @@ public class NPCMovement : MonoBehaviour
     // NPC가 현재 대화 중인지 상태를 추적하는 변수
     private bool isTalking = false;
 
+    // 플레이어의 위치 정보를 저장하는 Transform입니다.
+    private Transform playerTransform;
     //----------------------------------------------------------------------------------------------------------------
     // MonoBehaviour 생명주기 메서드
     //----------------------------------------------------------------------------------------------------------------
@@ -56,7 +58,16 @@ public class NPCMovement : MonoBehaviour
         // Rigidbody 컴포넌트를 가져옵니다.
         npcRigidbody = GetComponent<Rigidbody>();
         npcAnimator = GetComponent<Animator>();
-
+        // [추가] "Player" 태그를 가진 오브젝트를 찾아 Transform을 캐싱합니다.
+        GameObject playerObject = GameObject.FindWithTag("Player");
+        if (playerObject != null)
+        {
+            playerTransform = playerObject.transform;
+        }
+        else
+        {
+            Debug.LogError("씬에서 'Player' 태그를 가진 오브젝트를 찾을 수 없습니다! NPC 상호작용에 문제가 발생할 수 있습니다.");
+        }
         // 첫 번째 목표 위치를 설정합니다.
         SetNewTargetPosition();
         npcAnimator.SetFloat("Speed", 1f);
@@ -183,6 +194,21 @@ public class NPCMovement : MonoBehaviour
             targetPosition = transform.position;
             npcAnimator.SetFloat("Speed", 0f);
             npcAnimator.SetTrigger("wave");
+            // [추가] 플레이어가 있다면 즉시 플레이어를 바라보도록 회전합니다. (즉시 바라보기 방식)
+            if (playerTransform != null)
+            {
+                // LookAt을 사용하여 플레이어의 위치를 바라보게 합니다.
+                // 단, NPC의 Y축 회전만 변경되어 머리가 숙여지거나 들리지 않도록 합니다.
+                Vector3 lookPosition = playerTransform.position;
+                // Y축 위치는 NPC 자신의 Y축을 사용하여, 수평 회전만 일어나게 합니다.
+                lookPosition.y = transform.position.y;
+                transform.LookAt(lookPosition);
+            }
+        }
+        else
+        {
+            // 대화가 끝나면, 즉시 새로운 무작위 목표를 설정하여 이동을 재개합니다.
+            SetNewTargetPosition();
         }
     }
 }

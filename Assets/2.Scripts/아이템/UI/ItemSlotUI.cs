@@ -6,10 +6,10 @@ using System.Linq; // LINQ 사용을 위해 추가
 
 /// <summary>
 /// 인벤토리 아이템 슬롯 UI를 관리하는 스크립트입니다.
-/// 아이템 정보와 개수를 표시하고, 마우스 이벤트를 처리합니다.
-/// 장비 아이템의 경우 PlayerEquipmentManager에게 장착 요청을 전달하는 역할을 합니다.
+/// [수정] 모든 마우스 이벤트 처리(감지) 역할은 자식 스크립트(ItemPointerDetector)에게 위임하고, 
+/// 이 스크립트는 순수한 데이터 및 동적 UI 생성(툴팁/버튼) 로직만 담당합니다.
 /// </summary>
-public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler
+public class ItemSlotUI : MonoBehaviour // IPointerEnterHandler, IPointerExitHandler, IPointerClickHandler 제거됨
 {
     // === 인스펙터에 할당할 참조 변수 ===
     [Tooltip("아이템의 아이콘을 표시할 Image 컴포넌트입니다.")]
@@ -26,7 +26,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     [SerializeField] private GameObject tooltipPrefab;
 
     [Tooltip("버튼 패널이 마우스 포인터로부터 얼마나 떨어져서 나타날지 설정합니다.")]
-    private Vector3 buttonPanelOffset = new Vector3(-50, 0, 0);
+    private Vector3 buttonPanelOffset = new Vector3(50, -25, 0);
 
     [Tooltip("툴팁 패널이 마우스 포인터로부터 얼마나 떨어져서 나타날지 설정합니다.")]
     private Vector3 tooltipOffset = new Vector3(-200, 50, 0);
@@ -42,12 +42,9 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
 
     /// <summary>
     /// 현재 활성화된 툴팁 인스턴스입니다.
-    /// 툴팁은 씬에 단 하나만 활성화되므로 static으로 관리하여 모든 슬롯에서 공유하고,
-    /// 인벤토리 컨트롤러(InventoryUIController)에서 접근하여 강제 파괴할 수 있도록 합니다. (문제 해결의 핵심)
+    /// 툴팁은 씬에 단 하나만 활성화되므로 static으로 관리하여 모든 슬롯에서 공유합니다.
     /// </summary>
     public static GameObject currentActiveTooltip;
-
-    // // (기존) private GameObject instantiatedTooltip; 변수는 currentActiveTooltip으로 대체되었습니다.
 
     /// <summary>
     /// 아이템 슬롯의 시각적 정보를 업데이트하는 메서드입니다.
@@ -56,6 +53,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     /// <param name="itemData">슬롯에 할당될 ItemData (null일 경우 슬롯을 비웁니다)</param>
     public void UpdateSlot(ItemData itemData)
     {
+        // ... (기존 UpdateSlot 로직은 변경 없음) ...
         currentItemData = itemData;
 
         // ItemData가 유효한지(null이 아닌지) 확인합니다.
@@ -98,28 +96,17 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         return currentItemData?.itemSO;
     }
 
-    /// <summary>
-    /// 현재 슬롯에 있는 아이템의 개수를 반환합니다.
-    /// </summary>
-    /// <returns>아이템 개수</returns>
-    public int GetItemCount()
-    {
-        return currentItemData?.stackCount ?? 0;
-    }
-
-    // === 마우스 이벤트 처리 ===
+    // === 툴팁 및 버튼 패널 관련 퍼블릭 메서드 (새로운 감지 스크립트에서 호출됨) ===
 
     /// <summary>
-    /// 마우스 포인터가 UI 슬롯에 진입했을 때 호출됩니다.
-    /// 툴팁 프리팹을 생성하고 위치를 설정합니다.
+    /// [SRP] 툴팁 생성 로직을 수행합니다. ItemPointerDetector.cs의 OnPointerEnter에서 호출됩니다.
     /// </summary>
-    /// <param name="eventData">마우스 이벤트 데이터</param>
-    public void OnPointerEnter(PointerEventData eventData)
+    public void ShowTooltip()
     {
         // 슬롯에 아이템 정보가 있고, 툴팁 프리팹이 할당되어 있다면
         if (currentItemData != null && currentItemData.itemSO != null && tooltipPrefab != null)
         {
-            // 🚨 [수정된 로직] 툴팁 생성 전, 현재 활성화된 다른 툴팁이 있다면 파괴하여 잔상과 중복 생성을 방지합니다.
+            // 🚨 툴팁 생성 전, 현재 활성화된 다른 툴팁이 있다면 파괴하여 중복 생성을 방지합니다.
             if (currentActiveTooltip != null)
             {
                 Destroy(currentActiveTooltip);
@@ -132,7 +119,7 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
                 // 툴팁을 새로 생성하고 static 변수에 할당합니다.
                 currentActiveTooltip = Instantiate(tooltipPrefab, canvas.transform);
 
-                // 마우스 위치에 오프셋을 적용하여 툴팁 위치를 설정합니다.
+                // 마우스 위치에 오프셋을 적용하여 툴팁 위치를 설정합니다. (Input.mousePosition은 감지 스크립트가 아닌, 이 로직이 실행될 당시의 마우스 위치를 사용)
                 currentActiveTooltip.transform.position = Input.mousePosition + tooltipOffset;
 
                 // 생성된 툴팁 스크립트를 찾아 아이템 정보를 전달합니다.
@@ -146,47 +133,42 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     }
 
     /// <summary>
-    /// 마우스 포인터가 UI 슬롯에서 벗어났을 때 호출됩니다.
-    /// 생성된 툴팁을 파괴하고 정적 참조를 해제합니다.
+    /// [SRP] 툴팁 파괴 로직을 수행합니다. ItemPointerDetector.cs의 OnPointerExit에서 호출됩니다.
     /// </summary>
-    /// <param name="eventData">마우스 이벤트 데이터</param>
-    public void OnPointerExit(PointerEventData eventData)
+    public void HideTooltip()
     {
-        // 🚨 [수정된 로직] static 변수를 사용하여 툴팁을 파괴하고 참조를 해제합니다.
-        // 현재 슬롯을 나갈 때만 파괴합니다.
+        // static 변수를 사용하여 툴팁을 파괴하고 참조를 해제합니다.
         if (currentActiveTooltip != null)
         {
             Destroy(currentActiveTooltip);
             currentActiveTooltip = null;
         }
-        // (기존의 private instantiatedTooltip은 이제 사용되지 않습니다.)
     }
 
     /// <summary>
-    /// 마우스 클릭 이벤트를 처리하는 메서드입니다.
+    /// [SRP] 좌클릭 시 버튼 패널을 숨기는 로직을 수행합니다. ItemPointerDetector.cs에서 호출됩니다.
     /// </summary>
-    /// <param name="eventData">마우스 이벤트 데이터</param>
-    public void OnPointerClick(PointerEventData eventData)
+    public void HandleLeftClick()
     {
-        // 1. 우클릭 시, 버튼 패널을 표시합니다.
-        if (eventData.button == PointerEventData.InputButton.Right)
+        if (instantiatedButtonPanel != null)
         {
-            OnRightClick();
+            Destroy(instantiatedButtonPanel);
+            instantiatedButtonPanel = null; // 참조 해제
         }
-        // 2. 좌클릭 시, 버튼 패널을 숨깁니다.
-        else if (eventData.button == PointerEventData.InputButton.Left)
-        {
-            if (instantiatedButtonPanel != null)
-            {
-                Destroy(instantiatedButtonPanel);
-                instantiatedButtonPanel = null; // 참조 해제
-            }
-        }
+    }
+
+    /// <summary>
+    /// [SRP] 우클릭 시 버튼 패널을 활성화하는 로직을 수행합니다. ItemPointerDetector.cs에서 호출됩니다.
+    /// </summary>
+    public void HandleRightClick()
+    {
+        // 실제 버튼 패널 생성 및 초기화 로직을 수행합니다.
+        OnRightClick();
     }
 
     /// <summary>
     /// 아이템 우클릭 시 버튼 패널을 활성화하고 위치를 설정합니다.
-    /// 아이템 타입에 따라 버튼의 기능을 설정합니다.
+    /// (HandleRightClick 내부에서만 호출되는 내부 구현 메서드입니다.)
     /// </summary>
     private void OnRightClick()
     {
@@ -210,7 +192,6 @@ public class ItemSlotUI : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
             instantiatedButtonPanel.SetActive(true);
 
             // 버튼 패널 스크립트의 Initialize 메서드를 호출하여 버튼을 설정합니다.
-            // 아이템 타입에 따라 다른 기능을 연결합니다.
             ButtonPanel buttonPanel = instantiatedButtonPanel.GetComponent<ButtonPanel>();
             if (buttonPanel != null)
             {

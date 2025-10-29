@@ -3,7 +3,7 @@ using System.Collections;
 
 /// <summary>
 /// 나무 정령 몬스터의 특화된 행동 로직을 관리하는 스크립트입니다.
-/// 제자리에서 대기하다가 플레이어 감지 시 '뿌리 묶기' 공격을 준비합니다.
+/// 제자리에서 대기하다가 플레이어 감지 시 '뿌리 묶기' 공격을 위한 투사체(Root Projectile) 발사를 준비합니다.
 /// </summary>
 public class TreeSpiritBehavior : MonoBehaviour
 {
@@ -22,8 +22,10 @@ public class TreeSpiritBehavior : MonoBehaviour
     [SerializeField] private float aoeAttackCooldown = 10f;
     [Tooltip("특수 공격 준비 시간입니다. (애니메이션 길이에 맞추어 조절)")]
     [SerializeField] private float aoeChargeTime = 1.5f;
-    [Tooltip("특수 공격 효과 프리팹입니다. RootTrap 스크립트가 포함되어야 합니다.")]
-    [SerializeField] private GameObject rootTrapPrefab;
+
+    // 이 변수가 RootTrap 대신 발사될 투사체 프리팹을 참조합니다.
+    [Tooltip("발사될 투사체 프리팹입니다. RootProjectile 스크립트가 포함되어야 합니다.")]
+    [SerializeField] private GameObject rootProjectilePrefab;
 
     // === 내부 상태 관리 변수 ===
     private float lastAoeAttackTime;
@@ -35,6 +37,7 @@ public class TreeSpiritBehavior : MonoBehaviour
     /// </summary>
     private void Awake()
     {
+        // ... (기존과 동일)
         monster = GetComponent<Monster>();
         monsterCombat = GetComponent<MonsterCombat>();
         if (monster == null) Debug.LogError("TreeSpiritBehavior 스크립트는 Monster 컴포넌트를 필요로 합니다!", this);
@@ -49,16 +52,18 @@ public class TreeSpiritBehavior : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        // 몬스터가 죽은 상태이거나 이미 공격을 준비 중이면 아무것도 하지 않습니다.
+        // ... (기존과 동일)
         if (monster.currentState == MonsterBase.MonsterState.Dead || isCharging)
         {
             return;
         }
+        // ... (게임 오버 체크 등)
         if (MainSceneManager.Instance.isGameOver)
         {
             // 게임 오버 시 모든 행동 중지
             return;
         }
+
         // 플레이어가 감지 범위 내에 있고, 특수 공격 쿨타임이 지났는지 확인합니다.
         if (monster.detectableTarget != null && Time.time >= lastAoeAttackTime + aoeAttackCooldown)
         {
@@ -69,7 +74,7 @@ public class TreeSpiritBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 특수 공격을 준비하고 실행하는 코루틴입니다.
+    /// 특수 공격(투사체 발사)을 준비하고 실행하는 코루틴입니다.
     /// 이 루틴이 실행되는 동안 몬스터는 다른 행동을 하지 않습니다.
     /// </summary>
     private IEnumerator ChargeAttackRoutine()
@@ -83,9 +88,24 @@ public class TreeSpiritBehavior : MonoBehaviour
         // 플레이어가 아직 감지 범위 내에 있을 경우에만 공격을 실행합니다.
         if (monster.detectableTarget != null)
         {
-            // RootTrap 프리팹을 플레이어 위치에 생성하여 공격 효과를 발생시킵니다.
-            Vector3 playerPos = monster.detectableTarget.GetTransform().position;
-            Instantiate(rootTrapPrefab, playerPos, Quaternion.identity);
+            // [수정] RootTrap 대신 RootProjectile 프리팹을 몬스터 위치에 생성합니다.
+            // 투사체의 위치는 몬스터 자신의 위치로 설정합니다.
+            GameObject projectileObj = Instantiate(rootProjectilePrefab, transform.position, Quaternion.identity);
+
+            // [추가] RootProjectile 스크립트를 가져와 목표를 설정하고 발사합니다.
+            RootProjectile projectile = projectileObj.GetComponent<RootProjectile>();
+
+            // 투사체가 RootProjectile 컴포넌트를 가지고 있는지 확인합니다.
+            if (projectile != null)
+            {
+                // 투사체의 목표(플레이어)를 설정하고 발사 로직을 호출합니다.
+                // 투사체는 이 정보를 바탕으로 플레이어 위치를 향해 날아갑니다.
+                projectile.SetTargetAndFire(monster.detectableTarget.GetTransform());
+            }
+            else
+            {
+                Debug.LogError("RootProjectilePrefab에 RootProjectile 컴포넌트가 없습니다!", projectileObj);
+            }
         }
 
         // 공격이 완료되었으므로 상태를 초기화합니다.
@@ -99,6 +119,7 @@ public class TreeSpiritBehavior : MonoBehaviour
     /// </summary>
     private void OnDrawGizmosSelected()
     {
+        // ... (기존과 동일)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }

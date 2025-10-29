@@ -66,10 +66,12 @@ public class DungeonUIManager : MonoBehaviour
         alertText.text = message;
         confirmButton.onClick.RemoveAllListeners();
         cancelButton.onClick.RemoveAllListeners();
+        confirmButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
         confirmButton.onClick.AddListener(() => {
             onConfirmAction?.Invoke();
             alertPanel.SetActive(false);
         });
+        cancelButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
         cancelButton.onClick.AddListener(() => {
             alertPanel.SetActive(false);
         });
