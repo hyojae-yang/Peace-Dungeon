@@ -460,31 +460,27 @@ MonoBehaviour:
   - monsterPrefab: {fileID: 1422477296553940473, guid: 93da36d28c29ac74e97c4707f14ed854, type: 3}
     minSpawnCount: 50
     maxSpawnCount: 70
-    score: 20
   - monsterPrefab: {fileID: 7478020824845790175, guid: e8f026886796bc344997d71861d8a3e9, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
-    score: 0
   - monsterPrefab: {fileID: 1220655152558176270, guid: 60e3681ebe4002149a1c9bfcf943c6ff, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
-    score: 0
   - monsterPrefab: {fileID: 3074596751424611100, guid: ddea837050e1be4448a9d61b94d9193e, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
-    score: 0
   - monsterPrefab: {fileID: 2581514094922368487, guid: c96fd5bf2c558cc47b7b28f1bb23a251, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
-    score: 0
   - monsterPrefab: {fileID: 8124726940709404139, guid: 970346f958c7277408f88ccf983c8506, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
-    score: 0
   - monsterPrefab: {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
-    score: 3
+  - monsterPrefab: {fileID: 8512790387996972601, guid: 1ef60801f6633aa46bb2adc98a4af329, type: 3}
+    minSpawnCount: 30
+    maxSpawnCount: 50
 --- !u!1 &3082775657921449958
 GameObject:
   m_ObjectHideFlags: 0

@@ -366,7 +366,12 @@ public class DungeonMap : MonoBehaviour
         if (coreObjectiveTile == null)
         {
             CanDungeon = false;
-
+            // [핵심 추가] 튜토리얼 단계일 경우, 유효하지 않은 배치 알림을 띄웁니다.
+            if (TutorialManager.Instance != null && TutorialManager.Instance.CurrentStep == TutorialStep.WaitPlacementComplete)
+            {
+                // TutorialManager에 유효하지 않은 배치 알림을 요청합니다.
+                TutorialManager.Instance.ShowInvalidPlacementNotification();
+            }
             return;
         }
 
@@ -381,7 +386,7 @@ public class DungeonMap : MonoBehaviour
         if (CanDungeon)
         {
             // 현재 오브젝트에 붙어있는 DungeonPlacementTrigger를 찾아 이벤트를 발생시킵니다.
-            GetComponent<DungeonPlacementTrigger>()?.NotifyPlacementCompleted();
+            UITutorialHandler.Instance.OnPlacementComplete.Invoke();
         }
     }
     // ==========================================================

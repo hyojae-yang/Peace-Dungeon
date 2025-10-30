@@ -88,6 +88,8 @@ public class DungeonFrameInteraction : MonoBehaviour
     {
         if (isInventoryOpen) return;
 
+        UITutorialHandler.Instance.OnFrameUIOpened.Invoke();
+
         isInventoryOpen = true;
 
         if (playerController != null)
@@ -101,14 +103,6 @@ public class DungeonFrameInteraction : MonoBehaviour
         {
             dungeonCamera.Priority = 20;
         }
-        GetComponent<FrameUITrigger>()?.NotifyFrameUIOpened();
-        // if (interactionUI != null) // <--- 기존 로직 제거
-        // {
-        //     interactionUI.SetActive(false); // <--- 기존 로직 제거
-        // }
-        // Note: 인벤토리 열기 직전에 알림은 자동으로 닫히지 않으므로, 
-        // 닫아주는 로직이 필요할 수 있으나, 보통 OnTriggerExit에서 처리되므로 여기서는 생략합니다. 
-        // 다만, 인벤토리가 열릴 때 알림을 확실히 숨기려면 아래를 추가할 수 있습니다.
         if (NotificationManager.Instance != null)
         {
             NotificationManager.Instance.HideInteractionPrompt(this.gameObject);

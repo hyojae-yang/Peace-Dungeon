@@ -137,6 +137,10 @@ public class PlayerEquipmentManager : MonoBehaviour
                     playerCharacter.playerAttack.UpdateEquippedWeapon(weapon);
                 }
             }
+            if (UITutorialHandler.Instance != null)
+            {
+                UITutorialHandler.Instance.OnGearEquipped.Invoke();
+            }
         }
         else
         {

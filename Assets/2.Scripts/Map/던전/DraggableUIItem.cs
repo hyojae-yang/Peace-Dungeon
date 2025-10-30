@@ -11,13 +11,11 @@ public class DraggableUIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     private RectTransform dungeonInventoryRect;
 
     private DungeonUIItem dungeonUIItem;
-
     private void Awake()
     {
         rectTransform = GetComponent<RectTransform>();
         dungeonUIItem = GetComponent<DungeonUIItem>();
         inventoryManager = FindFirstObjectByType<DungeonInventoryManager>();
-
         if (inventoryManager == null)
         {
             Debug.LogError("Error: DungeonInventoryManager를 씬에서 찾을 수 없습니다.");
@@ -64,6 +62,8 @@ public class DraggableUIItem : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             inventoryManager.Activate3DObject(itemID);
             // 매니저에게 고유 ID만 전달하여 데이터 리스트에서 제거 요청
             inventoryManager.RemovePlayerItem(dungeonUIItem.uniqueID);
+            // 이 시점이 바로 고객님께서 원하는 '꺼내기' 이벤트 발동 시점입니다.
+            UITutorialHandler.Instance.OnPieceRetrieved.Invoke();
             // 아이템이 인벤토리 밖으로 나가면 즉시 파괴
             Destroy(gameObject);
         }

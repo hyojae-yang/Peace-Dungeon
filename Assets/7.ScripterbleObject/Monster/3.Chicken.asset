@@ -17,7 +17,7 @@ MonoBehaviour:
   monsterLevel: 0
   maxHealth: 150
   maxMana: 0
-  attackPower: 50
+  attackPower: 35
   magicAttackPower: 0
   defense: 20
   magicDefense: 20

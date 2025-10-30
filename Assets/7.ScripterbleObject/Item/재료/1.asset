@@ -19,4 +19,4 @@ MonoBehaviour:
   itemPrice: 10
   itemType: 2
   recipeIDs: 
-  maxStackCount: 1
+  maxStackCount: 99

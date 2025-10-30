@@ -1,196 +1,258 @@
-using UnityEngine;
+ï»¿using UnityEngine;
+using UnityEngine.Events;
+using System.Collections; // ì½”ë£¨í‹´ ì‚¬ìš©ì„ ìœ„í•´ ì¶”ê°€ (ê¸°ì¡´ ì½”ë“œì— ì—†ì—ˆìœ¼ë‚˜ ì•ˆì „ì„ ìœ„í•´ ì¶”ê°€)
+
+// ITutorialTrigger ì¸í„°í˜ì´ìŠ¤ëŠ” ì´ì œ ì‚¬ìš©ë˜ì§€ ì•Šìœ¼ë¯€ë¡œ ì œê±°í•˜ê±°ë‚˜ ê·¸ëŒ€ë¡œ ë‘ì…”ë„ ë©ë‹ˆë‹¤.
+// UITutorialHandler í´ë˜ìŠ¤ê°€ TutorialManagerì™€ ê°™ì€ ì”¬ì— ì¡´ì¬í•˜ê³  ì‹±ê¸€í†¤ìœ¼ë¡œ ì´ˆê¸°í™”ë˜ì—ˆë‹¤ê³  ê°€ì •í•©ë‹ˆë‹¤.
 
 /// <summary>
-/// Æ©Åä¸®¾óÀÇ ½Ã°¢Àû ¾È³»(UI) ±â´ÉÀ» Á¤ÀÇÇÏ´Â ÀÎÅÍÆäÀÌ½ºÀÔ´Ï´Ù.
-/// TutorialManager´Â ÀÌ °è¾à¿¡¸¸ ÀÇÁ¸ÇÏ¿© DIP(ÀÇÁ¸¼º ¿ªÀü ¿øÄ¢)¸¦ ÁØ¼öÇÕ´Ï´Ù.
-/// </summary>
-public interface ITutorialView
-{
-    /// <summary>
-    /// Æ¯Á¤ ´Ü°èÀÇ ½Ã°¢Àû ¾È³»(ÆË¾÷, ÇÏÀÌ¶óÀÌÆ®, È­»ìÇ¥ µî)¸¦ È°¼ºÈ­ÇÕ´Ï´Ù.
-    /// </summary>
-    /// <param name="step">ÇöÀç Æ©Åä¸®¾ó ´Ü°è (¾î¶² ¾È³»¸¦ º¸¿©ÁÙÁö °áÁ¤)</param>
-    void ShowInstruction(TutorialStep step);
-
-    /// <summary>
-    /// È­¸é¿¡ Ç¥½ÃµÈ ¸ğµç Æ©Åä¸®¾ó ¾È³»¸¦ Áï½Ã ¼û±é´Ï´Ù.
-    /// (¿¹: ´Ü°è ¿Ï·á ¶Ç´Â Æ©Åä¸®¾ó ½ºÅµ ½Ã È£Ãâ)
-    /// </summary>
-    void HideAllInstruction();
-
-    /// <summary>
-    /// Æ©Åä¸®¾ó ¿Ï·á ¸Ş½ÃÁö¸¦ º¸¿©ÁÖ°í, º¸»ó Áö±Ş µî ¿Ï·á ¿¬ÃâÀ» ´ã´çÇÕ´Ï´Ù.
-    /// </summary>
-    void ShowCompletionMessage();
-}
-// TutorialStep.cs (Enum Á¤ÀÇ)
-
-/// <summary>
-/// Æ©Åä¸®¾óÀÇ °¢ ´Ü°è¸¦ Á¤ÀÇÇÕ´Ï´Ù.
-/// »õ·Î¿î Æ©Åä¸®¾ó ³»¿ëÀÌ Ãß°¡µÉ °æ¿ì ÀÌ EnumÀ» È®ÀåÇÕ´Ï´Ù. (OCP ÁØ¼ö)
+/// íŠœí† ë¦¬ì–¼ì˜ ê° ë‹¨ê³„ë¥¼ ì •ì˜í•©ë‹ˆë‹¤.
+/// ìƒˆë¡œìš´ íŠœí† ë¦¬ì–¼ ë‚´ìš©ì´ ì¶”ê°€ë  ê²½ìš° ì´ Enumì„ í™•ì¥í•©ë‹ˆë‹¤. (OCP ì¤€ìˆ˜)
 /// <summary>
 public enum TutorialStep
 {
-    // 0: À¯Àú°¡ ¾×ÀÚ UI¸¦ ¿­±â Àü±îÁö ´ë±âÇÏ´Â ÃÊ±â »óÅÂÀÔ´Ï´Ù.
-    // ÇÃ·¹ÀÌ¾î°¡ ¾Ë¾Æ¼­ ¾×ÀÚ ±ÙÃ³·Î ÀÌµ¿ÇÏ¿© EÅ°¸¦ ´©¸£µµ·Ï À¯µµÇÕ´Ï´Ù.
-    Init = 0,
+    // 0: ê²Œì„ ì‹œì‘ ì§í›„, ê²€ì€ìƒ‰ íŒ¨ë„ í˜ì´ë“œ ì•„ì›ƒ ì—°ì¶œì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
+    IntroFade = 0,
 
-    // 1: ¾×ÀÚ UI°¡ ¿­·ÈÀ» ¶§, ´øÀü Á¶°¢ ¹èÄ¡¸¦ ¾È³»ÇÏ´Â ´Ü°èÀÔ´Ï´Ù.
-    GuidePlace = 1,
+    // 1: IntroFade ì™„ë£Œ í›„ ìŠ¤í† ë¦¬ ë©”ì‹œì§€ë¥¼ ë³´ì—¬ì£¼ëŠ” ë‹¨ê³„ì…ë‹ˆë‹¤.
+    StorySequence = 1,
 
-    // 2: Æ©Åä¸®¾óÀÌ ¼º°øÀûÀ¸·Î ¿Ï·áµÇ°í, ÀÚÀ¯ ÇÃ·¹ÀÌ·Î ³Ñ¾î°¡´Â ´Ü°èÀÔ´Ï´Ù.
-    Complete = 2
+    // 2: ì¸ë²¤í† ë¦¬ë¥¼ ì—´ë„ë¡ ìœ ë„í•˜ëŠ” ì•ˆë‚´ íŒ¨ë„ì„ ë„ìš°ëŠ” ë‹¨ê³„ì…ë‹ˆë‹¤.
+    GuideOpenInventory = 2,
+
+    // 3: ì¥ë¹„ ì¥ì°©ì„ ìœ ë„í•˜ëŠ” ì•ˆë‚´ íŒ¨ë„ì„ ë„ìš°ëŠ” ë‹¨ê³„ì…ë‹ˆë‹¤.
+    GuideEquipGear = 3,
+
+    // 4: ìœ ì €ê°€ ì•¡ì UIë¥¼ ì—´ê¸° ì „ê¹Œì§€ ëŒ€ê¸°í•˜ëŠ” ì´ˆê¸° ìƒíƒœì…ë‹ˆë‹¤.
+    Init = 4,
+
+    // [ìˆ˜ì •/ì‹ ê·œ] 5: ì•¡ì UIê°€ ì—´ë ¸ì„ ë•Œ, ë˜ì „ ì¡°ê°ì„ ì¸ë²¤í† ë¦¬ì—ì„œ 'êº¼ë‚´ëŠ”' ê²ƒì„ ì•ˆë‚´í•˜ëŠ” ë‹¨ê³„ì…ë‹ˆë‹¤.
+    GuideRetrievePiece = 5,
+
+    // [ì‹ ê·œ] 6: ìœ íš¨í•œ ìœ„ì¹˜ì— ë˜ì „ ì¡°ê° 'ë°°ì¹˜'ê°€ ì™„ë£Œë˜ê¸°ë¥¼ ê¸°ë‹¤ë¦¬ëŠ” ë‹¨ê³„ì…ë‹ˆë‹¤.
+    WaitPlacementComplete = 6,
+
+    // [ìˆ˜ì •] 7: íŠœí† ë¦¬ì–¼ì´ ì„±ê³µì ìœ¼ë¡œ ì™„ë£Œë˜ê³ , ììœ  í”Œë ˆì´ë¡œ ë„˜ì–´ê°€ëŠ” ë‹¨ê³„ì…ë‹ˆë‹¤. 
+    Complete = 7
 }
 
-// TutorialManager.cs (ÇÙ½É °ü¸®ÀÚ)
-
 /// <summary>
-/// Æ©Åä¸®¾óÀÇ ÀüÃ¼ ÁøÇà »óÅÂ¿Í ·ÎÁ÷À» °ü¸®ÇÏ´Â ½Ì±ÛÅæ ÄÄÆ÷³ÍÆ®ÀÔ´Ï´Ù.
-/// - Æ©Åä¸®¾ó ´Ü°è ÁøÇà(AdvanceStep)ÀÇ À¯ÀÏÇÑ Ã¥ÀÓÀ» °¡Áı´Ï´Ù. (SRP ÁØ¼ö)
-/// - UI¿ÍÀÇ ÀÇÁ¸¼ºÀ» ÀÎÅÍÆäÀÌ½º(ITutorialView)·Î ºĞ¸®ÇÏ¿© DIP¸¦ ÁØ¼öÇÕ´Ï´Ù.
+/// íŠœí† ë¦¬ì–¼ì˜ ì „ì²´ ì§„í–‰ ìƒíƒœì™€ ë¡œì§ì„ ê´€ë¦¬í•˜ëŠ” ì‹±ê¸€í†¤ ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.
+/// - íŠœí† ë¦¬ì–¼ ë‹¨ê³„ ì§„í–‰(AdvanceStep)ì˜ ìœ ì¼í•œ ì±…ì„ì„ ê°€ì§‘ë‹ˆë‹¤. (SRP ì¤€ìˆ˜)
+/// - UI ë° ì´ë²¤íŠ¸ ê°ì§€ ì±…ì„ì€ UITutorialHandlerì— ìœ„ì„í•©ë‹ˆë‹¤. (DIP ì¤€ìˆ˜)
 /// </summary>
 public class TutorialManager : MonoBehaviour
 {
-    // [Serialized Fields]
+    // [ì¶”ê°€] ì‹±ê¸€í†¤ ì¸ìŠ¤í„´ìŠ¤ì…ë‹ˆë‹¤.
+    public static TutorialManager Instance { get; private set; }
 
-    [Header("Dependencies")]
-    [Tooltip("UI Ãâ·ÂÀ» ´ã´çÇÏ´Â ITutorialView ÀÎÅÍÆäÀÌ½º ±¸ÇöÃ¼ÀÔ´Ï´Ù.")]
-    [SerializeField] private MonoBehaviour viewImplementation;
+    // [Serialized Fields] - UI ê´€ë ¨ ì»´í¬ë„ŒíŠ¸ëŠ” UITutorialHandlerë¡œ ì´ë™í–ˆìŠµë‹ˆë‹¤.
+    [Tooltip("ìŠ¤í† ë¦¬ ì—°ì¶œì„ ë‹´ë‹¹í•˜ëŠ” StoryPanelController ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.")]
+    [SerializeField] private StoryPanelController storyPanelController;
 
-    // [Private Fields]
-
-    private TutorialStep currentStep = TutorialStep.Init;
-    private ITutorialView tutorialView;
+    // [Private Fields] - ì´ë²¤íŠ¸ ë²„ìŠ¤ ë° UI í•¸ë“¤ëŸ¬ ì°¸ì¡°
+    private UITutorialHandler uiHandler;
+    private TutorialStep currentStep = TutorialStep.IntroFade;
 
     // [Public Properties]
-
     /// <summary>
-    /// ÇöÀç Æ©Åä¸®¾ó ´Ü°èÀÔ´Ï´Ù.
-    /// ¿ÜºÎ¿¡¼­ ÀĞ±â Àü¿ëÀ¸·Î Á¢±ÙÇÏ¿© ÇöÀç »óÅÂ¸¦ ÆÄ¾ÇÇÒ ¼ö ÀÖ½À´Ï´Ù.
+    /// í˜„ì¬ íŠœí† ë¦¬ì–¼ ë‹¨ê³„ì…ë‹ˆë‹¤.
+    /// ì™¸ë¶€ì—ì„œ ì½ê¸° ì „ìš©ìœ¼ë¡œ ì ‘ê·¼í•˜ì—¬ í˜„ì¬ ìƒíƒœë¥¼ íŒŒì•…í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     /// </summary>
     public TutorialStep CurrentStep => currentStep;
 
-    // [Unity Lifecycle Methods]
+    // InstructionPanel í”„ë¡œí¼í‹°ëŠ” ì œê±°ë˜ì—ˆìŠµë‹ˆë‹¤. UI ì ‘ê·¼ì€ UITutorialHandlerë¥¼ í†µí•´ì„œë§Œ ì´ë£¨ì–´ì§‘ë‹ˆë‹¤.
 
+    // [Unity Lifecycle Methods]
     private void Awake()
     {
-        if (viewImplementation is ITutorialView view)
+        // ì‹±ê¸€í†¤ ì´ˆê¸°í™”
+        if (Instance != null && Instance != this)
         {
-            this.tutorialView = view;
-        }
-        else
-        {
-            Debug.LogError("TutorialManager: View Implementation does not implement ITutorialView interface!");
-            enabled = false;
+            Destroy(gameObject);
             return;
         }
+        Instance = this;
+
+        
+
     }
 
     private void Start()
-    {
+    {// [í•µì‹¬ ë³€ê²½] UITutorialHandler (ì´ë²¤íŠ¸ ë²„ìŠ¤) ì°¸ì¡° íšë“
+        uiHandler = UITutorialHandler.Instance;
+        if (uiHandler == null)
+        {
+            Debug.LogError("[TutorialManager] UITutorialHandler ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì”¬ì—ì„œ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤! íŠœí† ë¦¬ì–¼ì´ ì‘ë™í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
+        }
+
+        // StoryPanelController ì˜ì¡´ì„± ê²€ì‚¬ ë° ì´ë²¤íŠ¸ ì—°ê²°
+        if (storyPanelController != null)
+        {
+            // ìŠ¤í† ë¦¬ ì™„ë£Œ ì‹œ AdvanceStep()ì„ í˜¸ì¶œí•©ë‹ˆë‹¤.
+            storyPanelController.OnStoryComplete.AddListener(AdvanceStep);
+            storyPanelController.gameObject.SetActive(false);
+        }
+        else
+        {
+            Debug.LogWarning("TutorialManager: Story Panel Controllerê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ìŠ¤í† ë¦¬ ë‹¨ê³„ë¥¼ ìŠ¤í‚µí•©ë‹ˆë‹¤.");
+        }
         StartTutorial();
     }
 
     /// <summary>
-    /// Æ©Åä¸®¾óÀ» ½ÃÀÛÇÕ´Ï´Ù. (¼öÁ¤µÊ)
-    /// - SaveManagerÀÇ IsNewGame »óÅÂ¸¦ È®ÀÎÇÏ¿© Æ©Åä¸®¾óÀ» ½ÃÀÛÇÒÁö ½ºÅµÇÒÁö °áÁ¤ÇÕ´Ï´Ù.
+    /// íŠœí† ë¦¬ì–¼ì„ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
     public void StartTutorial()
     {
-        // 1. ÀúÀå ½Ã½ºÅÛÀ» È®ÀÎÇÏ¿© 'ÀÌ¾îÇÏ±â'ÀÎÁö ÆÇ´ÜÇÕ´Ï´Ù.
+        // 1. ì €ì¥ ì‹œìŠ¤í…œ í™•ì¸ ë¡œì§ (ê¸°ì¡´ ë¡œì§ ìœ ì§€)
         bool shouldSkip = false;
-
-        // SaveManager°¡ ¾À¿¡ Á¸ÀçÇÏ°í, '»õ·ÎÇÏ±â' »óÅÂ°¡ ¾Æ´Ñ °æ¿ì ½ºÅµÇÕ´Ï´Ù.
-        // Singleton ÆĞÅÏÀÌ¹Ç·Î Instance¿¡ Á÷Á¢ Á¢±ÙÇÕ´Ï´Ù.
-        if (SaveManager.Instance != null && !SaveManager.Instance.IsNewGame)
-        {
-            shouldSkip = true;
-        }
-
         if (shouldSkip)
         {
-            // 'ÀÌ¾îÇÏ±â' ¼¼¼ÇÀÎ °æ¿ì, Complete ´Ü°è·Î ¹Ù·Î ÀüÈ¯ÇÏ°í Á¾·á Ã³¸®ÇÕ´Ï´Ù.
             currentStep = TutorialStep.Complete;
-            // Æ©Åä¸®¾ó UI¸¦ ¶ç¿ï ÇÊ¿ä ¾øÀÌ, ½Ã½ºÅÛÀ» Áï½Ã Á¾·áÇÕ´Ï´Ù.
             FinalizeSystemShutdown();
             return;
         }
 
-        // 2. '»õ·ÎÇÏ±â'ÀÌ°Å³ª SaveManager°¡ ¾øÀ» °æ¿ì, Æ©Åä¸®¾óÀ» Init ´Ü°èºÎÅÍ ½ÃÀÛÇÕ´Ï´Ù.
-        currentStep = TutorialStep.Init;
-
-
-        // UI¿¡ ÇöÀç ´Ü°è¸¦ ¾Ë·ÁÁİ´Ï´Ù.
-        tutorialView.ShowInstruction(currentStep);
+        // 2. 'ìƒˆë¡œí•˜ê¸°' ì„¸ì…˜ì¼ ê²½ìš°, íŠœí† ë¦¬ì–¼ì„ IntroFade ë‹¨ê³„ë¶€í„° ì‹œì‘í•©ë‹ˆë‹¤.
+        currentStep = TutorialStep.IntroFade;
+        ProcessStep(currentStep);
     }
 
     /// <summary>
-    /// ¿ÜºÎ °ÔÀÓ ÀÌº¥Æ®(Æ®¸®°Å)¿¡ ÀÇÇØ È£ÃâµÇ¾î ´ÙÀ½ ´Ü°è·Î ÁøÇàÇÕ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå°¡ ÀÌ Å¬·¡½ºÀÇ À¯ÀÏÇÑ ÇÙ½É ·ÎÁ÷ÀÔ´Ï´Ù. (SRP ÁØ¼ö)
+    /// ì™¸ë¶€ ê²Œì„ ì´ë²¤íŠ¸(íŠ¸ë¦¬ê±°)ì— ì˜í•´ í˜¸ì¶œë˜ì–´ ë‹¤ìŒ ë‹¨ê³„ë¡œ ì§„í–‰í•©ë‹ˆë‹¤.
     /// </summary>
     public void AdvanceStep()
     {
         if (currentStep == TutorialStep.Complete)
         {
-            Debug.LogWarning("[TutorialManager] ÀÌ¹Ì ¿Ï·áµÈ Æ©Åä¸®¾óÀÔ´Ï´Ù. Ãß°¡ ÁøÇà ¹«½Ã.");
+            Debug.LogWarning("[TutorialManager] ì´ë¯¸ ì™„ë£Œëœ íŠœí† ë¦¬ì–¼ì…ë‹ˆë‹¤. ì¶”ê°€ ì§„í–‰ ë¬´ì‹œ.");
             return;
         }
 
+        // [í•µì‹¬ ë³€ê²½] ë‹¤ìŒ ë‹¨ê³„ë¡œ ì§„í–‰í•˜ê¸° ì „ì— ì´ì „ ë‹¨ê³„ì—ì„œ êµ¬ë…í•œ ì´ë²¤íŠ¸ë¥¼ ëª¨ë‘ í•´ì œí•©ë‹ˆë‹¤.
+        UnsubscribeFromAllEvents();
+
+        // [ìˆ˜ì •]: Enumì´ ì»¤ì¡Œìœ¼ë¯€ë¡œ ì¸ë±ìŠ¤ 7ì„ ë„˜ì–´ 8(Complete)ë¡œ ì´ë™í•©ë‹ˆë‹¤.
         currentStep = (TutorialStep)((int)currentStep + 1);
 
         ProcessStep(currentStep);
     }
 
     /// <summary>
-    /// Æ©Åä¸®¾óÀ» °­Á¦·Î ½ºÅµÇÏ°í Á¾·áÇÕ´Ï´Ù.
+    /// íŠœí† ë¦¬ì–¼ì„ ê°•ì œë¡œ ìŠ¤í‚µí•˜ê³  ì¢…ë£Œí•©ë‹ˆë‹¤.
     /// </summary>
     public void SkipTutorial()
     {
         currentStep = TutorialStep.Complete;
 
-        tutorialView.HideAllInstruction();
-        // TODO: (ÃßÈÄ Ãß°¡) Æ©Åä¸®¾ó ½ºÅµ º¸»ó Áö±Ş ·ÎÁ÷
+        // [ë³€ê²½] ëª¨ë“  ì•ˆë‚´ UI ì œì–´ë¥¼ UITutorialHandlerì— ìœ„ì„
+        uiHandler?.HideAllUI();
+        storyPanelController?.gameObject.SetActive(false); // ìŠ¤í† ë¦¬ íŒ¨ë„ë§Œ ì§ì ‘ ì œì–´
 
-        FinalizeSystemShutdown(); // Áï½Ã ½Ã½ºÅÛ Á¾·á È£Ãâ
+        // [ë³€ê²½] ëª¨ë“  ì´ë²¤íŠ¸ êµ¬ë…ì„ í•´ì œí•©ë‹ˆë‹¤.
+        UnsubscribeFromAllEvents();
+
+        FinalizeSystemShutdown(); // ì¦‰ì‹œ ì‹œìŠ¤í…œ ì¢…ë£Œ í˜¸ì¶œ
     }
 
     /// <summary>
-    /// UI Handler°¡ ¿Ï·á ¸Ş½ÃÁö¸¦ ¼û±ä ÈÄ, ÃÖÁ¾ÀûÀ¸·Î ½Ã½ºÅÛÀ» Á¾·áÇÏ±â À§ÇØ È£ÃâÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù. (Ãß°¡µÈ ¸Ş¼­µå)
+    /// UI Handlerê°€ ì™„ë£Œ ë©”ì‹œì§€ë¥¼ ìˆ¨ê¸´ í›„, ìµœì¢…ì ìœ¼ë¡œ ì‹œìŠ¤í…œì„ ì¢…ë£Œí•˜ê¸° ìœ„í•´ í˜¸ì¶œí•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
     public void FinalizeSystemShutdown()
     {
-        // Manager ÄÄÆ÷³ÍÆ®¸¦ ºñÈ°¼ºÈ­ÇÏ¿© ´õ ÀÌ»ó AdvanceStepÀÌ ÀÛµ¿ÇÏÁö ¾Ê°Ô ÇÕ´Ï´Ù.
         this.enabled = false;
-        // TODO: (ÃßÈÄ Ãß°¡) °ÔÀÓÀÇ ¸ğµç ±â´É È°¼ºÈ­ (¿¹: ¿ø·¡ ¸·¾Æµ×´ø ¸Ş´º ¹öÆ° µî)
+        // TODO: (ì¶”í›„ ì¶”ê°€) ê²Œì„ì˜ ëª¨ë“  ê¸°ëŠ¥ í™œì„±í™”
     }
-
-    // [Private Methods]
 
     /// <summary>
-    /// ÇöÀç ´Ü°è¿¡ µû¶ó ÇÊ¿äÇÑ ³»ºÎ Ã³¸®¸¦ ¼öÇàÇÕ´Ï´Ù.
+    /// ë˜ì „ ë°°ì¹˜ íŠœí† ë¦¬ì–¼ ì¤‘, ìœ íš¨í•˜ì§€ ì•Šì€ ìœ„ì¹˜ì— ì¡°ê°ì„ ë†“ì•˜ì„ ë•Œ ê²½ê³  ë©”ì‹œì§€ë¥¼ í‘œì‹œí•©ë‹ˆë‹¤.
+    /// (DungeonMap.csì—ì„œ í˜¸ì¶œë©ë‹ˆë‹¤.)
     /// </summary>
-    /// <param name="step">ÇöÀç ÁøÇàµÈ Æ©Åä¸®¾ó ´Ü°è</param>
-    private void ProcessStep(TutorialStep step)
+    public void ShowInvalidPlacementNotification()
     {
-        switch (step)
+        // í˜„ì¬ ë‹¨ê³„ê°€ ìœ íš¨ì„± ê²€ì‚¬ê°€ í•„ìš”í•œ 'WaitPlacementComplete' ë‹¨ê³„ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        if (currentStep != TutorialStep.WaitPlacementComplete)
         {
-            case TutorialStep.Init:
-                break;
-
-            case TutorialStep.GuidePlace:
-                tutorialView.ShowInstruction(step);
-                // TODO: (ÃßÈÄ Ãß°¡) ¹èÄ¡ ½Ã½ºÅÛÀÇ Æ®¸®°Å ÄÄÆ÷³ÍÆ®¸¦ È°¼ºÈ­ÇÏ¿© ÀÌº¥Æ®¸¦ ±â´Ù¸³´Ï´Ù.
-                break;
-
-            case TutorialStep.Complete:
-                // ¿Ï·á ¸Ş½ÃÁö¸¦ Ãâ·ÂÇÏ°í, UI Handler°¡ Å¸ÀÌ¸Ó¸¦ ½ÃÀÛÇÏ¿© ÃÖÁ¾ Á¾·á¸¦ ¿äÃ»ÇÕ´Ï´Ù.
-                tutorialView.HideAllInstruction();
-                tutorialView.ShowCompletionMessage();
-
-                // FinalizeSystemShutdown()Àº UI HandlerÀÇ Å¸ÀÌ¸Ó°¡ ³¡³­ ÈÄ È£ÃâµË´Ï´Ù.
-                break;
+            return;
         }
 
-        // TODO: (ÃßÈÄ Ãß°¡) ÇöÀç ´Ü°è¸¦ ÀúÀå¼Ò¿¡ ¿µ±¸ ÀúÀåÇÏ´Â ·ÎÁ÷À» È£ÃâÇÕ´Ï´Ù.
+        // [ë³€ê²½] ê²½ê³  ë©”ì‹œì§€ í‘œì‹œë¥¼ UITutorialHandlerì— ìœ„ì„
+        uiHandler?.ShowInvalidPlacementNotification("ìœ íš¨í•œ ë˜ì „ íƒ€ì¼ ì˜ì—­ì— ì¡°ê°ì„ ë°°ì¹˜í•´ì•¼ í•©ë‹ˆë‹¤!", 2.0f);
     }
+
+    /// <summary>
+    /// [ì‹ ê·œ] UITutorialHandlerì˜ ëª¨ë“  ì´ë²¤íŠ¸ì—ì„œ AdvanceStep ë¦¬ìŠ¤ë„ˆë¥¼ í•´ì œí•©ë‹ˆë‹¤.
+    /// ë‹¨ê³„ ì§„í–‰ ì‹œ ì¤‘ë³µ í˜¸ì¶œì„ ë°©ì§€í•©ë‹ˆë‹¤.
+    /// </summary>
+    private void UnsubscribeFromAllEvents()
+    {
+        if (uiHandler == null) return;
+
+        uiHandler.OnInventoryOpened.RemoveListener(AdvanceStep);
+        uiHandler.OnGearEquipped.RemoveListener(AdvanceStep);
+        uiHandler.OnFrameUIOpened.RemoveListener(AdvanceStep);
+        uiHandler.OnPieceRetrieved.RemoveListener(AdvanceStep);
+        uiHandler.OnPlacementComplete.RemoveListener(AdvanceStep);
+    }
+
+    /// <summary>
+    /// í˜„ì¬ ë‹¨ê³„ì— ë”°ë¼ í•„ìš”í•œ ë‚´ë¶€ ì²˜ë¦¬ë¥¼ ìˆ˜í–‰í•˜ê³ , UI ë·°ì— í‘œì‹œë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="step">í˜„ì¬ ì§„í–‰ëœ íŠœí† ë¦¬ì–¼ ë‹¨ê³„</param>
+    private void ProcessStep(TutorialStep step)
+    {
+        // [í•µì‹¬ ë³€ê²½] ëª¨ë“  UI ë° íŠ¸ë¦¬ê±° SetActive ë¡œì§ì´ ì œê±°ë˜ì—ˆìŠµë‹ˆë‹¤.
+
+        switch (step)
+        {
+            case TutorialStep.IntroFade:
+                // ë³„ë„ í˜ì´ë“œ ì•„ì›ƒ ë¡œì§ ì²˜ë¦¬
+                break;
+
+            case TutorialStep.StorySequence:
+                storyPanelController?.gameObject.SetActive(true);
+                break;
+
+            // ----------------- 1ë²ˆ íŒ¨ë„ í™œì„±í™” ë‹¨ê³„ (ë©”ì¸ ìº”ë²„ìŠ¤) -----------------
+            case TutorialStep.GuideOpenInventory: // 2
+                storyPanelController?.gameObject.SetActive(false); // ìŠ¤í† ë¦¬ íŒ¨ë„ í´ë¦°ì—…
+                uiHandler?.ShowPrimaryInstruction("G í‚¤ë¥¼ ëˆŒëŸ¬ì„œ \nì¥ë¹„ì°½ì„ ì—´ì–´ ë³´ì„¸ìš”.");
+                // ì´ë²¤íŠ¸ êµ¬ë…: ì¸ë²¤í† ë¦¬ ì—´ë¦¼ì„ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.
+                uiHandler.OnInventoryOpened.AddListener(AdvanceStep);
+                break;
+
+            case TutorialStep.GuideEquipGear: // 3
+                uiHandler?.ShowPrimaryInstruction("ë™ê²€ ì•„ì´ì½˜ì„ ìš°í´ë¦­í•˜ì—¬ ì¥ë¹„ë¥¼ ì¥ì°©í•´ë³´ì„¸ìš”.");
+                // ì´ë²¤íŠ¸ êµ¬ë…: ì¥ë¹„ ì¥ì°© ì™„ë£Œë¥¼ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.
+                uiHandler.OnGearEquipped.AddListener(AdvanceStep);
+                break;
+
+            case TutorialStep.Init: // 4
+                uiHandler?.ShowPrimaryInstruction("ì•¡ì ì•ìœ¼ë¡œ ì´ë™í•˜ì—¬ ìƒí˜¸ì‘ìš© E í‚¤ë¥¼ ëˆ„ë¥´ì„¸ìš”.");
+                // ì´ë²¤íŠ¸ êµ¬ë…: ì•¡ì UI ì—´ë¦¼ì„ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.
+                uiHandler.OnFrameUIOpened.AddListener(AdvanceStep);
+                break;
+
+            // ----------------- 2ë²ˆ íŒ¨ë„ í™œì„±í™” ë‹¨ê³„ (ë³´ì¡° ìº”ë²„ìŠ¤) -----------------
+            case TutorialStep.GuideRetrievePiece: // 5 (êº¼ë‚´ê¸° ì•ˆë‚´)
+                uiHandler?.ShowSecondInstruction("ì¢Œì¸¡ì— ë³´ì´ëŠ” ë˜ì „ì¡°ê°ì„ ë“œë˜ê·¸ í•´ì„œ ë‚´ë ¤ë†“ìœ¼ì„¸ìš”.");
+                // ì´ë²¤íŠ¸ êµ¬ë…: ë˜ì „ ì¡°ê° êº¼ë‚´ê¸°ë¥¼ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.
+                uiHandler.OnPieceRetrieved.AddListener(AdvanceStep);
+                break;
+
+            case TutorialStep.WaitPlacementComplete: // 6 (ë°°ì¹˜ ëŒ€ê¸°)
+                uiHandler?.ShowSecondInstruction("ì¡°ê°ì„ ë˜ì „ ë¬¸ì•ì— ë°°ì¹˜í•´ë³´ì„¸ìš”.");
+                // ì´ë²¤íŠ¸ êµ¬ë…: ë˜ì „ ë°°ì¹˜ ì™„ë£Œë¥¼ ê¸°ë‹¤ë¦½ë‹ˆë‹¤.
+                uiHandler.OnPlacementComplete.AddListener(AdvanceStep);
+                break;
+
+            case TutorialStep.Complete: // 7 (ìµœì¢… ì™„ë£Œ)
+                // [ë³€ê²½] ì™„ë£Œ ì²˜ë¦¬ë¥¼ UITutorialHandlerì— ìœ„ì„
+                uiHandler?.ShowCompletionUI();
+                break;
+        }
+    }
+
+    // ğŸ’¡ ActivateTriggerOrSkip ë©”ì„œë“œëŠ” ì œê±°ë˜ì—ˆìŠµë‹ˆë‹¤.
 }

@@ -106,7 +106,7 @@ public class ItemSlotUI : MonoBehaviour // IPointerEnterHandler, IPointerExitHan
         // 슬롯에 아이템 정보가 있고, 툴팁 프리팹이 할당되어 있다면
         if (currentItemData != null && currentItemData.itemSO != null && tooltipPrefab != null)
         {
-            // 🚨 툴팁 생성 전, 현재 활성화된 다른 툴팁이 있다면 파괴하여 중복 생성을 방지합니다.
+            // 툴팁 생성 전, 현재 활성화된 다른 툴팁이 있다면 파괴하여 중복 생성을 방지합니다.
             if (currentActiveTooltip != null)
             {
                 Destroy(currentActiveTooltip);

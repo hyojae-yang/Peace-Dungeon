@@ -155,6 +155,9 @@ MonoBehaviour:
   - monsterPrefab: {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
+  - monsterPrefab: {fileID: 483987322422019827, guid: 20f11513772e41e499b8204dd19dd1e3, type: 3}
+    minSpawnCount: 30
+    maxSpawnCount: 50
 --- !u!1 &456753750927162593
 GameObject:
   m_ObjectHideFlags: 0

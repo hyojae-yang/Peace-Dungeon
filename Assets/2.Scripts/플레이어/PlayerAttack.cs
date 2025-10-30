@@ -16,26 +16,39 @@ public class PlayerAttack : MonoBehaviour
     /// <summary>
     /// PlayerEquipment로부터 전달받을 무기 데이터입니다.
     /// </summary>
-    private WeaponItemSO equippedWeapon;
+    [Tooltip("현재 장착된 무기의 데이터입니다. PlayerEquipment에서 설정됩니다.")]
+    public WeaponItemSO equippedWeapon; // PlayerController에서 접근 가능하도록 public 유지
 
     /// <summary>
     /// 마지막 공격 시간을 기록하는 변수입니다. 공격 쿨타임을 체크하는 데 사용됩니다.
     /// </summary>
     private float lastAttackTime;
 
-    // === 공격 딜레이 설정 (수정 사항 1: 원거리 딜레이 변수 추가) ===
+    // === 공격 딜레이 설정 ===
     [Header("공격 설정")]
     [Tooltip("근접 공격의 데미지 판정 딜레이 (초)입니다. 애니메이션과 타이밍을 맞춥니다.")]
     public float meleeDamageDelay = 0.4f;
 
-    // [추가] 원거리 공격 시 발사체 생성 지연 시간입니다. (애니메이션 손에서 화살이 떠나는 시점 등에 맞춥니다.)
     [Tooltip("원거리 공격의 발사체 생성 딜레이 (초)입니다. 애니메이션과 타이밍을 맞춥니다.")]
-    public float rangedShootDelay = 0.2f; // 예시 값 설정
+    public float rangedShootDelay = 0.2f;
     [Tooltip("원거리 공격 발사체가 생성될 위치(Transform)입니다. 보통 플레이어 손이나 무기 끝에 위치합니다.")]
     public Transform projectileSpawnPoint;
+
+    [Tooltip("공격 애니메이션 재생 후 이동 제한을 해제할 시간입니다. (애니메이션 길이에 따라 조절)")]
+    public float attackMovementUnlockDelay = 0.5f;
+
     // === 플레이어 스탯 및 레이어 마스크 ===
     [Tooltip("몬스터에게 데미지를 입히는 데 사용할 레이어 마스크입니다.")]
     public LayerMask monsterLayer;
+
+    [Header("시각화 설정")]
+    [Tooltip("공격 범위를 표시하는 Line Renderer입니다.")]
+    public LineRenderer attackRangeVisualizer;
+    [Tooltip("공격 범위 시각화 오브젝트의 부모 컨테이너입니다.")]
+    public GameObject visualizerContainer;
+
+    // Line Renderer 정점 해상도
+    private const int VisualizerResolution = 30;
 
     private void Start()
     {
@@ -45,6 +58,12 @@ public class PlayerAttack : MonoBehaviour
         {
             Debug.LogError("PlayerCharacter 인스턴스를 찾을 수 없습니다. 스크립트가 제대로 동작하지 않을 수 있습니다.");
             return;
+        }
+
+        // 시작 시 시각화는 숨깁니다.
+        if (visualizerContainer != null)
+        {
+            visualizerContainer.SetActive(false);
         }
 
         // 초기화 시, 즉시 공격 가능 상태로 만듭니다.
@@ -58,6 +77,7 @@ public class PlayerAttack : MonoBehaviour
     public void UpdateEquippedWeapon(WeaponItemSO weapon)
     {
         equippedWeapon = weapon;
+        // equippedWeapon이 null이 아닐 때만 쿨타임을 초기화합니다.
         if (equippedWeapon != null)
         {
             // 무기 장착 시, 마지막 공격 시간을 초기화하여 즉시 공격 가능 상태로 만듭니다.
@@ -67,6 +87,9 @@ public class PlayerAttack : MonoBehaviour
 
     void Update()
     {
+        // [Null 체크 추가]: equippedWeapon이 없으면 공격 로직을 진행하지 않습니다.
+        if (equippedWeapon == null) return;
+
         // UI 클릭(버튼, 인벤토리 등) 시 공격이 나가지 않게 합니다.
         if (IsPointerOverUI())
         {
@@ -74,8 +97,9 @@ public class PlayerAttack : MonoBehaviour
         }
 
         // 공격 가능 조건: 무기가 장착되었고, 마우스 왼쪽 버튼이 눌렸으며, 공격 쿨타임이 지났는지 확인
-        if (equippedWeapon != null && Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + equippedWeapon.attackSpeed)
+        if (Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + equippedWeapon.attackSpeed)
         {
+            playerCharacter.playerController.canMove = false;
             PlayerCharacter.Instance.animator.SetTrigger("Attack"); // 공격 애니메이션 트리거 설정
 
             // 코루틴을 시작하여 공격 딜레이를 적용
@@ -87,58 +111,87 @@ public class PlayerAttack : MonoBehaviour
 
     /// <summary>
     /// 무기 타입에 따라 딜레이를 적용하여 공격 로직을 실행하는 코루틴입니다.
-    /// 코루틴은 Unity에서 시간 지연, 프레임 단위 분할 등의 비동기 작업을 처리할 때 사용합니다.
     /// </summary>
     private IEnumerator AttackWithDelay()
     {
+        // [Null 체크 추가]: 코루틴 시작 시 무기가 사라질 경우를 대비
+        if (equippedWeapon == null) yield break;
+
         float delay = 0f;
 
-        // 근접 공격 무기 타입 정의
-        bool isMelee = (equippedWeapon.weaponType == WeaponType.Sword ||
-                        equippedWeapon.weaponType == WeaponType.Axe ||
-                        equippedWeapon.weaponType == WeaponType.Spear);
+        // 무기 타입 분류
+        bool isMelee = IsMeleeWeapon(equippedWeapon.weaponType);
+        bool isRanged = IsRangedWeapon(equippedWeapon.weaponType);
 
-        // 원거리 공격 무기 타입 정의
-        // [수정] 원거리 무기 타입 정의 추가
-        bool isRanged = (equippedWeapon.weaponType == WeaponType.Staff ||
-                         equippedWeapon.weaponType == WeaponType.Bow);
-
-        // [수정] 딜레이 시간 설정 분기 로직
+        // 딜레이 시간 설정 분기 로직
         if (isMelee && meleeDamageDelay > 0)
         {
-            // 근접 공격인 경우 설정된 딜레이를 적용
             delay = meleeDamageDelay;
         }
         else if (isRanged && rangedShootDelay > 0)
         {
-            // 원거리 공격인 경우 설정된 딜레이를 적용
             delay = rangedShootDelay;
         }
 
-        // 설정된 딜레이가 0보다 클 경우에만 대기합니다.
         if (delay > 0)
         {
             yield return new WaitForSeconds(delay);
         }
         else
         {
-            // 딜레이가 없는 경우 다음 프레임에 바로 실행
             yield return null;
         }
 
         // 지연 시간 후, 실제 데미지 계산 및 공격 로직을 실행합니다.
         Attack();
+
+        yield return StartCoroutine(AllowMovementAfterDelay());
+    }
+
+    /// <summary>
+    /// 공격 애니메이션 재생이 끝난 후 플레이어의 이동 제한을 해제하는 코루틴입니다.
+    /// </summary>
+    private IEnumerator AllowMovementAfterDelay()
+    {
+        yield return new WaitForSeconds(attackMovementUnlockDelay);
+
+        // 이동을 다시 허용합니다.
+        if (playerCharacter.playerController != null)
+        {
+            playerCharacter.playerController.canMove = true;
+        }
+    }
+
+    /// <summary>
+    /// 무기 타입이 근접 무기인지 확인합니다.
+    /// </summary>
+    private bool IsMeleeWeapon(WeaponType type)
+    {
+        return type == WeaponType.Sword || type == WeaponType.Axe || type == WeaponType.Spear;
+    }
+
+    /// <summary>
+    /// 무기 타입이 원거리 무기인지 확인합니다.
+    /// </summary>
+    private bool IsRangedWeapon(WeaponType type)
+    {
+        return type == WeaponType.Staff || type == WeaponType.Bow;
     }
 
     /// <summary>
     /// 플레이어의 기본 공격 로직을 실행합니다. (데미지 계산 및 공격 타입 분기)
-    /// 이 메서드는 오직 '데미지 계산'과 '공격 실행 분기'만을 담당합니다. (SRP)
     /// </summary>
     void Attack()
     {
-        if (playerCharacter == null || playerCharacter.playerStats == null)
+        // [Null 체크 강화]
+        if (equippedWeapon == null || playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("PlayerCharacter 또는 PlayerStats가 초기화되지 않았습니다. 공격을 진행할 수 없습니다.");
+            Debug.LogError("공격 필수 구성 요소(무기/스탯)가 초기화되지 않았습니다. 공격을 중단합니다.");
+            // 공격을 중단할 때 이동 제한을 해제하는 것이 안전합니다.
+            if (playerCharacter != null && playerCharacter.playerController != null)
+            {
+                playerCharacter.playerController.canMove = true;
+            }
             return;
         }
 
@@ -148,24 +201,20 @@ public class PlayerAttack : MonoBehaviour
 
         if (isMagicAttack)
         {
-            // 지팡이일 경우 마법 공격력 사용
             baseDamage = playerCharacter.playerStats.magicAttackPower;
         }
         else
         {
-            // 그 외 무기일 경우 일반 공격력 사용
             baseDamage = playerCharacter.playerStats.attackPower;
         }
 
         // 2. 치명타 여부 판정
-        // 치명타 확률(criticalChance)을 기반으로 치명타 발생 여부를 결정합니다.
-        bool isCritical = Random.Range(0f, 1f) <= playerCharacter.playerStats.criticalChance;
+        bool isCritical = UnityEngine.Random.Range(0f, 1f) <= playerCharacter.playerStats.criticalChance;
 
         // 3. 최종 데미지 계산
         float finalDamage = baseDamage;
         if (isCritical)
         {
-            // 치명타 발생 시, 치명타 데미지 배율(criticalDamageMultiplier)을 곱합니다.
             finalDamage *= playerCharacter.playerStats.criticalDamageMultiplier;
         }
 
@@ -175,12 +224,10 @@ public class PlayerAttack : MonoBehaviour
             case WeaponType.Sword:
             case WeaponType.Axe:
             case WeaponType.Spear:
-                // 근접 공격 실행
                 PerformMeleeAttack(finalDamage);
                 break;
             case WeaponType.Staff:
             case WeaponType.Bow:
-                // 원거리 공격 실행
                 PerformRangedAttack(finalDamage);
                 break;
             default:
@@ -190,12 +237,14 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// 근접 공격 로직을 실행합니다.
+    /// 근접 공격 로직을 실행합니다. (기존 로직 유지)
     /// </summary>
     /// <param name="damage">계산된 최종 데미지</param>
     private void PerformMeleeAttack(float damage)
     {
-        // ... (기존 PerformMeleeAttack 로직 유지) ...
+        // [Null 체크]
+        if (equippedWeapon == null) return;
+        // ... (기존 PerformMeleeAttack 로직 유지)
         float currentAttackRange = equippedWeapon.attackRange;
         float currentAttackAngle = equippedWeapon.attackAngle;
 
@@ -204,27 +253,41 @@ public class PlayerAttack : MonoBehaviour
 
         foreach (Collider monsterCollider in hitColliders)
         {
-            Vector3 directionToMonster = (monsterCollider.transform.position - transform.position).normalized;
-            float angle = Vector3.Angle(transform.forward, directionToMonster);
+            Vector3 direction3D = monsterCollider.transform.position - transform.position;
+
+            // 1. 방향 벡터의 Y축 성분을 0으로 설정하여 XZ 평면으로 평탄화합니다.
+            Vector3 directionFlat = direction3D;
+            directionFlat.y = 0;
+
+            // 2. 플레이어의 전방 벡터도 Y축을 0으로 설정하여 평탄화합니다. (수평 방향)
+            Vector3 forwardFlat = transform.forward;
+            forwardFlat.y = 0;
+
+            // 3. 평탄화된 전방 벡터와 몬스터 방향 벡터 사이의 각도를 계산합니다.
+            float angle = Vector3.Angle(forwardFlat.normalized, directionFlat.normalized);
+
+            // XZ 평면에서의 실제 거리를 다시 체크합니다.
+            if (directionFlat.magnitude > currentAttackRange)
+            {
+                continue; // 수평 거리가 사거리를 벗어났으므로 무시
+            }
 
             // 몬스터가 공격 각도 범위 안에 있는지 확인합니다.
             if (angle < currentAttackAngle * 0.5f)
             {
-                // IDamageable 인터페이스를 가져와 피해를 입힙니다.
                 IDamageable damageableTarget = monsterCollider.GetComponent<IDamageable>();
 
                 if (damageableTarget != null)
                 {
-                    // 계산된 최종 데미지를 전달하여 몬스터에게 피해를 입힙니다.
                     damageableTarget.TakeDamage(damage, equippedWeapon.damageType);
 
-                    // 넉백 로직 (기존 로직 유지)
+                    // 넉백 로직 
                     if (equippedWeapon.knockbackForce > 0)
                     {
                         Rigidbody monsterRb = monsterCollider.GetComponent<Rigidbody>();
                         if (monsterRb != null)
                         {
-                            Vector3 knockbackDirection = (monsterCollider.transform.position - transform.position).normalized;
+                            Vector3 knockbackDirection = direction3D.normalized;
                             monsterRb.AddForce(knockbackDirection * equippedWeapon.knockbackForce, ForceMode.Impulse);
                         }
                     }
@@ -239,31 +302,25 @@ public class PlayerAttack : MonoBehaviour
     /// <param name="damage">계산된 최종 데미지</param>
     private void PerformRangedAttack(float damage)
     {
-        // 원거리 무기 프리팹(발사체)이 설정되어 있을 경우에만 실행
+        // [Null 체크]
+        if (equippedWeapon == null) return;
+        // ... (기존 PerformRangedAttack 로직 유지)
         if (equippedWeapon.projectilePrefab != null)
         {
-            // 발사체(투사체)를 지정된 위치(projectileSpawnPoint)에서 생성합니다.
-            // 기존: transform.position
-            // 수정: projectileSpawnPoint.position
-
             if (projectileSpawnPoint == null)
             {
                 Debug.LogError("Projectile Spawn Point가 할당되지 않았습니다! 플레이어 위치에서 생성됩니다.");
-                // 비상시를 대비해 플레이어 위치에서 생성하도록 폴백합니다.
                 GameObject projectile = Instantiate(equippedWeapon.projectilePrefab, transform.position, transform.rotation);
             }
             else
             {
-                // 성공적인 생성 로직: FirePoint의 위치와 플레이어의 현재 회전 값을 사용합니다.
                 GameObject projectile = Instantiate(equippedWeapon.projectilePrefab,
-                                                    projectileSpawnPoint.position,
-                                                    transform.rotation);
+                                                     projectileSpawnPoint.position,
+                                                     transform.rotation);
 
-                // 발사체에 데이터를 전달합니다.
                 Projectile projectileComponent = projectile.GetComponent<Projectile>();
                 if (projectileComponent != null)
                 {
-                    // 계산된 최종 데미지를 발사체에 전달합니다.
                     projectileComponent.SetProjectileData(equippedWeapon, monsterLayer, damage);
                 }
                 else
@@ -284,7 +341,6 @@ public class PlayerAttack : MonoBehaviour
     /// <returns>마우스가 UI 위에 있으면 참(true)을 반환합니다.</returns>
     private bool IsPointerOverUI()
     {
-        // EventSystem.current.IsPointerOverGameObject()를 사용하여 UI 상호작용을 체크합니다.
         if (EventSystem.current != null)
         {
             return EventSystem.current.IsPointerOverGameObject();
@@ -293,34 +349,128 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// 공격 범위를 유니티 에디터에서 시각적으로 확인하기 위한 함수입니다.
+    /// 무기의 공격 범위와 각도에 맞춰 Line Renderer의 모양을 동적으로 업데이트합니다.
+    /// 모든 무기 타입의 시각화를 담당합니다.
+    /// </summary>
+    public void UpdateVisualizerShape()
+    {
+        // [Null 체크 강화]: 무기가 없거나 필수 컴포넌트가 없으면 시각화 비활성화 후 리턴
+        if (equippedWeapon == null || attackRangeVisualizer == null || visualizerContainer == null)
+        {
+            if (visualizerContainer != null && visualizerContainer.activeSelf)
+            {
+                visualizerContainer.SetActive(false);
+            }
+            return;
+        }
+
+        // 1. 필요한 설정 값 가져오기
+        float range = equippedWeapon.attackRange;
+        WeaponType type = equippedWeapon.weaponType;
+
+        // 2. 무기 타입에 따른 시각화 로직 분기
+        if (IsMeleeWeapon(type))
+        {
+            // 근접 무기: 부채꼴 (Sector) 시각화
+            float angle = equippedWeapon.attackAngle;
+
+            // 정점 개수를 설정합니다. (중심점 + 호의 정점들 + 다시 중심점으로 돌아오는 점)
+            attackRangeVisualizer.positionCount = VisualizerResolution + 2;
+
+            Vector3[] points = new Vector3[VisualizerResolution + 2];
+            points[0] = Vector3.zero; // 첫 번째 점은 플레이어의 중심 (로컬 위치)
+
+            // 시작 각도와 각도 증분 계산 (플레이어의 전방을 기준으로 좌우 대칭)
+            float startAngle = -angle * 0.5f;
+            float angleStep = angle / VisualizerResolution;
+
+            for (int i = 0; i <= VisualizerResolution; i++)
+            {
+                float currentAngle = startAngle + (angleStep * i);
+                float radian = currentAngle * Mathf.Deg2Rad;
+
+                // X, Z 좌표 계산 (삼각함수 사용)
+                float x = range * Mathf.Sin(radian);
+                float z = range * Mathf.Cos(radian);
+
+                // Y축은 바닥에 파묻히지 않게 살짝 띄우기 위함
+                points[i + 1] = new Vector3(x, 0.01f, z);
+            }
+
+            // 부채꼴을 닫기 위해 마지막 점을 다시 중앙으로 설정합니다.
+            points[VisualizerResolution + 1] = Vector3.zero;
+
+            attackRangeVisualizer.SetPositions(points);
+        }
+        else if (IsRangedWeapon(type))
+        {
+            // 원거리 무기: 원 (Circle) 시각화
+
+            // 정점 개수를 설정합니다. (원형이므로 중심점 없이 호의 정점만 필요)
+            attackRangeVisualizer.positionCount = VisualizerResolution + 1;
+
+            Vector3[] points = new Vector3[VisualizerResolution + 1];
+            float angleStep = 360f / VisualizerResolution;
+
+            for (int i = 0; i <= VisualizerResolution; i++)
+            {
+                // 0도부터 360도까지
+                float currentAngle = angleStep * i;
+                float radian = currentAngle * Mathf.Deg2Rad;
+
+                // X, Z 좌표 계산 (원의 형태)
+                float x = range * Mathf.Sin(radian);
+                float z = range * Mathf.Cos(radian);
+
+                points[i] = new Vector3(x, 0.01f, z);
+            }
+
+            attackRangeVisualizer.SetPositions(points);
+        }
+        else
+        {
+            // 지원되지 않는 무기 타입일 경우 시각화 비활성화
+            visualizerContainer.SetActive(false);
+            return;
+        }
+
+        // With this updated code:
+        if (visualizerContainer.TryGetComponent<LineRenderer>(out var lineRenderer))
+        {
+            lineRenderer.startColor = Color.red;
+            lineRenderer.endColor = Color.red;
+        }
+        visualizerContainer.SetActive(true);
+    }
+
+    /// <summary>
+    /// 공격 범위를 유니티 에디터에서 시각적으로 확인하기 위한 함수입니다. (Gizmos)
+    /// 무기 타입에 따른 시각화 로직을 분리했습니다.
     /// </summary>
     private void OnDrawGizmosSelected()
     {
         if (equippedWeapon != null)
         {
             Gizmos.color = Color.red;
+            WeaponType type = equippedWeapon.weaponType;
 
-            switch (equippedWeapon.weaponType)
+            if (IsMeleeWeapon(type))
             {
-                case WeaponType.Sword:
-                case WeaponType.Axe:
-                case WeaponType.Spear:
-                    // 근접 무기일 경우 부채꼴 영역을 그립니다.
-                    Vector3 forwardLimit = transform.position + transform.forward * equippedWeapon.attackRange;
-                    Gizmos.DrawLine(transform.position, forwardLimit);
+                // 근접 무기: 부채꼴 영역
+                // ... (기존 부채꼴 Gizmo 로직 유지)
+                Vector3 forwardLimit = transform.position + transform.forward * equippedWeapon.attackRange;
+                Gizmos.DrawLine(transform.position, forwardLimit);
 
-                    Vector3 leftLimit = Quaternion.Euler(0, -equippedWeapon.attackAngle * 0.5f, 0) * transform.forward * equippedWeapon.attackRange;
-                    Gizmos.DrawLine(transform.position, transform.position + leftLimit);
+                Vector3 leftLimit = Quaternion.Euler(0, -equippedWeapon.attackAngle * 0.5f, 0) * transform.forward * equippedWeapon.attackRange;
+                Gizmos.DrawLine(transform.position, transform.position + leftLimit);
 
-                    Vector3 rightLimit = Quaternion.Euler(0, equippedWeapon.attackAngle * 0.5f, 0) * transform.forward * equippedWeapon.attackRange;
-                    Gizmos.DrawLine(transform.position, transform.position + rightLimit);
-                    break;
-                case WeaponType.Staff:
-                case WeaponType.Bow:
-                    // 원거리 무기일 경우 공격 범위를 원으로 그립니다.
-                    Gizmos.DrawWireSphere(transform.position, equippedWeapon.attackRange);
-                    break;
+                Vector3 rightLimit = Quaternion.Euler(0, equippedWeapon.attackAngle * 0.5f, 0) * transform.forward * equippedWeapon.attackRange;
+                Gizmos.DrawLine(transform.position, transform.position + rightLimit);
+            }
+            else if (IsRangedWeapon(type))
+            {
+                // 원거리 무기: 원 영역
+                Gizmos.DrawWireSphere(transform.position, equippedWeapon.attackRange);
             }
         }
     }
