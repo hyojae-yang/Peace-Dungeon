@@ -140,7 +140,9 @@ public class PlayerStatSystem : MonoBehaviour, ISavable
                 NotificationType.General
             );
         }
-       // Debug.Log("스탯이 최종적으로 적용되었습니다!");
+        if (UITutorialHandler.Instance != null)
+        { UITutorialHandler.Instance.OnStatAllocated.Invoke(); }
+        // Debug.Log("스탯이 최종적으로 적용되었습니다!");
     }
 
     /// <summary>

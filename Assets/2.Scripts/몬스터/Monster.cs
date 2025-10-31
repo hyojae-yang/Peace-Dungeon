@@ -31,7 +31,6 @@ public class Monster : MonsterBase, IDetectable
     // === 종속성 ===
     private MonsterCombat combat;
     private MonsterLoot loot;
-    AudioSource audioSource;
     [HideInInspector]
     public IDetectable detectableTarget;
     Animator animator;
@@ -49,7 +48,6 @@ public class Monster : MonsterBase, IDetectable
         loot = GetComponent<MonsterLoot>();
         if (loot == null) Debug.LogError("MonsterLoot 컴포넌트를 찾을 수 없습니다!");
         animator = GetComponent<Animator>();
-        audioSource = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
 
         if (monsterData != null)
@@ -178,10 +176,6 @@ public class Monster : MonsterBase, IDetectable
             Debug.LogError("MonsterData가 할당되지 않아 몬스터 처치 이벤트를 발생시킬 수 없습니다.");
         }
 
-        if (audioSource != null && deathSound != null)
-        {
-            audioSource.PlayOneShot(deathSound);
-        }
         GetComponent<Collider>().enabled = false;
         if (rb != null)
         { rb.isKinematic = true; }

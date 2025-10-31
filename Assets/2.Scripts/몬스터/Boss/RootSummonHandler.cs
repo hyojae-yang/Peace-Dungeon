@@ -5,6 +5,7 @@ using System.Collections;
 /// ForestBoss에 의해 소환된 개별 뿌리 오브젝트의 생명 주기와 동작을 관리하는 핸들러입니다.
 /// (단일 책임 원칙 준수)
 /// </summary>
+[RequireComponent(typeof(Collider))] // 콜라이더 필수 요구
 public class RootSummonHandler : MonoBehaviour
 {
     // === 종속성 (인스펙터 할당 필수) ===
@@ -18,33 +19,39 @@ public class RootSummonHandler : MonoBehaviour
 
     // [추가] BoxCollider 컴포넌트 참조
     private BoxCollider _hitboxCollider;
+    private AudioSource _audioSource; // ⭐️ [추가] AudioSource 컴포넌트 참조
 
     // =========================================================================
     // 인스펙터 설정 변수 (프리팹 자체 책임)
     // =========================================================================
     [Header("뿌리 동작 설정 (프리팹에서 직접 설정)")]
     [Tooltip("경고 파티클이 표시되는 시간(선딜레이)입니다. 이 시간 뒤에 뿌리가 솟아오릅니다.")]
-    public float warningDuration = 1.5f;
+    public float warningDuration = 2.0f;
 
     [Tooltip("뿌리가 솟아오르는 최종 높이입니다. (소환 위치로부터의 월드 오프셋)")]
-    public float rootMaxHeight = 3.0f;
+    public float rootMaxHeight = 80.0f;
 
     [Tooltip("뿌리가 솟아오르는 속도입니다. (단위: 월드 거리/초)")]
-    public float rootRiseSpeed = 5.0f;
+    public float rootRiseSpeed = 20.0f;
 
     [Tooltip("뿌리가 솟아오른 후 유지되는 시간입니다. (자동 파괴 기준)")]
     public float rootLifetimeAfterRise = 3.0f;
 
     [Tooltip("뿌리의 시작 위치를 소환 지점(땅)보다 얼마나 더 깊이 내릴지 (음수 값 권장)입니다.")]
-    public float minStartHeightOffset = -1.0f;
+    public float minStartHeightOffset = -9.9f;
 
+
+    // === 사운드 설정 추가 ===
+    [Header("사운드 설정")]
+    [Tooltip("뿌리가 땅 속에서 솟아오르는 동안 반복 재생될 소리입니다. ('지잉' 또는 '쉭' 소리)")]
+    public AudioClip riseLoopClip; // ⭐ 새로 추가된 클립 변수
 
     // === 주입받는 변수 (ForestBoss에서 전달) ===
-    private float _magicDamage;          // 보스의 마법 공격력 (데미지 주입)
+    private float _magicDamage;          // 보스의 마법 공격력 (데미지 주입)
 
     // === 내부 상태 변수 ===
-    private Vector3 _startWorldPosition;    // 뿌리 오브젝트의 시작 월드 위치 (땅 속)
-    private Vector3 _targetWorldPosition;   // 뿌리 오브젝트의 목표 월드 위치 (최대 높이)
+    private Vector3 _startWorldPosition;    // 뿌리 오브젝트의 시작 월드 위치 (땅 속)
+    private Vector3 _targetWorldPosition;   // 뿌리 오브젝트의 목표 월드 위치 (최대 높이)
 
     /// <summary>
     /// 솟아오르는 동안 이미 피해를 입혔는지 확인하는 플래그입니다. (중복 피해 방지)
@@ -71,7 +78,7 @@ public class RootSummonHandler : MonoBehaviour
 
     private void Awake()
     {
-        // [추가] BoxCollider 참조 및 초기 설정
+        // BoxCollider 참조 및 초기 설정
         _hitboxCollider = GetComponent<BoxCollider>();
         if (_hitboxCollider != null)
         {
@@ -82,6 +89,14 @@ public class RootSummonHandler : MonoBehaviour
         {
             Debug.LogError("RootSummonHandler: BoxCollider 컴포넌트가 필요합니다!");
         }
+
+        // AudioSource 컴포넌트 참조
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+        {
+            Debug.LogWarning("RootSummonHandler: AudioSource 컴포넌트가 없어 소리 재생이 불가능합니다.", this);
+        }
+
 
         // 1. Rigidbody 설정을 안전하게 적용
         Rigidbody rb = GetComponent<Rigidbody>();
@@ -136,14 +151,18 @@ public class RootSummonHandler : MonoBehaviour
         // 2. 솟아오르기 단계 (Rise and Strike) - [수정] 코루틴 호출
         // -------------------------------------------------------------------------
         yield return StartCoroutine(RiseAndStrikeRoutine());
+
         // -------------------------------------------------------------------------
         // 3. 유지 단계 (Sustain)
         // -------------------------------------------------------------------------
 
         // 유지 시간 대기
         yield return new WaitForSeconds(rootLifetimeAfterRise);
+
+        // 4. 소멸 (Destroy)
         Destroy(gameObject);
     }
+
     /// <summary>
     /// 뿌리가 땅속에서 목표 위치까지 솟아오르는 동작을 처리합니다.
     /// 솟아오르는 동안 피해 판정(BoxCollider)을 활성화합니다.
@@ -154,6 +173,14 @@ public class RootSummonHandler : MonoBehaviour
         if (_hitboxCollider != null)
         {
             _hitboxCollider.enabled = true;
+        }
+
+        // 솟아오르기 시작 시 효과음 재생
+        if (_audioSource != null && riseLoopClip != null)
+        {
+            _audioSource.clip = riseLoopClip;
+            _audioSource.loop = true; // 솟아오르는 동안 반복 재생 (지잉 효과에 적합)
+            _audioSource.Play();
         }
 
         float totalDistance = rootMaxHeight; // 이동할 총 거리
@@ -176,12 +203,19 @@ public class RootSummonHandler : MonoBehaviour
         transform.position = _targetWorldPosition;
 
         // 4. [수정] 솟아오르는 동작 완료 후, 피해 판정을 비활성화합니다.
-        // (솟아오를 때만 피해를 입히는 컨셉이므로, 유지 단계로 넘어가기 전 비활성화)
         if (_hitboxCollider != null)
         {
             _hitboxCollider.enabled = false;
         }
+
+        // 솟아오르기 완료 시 효과음 중단
+        if (_audioSource != null && _audioSource.isPlaying)
+        {
+            _audioSource.Stop();
+            _audioSource.loop = false;
+        }
     }
+
     /// <summary>
     /// 충돌체(BoxCollider)가 다른 충돌체와 겹치기 시작할 때 호출됩니다.
     /// (isTrigger = true일 때만 호출)
@@ -197,17 +231,15 @@ public class RootSummonHandler : MonoBehaviour
         }
 
         // [로직 2] 대상이 플레이어인지 확인
-        // (PlayerHealth 스크립트가 붙은 오브젝트는 태그가 "Player"로 설정되어 있어야 합니다.)
         if (other.CompareTag(TargetTag))
         {
             // [로직 3] 플레이어의 피해 처리 인터페이스 (IDamageable)를 찾습니다.
-            // PlayerHealth 스크립트가 이 인터페이스를 구현하고 있습니다.
             IDamageable damageableTarget = other.GetComponent<IDamageable>();
 
             if (damageableTarget != null)
             {
                 // 데미지 입히는 핵심 호출 (공격 타입: Magic)
-                // [수정] IDamageable 인터페이스와 DamageType.Magic을 사용합니다.
+                // [수정] IDamageable 인터페이스와 DamageType.True를 사용합니다.
                 damageableTarget.TakeDamage(_magicDamage, DamageType.True);
 
                 // 한 번 피해를 입혔으므로 중복 피해를 방지합니다.

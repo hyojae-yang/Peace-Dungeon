@@ -1,80 +1,93 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// IDetectable°ú IDamageable ÀÎÅÍÆäÀÌ½º¸¦ ±¸ÇöÇÏ¸ç, ÇÃ·¹ÀÌ¾îÀÇ Ã¼·Â ¹× ¹æ¾î ·ÎÁ÷À» °ü¸®ÇÕ´Ï´Ù.
-/// ÀÌ ½ºÅ©¸³Æ®´Â ´õ ÀÌ»ó ½Ì±ÛÅÏÀÌ ¾Æ´Ï¸ç, PlayerCharacterÀÇ ¸â¹ö·Î °ü¸®µË´Ï´Ù.
+/// IDetectableê³¼ IDamageable ì¸í„°í˜ì´ìŠ¤ë¥¼ êµ¬í˜„í•˜ë©°, í”Œë ˆì´ì–´ì˜ ì²´ë ¥ ë° ë°©ì–´ ë¡œì§ì„ ê´€ë¦¬í•©ë‹ˆë‹¤.
+/// ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” ë” ì´ìƒ ì‹±ê¸€í„´ì´ ì•„ë‹ˆë©°, PlayerCharacterì˜ ë©¤ë²„ë¡œ ê´€ë¦¬ë©ë‹ˆë‹¤.
 /// </summary>
 public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 {
-    // Áß¾Ó Çãºê ¿ªÇÒÀ» ÇÏ´Â PlayerCharacter ÀÎ½ºÅÏ½º¿¡ ´ëÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
+    // ì¤‘ì•™ í—ˆë¸Œ ì—­í• ì„ í•˜ëŠ” PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ì— ëŒ€í•œ ì°¸ì¡°ì…ë‹ˆë‹¤.
     private PlayerCharacter playerCharacter;
-    // µ¥¹ÌÁö È¿°ú¸¦ Ç¥½ÃÇÒ UI Image ÄÄÆ÷³ÍÆ®¿¡ ´ëÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
+    // ë°ë¯¸ì§€ íš¨ê³¼ë¥¼ í‘œì‹œí•  UI Image ì»´í¬ë„ŒíŠ¸ì— ëŒ€í•œ ì°¸ì¡°ì…ë‹ˆë‹¤.
     [Header("UI Feedback")]
-    [Tooltip("È­¸é °¡ÀåÀÚ¸®¿¡ ºÓÀº»ö È¿°ú¸¦ Ç¥½ÃÇÒ Image ÄÄÆ÷³ÍÆ®")]
+    [Tooltip("í™”ë©´ ê°€ì¥ìë¦¬ì— ë¶‰ì€ìƒ‰ íš¨ê³¼ë¥¼ í‘œì‹œí•  Image ì»´í¬ë„ŒíŠ¸")]
     [SerializeField]
     private UnityEngine.UI.Image damageVignetteImage;
 
-    [Tooltip("µ¥¹ÌÁö È¿°ú°¡ »ç¶óÁö´Â µ¥ °É¸®´Â ½Ã°£ÀÔ´Ï´Ù.")]
+    [Tooltip("ë°ë¯¸ì§€ íš¨ê³¼ê°€ ì‚¬ë¼ì§€ëŠ” ë° ê±¸ë¦¬ëŠ” ì‹œê°„ì…ë‹ˆë‹¤.")]
     [SerializeField]
     private float fadeDuration = 0.5f;
 
-    // ÇöÀç ÆäÀÌµå ¾Æ¿ô ÄÚ·çÆ¾ÀÌ ½ÇÇà ÁßÀÎÁö È®ÀÎÇÏ´Â º¯¼ö (Áßº¹ ½ÇÇà ¹æÁö)
+    // í˜„ì¬ í˜ì´ë“œ ì•„ì›ƒ ì½”ë£¨í‹´ì´ ì‹¤í–‰ ì¤‘ì¸ì§€ í™•ì¸í•˜ëŠ” ë³€ìˆ˜ (ì¤‘ë³µ ì‹¤í–‰ ë°©ì§€)
     private Coroutine fadeOutCoroutine = null;
+
+    private AudioSource playerAudioSource;
+
+    [Header("Audio")] // ì¶”ê°€: ì˜¤ë””ì˜¤ í—¤ë”
+    [Tooltip("í”Œë ˆì´ì–´ê°€ í”¼ê²©ë  ë•Œ ì¬ìƒí•  íš¨ê³¼ìŒ í´ë¦½ì…ë‹ˆë‹¤.")]
+    public AudioClip hitSoundClip; // ì¸ìŠ¤í™í„°ì—ì„œ í• ë‹¹í•  í”¼ê²© íš¨ê³¼ìŒ
+    [Tooltip("í”Œë ˆì´ì–´ê°€ ì‚¬ë§í•  ë•Œ ì¬ìƒí•  íš¨ê³¼ìŒ í´ë¦½ì…ë‹ˆë‹¤. (ë‹¨ë°œì„±)")]
+    public AudioClip dieSoundClip; // ì‚¬ë§ íš¨ê³¼ìŒ
     void Start()
     {
-        // PlayerCharacterÀÇ ÀÎ½ºÅÏ½º¸¦ °¡Á®¿Í¼­ ÂüÁ¶¸¦ È®º¸ÇÕ´Ï´Ù.
+        // PlayerCharacterì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ì„œ ì°¸ì¡°ë¥¼ í™•ë³´í•©ë‹ˆë‹¤.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("PlayerCharacter ¶Ç´Â PlayerStats°¡ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù. PlayerHealth ½ºÅ©¸³Æ®°¡ Á¦´ë·Î µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ë˜ëŠ” PlayerStatsê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. PlayerHealth ìŠ¤í¬ë¦½íŠ¸ê°€ ì œëŒ€ë¡œ ë™ì‘í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
+        }
+        playerAudioSource = GetComponent<AudioSource>();
+        if (playerAudioSource == null)
+        {
+            Debug.LogWarning("PlayerHealth ìŠ¤í¬ë¦½íŠ¸ê°€ ë¶™ì€ ì˜¤ë¸Œì íŠ¸ì— AudioSource ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 
-    // IDetectable ÀÎÅÍÆäÀÌ½ºÀÇ ¸Ş¼­µå ±¸Çö
+    // IDetectable ì¸í„°í˜ì´ìŠ¤ì˜ ë©”ì„œë“œ êµ¬í˜„
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ °¨Áö °¡´ÉÇÑ »óÅÂÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+    /// í”Œë ˆì´ì–´ê°€ ê°ì§€ ê°€ëŠ¥í•œ ìƒíƒœì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     public bool IsDetectable()
     {
-        // PlayerCharacter ¹× playerStats°¡ À¯È¿ÇÑÁö ¸ÕÀú È®ÀÎÇÕ´Ï´Ù.
+        // PlayerCharacter ë° playerStatsê°€ ìœ íš¨í•œì§€ ë¨¼ì € í™•ì¸í•©ë‹ˆë‹¤.
         if (playerCharacter != null && playerCharacter.playerStats != null)
         {
-            // ÇÃ·¹ÀÌ¾î°¡ »ì¾ÆÀÖ´Ù¸é °¨Áö °¡´ÉÇÏµµ·Ï true¸¦ ¹İÈ¯ÇÕ´Ï´Ù.
+            // í”Œë ˆì´ì–´ê°€ ì‚´ì•„ìˆë‹¤ë©´ ê°ì§€ ê°€ëŠ¥í•˜ë„ë¡ trueë¥¼ ë°˜í™˜í•©ë‹ˆë‹¤.
             return playerCharacter.playerStats.health > 0;
         }
         return false;
     }
 
     /// <summary>
-    /// ÀÌ ¿ÀºêÁ§Æ®ÀÇ Æ®·£½ºÆûÀ» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// ì´ ì˜¤ë¸Œì íŠ¸ì˜ íŠ¸ëœìŠ¤í¼ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public Transform GetTransform()
     {
         return this.transform;
     }
 
-    // IDamageable ÀÎÅÍÆäÀÌ½ºÀÇ ¸Ş¼­µå ±¸Çö (¿À¹ö·Îµù)
+    // IDamageable ì¸í„°í˜ì´ìŠ¤ì˜ ë©”ì„œë“œ êµ¬í˜„ (ì˜¤ë²„ë¡œë”©)
 
     /// <summary>
-    /// ¼ø¼ö µ¥¹ÌÁö °ªÀ» ¹Ş´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ìˆœìˆ˜ ë°ë¯¸ì§€ ê°’ì„ ë°›ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="amount">ÀÔÀ» µ¥¹ÌÁö·®</param>
+    /// <param name="amount">ì…ì„ ë°ë¯¸ì§€ëŸ‰</param>
     public void TakeDamage(float amount)
     {
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("ÇÃ·¹ÀÌ¾î ½ºÅÈ¿¡ Á¢±ÙÇÒ ¼ö ¾ø½À´Ï´Ù. TakeDamage(float amount) ½ÇÆĞ.");
+            Debug.LogError("í”Œë ˆì´ì–´ ìŠ¤íƒ¯ì— ì ‘ê·¼í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. TakeDamage(float amount) ì‹¤íŒ¨.");
             return;
         }
 
-        // PlayerStatsÀÇ health º¯¼ö¿¡ Á÷Á¢ Á¢±ÙÇÏ¿© µ¥¹ÌÁö¸¦ Àû¿ëÇÕ´Ï´Ù.
+        // PlayerStatsì˜ health ë³€ìˆ˜ì— ì§ì ‘ ì ‘ê·¼í•˜ì—¬ ë°ë¯¸ì§€ë¥¼ ì ìš©í•©ë‹ˆë‹¤.
         playerCharacter.playerStats.health -= amount;
 
 
-        // Ã¼·ÂÀÌ 0º¸´Ù ÀÛ°Å³ª °°¾ÆÁö¸é Á×À½ Ã³¸®
+        // ì²´ë ¥ì´ 0ë³´ë‹¤ ì‘ê±°ë‚˜ ê°™ì•„ì§€ë©´ ì£½ìŒ ì²˜ë¦¬
         if (playerCharacter.playerStats.health <= 0)
         {
             Die();
@@ -82,21 +95,21 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
     }
 
     /// <summary>
-    /// µ¥¹ÌÁö Å¸ÀÔ¿¡ µû¶ó ÇÃ·¹ÀÌ¾îÀÇ ¹æ¾î·ÂÀ» Àû¿ëÇÏ¿© ÇÇÇØ¸¦ °è»êÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ë°ë¯¸ì§€ íƒ€ì…ì— ë”°ë¼ í”Œë ˆì´ì–´ì˜ ë°©ì–´ë ¥ì„ ì ìš©í•˜ì—¬ í”¼í•´ë¥¼ ê³„ì‚°í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="amount">ÀÔÀ» µ¥¹ÌÁö·®</param>
-    /// <param name="type">µ¥¹ÌÁö Å¸ÀÔ (¹°¸®, ¸¶¹ı, °íÁ¤ ÇÇÇØ µî)</param>
+    /// <param name="amount">ì…ì„ ë°ë¯¸ì§€ëŸ‰</param>
+    /// <param name="type">ë°ë¯¸ì§€ íƒ€ì… (ë¬¼ë¦¬, ë§ˆë²•, ê³ ì • í”¼í•´ ë“±)</param>
     public void TakeDamage(float amount, DamageType type)
     {
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("ÇÃ·¹ÀÌ¾î ½ºÅÈ¿¡ Á¢±ÙÇÒ ¼ö ¾ø½À´Ï´Ù. TakeDamage(float amount, DamageType type) ½ÇÆĞ.");
+            Debug.LogError("í”Œë ˆì´ì–´ ìŠ¤íƒ¯ì— ì ‘ê·¼í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. TakeDamage(float amount, DamageType type) ì‹¤íŒ¨.");
             return;
         }
 
         float finalDamage = amount;
 
-        // µ¥¹ÌÁö Å¸ÀÔ¿¡ µû¶ó ¹æ¾î·Â Àû¿ë
+        // ë°ë¯¸ì§€ íƒ€ì…ì— ë”°ë¼ ë°©ì–´ë ¥ ì ìš©
         switch (type)
         {
             case DamageType.Physical:
@@ -106,46 +119,64 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
                 finalDamage = Mathf.Max(amount - playerCharacter.playerStats.magicDefense, 0);
                 break;
             case DamageType.True:
-                // °íÁ¤ ÇÇÇØ´Â ¹æ¾î·ÂÀ» ¹«½ÃÇÕ´Ï´Ù.
+                // ê³ ì • í”¼í•´ëŠ” ë°©ì–´ë ¥ì„ ë¬´ì‹œí•©ë‹ˆë‹¤.
                 break;
         }
 
         playerCharacter.playerStats.health -= finalDamage;
-        // [Ãß°¡] µ¥¹ÌÁö È¿°ú Àç»ı
+        if (PlayerCharacter.Instance.IsReturnProcessActive)
+        {
+            // ê·€í™˜ ì·¨ì†Œ ë©”ì„œë“œ í˜¸ì¶œ
+            PlayerCharacter.Instance.CancelReturn();
+        }
+        // [ì¶”ê°€] ë°ë¯¸ì§€ íš¨ê³¼ ì¬ìƒ
         ShowDamageEffect();
+        // ì¶”ê°€: í”¼ê²© íš¨ê³¼ìŒ ì¬ìƒ
+        PlayHitSound();
         if (playerCharacter.playerStats.health <= 0)
         {
             Die();
         }
     }
     /// <summary>
-    /// µ¥¹ÌÁö È¿°ú(ºÓÀº»ö È­¸é ¿À¹ö·¹ÀÌ)¸¦ Ç¥½ÃÇÏ°í ¼­¼­È÷ »ç¶óÁö°Ô ÇÕ´Ï´Ù.
+    /// í”¼ê²© íš¨ê³¼ìŒì„ ì¬ìƒí•©ë‹ˆë‹¤. (AudioSourceì™€ í´ë¦½ì´ í• ë‹¹ë˜ì–´ ìˆë‹¤ë©´)
+    /// </summary>
+    private void PlayHitSound() // â­ ì¶”ê°€: í”¼ê²©ìŒ ì¬ìƒ í—¬í¼ ë©”ì„œë“œ
+    {
+        if (playerAudioSource != null && hitSoundClip != null)
+        {
+            // PlayOneShotì„ ì‚¬ìš©í•˜ì—¬ í˜„ì¬ ì¬ìƒ ì¤‘ì¸ ì†Œë¦¬(ê³µê²©ìŒ ë“±)ì™€ ì¶©ëŒ ì—†ì´ ë™ì‹œ ì¬ìƒí•©ë‹ˆë‹¤.
+            playerAudioSource.PlayOneShot(hitSoundClip);
+        }
+    }
+    /// <summary>
+    /// ë°ë¯¸ì§€ íš¨ê³¼(ë¶‰ì€ìƒ‰ í™”ë©´ ì˜¤ë²„ë ˆì´)ë¥¼ í‘œì‹œí•˜ê³  ì„œì„œíˆ ì‚¬ë¼ì§€ê²Œ í•©ë‹ˆë‹¤.
     /// </summary>
     private void ShowDamageEffect()
     {
         if (damageVignetteImage == null)
         {
-            Debug.LogWarning("Damage Vignette Image°¡ ÇÒ´çµÇÁö ¾Ê¾Æ µ¥¹ÌÁö È¿°ú¸¦ Àç»ıÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogWarning("Damage Vignette Imageê°€ í• ë‹¹ë˜ì§€ ì•Šì•„ ë°ë¯¸ì§€ íš¨ê³¼ë¥¼ ì¬ìƒí•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ÀÌ¹Ì ÄÚ·çÆ¾ÀÌ ½ÇÇà ÁßÀÌ¶ó¸é ÁßÁöÇÏ°í Àç½ÃÀÛÇÏ¿© È¿°ú¸¦ °»½ÅÇÕ´Ï´Ù.
+        // ì´ë¯¸ ì½”ë£¨í‹´ì´ ì‹¤í–‰ ì¤‘ì´ë¼ë©´ ì¤‘ì§€í•˜ê³  ì¬ì‹œì‘í•˜ì—¬ íš¨ê³¼ë¥¼ ê°±ì‹ í•©ë‹ˆë‹¤.
         if (fadeOutCoroutine != null)
         {
             StopCoroutine(fadeOutCoroutine);
         }
 
-        // »õ ÄÚ·çÆ¾ ½ÃÀÛ
+        // ìƒˆ ì½”ë£¨í‹´ ì‹œì‘
         fadeOutCoroutine = StartCoroutine(FadeDamageVignette());
     }
 
     /// <summary>
-    /// ºÓÀº»ö È­¸é È¿°úÀÇ Åõ¸íµµ¸¦ Áï½Ã ÃÖ´ë·Î ¼³Á¤ÇÑ ÈÄ ¼­¼­È÷ 0À¸·Î ÆäÀÌµå ¾Æ¿ô ½ÃÅµ´Ï´Ù.
+    /// ë¶‰ì€ìƒ‰ í™”ë©´ íš¨ê³¼ì˜ íˆ¬ëª…ë„ë¥¼ ì¦‰ì‹œ ìµœëŒ€ë¡œ ì„¤ì •í•œ í›„ ì„œì„œíˆ 0ìœ¼ë¡œ í˜ì´ë“œ ì•„ì›ƒ ì‹œí‚µë‹ˆë‹¤.
     /// </summary>
     private IEnumerator FadeDamageVignette()
     {
-        // 1. ÃÖ´ë Åõ¸íµµ ¼³Á¤ (Áï½Ã È¿°ú°¡ ³ªÅ¸³ªµµ·Ï)
-        // µ¥¹ÌÁö ½Ã Ç¥½ÃÇÒ ÃÖ´ë Åõ¸íµµ¸¦ ¿©±â¼­ ¼³Á¤ÇÕ´Ï´Ù. (0.0f ~ 1.0f)
+        // 1. ìµœëŒ€ íˆ¬ëª…ë„ ì„¤ì • (ì¦‰ì‹œ íš¨ê³¼ê°€ ë‚˜íƒ€ë‚˜ë„ë¡)
+        // ë°ë¯¸ì§€ ì‹œ í‘œì‹œí•  ìµœëŒ€ íˆ¬ëª…ë„ë¥¼ ì—¬ê¸°ì„œ ì„¤ì •í•©ë‹ˆë‹¤. (0.0f ~ 1.0f)
         float maxAlpha = 0.6f; 
         Color startColor = damageVignetteImage.color;
         startColor.a = maxAlpha;
@@ -153,7 +184,7 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 
         float timer = 0f;
         
-        // 2. ½Ã°£ °æ°ú¿¡ µû¶ó Åõ¸íµµ¸¦ 0À¸·Î °¨¼Ò (ÆäÀÌµå ¾Æ¿ô)
+        // 2. ì‹œê°„ ê²½ê³¼ì— ë”°ë¼ íˆ¬ëª…ë„ë¥¼ 0ìœ¼ë¡œ ê°ì†Œ (í˜ì´ë“œ ì•„ì›ƒ)
         while (timer < fadeDuration)
         {
             timer += Time.deltaTime;
@@ -163,30 +194,37 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
             newColor.a = currentAlpha;
             damageVignetteImage.color = newColor;
 
-            yield return null; // ´ÙÀ½ ÇÁ·¹ÀÓ±îÁö ´ë±â
+            yield return null; // ë‹¤ìŒ í”„ë ˆì„ê¹Œì§€ ëŒ€ê¸°
         }
 
-        // 3. ¿ÏÀüÈ÷ »ç¶óÁø ÈÄ Åõ¸íµµ¸¦ 0À¸·Î È®Á¤ÇÕ´Ï´Ù.
+        // 3. ì™„ì „íˆ ì‚¬ë¼ì§„ í›„ íˆ¬ëª…ë„ë¥¼ 0ìœ¼ë¡œ í™•ì •í•©ë‹ˆë‹¤.
         Color finalColor = damageVignetteImage.color;
         finalColor.a = 0f;
         damageVignetteImage.color = finalColor;
 
-        fadeOutCoroutine = null; // ÄÚ·çÆ¾ÀÌ ¿Ï·áµÇ¾úÀ½À» Ç¥½Ã
+        fadeOutCoroutine = null; // ì½”ë£¨í‹´ì´ ì™„ë£Œë˜ì—ˆìŒì„ í‘œì‹œ
     }
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ Á×¾úÀ» ¶§ È£ÃâµÉ ¸Ş¼­µå
+    /// í”Œë ˆì´ì–´ê°€ ì£½ì—ˆì„ ë•Œ í˜¸ì¶œë  ë©”ì„œë“œ
     /// </summary>
     private void Die()
     {
-        Debug.Log("ÇÃ·¹ÀÌ¾î°¡ »ç¸ÁÇß½À´Ï´Ù!");
-        if (MainSceneManager.Instance.isGameOver) return; // ÀÌ¹Ì °ÔÀÓ ¿À¹ö »óÅÂ¶ó¸é Áßº¹ È£Ãâ ¹æÁö
+        Debug.Log("í”Œë ˆì´ì–´ê°€ ì‚¬ë§í–ˆìŠµë‹ˆë‹¤!");
+
+        if (MainSceneManager.Instance.isGameOver) return; // ì´ë¯¸ ê²Œì„ ì˜¤ë²„ ìƒíƒœë¼ë©´ ì¤‘ë³µ í˜¸ì¶œ ë°©ì§€
+        // ì‚¬ë§ íš¨ê³¼ìŒ ì¬ìƒ
+        if (playerAudioSource != null && dieSoundClip != null)
+        {
+            // PlayOneShotì„ ì‚¬ìš©í•˜ì—¬ ì‚¬ë§ BGMì´ ì‹œì‘ë˜ê¸° ì§ì „ì— ë‹¨ë°œì„± íš¨ê³¼ìŒì„ ì¬ìƒí•©ë‹ˆë‹¤.
+            playerAudioSource.PlayOneShot(dieSoundClip);
+        }
         if (SoundManager.Instance != null)
         { SoundManager.Instance.PlayBGM(BGMType.Main_D); }
         MainSceneManager.Instance.isGameOver = true;
-        DungeonManager.Instance.DeadDungeon(); // ´øÀü »óÅÂ ¸®¼Â
-        // ¿©±â¿¡ °ÔÀÓ ¿À¹ö, ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ® ÆÄ±« µî Ãß°¡ ·ÎÁ÷À» ±¸ÇöÇÕ´Ï´Ù.
+        DungeonManager.Instance.DeadDungeon(); // ë˜ì „ ìƒíƒœ ë¦¬ì…‹
+        // ì—¬ê¸°ì— ê²Œì„ ì˜¤ë²„, í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸ íŒŒê´´ ë“± ì¶”ê°€ ë¡œì§ì„ êµ¬í˜„í•©ë‹ˆë‹¤.
         MainSceneManager.Instance.SetGameOver();
-        // ÇÃ·¹ÀÌ¾î ¿ÀºêÁ§Æ®¸¦ ºñÈ°¼ºÈ­ÇÏ¿© Á×Àº »óÅÂ¸¦ Ç¥ÇöÇÕ´Ï´Ù.
+        // í”Œë ˆì´ì–´ ì˜¤ë¸Œì íŠ¸ë¥¼ ë¹„í™œì„±í™”í•˜ì—¬ ì£½ì€ ìƒíƒœë¥¼ í‘œí˜„í•©ë‹ˆë‹¤.
         this.gameObject.SetActive(false);
     }
 }

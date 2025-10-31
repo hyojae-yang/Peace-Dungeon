@@ -138,6 +138,10 @@ public class ShopUIManager : MonoBehaviour
         buyPanel.SetActive(true);
         sellPanel.SetActive(false);
         confirmationPanel.SetActive(false); // 혹시 모를 경우를 대비해 비활성화
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Shop_Enter, 0.5f);
+        }
     }
 
     /// <summary>

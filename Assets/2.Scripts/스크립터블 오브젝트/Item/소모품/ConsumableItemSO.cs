@@ -19,6 +19,9 @@ public class ConsumableItemSO : BaseItemSO
     [Tooltip("소모품 사용 시 플레이어에게 적용되는 버프 또는 디버프의 지속 시간(초)입니다. (0일 경우 즉시 효과)")]
     public float effectDuration = 0f;
 
+    [Header("사운드 설정")]
+    [Tooltip("아이템 사용 시 재생할 효과음의 종류를 지정합니다.")]
+    public SFXType useSFXType = SFXType.Item_Heal;
     /// <summary>
     /// BaseItemSO의 maxStack을 재정의하여, 이 아이템의 최대 스택 수를 반환합니다.
     /// </summary>
@@ -30,8 +33,12 @@ public class ConsumableItemSO : BaseItemSO
     /// </summary>
     public virtual void Use(PlayerCharacter player)
     {
-        Debug.Log($"{itemName}을 사용했습니다!");
-
+        //Debug.Log($"{itemName}을 사용했습니다!");
+        if (SoundManager.Instance != null && useSFXType != SFXType.None)
+        {
+            // 아이템 사용 효과음은 적당한 0.7f 볼륨으로 설정합니다.
+            SoundManager.Instance.PlaySFX(useSFXType, 0.7f);
+        }
         // consumptionEffects 리스트에 담긴 모든 효과를 플레이어에게 적용하는 로직
         // 예: 체력 회복, 마나 회복 등
         foreach (var effect in consumptionEffects)

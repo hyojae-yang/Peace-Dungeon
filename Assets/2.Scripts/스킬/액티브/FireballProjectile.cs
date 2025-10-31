@@ -80,7 +80,12 @@ public class FireballProjectile : MonoBehaviour
             // IDamageable 인터페이스를 가진 객체에게 데미지를 입힙니다.
             damageableObject.TakeDamage(damage, damageType);
         }
-
+        // 충돌 시 SFX 재생
+        if (SoundManager.Instance != null)
+        {
+            // 충돌/폭발 사운드를 재생하고, 볼륨을 조정할 수 있습니다.
+            SoundManager.Instance.PlaySFX(SFXType.Skill_Fireball_Impact, 0.8f);
+        }
         // 몬스터나 지형지물에 닿으면 즉시 파괴됩니다.
         Destroy(gameObject);
     }

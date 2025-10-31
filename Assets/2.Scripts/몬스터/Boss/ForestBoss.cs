@@ -13,7 +13,23 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     private Monster _monster;            // 몬스터 상태 접근 및 변경을 위한 컴포넌트
     private MonsterCombat _monsterCombat;
     private Transform _playerTransform;  // 플레이어 위치 추적을 위한 Transform
-
+    private AudioSource _audioSource;
+    // === 사운드 설정 필드 추가 ===
+    [Header("사운드 설정")]
+    [Tooltip("일반 공격 - 뿌리를 들어 올릴 때의 날카로운 예고 사운드")]
+    public AudioClip basicAttackLiftClip;
+    [Tooltip("일반 공격 - 뿌리를 내려찍을 때의 짧고 굵은 포효/기합 사운드")]
+    public AudioClip basicAttackStrikeClip;
+    [Tooltip("특수 공격 시전 시간 동안 반복될 웅장한 충전 사운드")]
+    public AudioClip chargeLoopClip;
+    [Tooltip("특수 공격 시전 종료 및 발동 직전의 에너지 해방 사운드")]
+    public AudioClip chargeReleaseClip;
+    [Tooltip("분노 상태 진입 시 재생될, 길고 웅장한 포효 또는 경고 사운드")]
+    public AudioClip enrageClip; // ⭐️ 새로 추가
+    [Tooltip("뿌리 소환 공격 시작 시 재생될, 마법 발동 또는 땅 뚫는 소리")]
+    public AudioClip rootSummonClip; // ⭐️ 새로 추가
+    [Tooltip("몬스터 소환 공격 시작 시 재생될, 공간 이동 또는 게이트 열리는 소리")]
+    public AudioClip minionSummonClip;
     // === 보스 행동 설정 변수 ===
     [Header("보스 공격 설정")]
     [Tooltip("플레이어를 감지하는 유효 사거리입니다. 이 거리 안에 들어와야 행동을 시작합니다.")]
@@ -75,7 +91,11 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     [Header("보스 분노(Enrage) 상태 설정")]
     [Tooltip("보스가 분노 상태로 전환되는 체력 임계값 비율입니다. (예: 0.3 = 30%)")]
     public float enrageHealthThreshold = 0.3f; // [사용자 요청] 전역 변수 최소화
-
+    [Header("시전 이펙트 설정")]
+    [Tooltip("특수 공격 시전 시간(Charge) 동안 활성화될 파티클 시스템 또는 시각 오브젝트")]
+    public GameObject normalChargeVfxObject; // 이펙트 오브젝트 참조
+    [Tooltip("분노 상태일 때 특수 공격 시전 시간 동안 활성화될 강력한 시각 오브젝트")]
+    public GameObject enrageChargeVfxObject;
     /// <summary>
     /// 분노 상태 진입 로직이 이미 한 번 실행되었는지 추적하는 플래그입니다. 
     /// 이 플래그가 참이면 이벤트 핸들러에서 더 이상 검사하지 않습니다.
@@ -152,6 +172,11 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         {
             Debug.LogError("ForestBoss: Monster 컴포넌트가 필요합니다!");
             enabled = false;
+        }
+        _audioSource = GetComponent<AudioSource>();
+        if (_audioSource == null)
+        {
+            Debug.LogWarning("ForestBoss: AudioSource 컴포넌트가 없어 사운드 재생이 불가능합니다.", this);
         }
         // [추가] 2. MonsterCombat 이벤트 구독
         /// <summary>
@@ -320,6 +345,11 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // 2. 뿌리 들어 올리기 동작 (Lift)
         // ----------------------------------------------------------------------------------
 
+        //[핵심 추가 1] 들어 올리기 시작 시 사운드 재생
+        if (_audioSource != null && basicAttackLiftClip != null)
+        {
+            _audioSource.PlayOneShot(basicAttackLiftClip);
+        }
         Quaternion liftStartRotation = targetRootPivot.localRotation;
 
         // [수정 적용] 부호를 반전시켜 들어 올리는 목표 회전을 계산합니다.
@@ -345,10 +375,11 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // ----------------------------------------------------------------------------------
         // 3. 뿌리 내려찍기 동작 (Strike) 및 피해 판정
         // ----------------------------------------------------------------------------------
-
-        // 내려찍기 시작점: liftTargetRotation (들어 올리기 완료 지점)
-        // 내려찍기 목표점: liftStartRotation에서 strikeAngle(-30f)만큼 회전
-        // strikeAngle 역시 내리는 동작이므로 liftAngle과 동일한 부호 반전 로직을 따릅니다.
+        // [핵심 추가 2] 내려찍기 시작 시 사운드 재생
+        if (_audioSource != null && basicAttackStrikeClip != null)
+        {
+            _audioSource.PlayOneShot(basicAttackStrikeClip);
+        }
         Quaternion strikeTargetRotation = liftStartRotation * Quaternion.Euler(-strikeAngle, 0, 0);
 
         timeElapsed = 0f;
@@ -416,9 +447,29 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     /// </summary>
     private IEnumerator PerformChargeAttack()
     {
+        // [핵심 수정 1] 시전 시작 시 시각 효과 활성화
+        ActivateChargeVisuals();
+        // [핵심 추가 1] 시전 시작 시 루프 사운드 재생
+        if (_audioSource != null && chargeLoopClip != null)
+        {
+            _audioSource.clip = chargeLoopClip;
+            _audioSource.loop = true; // 반복 재생
+            _audioSource.Play();
+        }
         // 1. 시전 시간 대기 (애니메이션, 기 모으기)
         yield return new WaitForSeconds(chargeCastTime);
-
+        // [핵심 수정 2] 시전 종료 시 시각 효과 비활성화
+        DeactivateChargeVisuals();
+        // [핵심 추가 2] 시전 종료 직전, 루프 사운드 멈추고 해방 사운드 재생
+        if (_audioSource != null)
+        {
+            _audioSource.Stop();
+            _audioSource.loop = false;
+            if (chargeReleaseClip != null)
+            {
+                _audioSource.PlayOneShot(chargeReleaseClip);
+            }
+        }
         // 2. [수정] 등록된 특수 공격 중 하나를 랜덤으로 선택하여 실행합니다.
         if (_specialAttackRoutines.Count == 0)
         {
@@ -506,7 +557,11 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
             _chargeRoutine = null;
             yield break;
         }
-
+        // [핵심 추가] 뿌리 소환 발동 사운드 재생 (Instantiate 직전)
+        if (_audioSource != null && rootSummonClip != null)
+        {
+            _audioSource.PlayOneShot(rootSummonClip);
+        }
         // =========================================================================================
         // [수정된 로직] Collider.bounds 기반 무작위 소환 위치 계산 및 핸들러 초기화
         // =========================================================================================
@@ -644,6 +699,12 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         int focusedMinionCount = Mathf.RoundToInt(totalMinionsToSummon * playerFocusedMinionRatio);
         int randomMinionCount = totalMinionsToSummon - focusedMinionCount;
 
+        // [핵심 추가] 몬스터 소환 발동 사운드 재생 (Instantiate 직전)
+        if (_audioSource != null && minionSummonClip != null)
+        {
+            _audioSource.PlayOneShot(minionSummonClip);
+        }
+
         // --- 소환 루틴 A: 플레이어 주변 집중 소환 ---
         for (int i = 0; i < focusedMinionCount; i++)
         {
@@ -769,6 +830,10 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
             // 분노 상태 시각 효과: 붉은 색으로 변경
             renderer.material.color = Color.red;
         }
+        if (_audioSource != null && enrageClip != null)
+        {
+            _audioSource.PlayOneShot(enrageClip);
+        }
         // ====================================================================
         // [사용자 로직 삽입 공간]
 
@@ -816,6 +881,45 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         }
         // 주입된 값을 안전하게 private 필드에 저장합니다.
         rootSummonAreaCollider = collider;
+    }
+    /// <summary>
+    /// 특수 공격 시전(Charge) 시작 시 호출되어 시각 효과를 활성화합니다.
+    /// 분노 상태 여부에 따라 일반 이펙트와 분노 이펙트 중 하나를 선택하여 활성화합니다.
+    /// </summary>
+    private void ActivateChargeVisuals()
+    {
+        // 분노 상태 여부에 따라 사용할 오브젝트를 결정합니다.
+        GameObject targetVfx = _hasEnraged ? enrageChargeVfxObject : normalChargeVfxObject;
+        GameObject otherVfx = _hasEnraged ? normalChargeVfxObject : enrageChargeVfxObject; // 혹시 모를 상황 대비
+
+        // 1. 사용할 이펙트 활성화
+        if (targetVfx != null)
+        {
+            targetVfx.SetActive(true);
+            // Debug.Log($"ForestBoss: 시전 이펙트 활성화! (상태: {_hasEnraged} - {targetVfx.name})");
+        }
+
+        // 2. 다른 이펙트 비활성화 (안전 장치)
+        if (otherVfx != null && otherVfx.activeSelf)
+        {
+            otherVfx.SetActive(false);
+        }
+    }
+
+    /// <summary>
+    /// 특수 공격 시전 시간 종료 시 호출되어 시각 효과를 비활성화합니다.
+    /// 사용했던 이펙트(일반 또는 분노)를 비활성화합니다.
+    /// </summary>
+    private void DeactivateChargeVisuals()
+    {
+        // 분노 상태 여부에 따라 비활성화할 오브젝트를 결정합니다.
+        GameObject targetVfx = _hasEnraged ? enrageChargeVfxObject : normalChargeVfxObject;
+
+        if (targetVfx != null)
+        {
+            targetVfx.SetActive(false);
+            // Debug.Log($"ForestBoss: 시전 이펙트 비활성화! (상태: {_hasEnraged})");
+        }
     }
     // ========================= 메서드 추가 (1개) =========================
     /// <summary>

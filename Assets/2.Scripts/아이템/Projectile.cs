@@ -3,7 +3,8 @@ using System.Collections;
 
 /// <summary>
 /// 원거리 공격에 사용되는 발사체(투사체)를 관리하는 스크립트입니다.
-/// 단일 책임 원칙(SRP)을 준수하기 위해 데미지 계산 로직을 PlayerAttack 스크립트에서 받아오도록 수정했습니다.
+/// 단일 책임 원칙(SRP)을 준수하기 위해 데미지 계산 로직을 PlayerAttack 스크립트에서 받아오며,
+/// 타격 사운드를 자체적으로 관리하도록 변경했습니다.
 /// </summary>
 public class Projectile : MonoBehaviour
 {
@@ -43,10 +44,33 @@ public class Projectile : MonoBehaviour
     /// </summary>
     private Transform target;
 
+    /// <summary>
+    /// PlayerAttack에서 계산된 이 발사체의 치명타 여부입니다.
+    /// </summary>
+    private bool isCriticalHit;
+
+    // === 오디오 속성 ===
+    private AudioSource projectileAudioSource;
+
+    [Header("오디오 클립")]
+
+    [Tooltip("적중 시 일반 데미지가 들어갔을 때 재생할 효과음 클립입니다.")]
+    public AudioClip hitImpactClip; // ⭐ 수정: public으로 변경하여 자체적으로 클립을 관리합니다.
+
+    [Tooltip("적중 시 치명타가 터졌을 때 재생할 효과음 클립입니다. (선택 사항)")]
+    public AudioClip criticalHitClip;
+
     void Awake()
     {
         // 발사체 생성 시점의 위치를 기록합니다.
         startPosition = transform.position;
+
+        // AudioSource 컴포넌트를 가져옵니다.
+        projectileAudioSource = GetComponent<AudioSource>();
+        if (projectileAudioSource == null)
+        {
+            Debug.LogWarning($"발사체 오브젝트 '{gameObject.name}'에 AudioSource 컴포넌트가 없습니다.");
+        }
     }
 
     /// <summary>
@@ -55,12 +79,15 @@ public class Projectile : MonoBehaviour
     /// <param name="weapon">발사체에 사용할 무기 데이터</param>
     /// <param name="layer">몬스터 레이어 마스크</param>
     /// <param name="damage">계산된 최종 데미지 값</param>
-    public void SetProjectileData(WeaponItemSO weapon, LayerMask layer, float damage)
+    /// <param name="isCritical">이 공격의 치명타 여부</param>
+    public void SetProjectileData(WeaponItemSO weapon, LayerMask layer, float damage, bool isCritical) // ⭐ 수정: hitClip 인자 제거
     {
         weaponData = weapon;
         monsterLayer = layer;
         maxDistance = weapon.attackRange;
-        finalDamage = damage; // 전달받은 최종 데미지 값을 저장합니다.
+        finalDamage = damage;
+
+        isCriticalHit = isCritical;
 
         // 발사체 생성 시점에 가장 가까운 몬스터를 찾아 타겟으로 설정합니다.
         FindClosestMonster();
@@ -95,39 +122,29 @@ public class Projectile : MonoBehaviour
     void Update()
     {
         // 1. 발사체 이동
-        // projectileSpeed는 인스펙터에서 설정된 값을 사용합니다.
 
-        // 수정 1: 타겟이 Null이거나 (Unity Object Check), 타겟의 게임 오브젝트가 파괴되었는지 다시 한번 확인합니다.
         if (target != null && target.gameObject.activeInHierarchy)
         {
-            // 타겟이 있으면 타겟을 향해 회전하고 이동합니다.
             Vector3 direction = target.position - transform.position;
 
-            // 수정 2: 방향 벡터의 크기(Magnitude)를 확인하여 Vector3.zero 오류를 방지합니다.
-            if (direction.sqrMagnitude > 0.0001f) // sqrMagnitude로 성능 최적화 (Magnitude보다 빠름)
+            if (direction.sqrMagnitude > 0.0001f)
             {
-                // 방향을 정규화(normalized)하여 사용하기 전에, 이미 0이 아님을 보장합니다.
                 Vector3 normalizedDirection = direction.normalized;
 
-                // transform.forward = normalizedDirection; // 오류 발생 가능 라인 수정 (103라인 추정)
-                // 현재 위치에서 타겟 방향으로 부드럽게 회전하도록 Slerp를 사용하는 것이 더 자연스러울 수 있습니다.
                 transform.forward = normalizedDirection;
 
                 transform.Translate(normalizedDirection * projectileSpeed * Time.deltaTime, Space.World);
             }
             else
             {
-                // 타겟에 도달했거나 위치가 겹치는 경우, 투사체를 파괴하여 무한 루프나 오류를 방지합니다.
                 Destroy(gameObject);
                 return;
             }
         }
         else
         {
-            // 수정 3: 타겟이 사라졌다면 (null이 되었거나 파괴되었다면), 직진 모드로 전환합니다.
-            target = null; // 타겟 레퍼런스를 확실히 정리
+            target = null;
             transform.Translate(Vector3.forward * projectileSpeed * Time.deltaTime, Space.Self);
-            // Space.World 대신 Space.Self를 사용하여 현재 투사체가 바라보는 방향으로 이동합니다.
         }
 
         // 2. 최대 사거리 확인 후 파괴
@@ -145,7 +162,6 @@ public class Projectile : MonoBehaviour
         // 충돌한 오브젝트가 몬스터 레이어에 속하는지 확인
         if (((1 << other.gameObject.layer) & monsterLayer) != 0)
         {
-            // 수정된 부분: Monster 컴포넌트 대신 IDamageable 인터페이스를 가져옵니다.
             IDamageable damageableTarget = other.GetComponent<IDamageable>();
 
             if (damageableTarget != null)
@@ -153,7 +169,20 @@ public class Projectile : MonoBehaviour
                 // PlayerAttack 스크립트에서 전달받은 최종 데미지 값을 사용합니다.
                 damageableTarget.TakeDamage(finalDamage, weaponData.damageType);
 
-                // 넉백 효과 적용 (기존 로직 유지)
+                // 치명타 여부를 확인하고 적절한 사운드를 재생합니다. (자체 클립 사용)
+                if (projectileAudioSource != null)
+                {
+                    if (isCriticalHit && criticalHitClip != null)
+                    {
+                        projectileAudioSource.PlayOneShot(criticalHitClip); // 치명타 사운드
+                    }
+                    else if (hitImpactClip != null) // 일반 타격음 재생
+                    {
+                        projectileAudioSource.PlayOneShot(hitImpactClip);
+                    }
+                }
+
+                // 넉백 효과 적용
                 if (weaponData.knockbackForce > 0)
                 {
                     Rigidbody monsterRb = other.GetComponent<Rigidbody>();

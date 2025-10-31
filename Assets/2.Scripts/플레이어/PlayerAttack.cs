@@ -1,129 +1,157 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using UnityEngine.EventSystems;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾îÀÇ °ø°İ ·ÎÁ÷À» Á¦¾îÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ÀåÂøµÈ ¹«±â µ¥ÀÌÅÍ¿¡ µû¶ó °ø°İ ¹æ½ÄÀÌ µ¿ÀûÀ¸·Î º¯°æµÇ¸ç, ±ÙÁ¢/¿ø°Å¸® °ø°İ¿¡ µô·¹ÀÌ¸¦ Àû¿ëÇÕ´Ï´Ù.
-/// SOLID ¿øÄ¢ Áß ´ÜÀÏ Ã¥ÀÓ ¿øÄ¢(SRP)À» ÁØ¼öÇÕ´Ï´Ù.
+/// í”Œë ˆì´ì–´ì˜ ê³µê²© ë¡œì§ì„ ì œì–´í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì¥ì°©ëœ ë¬´ê¸° ë°ì´í„°ì— ë”°ë¼ ê³µê²© ë°©ì‹ì´ ë™ì ìœ¼ë¡œ ë³€ê²½ë˜ë©°, ê·¼ì ‘/ì›ê±°ë¦¬ ê³µê²©ì— ë”œë ˆì´ë¥¼ ì ìš©í•©ë‹ˆë‹¤.
+/// SOLID ì›ì¹™ ì¤‘ ë‹¨ì¼ ì±…ì„ ì›ì¹™(SRP)ì„ ì¤€ìˆ˜í•©ë‹ˆë‹¤.
 /// </summary>
 public class PlayerAttack : MonoBehaviour
 {
-    // Áß¾Ó Çãºê ¿ªÇÒÀ» ÇÏ´Â PlayerCharacter ÀÎ½ºÅÏ½º¿¡ ´ëÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
+    // ì¤‘ì•™ í—ˆë¸Œ ì—­í• ì„ í•˜ëŠ” PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ì— ëŒ€í•œ ì°¸ì¡°ì…ë‹ˆë‹¤.
     private PlayerCharacter playerCharacter;
 
-    // === ¹«±â µ¥ÀÌÅÍ ===
+    // í”Œë ˆì´ì–´ì˜ AudioSource ì»´í¬ë„ŒíŠ¸ì…ë‹ˆë‹¤.
+    private AudioSource playerAudioSource; // AudioSource ì°¸ì¡°
+
+    // === ë¬´ê¸° ë°ì´í„° ===
     /// <summary>
-    /// PlayerEquipment·ÎºÎÅÍ Àü´Ş¹ŞÀ» ¹«±â µ¥ÀÌÅÍÀÔ´Ï´Ù.
+    /// PlayerEquipmentë¡œë¶€í„° ì „ë‹¬ë°›ì„ ë¬´ê¸° ë°ì´í„°ì…ë‹ˆë‹¤.
     /// </summary>
-    [Tooltip("ÇöÀç ÀåÂøµÈ ¹«±âÀÇ µ¥ÀÌÅÍÀÔ´Ï´Ù. PlayerEquipment¿¡¼­ ¼³Á¤µË´Ï´Ù.")]
-    public WeaponItemSO equippedWeapon; // PlayerController¿¡¼­ Á¢±Ù °¡´ÉÇÏµµ·Ï public À¯Áö
+    [Tooltip("í˜„ì¬ ì¥ì°©ëœ ë¬´ê¸°ì˜ ë°ì´í„°ì…ë‹ˆë‹¤. PlayerEquipmentì—ì„œ ì„¤ì •ë©ë‹ˆë‹¤.")]
+    public WeaponItemSO equippedWeapon; // PlayerControllerì—ì„œ ì ‘ê·¼ ê°€ëŠ¥í•˜ë„ë¡ public ìœ ì§€
 
     /// <summary>
-    /// ¸¶Áö¸· °ø°İ ½Ã°£À» ±â·ÏÇÏ´Â º¯¼öÀÔ´Ï´Ù. °ø°İ ÄğÅ¸ÀÓÀ» Ã¼Å©ÇÏ´Â µ¥ »ç¿ëµË´Ï´Ù.
+    /// ë§ˆì§€ë§‰ ê³µê²© ì‹œê°„ì„ ê¸°ë¡í•˜ëŠ” ë³€ìˆ˜ì…ë‹ˆë‹¤. ê³µê²© ì¿¨íƒ€ì„ì„ ì²´í¬í•˜ëŠ” ë° ì‚¬ìš©ë©ë‹ˆë‹¤.
     /// </summary>
     private float lastAttackTime;
 
-    // === °ø°İ µô·¹ÀÌ ¼³Á¤ ===
-    [Header("°ø°İ ¼³Á¤")]
-    [Tooltip("±ÙÁ¢ °ø°İÀÇ µ¥¹ÌÁö ÆÇÁ¤ µô·¹ÀÌ (ÃÊ)ÀÔ´Ï´Ù. ¾Ö´Ï¸ŞÀÌ¼Ç°ú Å¸ÀÌ¹ÖÀ» ¸ÂÃä´Ï´Ù.")]
+    // === ê³µê²© ë”œë ˆì´ ì„¤ì • ===
+    [Header("ê³µê²© ì„¤ì •")]
+    [Tooltip("ê·¼ì ‘ ê³µê²©ì˜ ë°ë¯¸ì§€ íŒì • ë”œë ˆì´ (ì´ˆ)ì…ë‹ˆë‹¤. ì• ë‹ˆë©”ì´ì…˜ê³¼ íƒ€ì´ë°ì„ ë§ì¶¥ë‹ˆë‹¤.")]
     public float meleeDamageDelay = 0.4f;
 
-    [Tooltip("¿ø°Å¸® °ø°İÀÇ ¹ß»çÃ¼ »ı¼º µô·¹ÀÌ (ÃÊ)ÀÔ´Ï´Ù. ¾Ö´Ï¸ŞÀÌ¼Ç°ú Å¸ÀÌ¹ÖÀ» ¸ÂÃä´Ï´Ù.")]
+    [Tooltip("ì›ê±°ë¦¬ ê³µê²©ì˜ ë°œì‚¬ì²´ ìƒì„± ë”œë ˆì´ (ì´ˆ)ì…ë‹ˆë‹¤. ì• ë‹ˆë©”ì´ì…˜ê³¼ íƒ€ì´ë°ì„ ë§ì¶¥ë‹ˆë‹¤.")]
     public float rangedShootDelay = 0.2f;
-    [Tooltip("¿ø°Å¸® °ø°İ ¹ß»çÃ¼°¡ »ı¼ºµÉ À§Ä¡(Transform)ÀÔ´Ï´Ù. º¸Åë ÇÃ·¹ÀÌ¾î ¼ÕÀÌ³ª ¹«±â ³¡¿¡ À§Ä¡ÇÕ´Ï´Ù.")]
+    [Tooltip("ì›ê±°ë¦¬ ê³µê²© ë°œì‚¬ì²´ê°€ ìƒì„±ë  ìœ„ì¹˜(Transform)ì…ë‹ˆë‹¤. ë³´í†µ í”Œë ˆì´ì–´ ì†ì´ë‚˜ ë¬´ê¸° ëì— ìœ„ì¹˜í•©ë‹ˆë‹¤.")]
     public Transform projectileSpawnPoint;
 
-    [Tooltip("°ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ı ÈÄ ÀÌµ¿ Á¦ÇÑÀ» ÇØÁ¦ÇÒ ½Ã°£ÀÔ´Ï´Ù. (¾Ö´Ï¸ŞÀÌ¼Ç ±æÀÌ¿¡ µû¶ó Á¶Àı)")]
+    [Tooltip("ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒ í›„ ì´ë™ ì œí•œì„ í•´ì œí•  ì‹œê°„ì…ë‹ˆë‹¤. (ì• ë‹ˆë©”ì´ì…˜ ê¸¸ì´ì— ë”°ë¼ ì¡°ì ˆ)")]
     public float attackMovementUnlockDelay = 0.5f;
 
-    // === ÇÃ·¹ÀÌ¾î ½ºÅÈ ¹× ·¹ÀÌ¾î ¸¶½ºÅ© ===
-    [Tooltip("¸ó½ºÅÍ¿¡°Ô µ¥¹ÌÁö¸¦ ÀÔÈ÷´Â µ¥ »ç¿ëÇÒ ·¹ÀÌ¾î ¸¶½ºÅ©ÀÔ´Ï´Ù.")]
+    // === í”Œë ˆì´ì–´ ìŠ¤íƒ¯ ë° ë ˆì´ì–´ ë§ˆìŠ¤í¬ ===
+    [Tooltip("ëª¬ìŠ¤í„°ì—ê²Œ ë°ë¯¸ì§€ë¥¼ ì…íˆëŠ” ë° ì‚¬ìš©í•  ë ˆì´ì–´ ë§ˆìŠ¤í¬ì…ë‹ˆë‹¤.")]
     public LayerMask monsterLayer;
 
-    [Header("½Ã°¢È­ ¼³Á¤")]
-    [Tooltip("°ø°İ ¹üÀ§¸¦ Ç¥½ÃÇÏ´Â Line RendererÀÔ´Ï´Ù.")]
+    // === ì˜¤ë””ì˜¤ í´ë¦½ ì„¤ì • ===
+    [Header("ì˜¤ë””ì˜¤ í´ë¦½")] // ì˜¤ë””ì˜¤ í´ë¦½ í• ë‹¹ì„ ìœ„í•œ í—¤ë”
+    [Tooltip("ê·¼ì ‘ ê³µê²© ì‹œ ì¬ìƒí•  íš¨ê³¼ìŒ í´ë¦½ì…ë‹ˆë‹¤. (ì˜ˆ: ì¹¼ íœ˜ë‘ë¥´ëŠ” ì†Œë¦¬)")]
+    public AudioClip meleeAttackClip; // ê·¼ì ‘ ê³µê²© ì‹œì „ ì†Œë¦¬
+    [Tooltip("ì›ê±°ë¦¬ ê³µê²© ì‹œ ì¬ìƒí•  íš¨ê³¼ìŒ í´ë¦½ì…ë‹ˆë‹¤. (ì˜ˆ: í™œ ì‹œìœ„ ë‹¹ê¸°ëŠ” ì†Œë¦¬, ë§ˆë²• ì‹œì „ ì†Œë¦¬)")]
+    public AudioClip rangedAttackClip; // ì›ê±°ë¦¬ ê³µê²© ì‹œì „ ì†Œë¦¬
+
+    // â­ ì¶”ê°€: ì¼ë°˜ íƒ€ê²© ì„±ê³µìŒ í´ë¦½
+    [Tooltip("ê³µê²© ì„±ê³µ ì‹œ ì¼ë°˜ ë°ë¯¸ì§€ê°€ ë“¤ì–´ê°”ì„ ë•Œ ì¬ìƒí•  íš¨ê³¼ìŒ í´ë¦½ì…ë‹ˆë‹¤. (ì¹˜ëª…íƒ€ ì•„ë‹ ë•Œ)")]
+    public AudioClip hitImpactClip;
+
+    [Tooltip("ê³µê²© ì„±ê³µ ì‹œ ì¹˜ëª…íƒ€ê°€ í„°ì¡Œì„ ë•Œ ì¬ìƒí•  íš¨ê³¼ìŒ í´ë¦½ì…ë‹ˆë‹¤.")]
+    public AudioClip criticalHitClip; // ì¹˜ëª…íƒ€ ì†Œë¦¬
+
+    [Header("ì‹œê°í™” ì„¤ì •")]
+    [Tooltip("ê³µê²© ë²”ìœ„ë¥¼ í‘œì‹œí•˜ëŠ” Line Rendererì…ë‹ˆë‹¤.")]
     public LineRenderer attackRangeVisualizer;
-    [Tooltip("°ø°İ ¹üÀ§ ½Ã°¢È­ ¿ÀºêÁ§Æ®ÀÇ ºÎ¸ğ ÄÁÅ×ÀÌ³ÊÀÔ´Ï´Ù.")]
+    [Tooltip("ê³µê²© ë²”ìœ„ ì‹œê°í™” ì˜¤ë¸Œì íŠ¸ì˜ ë¶€ëª¨ ì»¨í…Œì´ë„ˆì…ë‹ˆë‹¤.")]
     public GameObject visualizerContainer;
 
-    // Line Renderer Á¤Á¡ ÇØ»óµµ
+    // Line Renderer ì •ì  í•´ìƒë„
     private const int VisualizerResolution = 30;
 
     private void Start()
     {
-        // PlayerCharacterÀÇ ÀÎ½ºÅÏ½º¸¦ °¡Á®¿Í¼­ ÂüÁ¶¸¦ È®º¸ÇÕ´Ï´Ù. (SRP)
+        // PlayerCharacterì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ì„œ ì°¸ì¡°ë¥¼ í™•ë³´í•©ë‹ˆë‹¤. (SRP)
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. ½ºÅ©¸³Æ®°¡ Á¦´ë·Î µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ìŠ¤í¬ë¦½íŠ¸ê°€ ì œëŒ€ë¡œ ë™ì‘í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // ½ÃÀÛ ½Ã ½Ã°¢È­´Â ¼û±é´Ï´Ù.
+        // AudioSource ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
+        playerAudioSource = GetComponent<AudioSource>();
+        if (playerAudioSource == null)
+        {
+            Debug.LogError("PlayerAttack ìŠ¤í¬ë¦½íŠ¸ê°€ ë¶™ì€ ì˜¤ë¸Œì íŠ¸ì— AudioSource ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤!");
+        }
+
+        // ì‹œì‘ ì‹œ ì‹œê°í™”ëŠ” ìˆ¨ê¹ë‹ˆë‹¤.
         if (visualizerContainer != null)
         {
             visualizerContainer.SetActive(false);
         }
 
-        // ÃÊ±âÈ­ ½Ã, Áï½Ã °ø°İ °¡´É »óÅÂ·Î ¸¸µì´Ï´Ù.
+        // ì´ˆê¸°í™” ì‹œ, ì¦‰ì‹œ ê³µê²© ê°€ëŠ¥ ìƒíƒœë¡œ ë§Œë“­ë‹ˆë‹¤.
         lastAttackTime = -100f;
     }
 
     /// <summary>
-    /// PlayerEquipment ½ºÅ©¸³Æ®·ÎºÎÅÍ ÇöÀç ÀåÂøµÈ ¹«±â µ¥ÀÌÅÍ¸¦ Àü´Ş¹Ş´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// PlayerEquipment ìŠ¤í¬ë¦½íŠ¸ë¡œë¶€í„° í˜„ì¬ ì¥ì°©ëœ ë¬´ê¸° ë°ì´í„°ë¥¼ ì „ë‹¬ë°›ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="weapon">»õ·Î ÀåÂøµÈ ¹«±â µ¥ÀÌÅÍ</param>
+    /// <param name="weapon">ìƒˆë¡œ ì¥ì°©ëœ ë¬´ê¸° ë°ì´í„°</param>
     public void UpdateEquippedWeapon(WeaponItemSO weapon)
     {
         equippedWeapon = weapon;
-        // equippedWeaponÀÌ nullÀÌ ¾Æ´Ò ¶§¸¸ ÄğÅ¸ÀÓÀ» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+        // equippedWeaponì´ nullì´ ì•„ë‹ ë•Œë§Œ ì¿¨íƒ€ì„ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
         if (equippedWeapon != null)
         {
-            // ¹«±â ÀåÂø ½Ã, ¸¶Áö¸· °ø°İ ½Ã°£À» ÃÊ±âÈ­ÇÏ¿© Áï½Ã °ø°İ °¡´É »óÅÂ·Î ¸¸µì´Ï´Ù.
+            // ë¬´ê¸° ì¥ì°© ì‹œ, ë§ˆì§€ë§‰ ê³µê²© ì‹œê°„ì„ ì´ˆê¸°í™”í•˜ì—¬ ì¦‰ì‹œ ê³µê²© ê°€ëŠ¥ ìƒíƒœë¡œ ë§Œë“­ë‹ˆë‹¤.
             lastAttackTime = Time.time - equippedWeapon.attackSpeed;
         }
     }
 
     void Update()
     {
-        // [Null Ã¼Å© Ãß°¡]: equippedWeaponÀÌ ¾øÀ¸¸é °ø°İ ·ÎÁ÷À» ÁøÇàÇÏÁö ¾Ê½À´Ï´Ù.
+        // [Null ì²´í¬ ì¶”ê°€]: equippedWeaponì´ ì—†ìœ¼ë©´ ê³µê²© ë¡œì§ì„ ì§„í–‰í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
         if (equippedWeapon == null) return;
 
-        // UI Å¬¸¯(¹öÆ°, ÀÎº¥Åä¸® µî) ½Ã °ø°İÀÌ ³ª°¡Áö ¾Ê°Ô ÇÕ´Ï´Ù.
+        // UI í´ë¦­(ë²„íŠ¼, ì¸ë²¤í† ë¦¬ ë“±) ì‹œ ê³µê²©ì´ ë‚˜ê°€ì§€ ì•Šê²Œ í•©ë‹ˆë‹¤.
         if (IsPointerOverUI())
         {
-            return; // UI »óÈ£ÀÛ¿ëÀÌ ÃÖ¿ì¼±ÀÔ´Ï´Ù.
+            return; // UI ìƒí˜¸ì‘ìš©ì´ ìµœìš°ì„ ì…ë‹ˆë‹¤.
         }
 
-        // °ø°İ °¡´É Á¶°Ç: ¹«±â°¡ ÀåÂøµÇ¾ú°í, ¸¶¿ì½º ¿ŞÂÊ ¹öÆ°ÀÌ ´­·ÈÀ¸¸ç, °ø°İ ÄğÅ¸ÀÓÀÌ Áö³µ´ÂÁö È®ÀÎ
+        // ê³µê²© ê°€ëŠ¥ ì¡°ê±´: ë¬´ê¸°ê°€ ì¥ì°©ë˜ì—ˆê³ , ë§ˆìš°ìŠ¤ ì™¼ìª½ ë²„íŠ¼ì´ ëˆŒë ¸ìœ¼ë©°, ê³µê²© ì¿¨íƒ€ì„ì´ ì§€ë‚¬ëŠ”ì§€ í™•ì¸
         if (Input.GetMouseButtonDown(0) && Time.time >= lastAttackTime + equippedWeapon.attackSpeed)
         {
             playerCharacter.playerController.canMove = false;
-            PlayerCharacter.Instance.animator.SetTrigger("Attack"); // °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Æ®¸®°Å ¼³Á¤
+            PlayerCharacter.Instance.animator.SetTrigger("Attack"); // ê³µê²© ì• ë‹ˆë©”ì´ì…˜ íŠ¸ë¦¬ê±° ì„¤ì •
 
-            // ÄÚ·çÆ¾À» ½ÃÀÛÇÏ¿© °ø°İ µô·¹ÀÌ¸¦ Àû¿ë
+            // ì½”ë£¨í‹´ì„ ì‹œì‘í•˜ì—¬ ê³µê²© ë”œë ˆì´ë¥¼ ì ìš©
             StartCoroutine(AttackWithDelay());
-
-            lastAttackTime = Time.time; // °ø°İ ½Ã°£ ¾÷µ¥ÀÌÆ® (ÄğÅ¸ÀÓ ½ÃÀÛ)
+            if (UITutorialHandler.Instance != null)
+            { UITutorialHandler.Instance.OnBasicAttack.Invoke(); }
+            lastAttackTime = Time.time; // ê³µê²© ì‹œê°„ ì—…ë°ì´íŠ¸ (ì¿¨íƒ€ì„ ì‹œì‘)
         }
     }
 
     /// <summary>
-    /// ¹«±â Å¸ÀÔ¿¡ µû¶ó µô·¹ÀÌ¸¦ Àû¿ëÇÏ¿© °ø°İ ·ÎÁ÷À» ½ÇÇàÇÏ´Â ÄÚ·çÆ¾ÀÔ´Ï´Ù.
+    /// ë¬´ê¸° íƒ€ì…ì— ë”°ë¼ ë”œë ˆì´ë¥¼ ì ìš©í•˜ì—¬ ê³µê²© ë¡œì§ì„ ì‹¤í–‰í•˜ëŠ” ì½”ë£¨í‹´ì…ë‹ˆë‹¤.
     /// </summary>
     private IEnumerator AttackWithDelay()
     {
-        // [Null Ã¼Å© Ãß°¡]: ÄÚ·çÆ¾ ½ÃÀÛ ½Ã ¹«±â°¡ »ç¶óÁú °æ¿ì¸¦ ´ëºñ
+        // [Null ì²´í¬ ì¶”ê°€]: ì½”ë£¨í‹´ ì‹œì‘ ì‹œ ë¬´ê¸°ê°€ ì‚¬ë¼ì§ˆ ê²½ìš°ë¥¼ ëŒ€ë¹„
         if (equippedWeapon == null) yield break;
+
+        // 1. ê³µê²© ì‹œì „ ì‚¬ìš´ë“œ ì¬ìƒ
+        PerformAttackSound(false, true); // ì‹œì „ ì‚¬ìš´ë“œëŠ” ì¹˜ëª…íƒ€ ì—¬ë¶€ì™€ ê´€ê³„ì—†ì´ ì¬ìƒí•©ë‹ˆë‹¤.
 
         float delay = 0f;
 
-        // ¹«±â Å¸ÀÔ ºĞ·ù
+        // ë¬´ê¸° íƒ€ì… ë¶„ë¥˜
         bool isMelee = IsMeleeWeapon(equippedWeapon.weaponType);
         bool isRanged = IsRangedWeapon(equippedWeapon.weaponType);
 
-        // µô·¹ÀÌ ½Ã°£ ¼³Á¤ ºĞ±â ·ÎÁ÷
+        // ë”œë ˆì´ ì‹œê°„ ì„¤ì • ë¶„ê¸° ë¡œì§
         if (isMelee && meleeDamageDelay > 0)
         {
             delay = meleeDamageDelay;
@@ -142,20 +170,63 @@ public class PlayerAttack : MonoBehaviour
             yield return null;
         }
 
-        // Áö¿¬ ½Ã°£ ÈÄ, ½ÇÁ¦ µ¥¹ÌÁö °è»ê ¹× °ø°İ ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù.
+        // ì§€ì—° ì‹œê°„ í›„, ì‹¤ì œ ë°ë¯¸ì§€ ê³„ì‚° ë° ê³µê²© ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤.
         Attack();
 
         yield return StartCoroutine(AllowMovementAfterDelay());
     }
 
     /// <summary>
-    /// °ø°İ ¾Ö´Ï¸ŞÀÌ¼Ç Àç»ıÀÌ ³¡³­ ÈÄ ÇÃ·¹ÀÌ¾îÀÇ ÀÌµ¿ Á¦ÇÑÀ» ÇØÁ¦ÇÏ´Â ÄÚ·çÆ¾ÀÔ´Ï´Ù.
+    /// ë¬´ê¸° íƒ€ì…ê³¼ ì¹˜ëª…íƒ€ ì—¬ë¶€ì— ë”°ë¼ ê³µê²© ì‚¬ìš´ë“œë¥¼ ì¬ìƒí•©ë‹ˆë‹¤.
+    /// </summary>
+    /// <param name="isCritical">í˜„ì¬ ê³µê²©ì´ ì¹˜ëª…íƒ€ì¸ì§€ ì—¬ë¶€</param>
+    /// <param name="isStartSound">ê³µê²© ì‹œì‘(ì‹œì „) ì‚¬ìš´ë“œì¸ì§€, ì ì¤‘ ì‚¬ìš´ë“œì¸ì§€ ì—¬ë¶€ (true: ì‹œì „, false: ì ì¤‘/ì¹˜ëª…íƒ€)</param>
+    private void PerformAttackSound(bool isCritical, bool isStartSound) // ì‚¬ìš´ë“œ ì¬ìƒ í—¬í¼ ë©”ì„œë“œ
+    {
+        if (playerAudioSource == null || equippedWeapon == null) return;
+
+        AudioClip clipToPlay = null;
+
+        if (isStartSound) // ê³µê²© ì‹œì „ ì‚¬ìš´ë“œ (ë”œë ˆì´ ì „)
+        {
+            if (IsMeleeWeapon(equippedWeapon.weaponType))
+            {
+                clipToPlay = meleeAttackClip;
+            }
+            else if (IsRangedWeapon(equippedWeapon.weaponType))
+            {
+                clipToPlay = rangedAttackClip;
+            }
+        }
+        else // ì ì¤‘/ì¹˜ëª…íƒ€ ì‚¬ìš´ë“œ (ë”œë ˆì´ í›„ - ê·¼ì ‘ ê³µê²© íƒ€ê²©ìŒ)
+        {
+            // ì¹˜ëª…íƒ€ ì„±ê³µ ì‹œ ì¹˜ëª…íƒ€ ì‚¬ìš´ë“œë¥¼ ì¬ìƒí•©ë‹ˆë‹¤.
+            if (isCritical)
+            {
+                clipToPlay = criticalHitClip;
+            }
+            // â­ ìˆ˜ì •: ì¹˜ëª…íƒ€ê°€ ì•„ë‹ ê²½ìš°ì—ë§Œ ì¼ë°˜ íƒ€ê²© ì„±ê³µìŒì„ ì¬ìƒí•©ë‹ˆë‹¤.
+            else
+            {
+                clipToPlay = hitImpactClip;
+            }
+        }
+
+        if (clipToPlay != null)
+        {
+            playerAudioSource.PlayOneShot(clipToPlay);
+        }
+    }
+
+
+    /// <summary>
+    /// ê³µê²© ì• ë‹ˆë©”ì´ì…˜ ì¬ìƒì´ ëë‚œ í›„ í”Œë ˆì´ì–´ì˜ ì´ë™ ì œí•œì„ í•´ì œí•˜ëŠ” ì½”ë£¨í‹´ì…ë‹ˆë‹¤.
     /// </summary>
     private IEnumerator AllowMovementAfterDelay()
     {
         yield return new WaitForSeconds(attackMovementUnlockDelay);
 
-        // ÀÌµ¿À» ´Ù½Ã Çã¿ëÇÕ´Ï´Ù.
+        // ì´ë™ì„ ë‹¤ì‹œ í—ˆìš©í•©ë‹ˆë‹¤.
         if (playerCharacter.playerController != null)
         {
             playerCharacter.playerController.canMove = true;
@@ -163,7 +234,7 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹«±â Å¸ÀÔÀÌ ±ÙÁ¢ ¹«±âÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ë¬´ê¸° íƒ€ì…ì´ ê·¼ì ‘ ë¬´ê¸°ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     private bool IsMeleeWeapon(WeaponType type)
     {
@@ -171,7 +242,7 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹«±â Å¸ÀÔÀÌ ¿ø°Å¸® ¹«±âÀÎÁö È®ÀÎÇÕ´Ï´Ù.
+    /// ë¬´ê¸° íƒ€ì…ì´ ì›ê±°ë¦¬ ë¬´ê¸°ì¸ì§€ í™•ì¸í•©ë‹ˆë‹¤.
     /// </summary>
     private bool IsRangedWeapon(WeaponType type)
     {
@@ -179,15 +250,15 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾îÀÇ ±âº» °ø°İ ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù. (µ¥¹ÌÁö °è»ê ¹× °ø°İ Å¸ÀÔ ºĞ±â)
+    /// í”Œë ˆì´ì–´ì˜ ê¸°ë³¸ ê³µê²© ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤. (ë°ë¯¸ì§€ ê³„ì‚° ë° ê³µê²© íƒ€ì… ë¶„ê¸°)
     /// </summary>
     void Attack()
     {
-        // [Null Ã¼Å© °­È­]
+        // [Null ì²´í¬ ê°•í™”]
         if (equippedWeapon == null || playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("°ø°İ ÇÊ¼ö ±¸¼º ¿ä¼Ò(¹«±â/½ºÅÈ)°¡ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù. °ø°İÀ» Áß´ÜÇÕ´Ï´Ù.");
-            // °ø°İÀ» Áß´ÜÇÒ ¶§ ÀÌµ¿ Á¦ÇÑÀ» ÇØÁ¦ÇÏ´Â °ÍÀÌ ¾ÈÀüÇÕ´Ï´Ù.
+            Debug.LogError("ê³µê²© í•„ìˆ˜ êµ¬ì„± ìš”ì†Œ(ë¬´ê¸°/ìŠ¤íƒ¯)ê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. ê³µê²©ì„ ì¤‘ë‹¨í•©ë‹ˆë‹¤.");
+            // ê³µê²©ì„ ì¤‘ë‹¨í•  ë•Œ ì´ë™ ì œí•œì„ í•´ì œí•˜ëŠ” ê²ƒì´ ì•ˆì „í•©ë‹ˆë‹¤.
             if (playerCharacter != null && playerCharacter.playerController != null)
             {
                 playerCharacter.playerController.canMove = true;
@@ -195,7 +266,7 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        // 1. ¹«±â Å¸ÀÔ¿¡ µû¶ó ±âº» µ¥¹ÌÁö ¼³Á¤
+        // 1. ë¬´ê¸° íƒ€ì…ì— ë”°ë¼ ê¸°ë³¸ ë°ë¯¸ì§€ ì„¤ì •
         float baseDamage;
         bool isMagicAttack = (equippedWeapon.weaponType == WeaponType.Staff);
 
@@ -208,71 +279,72 @@ public class PlayerAttack : MonoBehaviour
             baseDamage = playerCharacter.playerStats.attackPower;
         }
 
-        // 2. Ä¡¸íÅ¸ ¿©ºÎ ÆÇÁ¤
+        // 2. ì¹˜ëª…íƒ€ ì—¬ë¶€ íŒì •
         bool isCritical = UnityEngine.Random.Range(0f, 1f) <= playerCharacter.playerStats.criticalChance;
 
-        // 3. ÃÖÁ¾ µ¥¹ÌÁö °è»ê
+        // 3. ìµœì¢… ë°ë¯¸ì§€ ê³„ì‚°
         float finalDamage = baseDamage;
         if (isCritical)
         {
             finalDamage *= playerCharacter.playerStats.criticalDamageMultiplier;
         }
 
-        // 4. ¹«±â Å¸ÀÔ¿¡ µû¶ó ´Ù¸¥ °ø°İ ·ÎÁ÷ ½ÇÇà (°è»êµÈ µ¥¹ÌÁö Àü´Ş)
+        // 4. ë¬´ê¸° íƒ€ì…ì— ë”°ë¼ ë‹¤ë¥¸ ê³µê²© ë¡œì§ ì‹¤í–‰ (ê³„ì‚°ëœ ë°ë¯¸ì§€ ì „ë‹¬)
         switch (equippedWeapon.weaponType)
         {
             case WeaponType.Sword:
             case WeaponType.Axe:
             case WeaponType.Spear:
-                PerformMeleeAttack(finalDamage);
+                PerformMeleeAttack(finalDamage, isCritical);
                 break;
             case WeaponType.Staff:
             case WeaponType.Bow:
-                PerformRangedAttack(finalDamage);
+                PerformRangedAttack(finalDamage, isCritical);
                 break;
             default:
-                Debug.LogWarning("¾Ë ¼ö ¾ø´Â ¹«±â Å¸ÀÔÀÔ´Ï´Ù.");
+                Debug.LogWarning("ì•Œ ìˆ˜ ì—†ëŠ” ë¬´ê¸° íƒ€ì…ì…ë‹ˆë‹¤.");
                 break;
         }
     }
 
     /// <summary>
-    /// ±ÙÁ¢ °ø°İ ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù. (±âÁ¸ ·ÎÁ÷ À¯Áö)
+    /// ê·¼ì ‘ ê³µê²© ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="damage">°è»êµÈ ÃÖÁ¾ µ¥¹ÌÁö</param>
-    private void PerformMeleeAttack(float damage)
+    /// <param name="damage">ê³„ì‚°ëœ ìµœì¢… ë°ë¯¸ì§€</param>
+    /// <param name="isCritical">ì¹˜ëª…íƒ€ ì—¬ë¶€</param>
+    private void PerformMeleeAttack(float damage, bool isCritical)
     {
-        // [Null Ã¼Å©]
+        // [Null ì²´í¬]
         if (equippedWeapon == null) return;
-        // ... (±âÁ¸ PerformMeleeAttack ·ÎÁ÷ À¯Áö)
+
         float currentAttackRange = equippedWeapon.attackRange;
         float currentAttackAngle = equippedWeapon.attackAngle;
 
-        // °ø°İ ¹üÀ§ ³»ÀÇ ¸ó½ºÅÍ¸¦ Ã£½À´Ï´Ù.
+        // ê³µê²© ë²”ìœ„ ë‚´ì˜ ëª¬ìŠ¤í„°ë¥¼ ì°¾ìŠµë‹ˆë‹¤.
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, currentAttackRange, monsterLayer);
 
         foreach (Collider monsterCollider in hitColliders)
         {
             Vector3 direction3D = monsterCollider.transform.position - transform.position;
 
-            // 1. ¹æÇâ º¤ÅÍÀÇ YÃà ¼ººĞÀ» 0À¸·Î ¼³Á¤ÇÏ¿© XZ Æò¸éÀ¸·Î ÆòÅºÈ­ÇÕ´Ï´Ù.
+            // 1. ë°©í–¥ ë²¡í„°ì˜ Yì¶• ì„±ë¶„ì„ 0ìœ¼ë¡œ ì„¤ì •í•˜ì—¬ XZ í‰ë©´ìœ¼ë¡œ í‰íƒ„í™”í•©ë‹ˆë‹¤.
             Vector3 directionFlat = direction3D;
             directionFlat.y = 0;
 
-            // 2. ÇÃ·¹ÀÌ¾îÀÇ Àü¹æ º¤ÅÍµµ YÃàÀ» 0À¸·Î ¼³Á¤ÇÏ¿© ÆòÅºÈ­ÇÕ´Ï´Ù. (¼öÆò ¹æÇâ)
+            // 2. í”Œë ˆì´ì–´ì˜ ì „ë°© ë²¡í„°ë„ Yì¶•ì„ 0ìœ¼ë¡œ ì„¤ì •í•˜ì—¬ í‰íƒ„í™”í•©ë‹ˆë‹¤. (ìˆ˜í‰ ë°©í–¥)
             Vector3 forwardFlat = transform.forward;
             forwardFlat.y = 0;
 
-            // 3. ÆòÅºÈ­µÈ Àü¹æ º¤ÅÍ¿Í ¸ó½ºÅÍ ¹æÇâ º¤ÅÍ »çÀÌÀÇ °¢µµ¸¦ °è»êÇÕ´Ï´Ù.
+            // 3. í‰íƒ„í™”ëœ ì „ë°© ë²¡í„°ì™€ ëª¬ìŠ¤í„° ë°©í–¥ ë²¡í„° ì‚¬ì´ì˜ ê°ë„ë¥¼ ê³„ì‚°í•©ë‹ˆë‹¤.
             float angle = Vector3.Angle(forwardFlat.normalized, directionFlat.normalized);
 
-            // XZ Æò¸é¿¡¼­ÀÇ ½ÇÁ¦ °Å¸®¸¦ ´Ù½Ã Ã¼Å©ÇÕ´Ï´Ù.
+            // XZ í‰ë©´ì—ì„œì˜ ì‹¤ì œ ê±°ë¦¬ë¥¼ ë‹¤ì‹œ ì²´í¬í•©ë‹ˆë‹¤.
             if (directionFlat.magnitude > currentAttackRange)
             {
-                continue; // ¼öÆò °Å¸®°¡ »ç°Å¸®¸¦ ¹ş¾î³µÀ¸¹Ç·Î ¹«½Ã
+                continue; // ìˆ˜í‰ ê±°ë¦¬ê°€ ì‚¬ê±°ë¦¬ë¥¼ ë²—ì–´ë‚¬ìœ¼ë¯€ë¡œ ë¬´ì‹œ
             }
 
-            // ¸ó½ºÅÍ°¡ °ø°İ °¢µµ ¹üÀ§ ¾È¿¡ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
+            // ëª¬ìŠ¤í„°ê°€ ê³µê²© ê°ë„ ë²”ìœ„ ì•ˆì— ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
             if (angle < currentAttackAngle * 0.5f)
             {
                 IDamageable damageableTarget = monsterCollider.GetComponent<IDamageable>();
@@ -281,7 +353,9 @@ public class PlayerAttack : MonoBehaviour
                 {
                     damageableTarget.TakeDamage(damage, equippedWeapon.damageType);
 
-                    // ³Ë¹é ·ÎÁ÷ 
+                    PerformAttackSound(isCritical, false); // íƒ€ê²© ì„±ê³µ ì‚¬ìš´ë“œ
+
+                    // ë„‰ë°± ë¡œì§
                     if (equippedWeapon.knockbackForce > 0)
                     {
                         Rigidbody monsterRb = monsterCollider.GetComponent<Rigidbody>();
@@ -297,19 +371,21 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// ¿ø°Å¸® °ø°İ ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù. (¹ß»çÃ¼ »ı¼º)
+    /// ì›ê±°ë¦¬ ê³µê²© ë¡œì§ì„ ì‹¤í–‰í•©ë‹ˆë‹¤. (ë°œì‚¬ì²´ ìƒì„±)
     /// </summary>
-    /// <param name="damage">°è»êµÈ ÃÖÁ¾ µ¥¹ÌÁö</param>
-    private void PerformRangedAttack(float damage)
+    /// <param name="damage">ê³„ì‚°ëœ ìµœì¢… ë°ë¯¸ì§€</param>
+    /// <param name="isCritical">ì¹˜ëª…íƒ€ ì—¬ë¶€</param>
+    private void PerformRangedAttack(float damage, bool isCritical)
     {
-        // [Null Ã¼Å©]
+        // [Null ì²´í¬]
         if (equippedWeapon == null) return;
-        // ... (±âÁ¸ PerformRangedAttack ·ÎÁ÷ À¯Áö)
+
+        // ... (ê¸°ì¡´ PerformRangedAttack ë¡œì§ ìœ ì§€)
         if (equippedWeapon.projectilePrefab != null)
         {
             if (projectileSpawnPoint == null)
             {
-                Debug.LogError("Projectile Spawn Point°¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù! ÇÃ·¹ÀÌ¾î À§Ä¡¿¡¼­ »ı¼ºµË´Ï´Ù.");
+                Debug.LogError("Projectile Spawn Pointê°€ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤! í”Œë ˆì´ì–´ ìœ„ì¹˜ì—ì„œ ìƒì„±ë©ë‹ˆë‹¤.");
                 GameObject projectile = Instantiate(equippedWeapon.projectilePrefab, transform.position, transform.rotation);
             }
             else
@@ -321,24 +397,27 @@ public class PlayerAttack : MonoBehaviour
                 Projectile projectileComponent = projectile.GetComponent<Projectile>();
                 if (projectileComponent != null)
                 {
-                    projectileComponent.SetProjectileData(equippedWeapon, monsterLayer, damage);
+                    // ìˆ˜ì •ëœ Projectile.SetProjectileData ì‹œê·¸ë‹ˆì²˜ì— ë§ê²Œ isCriticalì„ ì¶”ê°€ ì „ë‹¬
+                    projectileComponent.SetProjectileData(equippedWeapon, monsterLayer, damage, isCritical);
+
+                    // ì›ê±°ë¦¬ ê³µê²©ì˜ ì ì¤‘ ì‚¬ìš´ë“œëŠ” ë°œì‚¬ì²´ ìŠ¤í¬ë¦½íŠ¸(Projectile.cs)ì—ì„œ ì²˜ë¦¬í•©ë‹ˆë‹¤.
                 }
                 else
                 {
-                    Debug.LogError("¹ß»çÃ¼ ÇÁ¸®ÆÕ¿¡ Projectile ½ºÅ©¸³Æ®°¡ ¾ø½À´Ï´Ù!");
+                    Debug.LogError("ë°œì‚¬ì²´ í”„ë¦¬íŒ¹ì— Projectile ìŠ¤í¬ë¦½íŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤!");
                 }
             }
         }
         else
         {
-            Debug.LogWarning("¿ø°Å¸® °ø°İÀ» À§ÇÑ ¹ß»çÃ¼ ÇÁ¸®ÆÕÀÌ ¼³Á¤µÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogWarning("ì›ê±°ë¦¬ ê³µê²©ì„ ìœ„í•œ ë°œì‚¬ì²´ í”„ë¦¬íŒ¹ì´ ì„¤ì •ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
         }
     }
 
     /// <summary>
-    /// ÇöÀç ¸¶¿ì½º Æ÷ÀÎÅÍ°¡ Unity UI ¿¤¸®¸ÕÆ® À§¿¡ ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù. (SRP)
+    /// í˜„ì¬ ë§ˆìš°ìŠ¤ í¬ì¸í„°ê°€ Unity UI ì—˜ë¦¬ë¨¼íŠ¸ ìœ„ì— ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤. (SRP)
     /// </summary>
-    /// <returns>¸¶¿ì½º°¡ UI À§¿¡ ÀÖÀ¸¸é Âü(true)À» ¹İÈ¯ÇÕ´Ï´Ù.</returns>
+    /// <returns>ë§ˆìš°ìŠ¤ê°€ UI ìœ„ì— ìˆìœ¼ë©´ ì°¸(true)ì„ ë°˜í™˜í•©ë‹ˆë‹¤.</returns>
     private bool IsPointerOverUI()
     {
         if (EventSystem.current != null)
@@ -349,12 +428,12 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹«±âÀÇ °ø°İ ¹üÀ§¿Í °¢µµ¿¡ ¸ÂÃç Line RendererÀÇ ¸ğ¾çÀ» µ¿ÀûÀ¸·Î ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-    /// ¸ğµç ¹«±â Å¸ÀÔÀÇ ½Ã°¢È­¸¦ ´ã´çÇÕ´Ï´Ù.
+    /// ë¬´ê¸°ì˜ ê³µê²© ë²”ìœ„ì™€ ê°ë„ì— ë§ì¶° Line Rendererì˜ ëª¨ì–‘ì„ ë™ì ìœ¼ë¡œ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
+    /// ëª¨ë“  ë¬´ê¸° íƒ€ì…ì˜ ì‹œê°í™”ë¥¼ ë‹´ë‹¹í•©ë‹ˆë‹¤.
     /// </summary>
     public void UpdateVisualizerShape()
     {
-        // [Null Ã¼Å© °­È­]: ¹«±â°¡ ¾ø°Å³ª ÇÊ¼ö ÄÄÆ÷³ÍÆ®°¡ ¾øÀ¸¸é ½Ã°¢È­ ºñÈ°¼ºÈ­ ÈÄ ¸®ÅÏ
+        // [Null ì²´í¬ ê°•í™”]: ë¬´ê¸°ê°€ ì—†ê±°ë‚˜ í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸ê°€ ì—†ìœ¼ë©´ ì‹œê°í™” ë¹„í™œì„±í™” í›„ ë¦¬í„´
         if (equippedWeapon == null || attackRangeVisualizer == null || visualizerContainer == null)
         {
             if (visualizerContainer != null && visualizerContainer.activeSelf)
@@ -364,23 +443,23 @@ public class PlayerAttack : MonoBehaviour
             return;
         }
 
-        // 1. ÇÊ¿äÇÑ ¼³Á¤ °ª °¡Á®¿À±â
+        // 1. í•„ìš”í•œ ì„¤ì • ê°’ ê°€ì ¸ì˜¤ê¸°
         float range = equippedWeapon.attackRange;
         WeaponType type = equippedWeapon.weaponType;
 
-        // 2. ¹«±â Å¸ÀÔ¿¡ µû¸¥ ½Ã°¢È­ ·ÎÁ÷ ºĞ±â
+        // 2. ë¬´ê¸° íƒ€ì…ì— ë”°ë¥¸ ì‹œê°í™” ë¡œì§ ë¶„ê¸°
         if (IsMeleeWeapon(type))
         {
-            // ±ÙÁ¢ ¹«±â: ºÎÃ¤²Ã (Sector) ½Ã°¢È­
+            // ê·¼ì ‘ ë¬´ê¸°: ë¶€ì±„ê¼´ (Sector) ì‹œê°í™”
             float angle = equippedWeapon.attackAngle;
 
-            // Á¤Á¡ °³¼ö¸¦ ¼³Á¤ÇÕ´Ï´Ù. (Áß½ÉÁ¡ + È£ÀÇ Á¤Á¡µé + ´Ù½Ã Áß½ÉÁ¡À¸·Î µ¹¾Æ¿À´Â Á¡)
+            // ì •ì  ê°œìˆ˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤. (ì¤‘ì‹¬ì  + í˜¸ì˜ ì •ì ë“¤ + ë‹¤ì‹œ ì¤‘ì‹¬ì ìœ¼ë¡œ ëŒì•„ì˜¤ëŠ” ì )
             attackRangeVisualizer.positionCount = VisualizerResolution + 2;
 
             Vector3[] points = new Vector3[VisualizerResolution + 2];
-            points[0] = Vector3.zero; // Ã¹ ¹øÂ° Á¡Àº ÇÃ·¹ÀÌ¾îÀÇ Áß½É (·ÎÄÃ À§Ä¡)
+            points[0] = Vector3.zero; // ì²« ë²ˆì§¸ ì ì€ í”Œë ˆì´ì–´ì˜ ì¤‘ì‹¬ (ë¡œì»¬ ìœ„ì¹˜)
 
-            // ½ÃÀÛ °¢µµ¿Í °¢µµ ÁõºĞ °è»ê (ÇÃ·¹ÀÌ¾îÀÇ Àü¹æÀ» ±âÁØÀ¸·Î ÁÂ¿ì ´ëÄª)
+            // ì‹œì‘ ê°ë„ì™€ ê°ë„ ì¦ë¶„ ê³„ì‚° (í”Œë ˆì´ì–´ì˜ ì „ë°©ì„ ê¸°ì¤€ìœ¼ë¡œ ì¢Œìš° ëŒ€ì¹­)
             float startAngle = -angle * 0.5f;
             float angleStep = angle / VisualizerResolution;
 
@@ -389,24 +468,24 @@ public class PlayerAttack : MonoBehaviour
                 float currentAngle = startAngle + (angleStep * i);
                 float radian = currentAngle * Mathf.Deg2Rad;
 
-                // X, Z ÁÂÇ¥ °è»ê (»ï°¢ÇÔ¼ö »ç¿ë)
+                // X, Z ì¢Œí‘œ ê³„ì‚° (ì‚¼ê°í•¨ìˆ˜ ì‚¬ìš©)
                 float x = range * Mathf.Sin(radian);
                 float z = range * Mathf.Cos(radian);
 
-                // YÃàÀº ¹Ù´Ú¿¡ ÆÄ¹¯È÷Áö ¾Ê°Ô »ìÂ¦ ¶ç¿ì±â À§ÇÔ
+                // Yì¶•ì€ ë°”ë‹¥ì— íŒŒë¬»íˆì§€ ì•Šê²Œ ì‚´ì§ ë„ìš°ê¸° ìœ„í•¨
                 points[i + 1] = new Vector3(x, 0.01f, z);
             }
 
-            // ºÎÃ¤²ÃÀ» ´İ±â À§ÇØ ¸¶Áö¸· Á¡À» ´Ù½Ã Áß¾ÓÀ¸·Î ¼³Á¤ÇÕ´Ï´Ù.
+            // ë¶€ì±„ê¼´ì„ ë‹«ê¸° ìœ„í•´ ë§ˆì§€ë§‰ ì ì„ ë‹¤ì‹œ ì¤‘ì•™ìœ¼ë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
             points[VisualizerResolution + 1] = Vector3.zero;
 
             attackRangeVisualizer.SetPositions(points);
         }
         else if (IsRangedWeapon(type))
         {
-            // ¿ø°Å¸® ¹«±â: ¿ø (Circle) ½Ã°¢È­
+            // ì›ê±°ë¦¬ ë¬´ê¸°: ì› (Circle) ì‹œê°í™”
 
-            // Á¤Á¡ °³¼ö¸¦ ¼³Á¤ÇÕ´Ï´Ù. (¿øÇüÀÌ¹Ç·Î Áß½ÉÁ¡ ¾øÀÌ È£ÀÇ Á¤Á¡¸¸ ÇÊ¿ä)
+            // ì •ì  ê°œìˆ˜ë¥¼ ì„¤ì •í•©ë‹ˆë‹¤. (ì›í˜•ì´ë¯€ë¡œ ì¤‘ì‹¬ì  ì—†ì´ í˜¸ì˜ ì •ì ë§Œ í•„ìš”)
             attackRangeVisualizer.positionCount = VisualizerResolution + 1;
 
             Vector3[] points = new Vector3[VisualizerResolution + 1];
@@ -414,11 +493,11 @@ public class PlayerAttack : MonoBehaviour
 
             for (int i = 0; i <= VisualizerResolution; i++)
             {
-                // 0µµºÎÅÍ 360µµ±îÁö
+                // 0ë„ë¶€í„° 360ë„ê¹Œì§€
                 float currentAngle = angleStep * i;
                 float radian = currentAngle * Mathf.Deg2Rad;
 
-                // X, Z ÁÂÇ¥ °è»ê (¿øÀÇ ÇüÅÂ)
+                // X, Z ì¢Œí‘œ ê³„ì‚° (ì›ì˜ í˜•íƒœ)
                 float x = range * Mathf.Sin(radian);
                 float z = range * Mathf.Cos(radian);
 
@@ -429,7 +508,7 @@ public class PlayerAttack : MonoBehaviour
         }
         else
         {
-            // Áö¿øµÇÁö ¾Ê´Â ¹«±â Å¸ÀÔÀÏ °æ¿ì ½Ã°¢È­ ºñÈ°¼ºÈ­
+            // ì§€ì›ë˜ì§€ ì•ŠëŠ” ë¬´ê¸° íƒ€ì…ì¼ ê²½ìš° ì‹œê°í™” ë¹„í™œì„±í™”
             visualizerContainer.SetActive(false);
             return;
         }
@@ -444,8 +523,8 @@ public class PlayerAttack : MonoBehaviour
     }
 
     /// <summary>
-    /// °ø°İ ¹üÀ§¸¦ À¯´ÏÆ¼ ¿¡µğÅÍ¿¡¼­ ½Ã°¢ÀûÀ¸·Î È®ÀÎÇÏ±â À§ÇÑ ÇÔ¼öÀÔ´Ï´Ù. (Gizmos)
-    /// ¹«±â Å¸ÀÔ¿¡ µû¸¥ ½Ã°¢È­ ·ÎÁ÷À» ºĞ¸®Çß½À´Ï´Ù.
+    /// ê³µê²© ë²”ìœ„ë¥¼ ìœ ë‹ˆí‹° ì—ë””í„°ì—ì„œ ì‹œê°ì ìœ¼ë¡œ í™•ì¸í•˜ê¸° ìœ„í•œ í•¨ìˆ˜ì…ë‹ˆë‹¤. (Gizmos)
+    /// ë¬´ê¸° íƒ€ì…ì— ë”°ë¥¸ ì‹œê°í™” ë¡œì§ì„ ë¶„ë¦¬í–ˆìŠµë‹ˆë‹¤.
     /// </summary>
     private void OnDrawGizmosSelected()
     {
@@ -456,8 +535,8 @@ public class PlayerAttack : MonoBehaviour
 
             if (IsMeleeWeapon(type))
             {
-                // ±ÙÁ¢ ¹«±â: ºÎÃ¤²Ã ¿µ¿ª
-                // ... (±âÁ¸ ºÎÃ¤²Ã Gizmo ·ÎÁ÷ À¯Áö)
+                // ê·¼ì ‘ ë¬´ê¸°: ë¶€ì±„ê¼´ ì˜ì—­
+                // ... (ê¸°ì¡´ ë¶€ì±„ê¼´ Gizmo ë¡œì§ ìœ ì§€)
                 Vector3 forwardLimit = transform.position + transform.forward * equippedWeapon.attackRange;
                 Gizmos.DrawLine(transform.position, forwardLimit);
 
@@ -469,7 +548,7 @@ public class PlayerAttack : MonoBehaviour
             }
             else if (IsRangedWeapon(type))
             {
-                // ¿ø°Å¸® ¹«±â: ¿ø ¿µ¿ª
+                // ì›ê±°ë¦¬ ë¬´ê¸°: ì› ì˜ì—­
                 Gizmos.DrawWireSphere(transform.position, equippedWeapon.attackRange);
             }
         }

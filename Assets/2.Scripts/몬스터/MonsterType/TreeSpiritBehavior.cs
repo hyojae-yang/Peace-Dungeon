@@ -10,6 +10,7 @@ public class TreeSpiritBehavior : MonoBehaviour
     // === 종속성 ===
     private Monster monster;
     private MonsterCombat monsterCombat;
+    private AudioSource audioSource; // AudioSource 종속성 추가
 
     // === 플레이어 감지 및 공격 범위 설정 ===
     [Header("행동 설정")]
@@ -27,6 +28,13 @@ public class TreeSpiritBehavior : MonoBehaviour
     [Tooltip("발사될 투사체 프리팹입니다. RootProjectile 스크립트가 포함되어야 합니다.")]
     [SerializeField] private GameObject rootProjectilePrefab;
 
+    // === 사운드 설정 추가 ===
+    [Header("사운드 설정")]
+    [Tooltip("특수 공격 준비(차징) 시 재생되는 사운드입니다.")]
+    public AudioClip chargePrepareClip;
+    [Tooltip("투사체(뿌리)를 발사할 때 재생되는 사운드입니다.")]
+    public AudioClip projectileFireClip;
+
     // === 내부 상태 관리 변수 ===
     private float lastAoeAttackTime;
     private bool isCharging = false;
@@ -40,8 +48,11 @@ public class TreeSpiritBehavior : MonoBehaviour
         // ... (기존과 동일)
         monster = GetComponent<Monster>();
         monsterCombat = GetComponent<MonsterCombat>();
+        audioSource = GetComponent<AudioSource>(); // AudioSource 컴포넌트 참조
+
         if (monster == null) Debug.LogError("TreeSpiritBehavior 스크립트는 Monster 컴포넌트를 필요로 합니다!", this);
         if (monsterCombat == null) Debug.LogError("TreeSpiritBehavior 스크립트는 MonsterCombat 컴포넌트를 필요로 합니다!", this);
+        // AudioSource는 없을 경우 사운드만 재생되지 않도록 처리합니다. (필수 X)
 
         lastAoeAttackTime = -aoeAttackCooldown;
     }
@@ -58,14 +69,19 @@ public class TreeSpiritBehavior : MonoBehaviour
             return;
         }
         // ... (게임 오버 체크 등)
-        if (MainSceneManager.Instance.isGameOver)
+        // MainSceneManager.Instance가 Null일 수 있으므로 안전하게 처리합니다.
+        if (MainSceneManager.Instance != null && MainSceneManager.Instance.isGameOver)
         {
             // 게임 오버 시 모든 행동 중지
             return;
         }
 
         // 플레이어가 감지 범위 내에 있고, 특수 공격 쿨타임이 지났는지 확인합니다.
-        if (monster.detectableTarget != null && Time.time >= lastAoeAttackTime + aoeAttackCooldown)
+        // 참고: detectionRange는 Monster 컴포넌트가 아닌, 이 스크립트 내부 필드를 사용합니다.
+        // 그리고 detectableTarget의 거리 체크를 추가해야 합니다.
+        if (monster.detectableTarget != null &&
+            Vector3.Distance(transform.position, monster.detectableTarget.GetTransform().position) <= detectionRange &&
+            Time.time >= lastAoeAttackTime + aoeAttackCooldown)
         {
             // 공격 준비 상태로 전환하고 코루틴을 시작합니다.
             isCharging = true;
@@ -82,14 +98,26 @@ public class TreeSpiritBehavior : MonoBehaviour
         // 몬스터의 상태를 Charge로 변경합니다.
         monster.ChangeState(MonsterBase.MonsterState.Charge);
 
+        // 공격 준비(차징) 사운드 재생
+        if (audioSource != null && chargePrepareClip != null)
+        {
+            audioSource.PlayOneShot(chargePrepareClip);
+        }
+
         // aoeChargeTime 만큼 기다립니다. 이 시간 동안 몬스터는 차징 상태를 유지합니다.
         yield return new WaitForSeconds(aoeChargeTime);
 
         // 플레이어가 아직 감지 범위 내에 있을 경우에만 공격을 실행합니다.
         if (monster.detectableTarget != null)
         {
-            // [수정] RootTrap 대신 RootProjectile 프리팹을 몬스터 위치에 생성합니다.
+            //투사체 발사 사운드 재생
+            if (audioSource != null && projectileFireClip != null)
+            {
+                audioSource.PlayOneShot(projectileFireClip);
+            }
+
             // 투사체의 위치는 몬스터 자신의 위치로 설정합니다.
+            // 투사체가 땅에서 솟아나는 느낌을 위해 Y축을 약간 조정할 수도 있습니다.
             GameObject projectileObj = Instantiate(rootProjectilePrefab, transform.position, Quaternion.identity);
 
             // [추가] RootProjectile 스크립트를 가져와 목표를 설정하고 발사합니다.
@@ -119,7 +147,6 @@ public class TreeSpiritBehavior : MonoBehaviour
     /// </summary>
     private void OnDrawGizmosSelected()
     {
-        // ... (기존과 동일)
         Gizmos.color = Color.cyan;
         Gizmos.DrawWireSphere(transform.position, detectionRange);
     }

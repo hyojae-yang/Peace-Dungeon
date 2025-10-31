@@ -35,9 +35,30 @@ public enum SFXType
     None,
     Button_Click,       // 버튼 클릭음
     Dungeon_Enter,      // 던전 입장음
-    Town_Enter,         // 마을 입장음
+    Dungeon_Exit,      // 던전 퇴장음
+    Dungeon_Notification, // 던전 알림음
+    //Town_Enter,         // 마을 입장음
     Shop_Enter,         // 상점 입장음
-    Restaurant_Enter    // 식당 입장음
+    Restaurant_Enter,    // 식당 입장음
+    Skill_Fireball_Cast,   // 파이어볼 시전 소리 (준비/발동 시작)
+    Skill_Fireball_Impact,
+    Skill_Whirlwind_Cast,
+    Skill_LifestealBolt_Cast,
+    Skill_MagicMissile_Cast,
+    General,        // 일반 시스템 메시지 (예: 저장 완료, 장비 교체)
+    Success,        // 긍정적 메시지 (예: 레벨업, 보스 처치, 퀘스트 완료)
+    Warning,    // 경고 메시지 (예: 체력 부족, 실패 알림)
+    Item_Pickup, //아이템 획득 소리
+    Item_Goodpickup, //좋은 아이템 획득
+    Item_Equip, //아이템 장착 소리
+    Item_Heal,        // 회복 포션 사용 (긍정적이고 부드러운 소리)
+    Item_Buff,        // 버프 포션 (신비롭고 상승하는 소리)
+    Item_Scroll,       // 스크롤 사용 (마법진 소리)
+    Levelup_sound,    //레벨업 소리
+    Inventory_openclose_sound, //인벤토리 여닫기 소리
+    QuestAccept, //퀘스트 수락 소리
+    QuestAbandon, //퀘스트 포기 소리
+    QuestComplete //퀘스트 완료 소리
 }
 
 [System.Serializable]

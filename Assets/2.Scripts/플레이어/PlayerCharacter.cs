@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using System; // System.Action을 사용하기 위해 using System 추가
+using System.Collections; // 코루틴을 사용하기 위해 추가
 
 /// <summary>
 /// 플레이어와 관련된 모든 주요 시스템을 관리하는 중앙 허브 스크립트입니다.
@@ -13,6 +14,21 @@ public class PlayerCharacter : MonoBehaviour
     // === 싱글턴 인스턴스 ===
     // PlayerCharacter 클래스의 유일한 인스턴스를 저장하는 정적 속성입니다.
     public static PlayerCharacter Instance;
+
+    // === 귀환 관련 상수 및 필드 (추가된 부분) ===
+    /// <summary>
+    /// 귀환 주문서 사용 시 딜레이 시간 (초) 입니다.
+    /// </summary>
+    public const float RETURN_DELAY = 5.0f;
+    private Coroutine returnCoroutine;
+    [SerializeField] private GameObject returnEffectPrefab; // 귀환 효과 프리팹 참조 (Inspector에서 할당 필요)
+    private GameObject currentReturnEffect;
+
+    /// <summary>
+    /// 현재 귀환 프로세스(딜레이 코루틴)가 진행 중인지 여부를 나타냅니다. (읽기 전용)
+    /// </summary>
+    public bool IsReturnProcessActive => returnCoroutine != null;
+
 
     // === 상태 추적 필드 (새로 추가됨) ===
     /// <summary>
@@ -98,6 +114,12 @@ public class PlayerCharacter : MonoBehaviour
 
         // 3. 필수 컴포넌트 누락 여부 확인 (디버깅 목적)
         ValidateSystemReferences();
+
+        // 4. 귀환 이펙트 오브젝트 생성 및 초기 비활성화 (추가된 부분)
+        if (returnEffectPrefab != null)
+        {
+            currentReturnEffect.SetActive(false);
+        }
     }
 
     private void Start()
@@ -119,6 +141,93 @@ public class PlayerCharacter : MonoBehaviour
         IsInitialized = true;
         OnAllSystemsInitialized?.Invoke();
     }
+
+    // ------------------------------------------------------------------
+    // 귀환 딜레이/이펙트 관리 로직 (새로운 기능)
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// [SRP 준수] ReturnScrollSO로부터 요청받은 최종 로직(Action)을 딜레이 후 실행하는 역할만 수행합니다.
+    /// PlayerCharacter는 귀환의 세부 로직을 알지 못하며, 단지 타이머 및 이펙트 관리자 역할만 합니다.
+    /// </summary>
+    /// <param name="finalCallback">딜레이 후에 실행할 ReturnScrollSO의 최종 귀환 로직</param>
+    /// <returns>딜레이 시작 성공 여부</returns>
+    public bool StartReturnDelay(Action finalCallback)
+    {
+        // 1. 중복 실행 방지
+        if (returnCoroutine != null)
+        {
+            Debug.LogWarning("[PlayerCharacter] 이미 귀환 프로세스가 진행 중입니다.");
+            return false;
+        }
+
+        // 2. 딜레이 코루틴 시작
+        returnCoroutine = StartCoroutine(HandleReturnDelay(finalCallback));
+        return true;
+    }
+
+    /// <summary>
+    /// 귀환 딜레이를 처리하고 이펙트를 관리하는 코루틴입니다.
+    /// </summary>
+    private IEnumerator HandleReturnDelay(Action finalCallback)
+    {
+        // 1. 이펙트 활성화 및 플레이어 행동 제어 (예: 이동/공격 불가 상태 설정)
+        if (currentReturnEffect != null)
+        {
+            currentReturnEffect.SetActive(true);
+        }
+        // playerController.CanMove = false; // 예시: 플레이어 제어 로직
+
+        // 2. 지정된 시간 동안 대기 (딜레이)
+        yield return new WaitForSeconds(RETURN_DELAY);
+
+        // 3. 딜레이 종료 후 이펙트 비활성화 및 제어 해제
+        if (currentReturnEffect != null)
+        {
+            currentReturnEffect.SetActive(false);
+        }
+        // playerController.CanMove = true; // 예시
+
+        // 4. 귀환 로직 실행 (ReturnScrollSO가 정의한 콜백 실행)
+        finalCallback?.Invoke();
+
+        // 5. 코루틴 참조 해제 (프로세스 종료)
+        returnCoroutine = null;
+    }
+
+    /// <summary>
+    /// 딜레이 도중 피격 등으로 귀환 프로세스를 취소할 때 사용합니다.
+    /// </summary>
+    public void CancelReturn()
+    {
+        if (returnCoroutine != null)
+        {
+            StopCoroutine(returnCoroutine);
+            returnCoroutine = null;
+
+            // 1. 이펙트 비활성화
+            if (currentReturnEffect != null)
+            {
+                currentReturnEffect.SetActive(false);
+            }
+
+            // 2. 플레이어 제어 복구
+            playerController.canMove = true; // 예시
+
+            // 3. 알림 표시
+            if (NotificationManager.Instance != null)
+            {
+                NotificationManager.Instance.ShowNotification(
+                    "[귀환 취소] 피격으로 귀환이 취소되었습니다.",
+                    NotificationType.Warning
+                );
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // 기존 로직 유지
+    // ------------------------------------------------------------------
 
     /// <summary>
     /// 모든 시스템 컴포넌트가 정상적으로 할당되었는지 확인합니다.

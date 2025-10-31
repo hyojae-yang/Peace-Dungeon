@@ -198,6 +198,8 @@ public class SkillConfirmationPanel : MonoBehaviour
             SkillPointManager.Instance.UpdateTempSkillLevel(currentSkillData.skillId, tempLevel);
             // UI 업데이트
             UpdatePanelUI();
+            if (UITutorialHandler.Instance != null)
+            { UITutorialHandler.Instance.OnSkillAllocationOpened.Invoke(); }
         }
     }
 

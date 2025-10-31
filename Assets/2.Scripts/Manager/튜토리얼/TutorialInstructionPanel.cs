@@ -112,7 +112,7 @@ public class TutorialInstructionPanel : MonoBehaviour
         StopAllCoroutines();
 
         // 1. 메시지 설정
-        string completionMessage = "축하합니다! 던전 배치에 성공하셨습니다. \n이제 문으로 가서 첫 던전을 탐험하세요!";
+        string completionMessage = "축하합니다! 이제 자유롭게 플레이해보세요!";
 
         if (instructionText != null)
         {
@@ -142,7 +142,6 @@ public class TutorialInstructionPanel : MonoBehaviour
         // 튜토리얼 최종 종료는 이 코루틴에서만 호출되어야 합니다.
         if (TutorialManager.Instance != null)
         {
-            Debug.Log("[TutorialInstructionPanel] 완료 메시지 숨김. 최종 시스템 종료 요청.");
             TutorialManager.Instance.FinalizeSystemShutdown();
         }
         else

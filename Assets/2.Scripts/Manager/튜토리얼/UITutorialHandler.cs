@@ -1,6 +1,6 @@
 using UnityEngine;
 using UnityEngine.Events;
-using System.Collections; // 코루틴 사용을 위해 추가
+using System.Collections;
 
 /// <summary>
 /// [Tutorial Event Bus & UI Handler]
@@ -10,36 +10,43 @@ using System.Collections; // 코루틴 사용을 위해 추가
 /// </summary>
 public class UITutorialHandler : MonoBehaviour
 {
-    // [싱글톤 인스턴스]
+    // 싱글톤 인스턴스
     public static UITutorialHandler Instance { get; private set; }
 
     // =================================================================================
     // [핵심] 튜토리얼 진행 이벤트 버스 (TutorialManager가 구독합니다.)
     // =================================================================================
     [Header("Tutorial Advance Events (Invoke from Game Code)")]
-    [Tooltip("인벤토리 열기 감지 이벤트. TutorialManager.AdvanceStep()과 연결됩니다.")]
-    public UnityEvent OnInventoryOpened = new UnityEvent();          // GuideOpenInventory 단계 완료
 
-    [Tooltip("장비 장착 완료 감지 이벤트.")]
-    public UnityEvent OnGearEquipped = new UnityEvent();             // GuideEquipGear 단계 완료
+    // 장비 및 UI 관련 이벤트
+    public UnityEvent OnInventoryOpened = new UnityEvent();
+    public UnityEvent OnGearEquipped = new UnityEvent();
+    public UnityEvent OnBasicAttack = new UnityEvent(); // [추가] 좌클릭 기본 공격 감지
+    public UnityEvent OnAimingPerformed = new UnityEvent(); // [추가] 우클릭 조준/방향 전환 감지
+    public UnityEvent OnFrameUIOpened = new UnityEvent();
 
-    [Tooltip("액자 UI 열림 감지 이벤트. (상호작용 E 키 누름 등)")]
-    public UnityEvent OnFrameUIOpened = new UnityEvent();            // Init 단계 완료
+    // 던전 배치 관련 이벤트
+    public UnityEvent OnPieceRetrieved = new UnityEvent();
+    public UnityEvent OnPlacementComplete = new UnityEvent();
+    public UnityEvent OnDungeonPlacementUIClose = new UnityEvent();
+    public UnityEvent OnDungeonEntryDetected = new UnityEvent();
 
-    [Tooltip("인벤토리에서 던전 조각을 꺼내 드래그 시작 감지 이벤트.")]
-    public UnityEvent OnPieceRetrieved = new UnityEvent();          // GuideRetrievePiece 단계 완료
-
-    [Tooltip("유효한 위치에 던전 조각 배치 완료 감지 이벤트.")]
-    public UnityEvent OnPlacementComplete = new UnityEvent();       // WaitPlacementComplete 단계 완료
+    // 성장 및 스킬 관련 이벤트
+    public UnityEvent OnLevelUpDetected = new UnityEvent();
+    public UnityEvent OnStatAllocated = new UnityEvent();
+    public UnityEvent OnSkillAllocationOpened = new UnityEvent();
+    public UnityEvent OnSkillPointsApplied = new UnityEvent();
+    public UnityEvent OnSkillRegisteredToSlot = new UnityEvent();
+    public UnityEvent OnSkillUsed = new UnityEvent(); // [최종 추가] 스킬 사용 감지
 
     // =================================================================================
     // [UI 컴포넌트 및 메시지 관리]
     // =================================================================================
     [Header("UI Components")]
-    [Tooltip("인벤토리 열기 등 메인 캔버스에 표시되는 안내 패널입니다.")]
+    [Tooltip("인벤토리 열기 등 메인 캔버스에 표시되는 주 안내 패널입니다.")]
     [SerializeField] private TutorialInstructionPanel instructionPanel;
 
-    [Tooltip("액자 UI 옆 등 보조적인 위치에 표시되는 안내 패널입니다.")]
+    [Tooltip("액자 UI 옆 등 보조적인 위치에 표시되는 부 안내 패널입니다.")]
     [SerializeField] private TutorialInstructionPanel secondInstructionPanel;
 
     private void Awake()
@@ -61,24 +68,22 @@ public class UITutorialHandler : MonoBehaviour
 
     /// <summary>
     /// 메인 안내 패널을 활성화하고 메시지를 표시합니다.
+    /// (보조 패널이 활성화되어 있다면 비활성화합니다.)
     /// </summary>
     public void ShowPrimaryInstruction(string message)
     {
-        // 상호 배타적 활성화
         secondInstructionPanel?.gameObject.SetActive(false);
-        // instructionPanel의 ShowInstruction 내부에 패널 활성화 로직이 포함되어야 합니다.
-        instructionPanel?.ShowInstruction(message);
+        instructionPanel?.ShowInstruction(message); // 패널 활성화 로직은 ShowInstruction 내부에 포함 가정
     }
 
     /// <summary>
     /// 보조 안내 패널을 활성화하고 메시지를 표시합니다.
+    /// (메인 패널이 활성화되어 있다면 비활성화합니다.)
     /// </summary>
     public void ShowSecondInstruction(string message)
     {
-        // 상호 배타적 활성화
         instructionPanel?.gameObject.SetActive(false);
-        // secondInstructionPanel의 ShowInstruction 내부에 패널 활성화 로직이 포함되어야 합니다.
-        secondInstructionPanel?.ShowInstruction(message);
+        secondInstructionPanel?.ShowInstruction(message); // 패널 활성화 로직은 ShowInstruction 내부에 포함 가정
     }
 
     /// <summary>
@@ -86,20 +91,16 @@ public class UITutorialHandler : MonoBehaviour
     /// </summary>
     public void ShowCompletionUI()
     {
-        // 완료 단계에서는 모든 안내 패널 비활성화
-        instructionPanel?.gameObject.SetActive(false);
-
-        // 보조 패널을 사용하여 완료 메시지 표시 요청
-        // ShowCompletionMessage 내부에 최종 종료(FinalizeSystemShutdown) 로직이 연결되어야 합니다.
-        secondInstructionPanel?.ShowCompletionMessage();
+        secondInstructionPanel?.gameObject.SetActive(false);
+        // ShowCompletionMessage 내부에 TutorialManager.FinalizeSystemShutdown() 호출이 연결되어야 합니다.
+        instructionPanel?.ShowCompletionMessage();
     }
 
     /// <summary>
-    /// 모든 안내 패널을 즉시 숨깁니다. (스킵 시 사용)
+    /// 모든 안내 패널을 즉시 숨깁니다. (스킵 또는 단계 전환 시 사용)
     /// </summary>
     public void HideAllUI()
     {
-        // 진행 중이던 모든 코루틴을 중지 (예: 임시 메시지, 완료 메시지 코루틴)
         instructionPanel?.StopAllCoroutines();
         secondInstructionPanel?.StopAllCoroutines();
 
@@ -108,35 +109,37 @@ public class UITutorialHandler : MonoBehaviour
     }
 
     /// <summary>
-    /// 던전 배치 중 유효하지 않은 배치 경고를 표시합니다. (DungeonMap.cs에서 호출 가능)
+    /// 던전 배치 중 유효하지 않은 배치 경고를 표시합니다.
     /// </summary>
     /// <param name="message">표시할 경고 메시지</param>
     /// <param name="duration">메시지가 유지될 시간</param>
     public void ShowInvalidPlacementNotification(string message, float duration)
     {
         // 보조 패널을 사용하여 경고 메시지를 잠시 표시합니다.
-        // 이 메서드는 TutorialInstructionPanel의 ShowTemporaryInstruction을 호출합니다.
         secondInstructionPanel?.ShowTemporaryInstruction(message, duration);
     }
 
-    // === Public Event Invokers (Game Code에서 호출되어야 합니다.) ===
-    // 이 메서드들은 실제로 게임 로직(예: Inventory.cs, DungeonMap.cs)에서 호출되어야 합니다.
+    // === Public Event Invokers (게임 로직에서 호출되어야 합니다.) ===
+
+    // 장비 및 UI 관련 Invoker
+    public void NotifyInventoryOpened() => OnInventoryOpened.Invoke();
+    public void NotifyGearEquipped() => OnGearEquipped.Invoke();
+    public void NotifyBasicAttack() => OnBasicAttack.Invoke(); // [추가]
+    public void NotifyAimingPerformed() => OnAimingPerformed.Invoke(); // [추가]
+
+    // 던전 배치 관련 Invoker
+    public void NotifyDungeonPlacementUIClose() => OnDungeonPlacementUIClose.Invoke();
+    public void NotifyDungeonEntryDetected() => OnDungeonEntryDetected.Invoke();
+
+    // 성장 및 스킬 관련 Invoker
+    public void NotifyLevelUpDetected() => OnLevelUpDetected.Invoke();
+    public void NotifyStatAllocated() => OnStatAllocated.Invoke();
+    public void NotifySkillAllocationOpened() => OnSkillAllocationOpened.Invoke();
+    public void NotifySkillPointsApplied() => OnSkillPointsApplied.Invoke();
+    public void NotifySkillRegisteredToSlot() => OnSkillRegisteredToSlot.Invoke();
 
     /// <summary>
-    /// 인벤토리가 열리는 순간 게임 로직에서 호출되어야 합니다.
+    /// [최종 추가] 퀵 슬롯에 등록된 스킬을 플레이어가 실제로 사용했을 때 호출됩니다.
     /// </summary>
-    public void NotifyInventoryOpened()
-    {
-        OnInventoryOpened.Invoke();
-    }
-
-    /// <summary>
-    /// 장비 장착이 완료되는 순간 게임 로직에서 호출되어야 합니다.
-    /// </summary>
-    public void NotifyGearEquipped()
-    {
-        OnGearEquipped.Invoke();
-    }
-
-    // ... 나머지 이벤트도 필요하다면 Invoker 메서드를 추가할 수 있습니다.
+    public void NotifySkillUsed() => OnSkillUsed.Invoke();
 }

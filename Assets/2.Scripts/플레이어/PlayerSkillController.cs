@@ -184,7 +184,7 @@ public class PlayerSkillController : MonoBehaviour, ISavable
 
         if (activeSkill != null)
         {
-            // ⭐ 핵심 추가 로직: 마우스 조준이 필요한 스킬인지 확인 및 정보 주입 (ISP 원칙 준수)
+            // 핵심 추가 로직: 마우스 조준이 필요한 스킬인지 확인 및 정보 주입 (ISP 원칙 준수)
             IHasAiming aimingSkill = activeSkill as IHasAiming;
 
             if (aimingSkill != null)
@@ -234,6 +234,8 @@ public class PlayerSkillController : MonoBehaviour, ISavable
                 StopCoroutine(activeSkillCoroutines[activeSkill.skillId]);
             }
             activeSkillCoroutines[activeSkill.skillId] = newActivation;
+            if (UITutorialHandler.Instance != null)
+            { UITutorialHandler.Instance.OnSkillUsed.Invoke(); }
         }
     }
 

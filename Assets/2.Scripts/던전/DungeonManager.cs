@@ -125,12 +125,8 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                     // [핵심 추가] 던전 진입 이벤트 호출
                     // =======================================================
                     OnDungeonEnter?.Invoke(); 
-                    if (NotificationManager.Instance != null||SoundManager.Instance != null)
+                    if (SoundManager.Instance != null)
                     {
-                        NotificationManager.Instance.ShowNotification(
-                            "던전 입장 완료",
-                            NotificationType.General
-                        );
                         SoundManager.Instance.PlayBGM(BGMType.Main_B,1.0f);
                     }
                     // =======================================================

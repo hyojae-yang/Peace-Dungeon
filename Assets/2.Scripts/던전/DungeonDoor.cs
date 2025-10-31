@@ -85,6 +85,8 @@ public class DungeonDoor : MonoBehaviour
             // DungeonManager의 상태를 '던전 안'으로 변경합니다.
             // (DungeonManager 내부 IsInDungeon Setter에서 HandleDungeonEntry()가 호출됨)
             DungeonManager.Instance.IsInDungeon = true;
+            if (UITutorialHandler.Instance != null)
+            { UITutorialHandler.Instance.OnDungeonEntryDetected.Invoke(); }
         }
         // 던전 퇴장 로직 (여기가 수정되었습니다!)
         else // DungeonManager.Instance.IsInDungeon == true

@@ -131,7 +131,10 @@ public class NPCQuestHandler : MonoBehaviour
     public void OnAcceptQuest(QuestData data)
     {
         QuestManager.Instance.AcceptQuest(data.questID);
-
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.QuestAccept, 0.5f);
+        }
         NPCUIManager.Instance.HideAllUI();
         if (npcInteraction != null) npcInteraction.EndInteraction();
     }
@@ -143,7 +146,10 @@ public class NPCQuestHandler : MonoBehaviour
     public void OnCancelQuest(QuestData data)
     {
         QuestManager.Instance.CancelQuest(data.questID);
-
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.QuestAbandon, 0.5f);
+        }
         NPCUIManager.Instance.HideAllUI();
         if (npcInteraction != null) npcInteraction.EndInteraction();
     }
@@ -156,7 +162,10 @@ public class NPCQuestHandler : MonoBehaviour
     {
         // QuestManager에 퀘스트 완료를 알리고 보상을 지급합니다.
         QuestManager.Instance.CompleteQuest(data.questID, data);
-
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.QuestComplete, 0.5f);
+        }
         // 보상 패널을 띄웁니다.
         // 보상 패널의 '확인' 버튼을 누르면 대화가 최종적으로 종료됩니다.
         NPCUIManager.Instance.ShowQuestRewardPanel(data, npcInteraction);

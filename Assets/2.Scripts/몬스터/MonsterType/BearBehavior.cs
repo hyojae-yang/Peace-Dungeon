@@ -13,7 +13,16 @@ public class BearBehavior : MonoBehaviour
     private MonsterCombat monsterCombat;
     private MonsterPatrol monsterPatrol;
     private Animator animator; // 애니메이터 참조 변수
+    private AudioSource audioSource;
 
+    // === 사운드 설정 추가 ===
+    [Header("사운드 설정")]
+    [Tooltip("플레이어에게 근접 일반 공격을 할 때 재생되는 효과음입니다.")]
+    public AudioClip normalAttackClip;
+    [Tooltip("특수 공격을 준비(차징)하는 동안 재생되는 소리입니다. (점점 커지는 소리 등)")]
+    public AudioClip aoeChargeClip;
+    [Tooltip("특수 공격(AOE)을 실제로 실행할 때 재생되는 폭발 또는 충격 소리입니다.")]
+    public AudioClip aoeExecutionClip;
     // === 플레이어 감지 및 공격 범위 설정 ===
     [Header("행동 설정")]
     [Tooltip("플레이어 감지 시 몬스터가 멈춰서 공격을 시작할 최소 거리입니다. (공격 시작 경계)")]
@@ -69,6 +78,7 @@ public class BearBehavior : MonoBehaviour
         monsterCombat = GetComponent<MonsterCombat>();
         monsterPatrol = GetComponent<MonsterPatrol>();
         animator = GetComponent<Animator>(); // Animator 할당
+        audioSource = GetComponent<AudioSource>();
 
         if (monster == null) Debug.LogError("BearBehavior 스크립트는 Monster 컴포넌트를 필요로 합니다!", this);
         if (monsterCombat == null) Debug.LogError("MonsterCombat 컴포넌트를 필요로 합니다!", this);
@@ -95,7 +105,7 @@ public class BearBehavior : MonoBehaviour
             aoeVisualObject.SetActive(false);
         }
 
-        // [추가] 유예 거리 설정 안전 장치
+        //유예 거리 설정 안전 장치
         if (chaseRange < attackRange)
         {
             chaseRange = attackRange + 0.5f; // attackRange보다 최소 0.5m 크게 설정
@@ -115,7 +125,7 @@ public class BearBehavior : MonoBehaviour
             return;
         }
 
-        // [수정] Charge 또는 특수 공격 모션 재생 중에는 거리 검사를 통한 상태 전환을 건너뛰어 안정성을 확보합니다.
+        //Charge 또는 특수 공격 모션 재생 중에는 거리 검사를 통한 상태 전환을 건너뛰어 안정성을 확보합니다.
         if (monster.currentState == MonsterBase.MonsterState.Charge || isAttackingSpecial)
         {
             // 이 상태에서는 HandleChargeState 또는 HandleAttackState에서 내부 로직만 수행됨
@@ -310,6 +320,12 @@ public class BearBehavior : MonoBehaviour
     /// </summary>
     private void HandleChargeState()
     {
+        if (currentChargeTime == 0 && audioSource != null && aoeChargeClip != null && !audioSource.isPlaying)
+        {
+            audioSource.clip = aoeChargeClip;
+            audioSource.loop = true; // 차징 시간 동안 반복 재생 (선택 사항: 단일 긴 클립이면 loop=false)
+            audioSource.Play();
+        }
         currentChargeTime += Time.deltaTime;
         monsterPatrol.StopPatrol(); // 움직임 멈춤 (Chase/Attack에서 이미 멈추지만 안전 장치)
 
@@ -317,7 +333,11 @@ public class BearBehavior : MonoBehaviour
         {
             // 1. 애니메이션 실행 (공격 실행 모션)
             if (animator != null) animator.SetTrigger("SpecialAttack");
-
+            if (audioSource != null && audioSource.isPlaying)
+            {
+                audioSource.Stop();
+                audioSource.loop = false;
+            }
             // 2. 상태 전환 및 플래그 설정
             monster.ChangeState(MonsterBase.MonsterState.Attack); // Attack 상태로 복귀
             lastAoeAttackTime = Time.time;
@@ -338,6 +358,10 @@ public class BearBehavior : MonoBehaviour
         if (monster.detectableTarget.GetTransform().TryGetComponent(out IDamageable damageable))
         {
             if (animator != null) animator.SetTrigger("Attack");
+            if (audioSource != null && normalAttackClip != null)
+            {
+                audioSource.PlayOneShot(normalAttackClip);
+            }
 
             damageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
         }
@@ -348,6 +372,10 @@ public class BearBehavior : MonoBehaviour
     /// </summary>
     private void PerformAOEAttack()
     {
+        if (audioSource != null && aoeExecutionClip != null)
+        {
+            audioSource.PlayOneShot(aoeExecutionClip);
+        }
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, aoeAttackRadius);
 
         foreach (var hitCollider in hitColliders)

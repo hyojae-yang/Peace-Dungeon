@@ -133,6 +133,8 @@ public class SkillPanel : MonoBehaviour
         if (SkillPointManager.Instance != null)
         {
             SkillPointManager.Instance.ApplyChanges();
+            if (UITutorialHandler.Instance != null)
+            { UITutorialHandler.Instance.OnSkillPointsApplied.Invoke(); }
         }
     }
 

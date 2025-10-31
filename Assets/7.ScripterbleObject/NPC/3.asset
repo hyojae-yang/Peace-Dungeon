@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 3
   m_EditorClassIdentifier: 
   npcID: 3
+  npcSprite: {fileID: 21300000, guid: ff37e0c98d428144ab3b28850670901c, type: 3}
   npcName: "\uC7A5\uBCF4\uB78C"
   npcPersonality: "\uC7A5\uD130\uB124 \uAC00\uC871\uC758 \uB538,\uD638\uAE30\uC2EC\uC774
     \uB9CE\uC544\uC11C \uB358\uC804\uC5D0 \uAD00\uC2EC\uC774 \uB9CE\uB2E4."

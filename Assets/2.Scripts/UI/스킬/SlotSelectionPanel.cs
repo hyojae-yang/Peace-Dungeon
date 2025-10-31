@@ -79,6 +79,8 @@ public class SlotSelectionPanel : MonoBehaviour
         if (parentSkillIcon != null)
         {
             parentSkillIcon.HideAllRelatedPanels();
+            if (UITutorialHandler.Instance != null)
+            { UITutorialHandler.Instance.OnSkillRegisteredToSlot.Invoke(); }
         }
         else
         {

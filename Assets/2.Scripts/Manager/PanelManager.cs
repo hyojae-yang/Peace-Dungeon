@@ -96,9 +96,13 @@ public class PanelManager : MonoBehaviour
             // 2. 닫기 로직: 현재 열려있는 상태라면
             // 메인 패널만 비활성화하여 모든 UI를 숨깁니다.
             // 서브 패널 (panelIndex)의 상태는 'true'로 유지되어, P 키를 눌렀을 때 다시 나타날 수 있게 합니다.
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(SFXType.Inventory_openclose_sound, 0.5f);
+            }
             panels[MAIN_PANEL_INDEX].SetActive(false);
 
-            // 이스터 에그: 숨기지 않았다고 삐지지 마세요. 다시 P를 누르면 나타날 거예요! 😉
+            // 이스터 에그: 숨기지 않았다고 삐지지 마세요. 다시 P를 누르면 나타날 거예요!
         }
         else
         {
@@ -108,6 +112,10 @@ public class PanelManager : MonoBehaviour
             DeactivateAllSubPanels(panelIndex);
 
             // 3-2. 메인 패널과 원하는 서브 패널을 동시에 활성화합니다.
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(SFXType.Inventory_openclose_sound, 0.5f);
+            }
             panels[panelIndex].SetActive(true);
             panels[MAIN_PANEL_INDEX].SetActive(true);
         }
@@ -123,6 +131,10 @@ public class PanelManager : MonoBehaviour
         if (panels.Length == 0) return;
 
         bool isActive = panels[MAIN_PANEL_INDEX].activeSelf;
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Inventory_openclose_sound, 0.5f);
+        }
         panels[MAIN_PANEL_INDEX].SetActive(!isActive);
     }
 

@@ -16,7 +16,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
     private PlayerCharacter playerCharacter;
 
-    // 🚨 [추가] 로직 처리를 위임할 InventoryLogic 인스턴스입니다. (DIP/SRP 적용)
+    // 로직 처리를 위임할 InventoryLogic 인스턴스입니다. (DIP/SRP 적용)
     private InventoryLogic logic;
 
     // === 이벤트 ===
@@ -43,11 +43,6 @@ public class InventoryManager : MonoBehaviour, ISavable
     [Tooltip("에셋 파일로 저장된 인벤토리 데이터를 할당합니다.")]
     [SerializeField] private InventoryData inventoryData;
 
-    // 🚨 [수정]: 기존 필드는 호환성을 위해 남겨두되, 이제 내부 로직에서 직접 사용하지 않고
-    // InventoryLogic 내부의 상수가 실제 크기를 제어합니다. (7개 패널 분리로 인해 단일 크기 무의미)
-    // [SerializeField] private int inventorySize = 80; 
-    // [SerializeField] private int equipinventorySize = 64; 
-
     // === MonoBehaviour 메서드 ===
 
     private void Awake()
@@ -59,7 +54,7 @@ public class InventoryManager : MonoBehaviour, ISavable
             return;
         }
 
-        // 🚨 [추가] InventoryLogic 인스턴스를 생성하여 로직 처리를 위임할 준비를 합니다.
+        // InventoryLogic 인스턴스를 생성하여 로직 처리를 위임할 준비를 합니다.
         logic = new InventoryLogic();
 
         if (inventoryData != null)
@@ -95,7 +90,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (item == null || amount <= 0) return false;
 
-        // 🚨 [로직 위임] 모든 복잡한 아이템 추가/스택킹/공간 체크 로직을 InventoryLogic에 위임합니다.
+        // 모든 복잡한 아이템 추가/스택킹/공간 체크 로직을 InventoryLogic에 위임합니다.
         // inventorySize는 이제 InventoryLogic 내부에서 아이템 타입에 따라 80/64로 결정되므로 전달할 필요가 없습니다.
         bool success = logic.AddItem(inventoryData, item, amount);
 
@@ -128,7 +123,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (equipmentItem == null) return false;
 
-        // 🚨 [로직 위임] 모든 장비 아이템 추가 로직을 InventoryLogic에 위임합니다.
+        // 모든 장비 아이템 추가 로직을 InventoryLogic에 위임합니다.
         // 장비 아이템은 AddItem(BaseItemSO, 1)로 처리할 수 있으나, 기존 코드를 따라 오버로드 형태로 위임합니다.
         // ItemLogic 내부에서는 BaseItemSO를 받아 처리하게끔 AddItem 로직을 구성했으므로, 
         // 기존의 AddItem(EquipmentItemSO)의 오버로드 역할은 AddItem(BaseItemSO, 1)이 대체하도록 위임합니다.
@@ -158,7 +153,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (item == null || amount <= 0) return false;
 
-        // 🚨 [로직 위임] BaseItemSO의 ID를 사용하여 로직에 위임합니다.
+        // BaseItemSO의 ID를 사용하여 로직에 위임합니다.
         // 장비 아이템은 BaseItemSO로 제거하면 안 되지만, 기존 코드는 ID를 사용하는 오버로드를 호출했습니다.
         // 이제 ID를 사용하는 RemoveItem이 로직으로 위임되므로, 이 메서드도 로직을 직접 호출하도록 변경합니다.
         return RemoveItem(item.itemID, amount);
@@ -171,7 +166,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (amount <= 0) return false;
 
-        // 🚨 [로직 위임] 모든 제거 로직을 InventoryLogic에 위임합니다.
+        // 모든 제거 로직을 InventoryLogic에 위임합니다.
         bool success = logic.RemoveItem(inventoryData, ItemDatabaseManager.Instance.GetItemByID(itemID), amount);
 
         if (success)
@@ -190,7 +185,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (string.IsNullOrEmpty(uniqueID)) return false;
 
-        // 🚨 [로직 위임] 모든 고유 ID 제거 로직을 InventoryLogic에 위임합니다.
+        // 모든 고유 ID 제거 로직을 InventoryLogic에 위임합니다.
         bool success = logic.RemoveItem(inventoryData, uniqueID);
 
         if (success)
@@ -202,7 +197,7 @@ public class InventoryManager : MonoBehaviour, ISavable
             // *참고: 기존 로직은 uniqueID로 아이템을 찾아 itemID를 얻어 이벤트를 호출했습니다.
             // *현재는 InventoryLogic이 아이템을 제거했으므로, 어떤 아이템이 제거되었는지 여기서 알기 어렵습니다.
 
-            // 🚨 [중요] 기존 코드의 이벤트 호출 로직을 복원하기 위해 임시로 로직을 추가합니다.
+            // 기존 코드의 이벤트 호출 로직을 복원하기 위해 임시로 로직을 추가합니다.
             // BaseItemSO itemSO = null; // InventoryLogic에서 제거된 아이템 정보를 반환하도록 수정하는 것이 가장 이상적입니다.
             // if (itemSO is EquipmentItemSO equipmentSO) OnItemRemoved?.Invoke(equipmentSO.itemID, 1);
 
@@ -225,7 +220,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     /// </summary>
     public bool HasItem(int itemID, int requiredAmount) // string -> int 변경
     {
-        // 🚨 [로직 위임] GetItemCount를 위임하여 7개 패널에서 계산하도록 합니다.
+        // GetItemCount를 위임하여 7개 패널에서 계산하도록 합니다.
         return GetItemCount(itemID) >= requiredAmount;
     }
 
@@ -234,7 +229,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     /// </summary>
     public int GetItemCount(int itemID) // string -> int 변경
     {
-        // 🚨 [로직 위임] 모든 7개 패널에서 개수를 합산하는 로직을 InventoryLogic에 위임합니다.
+        // 모든 7개 패널에서 개수를 합산하는 로직을 InventoryLogic에 위임합니다.
         return logic.GetItemCount(inventoryData, itemID);
     }
 
@@ -251,7 +246,7 @@ public class InventoryManager : MonoBehaviour, ISavable
             return;
         }
 
-        // 2. 🚨 추가된 핵심 로직: 아이템의 사용 가능 여부를 먼저 확인합니다.
+        // 2. 추가된 핵심 로직: 아이템의 사용 가능 여부를 먼저 확인합니다.
         //    ReturnScrollSO의 경우, 이 시점에서 던전 상태(비보스룸, 내부)를 체크합니다.
         if (itemToUse.CanUse(playerCharacter))
         {
@@ -278,14 +273,14 @@ public class InventoryManager : MonoBehaviour, ISavable
     /// </summary>
     public void DiscardItem(BaseItemSO itemToRemove, int amount)
     {
-        // 🚨 [로직 위임] RemoveItem이 이미 위임되어 있으므로, 이 메서드는 변경할 필요가 없습니다.
+        // RemoveItem이 이미 위임되어 있으므로, 이 메서드는 변경할 필요가 없습니다.
         RemoveItem(itemToRemove, amount);
         onInventoryChanged?.Invoke();
     }
 
     /// <summary>
     /// 현재 인벤토리의 아이템 리스트를 반환합니다. (기존 시그니처 유지)
-    /// 🚨 [수정] 7개로 분리된 리스트를 기존 시스템의 호환성을 위해 하나로 합쳐서 반환합니다.
+    /// 7개로 분리된 리스트를 기존 시스템의 호환성을 위해 하나로 합쳐서 반환합니다.
     /// </summary>
     public List<ItemData> GetInventoryItems()
     {
@@ -322,7 +317,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     /// <summary>
     /// 현재 인벤토리 데이터를 InventorySaveData 객체로 변환하여 반환합니다.
     /// 이 메서드는 SaveManager에 의해 호출됩니다.
-    /// 🚨 [수정] 7개의 분리된 리스트에서 아이템 데이터를 가져오도록 수정합니다.
+    /// 7개의 분리된 리스트에서 아이템 데이터를 가져오도록 수정합니다.
     /// </summary>
     /// <returns>InventorySaveData 타입의 저장 가능한 데이터 객체</returns>
     public object SaveData()
@@ -421,7 +416,7 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (data is InventorySaveData loadedData)
         {
-            // 🚨 [수정] 기존 인벤토리 데이터 (7개의 리스트)를 모두 비웁니다.
+            // 기존 인벤토리 데이터 (7개의 리스트)를 모두 비웁니다.
             inventoryData.Initialize();
 
             // 모든 장비 아이템을 임시 딕셔너리에 저장하여 ID로 빠르게 찾을 수 있게 합니다. (기존 로직 유지)
@@ -463,7 +458,7 @@ public class InventoryManager : MonoBehaviour, ISavable
             {
                 if (!equippedUniqueIDs.Contains(equipment.uniqueID))
                 {
-                    // 🚨 [수정] 장착되지 않은 장비는 인벤토리로 추가합니다.
+                    // 장착되지 않은 장비는 인벤토리로 추가합니다.
                     // 기존: inventoryData.inventoryItems.Add(new ItemData(equipment, 1));
                     // 변경: AddItem을 호출하여 7개 패널 중 적절한 곳(장비 패널)에 분배합니다.
                     AddItem(equipment);
@@ -489,7 +484,7 @@ public class InventoryManager : MonoBehaviour, ISavable
                 BaseItemSO itemSO = ItemDatabaseManager.Instance.GetItemByID(savableItem.itemID);
                 if (itemSO != null)
                 {
-                    // 🚨 [수정] 일반 아이템도 AddItem을 호출하여 7개 패널 중 적절한 곳(소모품, 재료 등)에 분배합니다.
+                    // 일반 아이템도 AddItem을 호출하여 7개 패널 중 적절한 곳(소모품, 재료 등)에 분배합니다.
                     // 기존: inventoryData.inventoryItems.Add(new ItemData(itemSO, savableItem.stackCount));
                     // 변경: AddItem을 호출하여 스택킹 로직과 7개 패널 분배를 모두 처리합니다.
                     AddItem(itemSO, savableItem.stackCount);
@@ -556,7 +551,7 @@ public class InventoryManager : MonoBehaviour, ISavable
             // 생성된 고유 장비 아이템을 AddItem 오버로드를 사용하여 인벤토리에 추가합니다.
             if (startingWeapon != null)
             {
-                // 🚨 [로직 위임] AddItem을 호출하면 자동으로 7개 패널 중 무기 패널에 추가됩니다.
+                // [로직 위임] AddItem을 호출하면 자동으로 7개 패널 중 무기 패널에 추가됩니다.
                 AddItem(startingWeapon);
             }
         }
@@ -571,7 +566,7 @@ public class InventoryManager : MonoBehaviour, ISavable
 
         if (potionTemplate != null)
         {
-            // 🚨 [로직 위임] AddItem을 호출하면 자동으로 7개 패널 중 소모품 패널에 추가되며, 스택킹 로직도 처리됩니다.
+            // [로직 위임] AddItem을 호출하면 자동으로 7개 패널 중 소모품 패널에 추가되며, 스택킹 로직도 처리됩니다.
             AddItem(potionTemplate, 5);
         }
         else

@@ -141,6 +141,10 @@ public class PlayerEquipmentManager : MonoBehaviour
             {
                 UITutorialHandler.Instance.OnGearEquipped.Invoke();
             }
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(SFXType.Item_Equip, 0.5f);
+            }
         }
         else
         {

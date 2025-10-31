@@ -159,5 +159,7 @@ public class DungeonFrameInteraction : MonoBehaviour
         {
             NotificationManager.Instance.ShowInteractionPrompt("E 키를 눌러 조각 배치 및 구매", this.gameObject);
         }
+        if (UITutorialHandler.Instance != null)
+        { UITutorialHandler.Instance.OnDungeonPlacementUIClose.Invoke(); }
     }
 }

@@ -90,7 +90,8 @@ public class PlayerLevelUp : MonoBehaviour
             Debug.LogError("플레이어 스탯에 접근할 수 없습니다. 레벨업 실패.");
             return;
         }
-
+        if (UITutorialHandler.Instance != null)
+        { UITutorialHandler.Instance.OnLevelUpDetected.Invoke(); }
         float remainingExp = playerCharacter.playerStats.experience - playerCharacter.playerStats.requiredExperience;
 
         // 레벨과 경험치를 업데이트합니다.
@@ -124,6 +125,10 @@ public class PlayerLevelUp : MonoBehaviour
             string currentLevel = playerCharacter.playerStats.level.ToString();
             // 플레이어의 현재 레벨을 포함하여 메시지를 구성합니다.
             NotificationManager.Instance.ShowNotification($"레벨 업! Lv. {currentLevel} 달성!", NotificationType.Success);
+        }
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Levelup_sound, 0.5f);
         }
     }
 }

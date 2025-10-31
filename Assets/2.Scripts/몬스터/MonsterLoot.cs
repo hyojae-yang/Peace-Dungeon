@@ -175,7 +175,11 @@ public class MonsterLoot : MonoBehaviour
                         {
                             NotificationManager.Instance.ShowNotification($"{generatedItem.itemName}를(을)\n 획득하였습니다.", NotificationType.General);
                         }
-                       // Debug.Log($"장비 아이템 드롭: {generatedItem.itemName} ({randomGrade})");
+                        if (SoundManager.Instance != null)
+                        {
+                            SoundManager.Instance.PlaySFX(SFXType.Item_Goodpickup, 0.5f);
+                        }
+                        // Debug.Log($"장비 아이템 드롭: {generatedItem.itemName} ({randomGrade})");
                     }
                     else
                     {
@@ -191,6 +195,10 @@ public class MonsterLoot : MonoBehaviour
                     if (NotificationManager.Instance != null)
                     {
                         NotificationManager.Instance.ShowNotification($"{selectedItemData.itemName}를(을) 획득하였습니다.", NotificationType.General);
+                    }
+                    if (SoundManager.Instance != null)
+                    {
+                        SoundManager.Instance.PlaySFX(SFXType.Item_Pickup, 0.5f);
                     }
                     // Debug.Log($"일반 아이템 드롭: {selectedItemData.itemName}");
                 }

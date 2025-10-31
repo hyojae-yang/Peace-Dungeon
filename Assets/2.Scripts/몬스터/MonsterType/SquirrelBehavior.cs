@@ -18,12 +18,16 @@ public class SquirrelBehavior : MonoBehaviour
     // [추가] 회전 속도 (도주 시 타겟 반대 방향으로 부드럽게 회전)
     [Tooltip("도주 상태에서 플레이어 반대 방향으로 회전하는 속도입니다.")]
     [SerializeField] private float rotationSpeed = 10.0f;
+    [Header("사운드 설정")]
+    [Tooltip("플레이어 감지 시 한 번 재생되는 놀라는 소리(예: '찍')")]
+    public AudioClip startledClip;
 
     // === 종속성 ===
     private Monster monster;
     private MonsterPatrol monsterPatrol;
     private Transform playerTransform;
     private Animator animator;
+    private AudioSource audioSource;
 
     // 몬스터의 기본 순찰 속도 참조 (도망 속도 계산에 사용)
     private float basePatrolSpeed = 3.0f;
@@ -34,6 +38,7 @@ public class SquirrelBehavior : MonoBehaviour
         monster = GetComponent<Monster>();
         monsterPatrol = GetComponent<MonsterPatrol>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
 
         if (monster == null || monsterPatrol == null || animator == null)
         {
@@ -119,6 +124,12 @@ public class SquirrelBehavior : MonoBehaviour
         // Monster가 플레이어(detectableTarget)를 감지했다면 도망 상태로 전환
         if (monster.detectableTarget != null)
         {
+            // [효과음 추가 로직] 감지 순간 딱 한번만 재생됩니다.
+            if (audioSource != null && startledClip != null)
+            {
+                // PlayOneShot을 사용하여 현재 재생 중인 클립에 영향을 주지 않고 한 번만 재생합니다.
+                audioSource.PlayOneShot(startledClip);
+            }
             monster.ChangeState(MonsterBase.MonsterState.Flee);
             monsterPatrol.StopPatrol(); // 순찰 중지
         }

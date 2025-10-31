@@ -122,6 +122,10 @@ public class CookingUIManager : MonoBehaviour
         {
             Debug.LogError("필요한 UI 컴포넌트(CookingDataSO, recipeContent, recipeItemUIPrefab)가 할당되지 않았습니다.");
         }
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Restaurant_Enter, 0.5f);
+        }
     }
     // === UI 이벤트 핸들러 ===
     /// <summary>

@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// 멧돼지 몬스터의 고유한 행동 로직(순찰, 돌진, 공격)을 담당하는 클래스입니다.
+/// 산양 몬스터의 고유한 행동 로직(순찰, 돌진, 공격)을 담당하는 클래스입니다.
 /// MonsterBase의 상태를 관찰하며 특별한 행동을 실행합니다.
 /// MonsterPatrol 컴포넌트를 제어하여 순찰 기능을 수행합니다.
 /// </summary>
@@ -15,7 +15,13 @@ public class BoarBehavior : MonoBehaviour
     private MonsterPatrol monsterPatrol; // MonsterPatrol 컴포넌트 참조
     private Transform playerTransform;
     Animator animator;
+    private AudioSource audioSource;
 
+    [Header("사운드 설정")]
+    [Tooltip("돌진을 시작하기 직전, 힘을 모을 때 재생되는 효과음.")]
+    public AudioClip chargePrepareClip;
+    [Tooltip("플레이어에게 일반 공격을 시도할 때 재생되는 효과음.")]
+    public AudioClip normalAttackClip;
     // === 돌진 및 공격 설정 ===
     [Header("돌진 및 공격 설정")]
     [Tooltip("플레이어와 이 거리보다 멀리 떨어져 있을 때 돌진을 시작합니다.")]
@@ -58,6 +64,7 @@ public class BoarBehavior : MonoBehaviour
         monsterCombat = GetComponent<MonsterCombat>();
         monsterPatrol = GetComponent<MonsterPatrol>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         if (monster == null || monsterCombat == null || monsterPatrol == null || animator == null)
         {
             Debug.LogError("BoarBehavior: 필수 컴포넌트를 찾을 수 없습니다.");
@@ -237,7 +244,10 @@ public class BoarBehavior : MonoBehaviour
         }
 
         // 3. 실제 돌진 이동 로직 (준비 시간이 끝나면 실행됨)
-
+        if (audioSource != null && chargePrepareClip != null)
+        {
+            audioSource.PlayOneShot(chargePrepareClip);
+        }
         // 돌진 지점까지 이동
         transform.position = Vector3.MoveTowards(transform.position, chargeDestination, chargeSpeed * Time.deltaTime);
 
@@ -337,6 +347,10 @@ public class BoarBehavior : MonoBehaviour
             if (playerTransform.TryGetComponent<IDamageable>(out IDamageable playerDamageable))
             {
                 animator.SetTrigger("Attack");
+                if (audioSource != null && normalAttackClip != null)
+                {
+                    audioSource.PlayOneShot(normalAttackClip);
+                }
                 // 데미지 유형을 명시하여 방어력 계산이 가능하도록 함
                 playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 lastAttackTime = Time.time;

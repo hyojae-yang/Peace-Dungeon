@@ -16,6 +16,14 @@ public class WolfBehavior : MonoBehaviour
     private MonsterCombat monsterCombat;  // 몬스터의 전투, 체력 관리 로직을 처리하는 컴포넌트 (SRP 준수)
     private Transform playerTransform; // 플레이어의 위치를 참조하기 위한 Transform
     private Animator animator;        // 애니메이션 제어를 위한 컴포넌트
+    private AudioSource audioSource;  // AudioSource 종속성 추가
+
+    // === 사운드 설정 추가 ===
+    [Header("사운드 설정")]
+    [Tooltip("체력이 일정 비율 이하로 떨어져 무리를 소집할 때 재생되는 울음소리입니다.")]
+    public AudioClip callForHelpClip;
+    [Tooltip("플레이어에게 일반 공격을 시도할 때 재생되는 효과음입니다.")]
+    public AudioClip normalAttackClip;
 
     // === 행동 설정 ===
     [Header("늑대 행동 설정")]
@@ -47,10 +55,10 @@ public class WolfBehavior : MonoBehaviour
 
     // === 내부 상태 변수 ===
     private bool hasCalledForHelp = false; // 무리 소집을 한 번만 하도록 플래그 설정
-    private bool isLeader = false;         // 현재 늑대가 무리의 리더인지 여부
-    private WolfBehavior leader;           // 추종자인 경우, 리더 늑대의 참조
+    private bool isLeader = false;           // 현재 늑대가 무리의 리더인지 여부
+    private WolfBehavior leader;             // 추종자인 경우, 리더 늑대의 참조
     private List<WolfBehavior> followers = new List<WolfBehavior>(); // 리더인 경우, 추종자 늑대 목록
-    private float lastAttackTime;         // 마지막 공격 시간 기록
+    private float lastAttackTime;            // 마지막 공격 시간 기록
 
     /// <summary>
     /// 추종자가 리더 주변의 합류 위치에 도달하여 플레이어 추격 목표로 전환했는지 여부입니다.
@@ -69,10 +77,14 @@ public class WolfBehavior : MonoBehaviour
         monsterPatrol = GetComponent<MonsterPatrol>();
         monsterCombat = GetComponent<MonsterCombat>();
         animator = GetComponent<Animator>();
-        if (monster == null || monsterPatrol == null || monsterCombat == null)
+        audioSource = GetComponent<AudioSource>(); // AudioSource 컴포넌트 참조
+
+        // AudioSource 포함하여 필수 컴포넌트 유효성 검사
+        if (monster == null || monsterPatrol == null || monsterCombat == null || animator == null || audioSource == null)
         {
-            Debug.LogError("WolfBehavior: 필수 컴포넌트를 찾을 수 없습니다.");
+            Debug.LogError("WolfBehavior: 필수 컴포넌트(Monster, MonsterPatrol, MonsterCombat, Animator, AudioSource) 중 일부를 찾을 수 없습니다.");
             enabled = false;
+            return;
         }
 
         GameObject playerObject = GameObject.FindWithTag("Player");
@@ -125,6 +137,13 @@ public class WolfBehavior : MonoBehaviour
             {
                 animator.SetTrigger("Howl"); // 울부짖기 애니메이션 재생
             }
+
+            //동료 소집(울부짖음) 사운드 재생
+            if (audioSource != null && callForHelpClip != null)
+            {
+                audioSource.PlayOneShot(callForHelpClip);
+            }
+
             CallForHelp();
         }
     }
@@ -199,7 +218,7 @@ public class WolfBehavior : MonoBehaviour
         if (playerTransform != null)
         {
             // MoveTowardsTarget으로 플레이어 추격
-            MoveTowardsTarget(playerTransform, monster.monsterData.moveSpeed*1.5f, attackRange - 0.1f);
+            MoveTowardsTarget(playerTransform, monster.monsterData.moveSpeed * 1.5f, attackRange - 0.1f);
         }
 
         // 1. 플레이어가 공격 범위에 들어오면 공격 상태로 전환
@@ -262,7 +281,7 @@ public class WolfBehavior : MonoBehaviour
         }
         else if (leader != null) // 추종자
         {
-            // **[수정 1] 추종자가 합류를 완료하면 Chase 상태로 즉시 전환합니다.**
+            // 추종자가 합류를 완료하면 Chase 상태로 즉시 전환합니다.**
             if (isJoinedPack)
             {
                 monster.ChangeState(MonsterBase.MonsterState.Chase);
@@ -275,7 +294,7 @@ public class WolfBehavior : MonoBehaviour
             MoveTowardsPosition(initialFlockTarget, packAttackSpeed, followerStoppingDistance);
 
             // -----------------------------------------------------------
-            // [추가/수정] 합류 중에는 목표 지점이 아닌, 플레이어 방향을 바라보도록 강제 회전 로직을 덮어씁니다.
+            // 합류 중에는 목표 지점이 아닌, 플레이어 방향을 바라보도록 강제 회전 로직을 덮어씁니다.
             // 이렇게 하면 이동하는 동안에도 플레이어를 주시하는 것처럼 보입니다.
             // -----------------------------------------------------------
             if (playerTransform != null)
@@ -482,6 +501,13 @@ public class WolfBehavior : MonoBehaviour
                 {
                     animator.SetTrigger("Attack"); // 공격 애니메이션 재생
                 }
+
+                //일반 공격 사운드 재생
+                if (audioSource != null && normalAttackClip != null)
+                {
+                    audioSource.PlayOneShot(normalAttackClip);
+                }
+
                 playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 lastAttackTime = Time.time;
             }

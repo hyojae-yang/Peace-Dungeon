@@ -14,9 +14,14 @@ public abstract class RatBehavior : MonoBehaviour
     protected Transform playerTransform;
     Animator animator;
     Rigidbody rb;
+    protected AudioSource audioSource;
 
-    // ⭐️ [수정] 이동 명령을 저장하고 FixedUpdate에서 처리하기 위한 변수
+    //이동 명령을 저장하고 FixedUpdate에서 처리하기 위한 변수
     private Vector3 _movementDirection = Vector3.zero;
+
+    [Header("사운드 설정")]
+    [Tooltip("공격 실행 시 한 번 재생되는 공통 효과음")]
+    public AudioClip attackClip;
 
     // === 들쥐 떼 행동을 위한 공통 설정 ===
     [Header("공통 행동 설정")]
@@ -38,6 +43,7 @@ public abstract class RatBehavior : MonoBehaviour
         if (monsterCombat == null) Debug.LogError("RatBehavior: MonsterCombat 컴포넌트를 찾을 수 없습니다.");
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
         // Rigidbody 누락 시 경고 및 비활성화
         if (rb == null)
         {
@@ -89,7 +95,7 @@ public abstract class RatBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// ⭐️ [수정] 물리 업데이트: Rigidbody의 실제 이동을 FixedUpdate에서 안전하게 처리합니다.
+    ///물리 업데이트: Rigidbody의 실제 이동을 FixedUpdate에서 안전하게 처리합니다.
     /// </summary>
     private void FixedUpdate()
     {
@@ -118,7 +124,7 @@ public abstract class RatBehavior : MonoBehaviour
     {
         if (direction != Vector3.zero)
         {
-            // ⭐️ [핵심 수정]: 이동 명령을 FixedUpdate에서 사용할 변수에 저장
+            //이동 명령을 FixedUpdate에서 사용할 변수에 저장
             _movementDirection = direction;
 
             // 회전 로직 (Slerp는 Update에서 사용 가능)
@@ -148,6 +154,11 @@ public abstract class RatBehavior : MonoBehaviour
     {
         if (Time.time > lastAttackTime + attackCooldown)
         {
+            if (audioSource != null && attackClip != null)
+            {
+                // PlayOneShot을 사용하여 다른 사운드에 영향을 주지 않고 공격음을 한 번만 재생합니다.
+                audioSource.PlayOneShot(attackClip);
+            }
             IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
             if (playerDamageable != null)
             {

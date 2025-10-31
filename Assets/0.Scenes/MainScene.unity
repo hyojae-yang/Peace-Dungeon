@@ -31145,12 +31145,80 @@ MonoBehaviour:
   storyText: {fileID: 1488824197}
   inputBlocker: {fileID: 1944216198}
   storyMessages:
-  - "\uB2F9\uC2E0\uC740 \uBAA8\uD5D8\uAC00\uC785\uB2C8\uB2E4."
-  - "\uD604\uC7AC \uC5B4\uB5A0\uD55C \uC774\uC720\uB85C \uC678\uB534 \uB9C8\uC744\uC5D0
-    \uC654\uC73C\uB098 \uD574\uB2F9 \uB9C8\uC744\uC740 \uC870\uAC01\uB098\uC11C \uBFD4\uBFD4\uC774
-    \uD769\uC5B4\uC838 \uC788\uB294 \uC0C1\uD0DC\uC785\uB2C8\uB2E4."
-  - "\uC774\uC0C1\uD568\uC744 \uB290\uB080 \uB2F9\uC2E0\uC740 \uC8FC\uBCC0\uC744
-    \uB458\uB7EC\uBD05\uB2C8\uB2E4."
+  - "3\uB144 \uC804, \uB2F9\uC2E0\uC758 \uC544\uBC84\uC9C0\uB294 \uB2E8 \uD558\uB098\uC758
+    \uB2E8\uC11C\uB97C \n\uB0A8\uAE30\uACE0 \uC0AC\uB77C\uC84C\uC2B5\uB2C8\uB2E4.
+    \n\uC138\uC0C1\uC740 \uADF8\uB97C \uD3C9\uBC94\uD55C \uC2E4\uC885\uC790\uB85C
+    \uC5EC\uACBC\uC9C0\uB9CC, \n\uB2F9\uC2E0\uC740 \uC54C\uACE0 \uC788\uC5C8\uC2B5\uB2C8\uB2E4.
+    \n\uC544\uBC84\uC9C0\uAC00 \uD3C9\uC0DD\uC744 \uBC14\uCCD0 \uC5F0\uAD6C\uD588\uB358
+    \uAC83\uC740 \n\uD3C9\uBC94\uD55C \uAC83\uC774 \uC544\uB2C8\uC5C8\uC73C\uBA70,
+    \n\uADF8\uAC00 \uB5A0\uB09C \uC774\uC720 \uC5ED\uC2DC \uB2E8\uC21C\uD558\uC9C0
+    \uC54A\uB2E4\uB294 \uAC83\uC744."
+  - "\uC190\uC5D0 \uC954 \uB0A1\uC740 \uBA54\uBAA8\uC5D0\uB294 \uC624\uC9C1 \uC138
+    \uB2E8\uC5B4\uB9CC\uC774 \n\uC801\uD600 \uC788\uC5C8\uC2B5\uB2C8\uB2E4.\n\n\"\u2026'\uC548\uAC1C
+    \uB05D \uB9C8\uC744'. \uB9CC\uC57D \uB0B4\uAC00 \uB3CC\uC544\uC624\uC9C0 \uBABB\uD55C\uB2E4\uBA74,
+    \uADF8\uACF3\uC5D0 \uD574\uB2F5\uC774 \uC788\uC744 \uAC83\uC774\uB2E4.\"\n\n\uC218\uC18C\uBB38
+    \uB05D\uC5D0 \uCC3E\uC544\uB0B8 '\uC548\uAC1C \uB05D \uB9C8\uC744'. \n\uC774
+    \uC678\uB534\uACF3\uC740 \uB2F9\uC2E0\uC774 \uC0C1\uC0C1\uD588\uB358 \n\uD55C\uC801\uD55C
+    \uC2DC\uACE8 \uB9C8\uC744\uC774 \uC544\uB2C8\uC5C8\uC2B5\uB2C8\uB2E4. \n\uC2F8\uB298\uD558\uACE0
+    \uAE30\uBB18\uD55C \uC815\uC801\uC774 \uAC10\uB3C4\uB294 \uACF5\uAC04. \n\uADF8\uB9AC\uACE0
+    \uC774 \uB9C8\uC744\uC744 \uC774\uB8E8\uB294 \uBAA8\uB4E0 \uAC83\uC774 \n**'\uBD80\uC11C\uC838
+    \uC788\uB2E4'**\uB294 \uCDA9\uACA9\uC801\uC778 \uC0AC\uC2E4."
+  - "\uB2F9\uC2E0\uC774 \uBC1C\uC744 \uB51B\uACE0 \uC788\uB294 \uACF3\uC740 \n\uC644\uBCBD\uD558\uAC8C
+    \uC644\uC131\uB41C \uC7A5\uC18C\uAC00 \uC544\uB2C8\uB77C, \n\uB9C8\uCE58 \uAC70\uB300\uD55C
+    \uBAA8\uC790\uC774\uD06C\uD654\uC5D0\uC11C \n\uB5A8\uC5B4\uC838 \uB098\uC628
+    \uB4EF\uD55C \n**'\uB9C8\uC744\uC758 \uC2DC\uC791 \uC870\uAC01'**\uC774\uC5C8\uC2B5\uB2C8\uB2E4.
+    \n\uADF8 \uC678\uC758 \uACF5\uAC04\uC740 \uB05D\uC5C6\uC774 \uD3BC\uCCD0\uC9C4,
+    \n\uB9E4\uB044\uB7FD\uACE0 \uAE30\uD558\uD559\uC801\uC778 \uB2E8\uBA74\uC758
+    \uACF5\uD5C8\uBFD0\uC785\uB2C8\uB2E4. \n\uB9C8\uCE58 \uB204\uAD70\uAC00 \uC774
+    \uC138\uACC4\uB97C \uD1B5\uC9F8\uB85C \uC798\uB77C\uB0B4\uACE0, \n\uAC00\uC7A5
+    \uC791\uC740 \uC870\uAC01 \uD558\uB098\uB9CC \uB0A8\uACA8\uB193\uC740 \uAC83\uCC98\uB7FC."
+  - "\uADF8 \uACF5\uD5C8\uC758 \uACBD\uACC4, \uB2E8\uC808\uB41C \uACF5\uAC04 \uC18D\uC5D0\uC11C
+    \n\uC774\uC9C8\uC801\uC778 \uC5D0\uB108\uC9C0\uB97C \uB0B4\uBFDC\uB294 \n**'\uADE0\uC5F4'**\uC774
+    \uB2F9\uC2E0\uC758 \uC2DC\uC120\uC744 \uC7A1\uC544\uB055\uB2C8\uB2E4. \n\uBB3C\uB9AC\uC801\uC778
+    \uBC95\uCE59\uC744 \uBB34\uC2DC\uD55C \uCC44 \uC874\uC7AC\uD558\uB294 \uB4EF\uD55C
+    \n\uD478\uB978 \uC18C\uC6A9\uB3CC\uC774. \n\uADF8\uAC83\uC740 \uBD84\uBA85 \uC774
+    \uC870\uAC01\uB09C \uB9C8\uC744\uC758 \uBCF8\uC9C8\uACFC\uB294 \n\uB2E4\uB974\uC9C0\uB9CC,
+    \uB3D9\uC2DC\uC5D0 \uC774 \uB9C8\uC744\uC5D0 \uC18D\uD574 \uC788\uC2B5\uB2C8\uB2E4.
+    **'\uB358\uC804\uC758 \uC785\uAD6C'**\uC785\uB2C8\uB2E4."
+  - "\uC774 \uB358\uC804 \uADE0\uC5F4\uC744 \uBC14\uB77C\uBCF4\uB294 \uC21C\uAC04,
+    \uB2F9\uC2E0\uC758 \uC2EC\uC7A5\uC740 \uAC15\uB825\uD558\uAC8C \uC6B8\uB9BD\uB2C8\uB2E4.
+    \uC544\uBC84\uC9C0\uC758 \uB9C8\uC9C0\uB9C9 \uB2E8\uC11C, \uADF8\uB9AC\uACE0
+    \uC774 \uC808\uB2E8\uB41C \uC138\uACC4\uC758 \uAE30\uC774\uD568. \uC774 \uBAA8\uB4E0
+    \uAC83\uC774 \uC800 \uADE0\uC5F4 \uB108\uBA38\uC5D0 \uC228\uACA8\uC838 \uC788\uB2E4\uB294
+    \uAC15\uB82C\uD55C \uC608\uAC10."
+  - "\uC774 \uB358\uC804 \uADE0\uC5F4\uC744 \uBC14\uB77C\uBCF4\uB294 \uC21C\uAC04,
+    \n\uB2F9\uC2E0\uC758 \uC2EC\uC7A5\uC740 \uAC15\uB825\uD558\uAC8C \uC6B8\uB9BD\uB2C8\uB2E4.
+    \n\uC544\uBC84\uC9C0\uC758 \uB9C8\uC9C0\uB9C9 \uB2E8\uC11C, \n\uADF8\uB9AC\uACE0
+    \uC774 \uC808\uB2E8\uB41C \uC138\uACC4\uC758 \uAE30\uC774\uD568. \n\uC774 \uBAA8\uB4E0
+    \uAC83\uC774 \uC800 \uADE0\uC5F4 \uB108\uBA38\uC5D0 \n\uC228\uACA8\uC838 \uC788\uB2E4\uB294
+    \uAC15\uB82C\uD55C \uC608\uAC10.\n\uADE0\uC5F4 \uC18D\uC73C\uB85C \uC190\uC744
+    \uBED7\uC5B4\uBD05\uB2C8\uB2E4. \n\uCC28\uAC11\uACE0 \uB0AF\uC120 \uC5D0\uB108\uC9C0\uAC00
+    \uC190\uB05D\uC744 \uAC10\uC2F8\uACE0, \n\uB2F9\uC2E0\uC740 \uAE68\uB2EB\uC2B5\uB2C8\uB2E4.
+    \n\uC544\uBC84\uC9C0\uB294 \uB9C8\uC744\uC5D0 \uD574\uB2F5\uC744 \uC228\uAE34
+    \uAC83\uC774 \uC544\uB2C8\uB77C, \n\uC774 \uB9C8\uC744 \uC790\uCCB4\uAC00 \uC544\uBC84\uC9C0\uC758
+    '\uD574\uB2F5'\uC774\uC5C8\uAC70\uB098, \n\uD639\uC740 '\uC720\uC0B0'\uC774\uC5C8\uC744\uC9C0
+    \uBAA8\uB978\uB2E4\uB294 \uAC83\uC744."
+  - "\uC774\uC81C \uB2F9\uC2E0\uC758 \uC784\uBB34\uB294 \uBA85\uD655\uD569\uB2C8\uB2E4.
+    \n\uB2F9\uC2E0\uC740 \uC774 \uC870\uAC01\uB09C \uC138\uACC4\uB97C \uB418\uB3CC\uB824
+    \uB193\uC744 \n\uC720\uC77C\uD55C \uC874\uC7AC\uC785\uB2C8\uB2E4.\n\n**[\uB358\uC804
+    \uBCF4\uC2A4]**\uB97C \uCC98\uCE58\uD560 \uB54C\uB9C8\uB2E4, \n\uB2F9\uC2E0\uC740
+    \uB9C8\uC744\uC758 \uC0AC\uB77C\uC9C4 \uC77C\uBD80, \n**'\uB2E4\uC74C \uC870\uAC01'**\uC744
+    \uB418\uCC3E\uAC8C \uB429\uB2C8\uB2E4. \n\uC774 \uC870\uAC01\uC744 \uBE48 \uACF5\uAC04\uC5D0
+    \uC774\uC5B4 \uBD99\uC774\uB294 \n\uD589\uC704\uC57C\uB9D0\uB85C, \n\uB2F9\uC2E0\uC774
+    \uC544\uBC84\uC9C0\uC758 \uC9C4\uC2E4\uC5D0 \n\uD55C \uAC78\uC74C \uB354 \uB2E4\uAC00\uAC00\uB294
+    \uC720\uC77C\uD55C \uAE38\uC785\uB2C8\uB2E4."
+  - "\uADF8\uB9AC\uACE0 \uB358\uC804 \uAE4A\uC740 \uACF3\uC758 \uAD11\uBB3C\uC740
+    \n\uC774 \uC808\uB2E8\uB41C \uC138\uACC4\uC758 \uADE0\uD615\uC744 \uB418\uCC3E\uC544\uC904
+    \n**[\uD798\uC758 \uB9E4\uAC1C\uCCB4]**\uAC00 \uB420 \uAC83\uC785\uB2C8\uB2E4.
+    \n\uC774\uB97C \uD1B5\uD574 \uB2F9\uC2E0\uC740 \uC783\uC5B4\uBC84\uB9B0 \uB358\uC804
+    \uD30C\uD3B8\uB4E4\uC744 \n\uBD88\uB7EC\uB0B4\uC5B4, \uAE38\uC744 \uB9CC\uB4E4\uACE0,
+    \n\uC9C4\uC2E4\uB85C \uD5A5\uD558\uB294 \uC5EC\uC815\uC758 \uB09C\uC774\uB3C4\uB97C
+    \n\uC9C1\uC811 \uACB0\uC815\uD558\uAC8C \uB420 \uAC83\uC785\uB2C8\uB2E4.\n\n\uC870\uAC01\uC744
+    \uBAA8\uC73C\uC2ED\uC2DC\uC624. \n\uC138\uACC4\uB97C \uBCF5\uC6D0\uD558\uC2ED\uC2DC\uC624.
+    \n\uBAA8\uB4E0 \uAC83\uC774 \uC81C\uC790\uB9AC\uB97C \uCC3E\uC744 \uB54C, \n\uC774
+    \uB9C8\uC744\uC758 \uC6B4\uBA85\uACFC \uC544\uBC84\uC9C0\uC758 \uBE44\uBC00\uC774
+    \n\uB2F9\uC2E0 \uC55E\uC5D0\uC11C \n\uD558\uB098\uC758 \uADF8\uB9BC\uCC98\uB7FC
+    \uC644\uC131\uB420 \uAC83\uC785\uB2C8\uB2E4."
   typingSpeed: 0.1
   OnStoryComplete:
     m_PersistentCalls:
@@ -37937,6 +38005,12 @@ MonoBehaviour:
   OnGearEquipped:
     m_PersistentCalls:
       m_Calls: []
+  OnBasicAttack:
+    m_PersistentCalls:
+      m_Calls: []
+  OnAimingPerformed:
+    m_PersistentCalls:
+      m_Calls: []
   OnFrameUIOpened:
     m_PersistentCalls:
       m_Calls: []
@@ -37944,6 +38018,30 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   OnPlacementComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDungeonPlacementUIClose:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDungeonEntryDetected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnLevelUpDetected:
+    m_PersistentCalls:
+      m_Calls: []
+  OnStatAllocated:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSkillAllocationOpened:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSkillPointsApplied:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSkillRegisteredToSlot:
+    m_PersistentCalls:
+      m_Calls: []
+  OnSkillUsed:
     m_PersistentCalls:
       m_Calls: []
   instructionPanel: {fileID: 873230625}
@@ -38300,8 +38398,8 @@ RectTransform:
   - {fileID: 2109177827}
   - {fileID: 173286451}
   - {fileID: 1844349695}
-  - {fileID: 873230622}
   - {fileID: 1195087243}
+  - {fileID: 873230622}
   - {fileID: 460216864}
   - {fileID: 837657874}
   m_Father: {fileID: 0}
@@ -54559,7 +54657,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &837657874
 RectTransform:
   m_ObjectHideFlags: 0
@@ -54596,7 +54694,7 @@ MonoBehaviour:
   typingText: {fileID: 1081116198}
   fadeDuration: 4
   delayBeforeFade: 2
-  introMessage: "\uC81C 1\uC7A5\n\n\uC870\uAC01\uB09C \uC232"
+  introMessage: "\uC81C 1\uC7A5\n\n\uB2E8\uC808\uB41C \uC232\uC758 \uCCAB\uAC78\uC74C"
   typingSpeed: 0.3
   OnFadeComplete:
     m_PersistentCalls:
@@ -71453,7 +71551,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC81C 1\uC7A5\n\n\uC870\uAC01\uB09C \uC232"
+  m_text: "\uC81C 0 \uC7A5"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
   m_sharedMaterial: {fileID: -62101135459675642, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
@@ -94213,7 +94311,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: "\uD29C\uD1A0\uB9AC\uC5BC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
   m_sharedMaterial: {fileID: -62101135459675642, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
@@ -99847,7 +99945,18 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC2A4\uD1A0\uB9AC"
+  m_text: "\uADF8\uB9AC\uACE0 \uB358\uC804 \uAE4A\uC740 \uACF3\uC758 \uAD11\uBB3C\uC740
+    \n\uC774 \uC808\uB2E8\uB41C \uC138\uACC4\uC758 \uADE0\uD615\uC744 \uB418\uCC3E\uC544\uC904
+    \n**[\uD798\uC758 \uB9E4\uAC1C\uCCB4]**\uAC00 \uB420 \uAC83\uC785\uB2C8\uB2E4.
+    \n\uC774\uB97C \uD1B5\uD574 \uB2F9\uC2E0\uC740 \uC783\uC5B4\uBC84\uB9B0 \uB358\uC804
+    \uD30C\uD3B8\uB4E4\uC744 \n\uBD88\uB7EC\uB0B4\uC5B4, \uAE38\uC744 \uB9CC\uB4E4\uACE0,
+    \n\uC9C4\uC2E4\uB85C \uD5A5\uD558\uB294 \uC5EC\uC815\uC758 \uB09C\uC774\uB3C4\uB97C
+    \n\uC9C1\uC811 \uACB0\uC815\uD558\uAC8C \uB420 \uAC83\uC785\uB2C8\uB2E4.\n\n\uC870\uAC01\uC744
+    \uBAA8\uC73C\uC2ED\uC2DC\uC624. \n\uC138\uACC4\uB97C \uBCF5\uC6D0\uD558\uC2ED\uC2DC\uC624.
+    \n\uBAA8\uB4E0 \uAC83\uC774 \uC81C\uC790\uB9AC\uB97C \uCC3E\uC744 \uB54C, \n\uC774
+    \uB9C8\uC744\uC758 \uC6B4\uBA85\uACFC \uC544\uBC84\uC9C0\uC758 \uBE44\uBC00\uC774
+    \n\uB2F9\uC2E0 \uC55E\uC5D0\uC11C \n\uD558\uB098\uC758 \uADF8\uB9BC\uCC98\uB7FC
+    \uC644\uC131\uB420 \uAC83\uC785\uB2C8\uB2E4."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
   m_sharedMaterial: {fileID: -62101135459675642, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
@@ -99882,7 +99991,7 @@ MonoBehaviour:
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -107179,7 +107288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemTemplate: {fileID: 11400000, guid: 529b04942c1f00940a2e9670e8e32f76, type: 2}
+  itemTemplate: {fileID: 11400000, guid: 308b5e36584827f41be7240d45325638, type: 2}
   itemGrade: 4
 --- !u!1 &1591735275
 GameObject:
@@ -147467,6 +147576,10 @@ PrefabInstance:
       propertyPath: damageVignetteImage
       value: 
       objectReference: {fileID: 1844349696}
+    - target: {fileID: 5328291641428968426, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5421284014508647456, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: m_LocalPosition.x
       value: 100
