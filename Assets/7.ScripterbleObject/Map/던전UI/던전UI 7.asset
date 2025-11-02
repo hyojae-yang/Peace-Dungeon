@@ -19,5 +19,5 @@ MonoBehaviour:
   smallMapPrefab: {fileID: 2973377721987734930, guid: b5bfddf0efe8ffc44b63184f8a29a195, type: 3}
   uiItemPrefab: {fileID: 2750190332938198540, guid: 6a9086f301850184b9e19f12c1380ea1, type: 3}
   description: "\uAD8C\uC7A5\uB808\uBCA8: 30\uB808\uBCA8 \uC774\uC0C1"
-  price: 3
+  price: 4
   currencyType: 3

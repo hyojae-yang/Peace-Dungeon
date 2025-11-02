@@ -32898,7 +32898,6 @@ MonoBehaviour:
   currentMoveSpeed: 0
   attackRange: 4
   deathAnimationDuration: 5
-  deathSound: {fileID: 0}
 --- !u!114 &2627684000128509838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -32911,8 +32910,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa359674bf0889144a3f541494b56955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: 10666834e9f55b64b8c31d6bd1874a6d, type: 3}
+  deathSound: {fileID: 8300000, guid: 4f05eb9473440db409e1e7253fc5a0ba, type: 3}
   hitVFX: {fileID: 5371889475166600031}
 --- !u!114 &7103224507064561079
 MonoBehaviour:
@@ -32956,8 +32955,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab9d8d82ad42e374986e10fbdf2f3a2a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  chargePrepareClip: {fileID: 0}
-  normalAttackClip: {fileID: 0}
+  chargePrepareClip: {fileID: 8300000, guid: 358844df98b4fee43b12d4aecb747288, type: 3}
+  normalAttackClip: {fileID: 8300000, guid: c118d575aaaf25e498e0b2788d112627, type: 3}
   chargeDistance: 7
   chargeSpeed: 25
   attackRange: 4

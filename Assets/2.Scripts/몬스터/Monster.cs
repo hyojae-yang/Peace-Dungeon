@@ -37,7 +37,6 @@ public class Monster : MonsterBase, IDetectable
     [Header("사망 설정")]
     [Tooltip("사망 애니메이션이 재생되는 시간입니다. 이 시간 후 오브젝트가 파괴됩니다.")]
     public float deathAnimationDuration = 5.0f;
-    public AudioClip deathSound;
     Rigidbody rb;
 
     private void Awake()

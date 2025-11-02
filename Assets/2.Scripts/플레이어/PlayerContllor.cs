@@ -25,14 +25,15 @@ public class PlayerController : MonoBehaviour
     // 컴포넌트 변수
     private Rigidbody playerRigidbody;
 
-    // === 발소리 관련 변수 (추가) ===
-    private AudioSource playerAudioSource; // ⭐ 추가: 발소리 재생용 AudioSource
-    [Header("발소리 설정")] // ⭐ 추가: 오디오 클립 및 설정
+    // === 발소리 관련 변수 ===
+    private AudioSource playerAudioSource; //발소리 재생용 AudioSource
+    [Header("발소리 설정")] // 오디오 클립 및 설정
     [Tooltip("걷기 시 재생할 발소리 클립 목록입니다. 여러 개를 등록하여 랜덤 재생할 수 있습니다.")]
     public List<AudioClip> walkFootstepClips; // 걷기 소리
     [Tooltip("달리기 시 재생할 발소리 클립 목록입니다. 걷기보다 더 빠르게 재생됩니다.")]
     public List<AudioClip> runFootstepClips; // 뛰기 소리
-
+    [Tooltip("점프 시 재생할 효과음 클립입니다.")]
+    public AudioClip jumpSoundClip; // 점프 효과음
     // 현재 발소리 재생 간격 타이머
     private float footstepTimer;
     [Tooltip("걷기 시 발소리가 재생되는 최소 간격(초)입니다.")]
@@ -135,6 +136,11 @@ public class PlayerController : MonoBehaviour
         // 땅에 닿았을 때만 점프 가능
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
+            if (playerAudioSource != null && jumpSoundClip != null)
+            {
+                // PlayOneShot을 사용하여 점프 효과음을 재생합니다.
+                playerAudioSource.PlayOneShot(jumpSoundClip);
+            }
             playerCharacter.animator.SetTrigger("Jump");
             playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             isGrounded = false;
@@ -238,9 +244,10 @@ public class PlayerController : MonoBehaviour
 
     /// <summary>
     /// 걷기 또는 뛰기 클립 목록에서 랜덤으로 클립을 선택하여 재생합니다.
+    /// 볼륨 배율을 2.0f로 설정하여 기본 볼륨보다 2배 크게 재생합니다.
     /// </summary>
     /// <param name="isRunning">현재 달리기 상태인지 여부</param>
-    private void PlayFootstepSound(bool isRunning) // ⭐ 추가: 실제 사운드 재생 메서드
+    private void PlayFootstepSound(bool isRunning) // 실제 사운드 재생 메서드
     {
         List<AudioClip> clips = isRunning ? runFootstepClips : walkFootstepClips;
 
@@ -251,8 +258,11 @@ public class PlayerController : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, clips.Count);
         AudioClip clipToPlay = clips[randomIndex];
 
+        // ⭐️ [수정] PlayOneShot의 두 번째 인수로 2.0f를 전달하여 볼륨을 2배로 높입니다.
+        const float volumeMultiplier = 2.0f;
+
         // PlayOneShot을 사용하여 다른 사운드와 겹치지 않게 재생
-        playerAudioSource.PlayOneShot(clipToPlay);
+        playerAudioSource.PlayOneShot(clipToPlay, volumeMultiplier);
     }
 
     // ... (기존 RotateTowardsMouseCursor, OnCollisionEnter 등 유지)

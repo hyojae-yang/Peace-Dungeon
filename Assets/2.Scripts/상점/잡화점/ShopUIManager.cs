@@ -47,7 +47,7 @@ public class ShopUIManager : MonoBehaviour
     private GameObject shopItemUIPrefab;
 
     // ====================================================================================
-    // 🚨 새로 추가된 부분: 확인 창(Confirmation Panel) 관련 변수
+    // 새로 추가된 부분: 확인 창(Confirmation Panel) 관련 변수
     // ====================================================================================
     [Header("Confirmation Panel")]
     [Tooltip("아이템 구매/판매 확인 창 전체를 담는 패널입니다.")]

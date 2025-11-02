@@ -21,8 +21,7 @@ public class PlayerCharacter : MonoBehaviour
     /// </summary>
     public const float RETURN_DELAY = 5.0f;
     private Coroutine returnCoroutine;
-    [SerializeField] private GameObject returnEffectPrefab; // 귀환 효과 프리팹 참조 (Inspector에서 할당 필요)
-    private GameObject currentReturnEffect;
+    [SerializeField] private GameObject currentReturnEffect; // 귀환 효과 프리팹 참조
 
     /// <summary>
     /// 현재 귀환 프로세스(딜레이 코루틴)가 진행 중인지 여부를 나타냅니다. (읽기 전용)
@@ -35,7 +34,7 @@ public class PlayerCharacter : MonoBehaviour
     /// 플레이어의 모든 하위 시스템(Stats, Attack, Equipment 등)의 Start() 초기화가
     /// 완료되었는지 여부를 나타냅니다. (Start() 메서드 마지막에 true로 설정됨)
     /// </summary>
-    // 💡 [SOLID: 개방-폐쇄 원칙] 외부에서 읽을 수는 있지만(get), 외부에서 설정할 수 없도록(private set) 보호합니다.
+    // [SOLID: 개방-폐쇄 원칙] 외부에서 읽을 수는 있지만(get), 외부에서 설정할 수 없도록(private set) 보호합니다.
     public bool IsInitialized { get; private set; } = false;
 
 
@@ -114,9 +113,8 @@ public class PlayerCharacter : MonoBehaviour
 
         // 3. 필수 컴포넌트 누락 여부 확인 (디버깅 목적)
         ValidateSystemReferences();
-
-        // 4. 귀환 이펙트 오브젝트 생성 및 초기 비활성화 (추가된 부분)
-        if (returnEffectPrefab != null)
+        // 4. 귀환 이펙트 오브젝트 초기 비활성화 (추가된 부분)
+        if (currentReturnEffect != null)
         {
             currentReturnEffect.SetActive(false);
         }

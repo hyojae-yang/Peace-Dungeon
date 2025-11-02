@@ -48,6 +48,10 @@ public class SmallMap : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(1))
             {
+                if (SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlaySFX(SFXType.Map_Rotate, 0.5f);
+                }
                 transform.Rotate(0, 90, 0, Space.Self);
             }
 
@@ -102,6 +106,10 @@ public class SmallMap : MonoBehaviour
             // 더블클릭 시 드래그 로직은 실행하지 않음
             return;
         }
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Map_Grab, 0.5f);
+        }
         TestSenser.tt = false; //테스트모드;
         // 더블클릭이 아니면 기존 드래그 시작 로직 실행
         isDragging = true;
@@ -112,7 +120,10 @@ public class SmallMap : MonoBehaviour
     private void OnMouseUp()
     {
         isDragging = false;
-
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Map_Place, 0.5f);
+        }
         // 마우스를 떼면 DungeonMap에 스냅 및 유효성 검사 요청
         if (DungeonMap.Instance != null)
         {

@@ -33,32 +33,38 @@ public struct BGMAudio
 public enum SFXType
 {
     None,
-    Button_Click,       // 버튼 클릭음
-    Dungeon_Enter,      // 던전 입장음
-    Dungeon_Exit,      // 던전 퇴장음
-    Dungeon_Notification, // 던전 알림음
-    //Town_Enter,         // 마을 입장음
-    Shop_Enter,         // 상점 입장음
-    Restaurant_Enter,    // 식당 입장음
-    Skill_Fireball_Cast,   // 파이어볼 시전 소리 (준비/발동 시작)
+    Button_Click,       // 버튼 클릭음1
+    Dungeon_Enter,      // 던전 입장음2
+    Dungeon_Exit,       // 던전 퇴장음3
+    //Town_Enter,       // 마을 입장음
+    Shop_Enter,         // 상점 입장음5
+    Restaurant_Enter,   // 식당 입장음6
+    Skill_Fireball_Cast,  // 파이어볼 시전 소리 (준비/발동 시작)7
     Skill_Fireball_Impact,
     Skill_Whirlwind_Cast,
     Skill_LifestealBolt_Cast,
     Skill_MagicMissile_Cast,
-    General,        // 일반 시스템 메시지 (예: 저장 완료, 장비 교체)
-    Success,        // 긍정적 메시지 (예: 레벨업, 보스 처치, 퀘스트 완료)
-    Warning,    // 경고 메시지 (예: 체력 부족, 실패 알림)
-    Item_Pickup, //아이템 획득 소리
-    Item_Goodpickup, //좋은 아이템 획득
-    Item_Equip, //아이템 장착 소리
-    Item_Heal,        // 회복 포션 사용 (긍정적이고 부드러운 소리)
-    Item_Buff,        // 버프 포션 (신비롭고 상승하는 소리)
-    Item_Scroll,       // 스크롤 사용 (마법진 소리)
-    Levelup_sound,    //레벨업 소리
-    Inventory_openclose_sound, //인벤토리 여닫기 소리
-    QuestAccept, //퀘스트 수락 소리
-    QuestAbandon, //퀘스트 포기 소리
-    QuestComplete //퀘스트 완료 소리
+    General,         // 일반 시스템 메시지 (예: 저장 완료, 장비 교체)12
+    Success,         // 긍정적 메시지 (예: 레벨업, 보스 처치, 퀘스트 완료)13
+    Warning,    // 경고 메시지 (예: 체력 부족, 실패 알림)14
+    Item_Pickup, //아이템 획득 소리15
+    Item_Goodpickup, //좋은 아이템 획득16
+    Item_Equip, //아이템 장착 소리17
+    Item_Heal,          // 음식 먹는 소리18
+    Item_Buff,          // 음식 마시는 소리19
+    Item_Heal2,          // 요리 먹는 소리20
+    Item_Buff2,          // 요리 마시는 소리21
+    Item_Scroll,        // 스크롤 사용 (마법진 소리)22
+    Levelup_sound,     //레벨업 소리23
+    Inventory_openclose_sound, //인벤토리 여닫기 소리24
+    QuestAccept, //퀘스트 수락 소리25
+    QuestAbandon, //퀘스트 포기 소리26
+    QuestComplete, //퀘스트 완료 소리27
+    Map_Grab, // 맵 타일을 집어들 때28
+    Map_Place, // 맵 타일을 배치할 때 (클릭 해제 시)29
+    Map_Rotate, // 맵 타일 회전할 때30
+    text_sound, //텍스트 넘기는 소리31
+    Dog_Bark, //강아지 짖는 소리32
 }
 
 [System.Serializable]
@@ -94,7 +100,8 @@ public class SoundManager : MonoBehaviour
 
     [Tooltip("BGM의 최종 목표 볼륨입니다. (설정값 저장 용도)")]
     [SerializeField]
-    private float _maxBGMVolume = 0.5f; // BGM 최대 볼륨 (기본값 설정)
+    // **[기존]** BGM 최대 볼륨 (기본값 설정)
+    private float _maxBGMVolume = 0.5f;
 
     // BGM 페이드 코루틴 중복 실행 방지
     private Coroutine _bgmFadeCoroutine;
@@ -103,6 +110,11 @@ public class SoundManager : MonoBehaviour
     [SerializeField]
     /// 씬에 배치된 SFX용 AudioSource들을 직접 등록받아 관리하는 리스트입니다. (SFX Pool)
     private List<AudioSource> _sfxAudioSources = new List<AudioSource>();
+
+    // **[추가]** SFX의 최종 목표 볼륨입니다. (설정값 저장 용도)
+    [Tooltip("SFX의 최종 목표 볼륨입니다. (설정값 저장 용도)")]
+    [SerializeField]
+    private float _maxSFXVolume = 1.0f; // SFX 최대 볼륨 (기본값 설정)
 
     // --- BGM 클립 데이터 관리 ---
 
@@ -171,7 +183,9 @@ public class SoundManager : MonoBehaviour
 
         _bgmAudioSource.loop = true;        // BGM은 반복
         _bgmAudioSource.playOnAwake = false; // 명시적 호출로만 재생
-        _bgmAudioSource.volume = _maxBGMVolume; // 초기 볼륨 설정
+        // **[수정]** _bgmAudioSource.volume은 페이드 코루틴이 관리하므로 초기 볼륨을 0으로 둡니다.
+        // 기존 코드: _bgmAudioSource.volume = _maxBGMVolume; // 초기 볼륨 설정
+        _bgmAudioSource.volume = 0f;
     }
 
     /// <summary>
@@ -317,13 +331,15 @@ public class SoundManager : MonoBehaviour
         {
             _bgmAudioSource.Stop();
             _bgmAudioSource.clip = null;
-            _bgmAudioSource.volume = _maxBGMVolume; // 다음 재생을 위해 볼륨은 유지
+            // **[수정]** 다음 재생을 위해 볼륨은 0으로 유지 (FadeBGM에서 다시 올림)
+            _bgmAudioSource.volume = 0f;
         }
         StopExistingFadeCoroutine();
     }
 
     /// <summary>
     /// BGM 볼륨 설정값(최대 볼륨)을 변경합니다. (설정 UI용)
+    /// **[새 기능]** SettingsManager에서 호출하여 BGM의 최대 볼륨을 설정합니다.
     /// </summary>
     /// <param name="newVolume">새로운 최대 볼륨 (0.0f ~ 1.0f)</param>
     public void SetMaxBGMVolume(float newVolume)
@@ -331,12 +347,24 @@ public class SoundManager : MonoBehaviour
         _maxBGMVolume = Mathf.Clamp01(newVolume);
 
         // 현재 재생 중이라면, 즉시 현재 볼륨을 새 최대 볼륨으로 업데이트합니다.
+        // PlayBGM의 페이드 코루틴이 돌고 있다면, 이 코루틴의 목표 볼륨이 자동으로 업데이트됩니다.
         if (_bgmAudioSource != null && _bgmAudioSource.isPlaying)
         {
+            // 현재 볼륨을 새 최대 볼륨으로 직접 적용합니다.
             _bgmAudioSource.volume = _maxBGMVolume;
         }
     }
 
+    // **[새 기능]** SFX 볼륨 설정값(최대 볼륨)을 변경합니다. (설정 UI용)
+    /// <summary>
+    /// SFX 볼륨 설정값(최대 볼륨)을 변경합니다. (설정 UI용)
+    /// SettingsManager에서 호출하여 SFX의 최대 볼륨을 설정합니다.
+    /// </summary>
+    /// <param name="newVolume">새로운 최대 볼륨 (0.0f ~ 1.0f)</param>
+    public void SetMaxSFXVolume(float newVolume)
+    {
+        _maxSFXVolume = Mathf.Clamp01(newVolume);
+    }
 
     // --- SFX 기능 메서드 (새로 추가) ---
 
@@ -363,7 +391,8 @@ public class SoundManager : MonoBehaviour
         if (availableSource != null)
         {
             availableSource.clip = clipToPlay;
-            availableSource.volume = Mathf.Clamp01(volume); // 볼륨 클램프 적용
+            // **[핵심 수정]** 최종 볼륨에 _maxSFXVolume을 곱하여 적용합니다. (기존 기능에 영향 없이 볼륨 제어 추가)
+            availableSource.volume = Mathf.Clamp01(volume) * _maxSFXVolume;
             availableSource.Play();
             // Debug.Log($"[SoundManager] SFX 재생: {type}");
         }

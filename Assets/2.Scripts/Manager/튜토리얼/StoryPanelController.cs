@@ -147,7 +147,10 @@ public class StoryPanelController : MonoBehaviour
             storyText.text += letter;
 
             // TODO: (사운드 추천) 이 부분에 타이핑 사운드 재생 로직을 넣으면 좋습니다.
-
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(SFXType.text_sound, 0.5f);
+            }
             yield return new WaitForSeconds(typingSpeed);
         }
 

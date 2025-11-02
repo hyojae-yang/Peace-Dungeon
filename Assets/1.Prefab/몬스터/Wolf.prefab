@@ -31669,8 +31669,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa359674bf0889144a3f541494b56955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: 72fe2c5524996824cafaa7989ee796b0, type: 3}
+  deathSound: {fileID: 8300000, guid: f1d8d5677393409468934fce7551ecc7, type: 3}
   hitVFX: {fileID: 7942307113431819620}
 --- !u!114 &3393243063921198897
 MonoBehaviour:
@@ -31694,7 +31694,6 @@ MonoBehaviour:
   currentMoveSpeed: 0
   attackRange: 5
   deathAnimationDuration: 5
-  deathSound: {fileID: 0}
 --- !u!65 &5457199562738929228
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -31773,8 +31772,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2a7678dc6772d474290304d53f955018, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  callForHelpClip: {fileID: 0}
-  normalAttackClip: {fileID: 0}
+  callForHelpClip: {fileID: 8300000, guid: d18ef8adb20276a449f21e4b1c530f70, type: 3}
+  normalAttackClip: {fileID: 8300000, guid: b20ffda153495724d8402bd602b5d266, type: 3}
   callForHelpHealthRatio: 0.5
   flockDetectionRadius: 100
   attackRange: 5

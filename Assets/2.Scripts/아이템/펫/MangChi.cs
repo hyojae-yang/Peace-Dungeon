@@ -493,6 +493,10 @@ public class MangChi : MonoBehaviour
                         NotificationType.Success // Success 타입으로 호출
                     );
                 }
+                if (SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlaySFX(SFXType.Dog_Bark, 0.5f);
+                }
             }
             else
             {

@@ -666,7 +666,6 @@ MonoBehaviour:
   currentMoveSpeed: 0
   attackRange: 7
   deathAnimationDuration: 5
-  deathSound: {fileID: 0}
 --- !u!114 &3619998985810436639
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -679,8 +678,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa359674bf0889144a3f541494b56955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: f75c10ffba8b34c4dbaf51b581629bc4, type: 3}
+  deathSound: {fileID: 8300000, guid: a78ab2adefeb2d8489f3780a007b642d, type: 3}
   hitVFX: {fileID: 7072285125048685793}
 --- !u!114 &9075704249975859223
 MonoBehaviour:
@@ -724,9 +723,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bc562611908e10d4690d92545dfb9b86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  normalAttackClip: {fileID: 0}
-  aoeChargeClip: {fileID: 0}
-  aoeExecutionClip: {fileID: 0}
+  normalAttackClip: {fileID: 8300000, guid: 0f822310d5732e34eb80d6b5aff6b6ea, type: 3}
+  aoeChargeClip: {fileID: 8300000, guid: 4d75c25416d3c334d8ee10661b6f2889, type: 3}
+  aoeExecutionClip: {fileID: 8300000, guid: 670cde115f257b9458afdd631973c98c, type: 3}
   attackRange: 7
   chaseRange: 8
   rotationSpeed: 10

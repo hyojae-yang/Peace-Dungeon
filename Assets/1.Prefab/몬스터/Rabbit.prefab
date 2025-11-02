@@ -30161,8 +30161,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa359674bf0889144a3f541494b56955, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hitSound: {fileID: 0}
-  deathSound: {fileID: 0}
+  hitSound: {fileID: 8300000, guid: e12a6d3b5158f984390368560208780d, type: 3}
+  deathSound: {fileID: 8300000, guid: 7f442e69cf1721749834409a8be5d0fa, type: 3}
   hitVFX: {fileID: 1627053374810210600}
 --- !u!114 &4491517729258753782
 MonoBehaviour:
@@ -30198,7 +30198,6 @@ MonoBehaviour:
   currentMoveSpeed: 0
   attackRange: 0
   deathAnimationDuration: 5
-  deathSound: {fileID: 0}
 --- !u!65 &6594947181125607933
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -30280,7 +30279,7 @@ MonoBehaviour:
   stopFleeDistance: 15
   fleeSpeedMultiplier: 1.5
   rotationSpeed: 10
-  startledClip: {fileID: 0}
+  startledClip: {fileID: 8300000, guid: 8565fe92939b4e94fb1e450ca4a73e6a, type: 3}
 --- !u!114 &7414339920397291404
 MonoBehaviour:
   m_ObjectHideFlags: 0

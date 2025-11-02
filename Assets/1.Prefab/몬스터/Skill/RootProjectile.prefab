@@ -14453,7 +14453,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc6394c0e63546348a23438f647c3e78, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 10
+  moveSpeed: 15
   lifetime: 7
   rootTrapPrefab: {fileID: 4757993748068594409, guid: 91db3b238af7c4646b719d31eb32b5f2, type: 3}
 --- !u!65 &-3253174107714600259
