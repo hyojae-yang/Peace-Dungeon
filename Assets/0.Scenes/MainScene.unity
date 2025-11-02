@@ -11647,16 +11647,16 @@ MonoBehaviour:
   m_Content: {fileID: 665078788}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 0
   m_Elasticity: 0.1
-  m_Inertia: 1
+  m_Inertia: 0
   m_DecelerationRate: 0.135
   m_ScrollSensitivity: 1
   m_Viewport: {fileID: 912173495}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 754773382}
   m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -3
   m_OnValueChanged:
@@ -97247,16 +97247,16 @@ MonoBehaviour:
   m_Content: {fileID: 366659371}
   m_Horizontal: 0
   m_Vertical: 1
-  m_MovementType: 1
+  m_MovementType: 0
   m_Elasticity: 0.1
-  m_Inertia: 1
+  m_Inertia: 0
   m_DecelerationRate: 0.135
   m_ScrollSensitivity: 1
   m_Viewport: {fileID: 1215066066}
   m_HorizontalScrollbar: {fileID: 0}
   m_VerticalScrollbar: {fileID: 1097081887}
   m_HorizontalScrollbarVisibility: 2
-  m_VerticalScrollbarVisibility: 2
+  m_VerticalScrollbarVisibility: 0
   m_HorizontalScrollbarSpacing: -3
   m_VerticalScrollbarSpacing: -3
   m_OnValueChanged:
@@ -147563,7 +147563,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1222836104121741666, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: MaxDistance
-      value: 50
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 2878102793862709366, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: exitSpawnPoint

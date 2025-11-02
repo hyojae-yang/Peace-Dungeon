@@ -168,27 +168,27 @@ public class NotificationManager : MonoBehaviour
         {
             case NotificationType.Success:
                 targetColor = successColor;
-                if (SoundManager.Instance != null)
+                /*if (SoundManager.Instance != null)
                 {
                     SoundManager.Instance.PlaySFX(SFXType.Success, 0.5f);
-                }
+                }*/
                 break;
             case NotificationType.Warning:
                 targetColor = warningColor;
-                if (SoundManager.Instance != null)
+                /*if (SoundManager.Instance != null)
                 {
                     SoundManager.Instance.PlaySFX(SFXType.Warning, 0.5f);
-                }
+                }*/
                 break;
             case NotificationType.Interaction:
                 targetColor = interactionColor;
                 break;
             case NotificationType.General:
             default:
-                if (SoundManager.Instance != null)
+                /*if (SoundManager.Instance != null)
                 {
                     SoundManager.Instance.PlaySFX(SFXType.General, 0.5f);
-                }
+                }*/
                 targetColor = generalColor;
                 break;
         }

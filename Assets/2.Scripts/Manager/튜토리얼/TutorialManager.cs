@@ -109,14 +109,11 @@ public class TutorialManager : MonoBehaviour
     {
         bool shouldSkip = false;
 
-        // SaveManager 인스턴스가 존재하고, IsNewGame이 false (이어하기)일 경우 스킵
-        // SaveManager는 외부 시스템이므로, Null 체크를 통해 안전성을 확보합니다.
-        // NOTE: 이 코드가 정상 작동하려면 SaveManager 클래스가 존재해야 합니다.
-        // if (SaveManager.Instance != null && !SaveManager.Instance.IsNewGame)
-        // {
-        //     shouldSkip = true;
-        //     // Debug.Log("[TutorialManager] 이어하기 세션이 감지되었습니다. 튜토리얼을 건너뛰고 바로 완료 단계로 진입합니다.");
-        // }
+        if (SaveManager.Instance != null && !SaveManager.Instance.IsNewGame)
+        {
+            shouldSkip = true;
+            // Debug.Log("[TutorialManager] 이어하기 세션이 감지되었습니다. 튜토리얼을 건너뛰고 바로 완료 단계로 진입합니다.");
+        }
 
         if (shouldSkip)
         {
