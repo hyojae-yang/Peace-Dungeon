@@ -10,6 +10,9 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
 {
     // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.
     private PlayerCharacter playerCharacter;
+    Animator animator;
+    Collider playerCollider;
+    Rigidbody playerRigidbody;
     // 데미지 효과를 표시할 UI Image 컴포넌트에 대한 참조입니다.
     [Header("UI Feedback")]
     [Tooltip("화면 가장자리에 붉은색 효과를 표시할 Image 컴포넌트")]
@@ -42,6 +45,21 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         if (playerAudioSource == null)
         {
             Debug.LogWarning("PlayerHealth 스크립트가 붙은 오브젝트에 AudioSource 컴포넌트가 없습니다.");
+        }
+        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogWarning("PlayerHealth 스크립트가 붙은 오브젝트에 Animator 컴포넌트가 없습니다.");
+        }
+        playerCollider = GetComponent<Collider>();
+        if (playerCollider == null)
+        {
+            Debug.LogWarning("PlayerHealth 스크립트가 붙은 오브젝트에 Collider 컴포넌트가 없습니다.");
+        }
+        playerRigidbody = GetComponent<Rigidbody>();
+        if (playerRigidbody == null)
+        {
+            Debug.LogWarning("PlayerHealth 스크립트가 붙은 오브젝트에 Rigidbody 컴포넌트가 없습니다.");
         }
     }
 
@@ -212,6 +230,10 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         Debug.Log("플레이어가 사망했습니다!");
 
         if (MainSceneManager.Instance.isGameOver) return; // 이미 게임 오버 상태라면 중복 호출 방지
+        animator.SetTrigger("Die");
+        playerCollider.enabled = false; // 충돌 비활성화
+        playerRigidbody.isKinematic = true; // 물리 비활성화
+        playerCharacter.playerController.enabled = false; // 플레이어 컨트롤러 비활성화
         // 사망 효과음 재생
         if (playerAudioSource != null && dieSoundClip != null)
         {
@@ -224,7 +246,5 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         DungeonManager.Instance.DeadDungeon(); // 던전 상태 리셋
         // 여기에 게임 오버, 플레이어 오브젝트 파괴 등 추가 로직을 구현합니다.
         MainSceneManager.Instance.SetGameOver();
-        // 플레이어 오브젝트를 비활성화하여 죽은 상태를 표현합니다.
-        this.gameObject.SetActive(false);
     }
 }

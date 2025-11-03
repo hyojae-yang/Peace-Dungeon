@@ -86,6 +86,7 @@ MonoBehaviour:
       isPercentage: 0
   animationTriggerName: UseSkill2
   castingEffectPrefab: {fileID: 109802, guid: 1cbb8bd81ac665b429d00d6370bdc28e, type: 3}
+  castSFXType: 8
   activationDelay: 0.6
   damageRadius: 5
   impactEffectPrefab: {fileID: 0}

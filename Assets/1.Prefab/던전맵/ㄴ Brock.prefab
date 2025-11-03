@@ -552,30 +552,42 @@ MonoBehaviour:
   - monsterPrefab: {fileID: 855980508687128763, guid: 31493d236f0b4f8489b1f5104f8ae301, type: 3}
     minSpawnCount: 70
     maxSpawnCount: 150
-  - monsterPrefab: {fileID: 7478020824845790175, guid: e8f026886796bc344997d71861d8a3e9, type: 3}
-    minSpawnCount: 10
-    maxSpawnCount: 20
-  - monsterPrefab: {fileID: 1220655152558176270, guid: 60e3681ebe4002149a1c9bfcf943c6ff, type: 3}
-    minSpawnCount: 10
-    maxSpawnCount: 20
-  - monsterPrefab: {fileID: 3074596751424611100, guid: ddea837050e1be4448a9d61b94d9193e, type: 3}
-    minSpawnCount: 10
-    maxSpawnCount: 20
-  - monsterPrefab: {fileID: 2581514094922368487, guid: c96fd5bf2c558cc47b7b28f1bb23a251, type: 3}
-    minSpawnCount: 10
-    maxSpawnCount: 20
-  - monsterPrefab: {fileID: 8124726940709404139, guid: 970346f958c7277408f88ccf983c8506, type: 3}
-    minSpawnCount: 10
-    maxSpawnCount: 20
-  - monsterPrefab: {fileID: 6250450062819850668, guid: c90f4aec7816caf4f91c8f2778747dac, type: 3}
-    minSpawnCount: 10
-    maxSpawnCount: 20
   - monsterPrefab: {fileID: 483987322422019827, guid: 20f11513772e41e499b8204dd19dd1e3, type: 3}
     minSpawnCount: 30
     maxSpawnCount: 50
   - monsterPrefab: {fileID: 7328140957996147453, guid: 3fd38f141ae796e46a28c94b49982913, type: 3}
     minSpawnCount: 10
     maxSpawnCount: 20
+  - monsterPrefab: {fileID: 274126861566411469, guid: 0d3278c3b3eec1648ae14baf322c7e8f, type: 3}
+    minSpawnCount: 5
+    maxSpawnCount: 10
+  - monsterPrefab: {fileID: 5602399724731069039, guid: 1aa6cd6d4614ebb40a0f672ce527825e, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+  - monsterPrefab: {fileID: 3539476490742429879, guid: 6527f5e4b30e19045a92f2408ab71632, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+  - monsterPrefab: {fileID: 4498421571734418174, guid: ac2af24c312855f4cbda3746398a0d2f, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 20
+  - monsterPrefab: {fileID: 8399816503322296943, guid: 51a12b6e0ff694b459b06483cebca55a, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 30
+  - monsterPrefab: {fileID: 7630070519910000181, guid: 8d019d8ca81565f4ab5cf936a9291755, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 30
+  - monsterPrefab: {fileID: 1060004611695595828, guid: 31238bdbfbe4f8b4db08fe4f867bee8b, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 30
+  - monsterPrefab: {fileID: 8277408387161596938, guid: 0b4073c3d6f7a3c4d9a75734460122c7, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 40
+  - monsterPrefab: {fileID: 1197144477213430716, guid: 27bb4754990d8884eb045f21da13a312, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 40
+  - monsterPrefab: {fileID: 5156663470588214910, guid: a6807a97dbdbd104f99b14d050140108, type: 3}
+    minSpawnCount: 10
+    maxSpawnCount: 40
 --- !u!1 &5740058965413161718
 GameObject:
   m_ObjectHideFlags: 0

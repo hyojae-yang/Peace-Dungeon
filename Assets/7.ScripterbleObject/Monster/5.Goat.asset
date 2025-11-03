@@ -36,8 +36,6 @@ MonoBehaviour:
     weight: 200
   - itemData: {fileID: 11400000, guid: 5fd3a479550ba224a9648c6108569e7c, type: 2}
     weight: 200
-  - itemData: {fileID: 11400000, guid: bc2ff74c1654d8841824ffb828eb763b, type: 2}
-    weight: 100
   - itemData: {fileID: 11400000, guid: 9379ff947f6464e4fbc7516f323e23b3, type: 2}
     weight: 100
   - itemData: {fileID: 11400000, guid: f4797e60a9165e84786516daae8d9588, type: 2}

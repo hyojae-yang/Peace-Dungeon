@@ -101,6 +101,7 @@ MonoBehaviour:
       isPercentage: 0
   animationTriggerName: UseSkill4
   castingEffectPrefab: {fileID: 0}
+  castSFXType: 10
   activationDelay: 2
   missilePrefab: {fileID: 1762111417546369586, guid: aaa4cde40fe75b34d9420fab853b0ec4, type: 3}
   maxTargetingRange: 15

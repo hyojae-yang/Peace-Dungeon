@@ -94,11 +94,11 @@ public class DungeonUIManager : MonoBehaviour
             return;
         }
 
-        scoreText.text = $"최종 점수: {finalScore}"; // 최종 점수 텍스트 업데이트
-        goldText.text = $"획득한 골드: {gold}";
-        expText.text = $"획득한 경험치: {exp}";
+        scoreText.text = $"최종 점수\n{finalScore}"; // 최종 점수 텍스트 업데이트
+        goldText.text = $"골드\n{gold}";
+        expText.text = $"경험치\n{exp}";
         // [추가] 던전 코인 텍스트 업데이트
-        coinText.text = $"획득한 던전코인: {finalCoins}";
+        coinText.text = $"던전코인\n{finalCoins}";
         if (itemNames.Count > 0)
         {
             itemText.text = "획득한 아이템:\n" + string.Join("\n", itemNames);

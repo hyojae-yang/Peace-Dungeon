@@ -33,6 +33,10 @@ public class MainSceneManager : MonoBehaviour
     [Tooltip("던전 캔버스가 현재 활성화되어 있는지 여부를 나타냅니다.")]
     public bool isDungeonCanvasActive = false;
 
+    [Header("튜토리얼 패널")]
+    [SerializeField]
+    private GameObject TutorialPanel;
+
     [Header("게임 오버 패널")]
     [SerializeField]
     private GameObject gameOverPanel;
@@ -69,6 +73,7 @@ public class MainSceneManager : MonoBehaviour
         UIEventHandler.OnPanelDeactivated += HandlePanelDeactivation;
 
         gameOverPanel.SetActive(false);
+        TutorialPanel.SetActive(true);
     }
     private void Start()
     {

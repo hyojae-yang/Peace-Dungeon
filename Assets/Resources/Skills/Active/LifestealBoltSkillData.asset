@@ -101,5 +101,6 @@ MonoBehaviour:
       isPercentage: 0
   animationTriggerName: UseSkill3
   castingEffectPrefab: {fileID: 0}
+  castSFXType: 9
   activationDelay: 1.5
   lifestealBoltPrefab: {fileID: 5066218759511040677, guid: bddd735eccb173345bb5e29a90ab1ccd, type: 3}
