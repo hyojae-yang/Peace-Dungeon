@@ -63,22 +63,26 @@ public class QuestUIHandler : MonoBehaviour
     /// </summary>
     public void UpdateQuestList()
     {
-        // 기존에 생성된 모든 퀘스트 버튼을 제거
+        // 1. 기존에 생성된 모든 퀘스트 버튼을 제거
         foreach (var button in activeQuestButtons)
         {
             Destroy(button);
         }
         activeQuestButtons.Clear();
 
-        // QuestManager로부터 현재 수락된 모든 퀘스트 ID를 가져옴
+        // 2. QuestManager로부터 현재 수락된 모든 퀘스트 ID를 가져옴
         var acceptedQuestIDs = QuestManager.Instance.GetAcceptedQuests();
 
+        // 3. 퀘스트 목록이 비어있는 경우 처리 (사용자 요청 반영)
         if (acceptedQuestIDs == null || acceptedQuestIDs.Count == 0)
         {
-            questDetailPanel.SetActive(false);
+            // 상세 패널은 활성화 상태를 유지합니다. (퀘스트 UI 전체 패널이 켜져있다고 가정)
+            // 대신 상세 정보 텍스트를 "퀘스트가 없음" 상태로 설정합니다.
+            SetDetailPanelNoQuestState();
             return;
         }
 
+        // 4. 퀘스트 목록이 있을 경우, 버튼 동적 생성 및 이벤트 설정
         foreach (var questID in acceptedQuestIDs)
         {
             QuestData questData = QuestManager.Instance.GetQuestData(questID);
@@ -94,6 +98,7 @@ public class QuestUIHandler : MonoBehaviour
 
                 if (buttonText != null)
                 {
+                    // 퀘스트가 완료 가능한 상태일 경우 시각적 피드백을 추가할 수 있습니다.
                     buttonText.text = questData.questTitle;
                 }
 
@@ -105,8 +110,32 @@ public class QuestUIHandler : MonoBehaviour
             }
         }
 
-        // 버튼이 하나라도 있으면 첫 번째 버튼의 상세 정보 표시
+        // 5. 버튼이 하나라도 있으면 첫 번째 버튼의 상세 정보 표시
+        // 첫 번째 퀘스트를 선택하고 상세 정보를 표시합니다.
         OnQuestButtonClick(acceptedQuestIDs[0]);
+    }
+
+    /// <summary>
+    /// 퀘스트 목록이 비었을 때 상세 정보 패널에 안내 메시지를 표시합니다.
+    /// </summary>
+    private void SetDetailPanelNoQuestState()
+    {
+        // 상세 패널 자체는 켜져 있다고 가정하고, 내부 텍스트만 비어있거나 안내 메시지를 표시합니다.
+        if (questDetailPanel != null)
+        {
+            questDetailPanel.SetActive(true);
+        }
+
+        // 모든 텍스트 필드를 비우거나 안내 메시지로 설정합니다.
+        if (questNameText != null) questNameText.text = "안내";
+        if (npcNameText != null) npcNameText.text = "의뢰인: -";
+        if (questDescriptionText != null) questDescriptionText.text = "퀘스트 로그가 비어있습니다. \n마을의 NPC들을 찾아가 \n새로운 모험을 시작해 보세요!";
+
+        // 사용자 요청에 따라 핵심 메시지를 진행 상태 텍스트에 띄웁니다.
+        if (questProgressText != null) questProgressText.text = " 현재 진행중인 \n퀘스트가 없습니다 ";
+
+        // 현재 선택된 퀘스트 ID 초기화
+        currentSelectedQuestID = -1;
     }
 
     /// <summary>
@@ -119,9 +148,13 @@ public class QuestUIHandler : MonoBehaviour
         currentSelectedQuestID = questID;
 
         // 상세 패널 활성화
-        questDetailPanel.SetActive(true);
+        if (questDetailPanel != null)
+        {
+            questDetailPanel.SetActive(true);
+        }
 
         // 퀘스트 데이터 가져오기
+        // QuestManager는 싱글톤 인스턴스를 통해 접근한다고 가정합니다.
         QuestData questData = QuestManager.Instance.GetQuestData(questID);
         if (questData == null)
         {

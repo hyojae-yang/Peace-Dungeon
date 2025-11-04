@@ -2781,9 +2781,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uAE30\uBCF8 \uC870\uC791\uBC95 :\n\n\uC774\uB3D9: W, A, S, D \uD0A4\n\n\uB2EC\uB9AC\uAE30:
-    Shift \uD0A4\n\n\uACF5\uACA9: \uB9C8\uC6B0\uC2A4 \uC67C\uCABD \uBC84\uD2BC\n\n\uC0C1\uD638\uC791\uC6A9:
-    E \uD0A4\n\n\uD654\uBA74 \uD655\uB300/\uCD95\uC18C: \uB9C8\uC6B0\uC2A4 \uC2A4\uD06C\uB864"
+  m_text: "\uAE30\uBCF8 \uC870\uC791\uBC95\n\n\uC774\uB3D9: W, A, S, D \uD0A4\n\n\uC810\uD504:
+    Space \uD0A4\n\n\uB2EC\uB9AC\uAE30: Shift \uD0A4\n\n\uACF5\uACA9: \uB9C8\uC6B0\uC2A4
+    \uC67C\uCABD \uBC84\uD2BC\n\n\uC0C1\uD638\uC791\uC6A9: E \uD0A4\n\n\uD654\uBA74
+    \uD655\uB300/\uCD95\uC18C: \uB9C8\uC6B0\uC2A4 \uC2A4\uD06C\uB864"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
   m_sharedMaterial: {fileID: -62101135459675642, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
@@ -7996,7 +7997,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0.8867924, g: 0.8867924, b: 0.8867924, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -8218,7 +8219,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -9206,8 +9207,8 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "\uB2A5\uB825\uCE58\uCC3D : C \uD0A4\n\n\uC7A5\uBE44\uCC3D : G \uD0A4\n\n\uC2A4\uD0AC\uCC3D
-    : K \uD0A4\n\n\uC778\uBCA4\uD1A0\uB9AC\uCC3D : I \uD0A4\n\n\uD018\uC2A4\uD2B8\uCC3D
-    : J \uD0A4\n\n\uAE30\uD0C0\uCC3D : O \uD0A4"
+    : R \uD0A4\n\n\uC778\uBCA4\uD1A0\uB9AC\uCC3D : Tab \uD0A4\n\n\uD018\uC2A4\uD2B8\uCC3D
+    : Q \uD0A4\n\n\uAE30\uD0C0\uCC3D : O \uD0A4"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}
   m_sharedMaterial: {fileID: -62101135459675642, guid: 94e07272c0e59854baeaf2c71b41a4ad, type: 2}

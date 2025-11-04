@@ -245,7 +245,8 @@ public class SoundManager : MonoBehaviour
         {
             _sfxAudioSources.Add(source);
             source.loop = false;
-            source.playOnAwake = false;
+            source.playOnAwake = false; 
+            //Debug.Log($"[SoundManager] SFX Source 등록 완료. 현재 SFX Pool 개수: {_sfxAudioSources.Count}");
         }
     }
 
@@ -257,6 +258,7 @@ public class SoundManager : MonoBehaviour
         if (source != null && _sfxAudioSources.Contains(source))
         {
             _sfxAudioSources.Remove(source);
+           // Debug.Log($"[SoundManager] SFX Source 해제 완료. 현재 SFX Pool 개수: {_sfxAudioSources.Count}");
         }
     }
 

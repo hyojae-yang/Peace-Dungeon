@@ -28,5 +28,5 @@ MonoBehaviour:
     itemCount: 3
   experienceReward: 30
   goldReward: 50
-  affectionReward: 1
+  affectionReward: 5
   rewardEquipmentGrade: 0

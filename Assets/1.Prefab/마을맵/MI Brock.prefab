@@ -61,6 +61,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 29b3b1139d5b8c84c993c4ac6756f8ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dragLimitCenter: {x: 250, y: 0, z: 200}
+  dragLimitExtent: {x: 450, y: 0, z: 350}
   mapTiles:
   - {x: 0, y: 0, z: 0}
   - {x: 0, y: 0, z: 50}

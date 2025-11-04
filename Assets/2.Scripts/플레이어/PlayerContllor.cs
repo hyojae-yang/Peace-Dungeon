@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 // 플레이어의 이동 및 점프를 제어하는 스크립트입니다.
 // 이 스크립트는 PlayerCharacter의 멤버로 관리됩니다.
@@ -17,10 +18,12 @@ public class PlayerController : MonoBehaviour
     public float runSpeedMultiplier = 2f;
     [Tooltip("점프 시 적용될 힘의 크기입니다.")]
     public float jumpForce = 5f;
-
     [Header("회전 설정")]
     [Tooltip("플레이어가 이동 방향으로 회전하는 속도입니다. 값이 높을수록 더 빠르게 회전합니다.")]
     public float rotationSpeed = 10f;
+    [Header("점프 설정")] // 점프 딜레이 변수 추가
+    [Tooltip("점프 애니메이션 시작 후 물리적인 힘이 적용되기까지의 지연 시간입니다. (애니메이션 싱크용)")]
+    public float jumpDelayTime = 0.3f; // 0.3초 정도가 일반적인 준비 동작에 해당합니다.
 
     // 컴포넌트 변수
     private Rigidbody playerRigidbody;
@@ -74,7 +77,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // ⭐ 추가: AudioSource 컴포넌트 가져오기
+        //AudioSource 컴포넌트 가져오기
         playerAudioSource = GetComponent<AudioSource>();
         if (playerAudioSource == null)
         {
@@ -133,17 +136,11 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        // 땅에 닿았을 때만 점프 가능
-        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        // 땅에 닿았을 때만 점프 가능하며, canMove이 true일 때만 점프를 허용합니다.
+        if (canMove && Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
-            if (playerAudioSource != null && jumpSoundClip != null)
-            {
-                // PlayOneShot을 사용하여 점프 효과음을 재생합니다.
-                playerAudioSource.PlayOneShot(jumpSoundClip);
-            }
-            playerCharacter.animator.SetTrigger("Jump");
-            playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
-            isGrounded = false;
+            // 기존의 즉시 점프 로직을 코루틴 실행으로 대체합니다.
+            StartCoroutine(PerformJumpWithDelay());
         }
     }
 
@@ -199,12 +196,12 @@ public class PlayerController : MonoBehaviour
                 targetRun = 0.0f;
             }
 
-            // ⭐ 추가: 발소리 재생 로직 호출
+            //발소리 재생 로직 호출
             HandleFootsteps(isRunning);
         }
         else // 정지 상태
         {
-            // ⭐ 추가: 정지 상태일 때는 타이머 리셋
+            //정지 상태일 때는 타이머 리셋
             footstepTimer = 0f;
         }
 
@@ -223,7 +220,7 @@ public class PlayerController : MonoBehaviour
     /// 이동 상태에 따라 발소리 재생을 관리합니다.
     /// </summary>
     /// <param name="isRunning">현재 달리기 상태인지 여부</param>
-    private void HandleFootsteps(bool isRunning) // ⭐ 추가: 발소리 관리 메서드
+    private void HandleFootsteps(bool isRunning) //발소리 관리 메서드
     {
         // 땅에 닿지 않았거나 오디오 소스가 없으면 재생하지 않습니다.
         if (!isGrounded || playerAudioSource == null) return;
@@ -258,7 +255,7 @@ public class PlayerController : MonoBehaviour
         int randomIndex = UnityEngine.Random.Range(0, clips.Count);
         AudioClip clipToPlay = clips[randomIndex];
 
-        // ⭐️ [수정] PlayOneShot의 두 번째 인수로 2.0f를 전달하여 볼륨을 2배로 높입니다.
+        // PlayOneShot의 두 번째 인수로 2.0f를 전달하여 볼륨을 2배로 높입니다.
         const float volumeMultiplier = 2.0f;
 
         // PlayOneShot을 사용하여 다른 사운드와 겹치지 않게 재생
@@ -299,6 +296,30 @@ public class PlayerController : MonoBehaviour
         {
             isGrounded = true;
         }
+    }
+    /// <summary>
+    /// 점프 애니메이션 시작 후, 지정된 딜레이 후에 물리적인 점프를 실행합니다.
+    /// SOLID 원칙: 단일 책임 원칙 (점프 실행의 순차적 책임을 가짐)
+    /// </summary>
+    private IEnumerator PerformJumpWithDelay()
+    {
+        // 점프 효과음 재생
+        if (playerAudioSource != null && jumpSoundClip != null)
+        {
+            playerAudioSource.PlayOneShot(jumpSoundClip);
+        }
+
+        // 1. 애니메이터에게 점프 시작을 알립니다. (점프 준비 동작 시작)
+        playerCharacter.animator.SetTrigger("Jump");
+
+        // 2. jumpDelayTime 만큼 대기 (애니메이션 싱크를 맞추는 핵심)
+        yield return new WaitForSeconds(jumpDelayTime);
+
+        // 3. 딜레이 후, 물리적인 힘을 적용하여 실제 점프를 실행합니다.
+        playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+
+        // 4. 땅에 닿지 않은 상태로 변경
+        isGrounded = false;
     }
 
     // ... (기존 스폰 관련 public 메서드 유지)

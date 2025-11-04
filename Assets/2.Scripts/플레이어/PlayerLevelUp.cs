@@ -83,7 +83,7 @@ public class PlayerLevelUp : MonoBehaviour
     /// <summary>
     /// 플레이어를 레벨업시키는 메서드
     /// </summary>
-    private void LevelUp()
+    public void LevelUp()
     {
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
@@ -101,7 +101,7 @@ public class PlayerLevelUp : MonoBehaviour
         // 레벨업 시 스탯 포인트를 지급합니다. (기존 로직 유지)
         if (playerCharacter.playerStatSystem != null)
         {
-            playerCharacter.playerStatSystem.statPoints += 5;
+            playerCharacter.playerStatSystem.statPoints += 3;
 
             // 레벨업에 따른 스탯 증가 로직을 PlayerStatSystem에 위임합니다.
             playerCharacter.playerStatSystem.UpdateFinalStats();
@@ -111,7 +111,7 @@ public class PlayerLevelUp : MonoBehaviour
         // 레벨업 시 스킬 포인트를 지급합니다. (기존 로직 유지)
         if (playerCharacter.playerStats != null)
         {
-            playerCharacter.playerStats.skillPoints += 2;
+            playerCharacter.playerStats.skillPoints += 1;
         }
 
         // 체력 및 마나 회복 (기존 로직 유지)

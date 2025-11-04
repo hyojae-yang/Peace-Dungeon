@@ -66,6 +66,7 @@ public class Monster : MonsterBase, IDetectable
             case MonsterState.Chase:
             case MonsterState.Attack:
             case MonsterState.Flee:
+            case MonsterState.Stun:
                 // [핵심 수정] Patrol, Chase, Attack, Flee 상태의 모든 이동 로직을 제거합니다.
                 // 모든 이동 처리는 DeerBehavior, BearBehavior 등의 개별 Behavior 스크립트가 전적으로 담당합니다.
                 break;

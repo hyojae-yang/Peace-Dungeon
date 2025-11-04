@@ -23,10 +23,8 @@ MonoBehaviour:
     targetID: 8014
     requiredAmount: 10
   isRepeatable: 1
-  rewardItems:
-  - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    itemCount: 5
+  rewardItems: []
   experienceReward: 30
   goldReward: 50
-  affectionReward: 1
+  affectionReward: 5
   rewardEquipmentGrade: 0

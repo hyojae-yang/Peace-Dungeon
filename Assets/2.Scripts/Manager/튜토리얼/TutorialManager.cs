@@ -267,12 +267,12 @@ public class TutorialManager : MonoBehaviour
 
             // ----------------- 2번 패널 활성화 단계 (보조 캔버스) -----------------
             case TutorialStep.GuideRetrievePiece:
-                uiHandler?.ShowSecondInstruction("좌측에 보이는 토끼조각을 \n드래그 해서 내려놓으세요.");
+                uiHandler?.ShowSecondInstruction("좌측에 보이는 토끼던전을 \n드래그 해서 내려놓으세요.");
                 uiHandler.OnPieceRetrieved.AddListener(AdvanceStep);
                 break;
 
             case TutorialStep.WaitPlacementComplete:
-                uiHandler?.ShowSecondInstruction("조각을 던전 문앞에 배치해보세요.");
+                uiHandler?.ShowSecondInstruction("던전을 던전 문앞에 배치해보세요.\n 좌클릭한 상태에서 우클릭하면 회전합니다.");
                 uiHandler.OnPlacementComplete.AddListener(AdvanceStep);
                 break;
 
@@ -298,7 +298,7 @@ public class TutorialManager : MonoBehaviour
                 break;
 
             case TutorialStep.GuideOpenSkillAllocation:
-                uiHandler?.ShowPrimaryInstruction("K키를 눌러 스킬 창을 열고, 원하는 스킬을 \n'좌클릭'하여 스킬 포인트를 투자하세요.");
+                uiHandler?.ShowPrimaryInstruction("R키를 눌러 스킬 창을 열고, 원하는 스킬을 \n'좌클릭'하여 스킬 포인트를 투자하세요.");
                 uiHandler.OnSkillAllocationOpened.AddListener(AdvanceStep);
                 break;
 

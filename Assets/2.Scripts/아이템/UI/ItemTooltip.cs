@@ -17,6 +17,9 @@ public class ItemTooltip : MonoBehaviour
     [Tooltip("아이템 아이콘을 표시할 Image 컴포넌트입니다.")]
     [SerializeField] private Image itemIconImage;
 
+    [Tooltip("아이템 등급에 따라 색상이 변경될 Image 컴포넌트입니다. (예: 아이콘 배경이나 테두리)")]
+    [SerializeField] private Image itemGradeFrameImage; // 추가된 변수: 등급 색상을 반영할 이미지
+
     [Tooltip("아이템 이름을 표시할 Text 컴포넌트입니다.")]
     [SerializeField] private TextMeshProUGUI itemNameText;
 
@@ -52,6 +55,7 @@ public class ItemTooltip : MonoBehaviour
     /// 아이템 정보를 받아 툴팁의 내용을 설정합니다.
     /// 이 메서드는 장비 아이템 전용 UI가 할당되어 있지 않더라도
     /// Null 체크를 통해 안전하게 작동합니다.
+    /// SOLID 원칙: OCP(개방-폐쇄 원칙)를 위해 아이템 타입별 확장 시에도 기존 로직에 미치는 영향을 최소화합니다.
     /// </summary>
     /// <param name="item">표시할 아이템의 BaseItemSO 데이터</param>
     public void SetupTooltip(BaseItemSO item)
@@ -61,14 +65,19 @@ public class ItemTooltip : MonoBehaviour
         if (itemNameText != null) itemNameText.text = item.itemName;
         if (itemDescriptionText != null) itemDescriptionText.text = item.itemDescription;
 
+        // 임시 변수: 등급 색상 초기화 (비장비 아이템 대비)
+        Color gradeColor = Color.white;
+
         // 2. 장비 아이템일 경우, 추가 UI 요소들을 설정합니다.
         if (item is EquipmentItemSO equipmentItem)
         {
+            gradeColor = GetGradeColor(equipmentItem.itemGrade);
+
             // 장비 전용 UI 요소들이 null인지 체크 후 설정
             if (itemGradeText != null)
             {
                 itemGradeText.text = GetGradeName(equipmentItem.itemGrade);
-                itemGradeText.color = GetGradeColor(equipmentItem.itemGrade);
+                itemGradeText.color = gradeColor;
             }
 
             // 기본 능력치 설정
@@ -88,7 +97,7 @@ public class ItemTooltip : MonoBehaviour
             // 추가 능력치 텍스트 4개에 각각 설정
             if (equipmentItem.additionalStats != null)
             {
-
+                // [리팩토링 제안] 텍스트 필드를 리스트로 관리하면 더욱 깔끔한 반복문 처리가 가능합니다. (현재는 기존 구조 유지)
                 if (additionalStat1Text != null) additionalStat1Text.text = equipmentItem.additionalStats.Count > 0 ? FormatStat(equipmentItem.additionalStats[0]) : string.Empty;
                 if (additionalStat2Text != null) additionalStat2Text.text = equipmentItem.additionalStats.Count > 1 ? FormatStat(equipmentItem.additionalStats[1]) : string.Empty;
                 if (additionalStat3Text != null) additionalStat3Text.text = equipmentItem.additionalStats.Count > 2 ? FormatStat(equipmentItem.additionalStats[2]) : string.Empty;
@@ -102,7 +111,7 @@ public class ItemTooltip : MonoBehaviour
                 if (additionalStat4Text != null) additionalStat4Text.text = string.Empty;
             }
 
-            // 세트 효과(이제는 세트 효과) 설정
+            // 세트 효과 설정
             if (setBonusText != null)
             {
                 // 아이템에 세트 ID가 있는지 확인
@@ -141,6 +150,18 @@ public class ItemTooltip : MonoBehaviour
                 }
             }
         }
+        else
+        {
+            // 장비 아이템이 아닐 경우, 기본 아이템 처리 (등급 색상 초기값인 White 사용)
+            gradeColor = Color.white;
+        }
+
+        // 3. 등급 프레임 이미지에 색상 적용 (장비든 아니든, 색상은 설정되도록)
+        // [핵심 추가] itemGradeFrameImage가 할당되어 있다면 등급 색상(장비: 등급별, 일반: 흰색)을 적용합니다.
+        if (itemGradeFrameImage != null)
+        {
+            itemGradeFrameImage.color = gradeColor;
+        }
     }
 
     /// <summary>
@@ -171,8 +192,8 @@ public class ItemTooltip : MonoBehaviour
 
         // 퍼센트로 표시할 특정 스탯들을 명시적으로 지정
         bool isSpecialPercentageStat = stat.statType == StatType.CriticalChance ||
-                                       stat.statType == StatType.CriticalDamage ||
-                                       stat.statType == StatType.MoveSpeed;
+                                        stat.statType == StatType.CriticalDamage ||
+                                        stat.statType == StatType.MoveSpeed;
 
         if (isSpecialPercentageStat)
         {
@@ -190,6 +211,7 @@ public class ItemTooltip : MonoBehaviour
 
     /// <summary>
     /// 아이템 등급에 따른 색상을 반환합니다.
+    /// SOLID 원칙: LSP(리스코프 치환 원칙)를 위한 기반 컬러 제공 메서드입니다.
     /// </summary>
     /// <param name="grade">아이템 등급</param>
     /// <returns>색상</returns>
@@ -198,10 +220,10 @@ public class ItemTooltip : MonoBehaviour
         switch (grade)
         {
             case ItemGrade.Common: return Color.gray;
-            case ItemGrade.Uncommon: return new Color(0.1f, 0.6f, 0.1f);
-            case ItemGrade.Rare: return new Color(0.2f, 0.5f, 1f);
-            case ItemGrade.Epic: return new Color(0.6f, 0.2f, 0.8f);
-            case ItemGrade.Legendary: return new Color(1f, 0.8f, 0.2f);
+            case ItemGrade.Uncommon: return new Color(0.1f, 0.6f, 0.1f); // 녹색 계열
+            case ItemGrade.Rare: return new Color(0.2f, 0.5f, 1f); // 파란색 계열
+            case ItemGrade.Epic: return new Color(0.6f, 0.2f, 0.8f); // 보라색 계열
+            case ItemGrade.Legendary: return new Color(1f, 0.8f, 0.2f); // 주황/금색 계열
             default: return Color.white;
         }
     }

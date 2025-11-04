@@ -17,7 +17,7 @@ MonoBehaviour:
   monsterLevel: 0
   maxHealth: 1500
   maxMana: 0
-  attackPower: 200
+  attackPower: 250
   magicAttackPower: 300
   defense: 100
   magicDefense: 100
@@ -26,7 +26,7 @@ MonoBehaviour:
   criticalDamageMultiplier: 0
   attackDamageType: 0
   minExpReward: 100
-  maxExpReward: 500
+  maxExpReward: 200
   minGoldReward: 100
   maxGoldReward: 200
   minDungeonCoinReward: 0

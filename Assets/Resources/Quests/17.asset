@@ -24,9 +24,9 @@ MonoBehaviour:
     requiredAmount: 10
   isRepeatable: 0
   rewardItems:
-  - itemSO: {fileID: 11400000, guid: bd2efdb2cccae4f4288d7c9bf1d1081b, type: 2}
-    itemCount: 5
-  experienceReward: 30
-  goldReward: 50
-  affectionReward: 1
-  rewardEquipmentGrade: 0
+  - itemSO: {fileID: 11400000, guid: b2a0a7aecbd653243b7ae589abb684e2, type: 2}
+    itemCount: 1
+  experienceReward: 3200
+  goldReward: 1600
+  affectionReward: 5
+  rewardEquipmentGrade: 4

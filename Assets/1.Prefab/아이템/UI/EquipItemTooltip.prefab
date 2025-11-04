@@ -507,6 +507,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemIconImage: {fileID: 8230480455464136946}
+  itemGradeFrameImage: {fileID: 7645977346415338772}
   itemNameText: {fileID: 6474754155597468719}
   itemDescriptionText: {fileID: 7623578040374021186}
   itemGradeText: {fileID: 4700357421752060162}

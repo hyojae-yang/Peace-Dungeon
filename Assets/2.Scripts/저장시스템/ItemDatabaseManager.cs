@@ -65,4 +65,27 @@ public class ItemDatabaseManager : MonoBehaviour
         Debug.LogWarning($"아이템 ID '{id}'에 해당하는 아이템을 찾을 수 없습니다.");
         return null;
     }
+    /// <summary>
+    /// 데이터베이스에 있는 모든 BaseItemSO 리스트를 반환합니다.
+    /// Test 스크립트에서 드롭다운 목록을 채우는 데 사용됩니다.
+    /// SOLID 원칙: 외부에서 데이터베이스의 내용을 안전하게 읽을 수 있도록 제공합니다.
+    /// </summary>
+    public List<BaseItemSO> GetItemList()
+    {
+        // 딕셔너리의 Value를 리스트로 반환하는 것이 더 효율적입니다.
+        return itemDictionary.Values.ToList();
+    }
+
+    /// <summary>
+    /// 아이템 이름을 사용하여 BaseItemSO를 찾아 반환합니다.
+    /// Test 스크립트에서 드롭다운의 선택된 이름으로 실제 아이템 데이터를 찾을 때 사용됩니다.
+    /// </summary>
+    /// <param name="itemName">찾을 아이템의 이름</param>
+    /// <returns>해당 이름을 가진 BaseItemSO 객체</returns>
+    public BaseItemSO GetItemByName(string itemName)
+    {
+        // 딕셔너리의 값(아이템) 중에서 이름이 일치하는 첫 번째 아이템을 찾습니다.
+        // BaseItemSO에 'itemName' 필드가 있다고 가정합니다.
+        return itemDictionary.Values.FirstOrDefault(item => item.itemName == itemName);
+    }
 }

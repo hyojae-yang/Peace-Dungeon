@@ -24,7 +24,7 @@ MonoBehaviour:
   equipType: 1
   baseStats:
   - statType: 10
-    value: 100
+    value: 200
     isPercentage: 0
   additionalStats:
   - statType: 10

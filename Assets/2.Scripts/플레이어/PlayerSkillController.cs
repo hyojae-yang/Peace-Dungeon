@@ -29,8 +29,7 @@ public class PlayerSkillController : MonoBehaviour, ISavable
     // 현재 쿨타임이 진행 중인 스킬의 ID와 쿨타임이 끝나는 시점(Time.time)을 저장합니다.
     private Dictionary<int, float> cooldownTimers = new Dictionary<int, float>();
 
-    // 현재 실행 중인 스킬 ID를 저장하여, 중복 발동을 방지하거나 캔슬 로직에 활용할 수 있습니다.
-    // 여기서는 간단히 코루틴 참조를 관리하여 중복 실행을 막습니다. (선택 사항이나 유용함)
+    // 현재 실행 중인 스킬 ID를 저장하여, 중복 발동을 방지하거나 캔슬 로직에 활용할 수 있습니다. (선택 사항이나 유용함)
     private Dictionary<int, Coroutine> activeSkillCoroutines = new Dictionary<int, Coroutine>();
 
     public event System.Action<int, SkillData> OnSkillSlotChanged;
@@ -192,11 +191,13 @@ public class PlayerSkillController : MonoBehaviour, ISavable
                 // 1. 마우스 목표 위치 계산 (Raycast 사용)
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 Vector3 targetPosition;
+                // 플레이어의 현재 Y 높이
+                float playerYPosition = playerCharacter.transform.position.y;
 
                 // Raycast는 '지면'이나 '몬스터' 등 목표를 맞추는 데 사용합니다. LayerMask를 사용하는 것이 권장됩니다.
-                // 여기서는 LayerMask 없이 모든 Collider를 대상으로 기본 Raycast를 시도합니다.
                 if (Physics.Raycast(ray, out RaycastHit hit))
                 {
+                    // Raycast에 맞은 지점
                     targetPosition = hit.point;
                 }
                 else
@@ -205,10 +206,13 @@ public class PlayerSkillController : MonoBehaviour, ISavable
                     targetPosition = ray.GetPoint(50f);
                 }
 
-                // 2. 파이어볼 스킬에 마우스 목표 위치 주입 (의존성 주입)
+                // 2. Raycast로 얻은 목표 위치의 Y축을 플레이어의 Y축 값으로 보정하여 수평 조준을 강제합니다.
+                // 이렇게 하면 스킬이 플레이어의 높이에서 수평(지면과 평행)으로 발사됩니다.
+                targetPosition.y = playerYPosition;
+                
+                // 3. 파이어볼 스킬에 마우스 목표 위치 주입 (의존성 주입)
                 aimingSkill.SetTargetPosition(targetPosition);
             }
-            // ⭐ 추가 로직 끝
 
             // 4. 모션 및 캐스팅 이펙트 발동 (선-소모와 동시에 실행)
             playerCharacter.animator.SetTrigger(activeSkill.animationTriggerName);
@@ -402,7 +406,7 @@ public class PlayerSkillController : MonoBehaviour, ISavable
                 // SkillDatabase를 사용하여 ID로부터 실제 SkillData 객체를 조회합니다.
                 if (SkillDatabase.Instance == null)
                 {
-                    Debug.LogError("[PlayerSkillController] SkillDatabase가 초기화되지 않아 스킬 슬롯 로드를 건너뜁니다!");
+                    Debug.LogError("[PlayerSkillController] SkillDatabase가 초기화되지 않아 스킬 슬롯 로드를 건너뜱니다!");
                     return;
                 }
 

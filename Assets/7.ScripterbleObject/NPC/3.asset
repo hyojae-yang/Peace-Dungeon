@@ -42,8 +42,8 @@ MonoBehaviour:
     - minAffection: -50
       maxAffection: 0
       dialogueTexts:
-      - "\uC548\uB155\uD558\uC138\uC694... \uB358\uC804\uC740 \uBB34\uC12D\uC9C0\uB9CC...
-        \uBAA8\uD5D8\uAC00\uB294 \uBA4B\uC788\uB294 \uAC83 \uAC19\uC544."
+      - "\uC548\uB155... \uB358\uC804\uC740 \uBB34\uC12D\uC9C0\uB9CC... \uBAA8\uD5D8\uAC00\uB294
+        \uBA4B\uC788\uB294 \uAC83 \uAC19\uC544."
     - minAffection: -50
       maxAffection: 0
       dialogueTexts:

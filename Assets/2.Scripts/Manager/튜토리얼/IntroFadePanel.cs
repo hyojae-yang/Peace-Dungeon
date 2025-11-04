@@ -46,7 +46,7 @@ public class IntroFadePanel : MonoBehaviour
     private void Start()
     {
         // Manager의 StartTutorial() 호출 이후, 이 패널이 활성화되어 있다고 가정합니다.
-
+        PlayerCharacter.Instance.playerController.canMove = false;
         // 1. 초기 투명도 설정 (완전히 불투명)
         Color color = blackPanelImage.color;
         color.a = 1f;
@@ -60,6 +60,11 @@ public class IntroFadePanel : MonoBehaviour
 
         // 3. 연출 시작
         StartIntroSequence();
+    }
+
+    private void OnDisable()
+    {
+        PlayerCharacter.Instance.playerController.canMove = true;
     }
 
     // [Private Methods]

@@ -135,7 +135,7 @@ MonoBehaviour:
   rootMaxHeight: 80
   rootRiseSpeed: 20
   rootLifetimeAfterRise: 3
-  minStartHeightOffset: -9.9
+  minStartHeightOffset: -8
   riseLoopClip: {fileID: 0}
 --- !u!65 &1929977756293404275
 BoxCollider:

@@ -32,7 +32,7 @@ MonoBehaviour:
     - minAffection: -100
       maxAffection: -90
       dialogueTexts:
-      - "\uC790\uB124\uB294 \uB204\uAD6C\uC778\uAC00?"
+      - "\uC790\uB124\uB294 \uB204\uAD6C\uC778\uAC00?\uC5EC\uAE30\uC5D4 \uC65C \uC628\uAC70\uC9C0?"
     - minAffection: -90
       maxAffection: -50
       dialogueTexts:

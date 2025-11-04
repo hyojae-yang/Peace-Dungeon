@@ -28,7 +28,6 @@ public class StatPanel : MonoBehaviour
     public TMP_Text criticalChanceText;
     public TMP_Text criticalDamageMultiplierText;
     public TMP_Text moveSpeedText;
-    public TMP_Text evasionChanceText;
 
     // === 스탯 텍스트 ===
     [Header("투자 스탯 텍스트")]

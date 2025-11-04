@@ -7,16 +7,18 @@ using System;
 /// 늑대 몬스터의 고유한 행동 로직을 담당하는 클래스입니다.
 /// 플레이어를 공격하다 체력이 절반 이하로 떨어지면 주변 동료를 소집해 무리를 형성하고 함께 공격합니다.
 /// 합류한 늑대는 리더와 독립적으로 플레이어를 추적합니다.
+/// SOLID 원칙: SRP, OCP 준수.
 /// </summary>
 public class WolfBehavior : MonoBehaviour
 {
     // === 종속성 ===
-    private Monster monster;          // 몬스터의 기본 데이터 및 상태 관리를 위한 컴포넌트
+    private Monster monster;           // 몬스터의 기본 데이터 및 상태 관리를 위한 컴포넌트
     private MonsterPatrol monsterPatrol; // 몬스터의 순찰 로직을 처리하는 컴포넌트 (SRP 준수)
     private MonsterCombat monsterCombat;  // 몬스터의 전투, 체력 관리 로직을 처리하는 컴포넌트 (SRP 준수)
     private Transform playerTransform; // 플레이어의 위치를 참조하기 위한 Transform
-    private Animator animator;        // 애니메이션 제어를 위한 컴포넌트
+    private Animator animator;         // 애니메이션 제어를 위한 컴포넌트
     private AudioSource audioSource;  // AudioSource 종속성 추가
+    private Coroutine stunCoroutine; // **[추가]** 경직 코루틴 참조
 
     // === 사운드 설정 추가 ===
     [Header("사운드 설정")]
@@ -41,35 +43,27 @@ public class WolfBehavior : MonoBehaviour
     [Tooltip("몬스터의 회전 속도 (클수록 더 빠르게 회전합니다.)")]
     public float rotationSpeed = 8f;
 
-    /// <summary>
-    /// 추종자가 리더에게 합류했다고 판단하고 자리잡을 '이상적인 거리'입니다.
-    /// </summary>
     [Tooltip("추종자가 리더 주변에 자리잡았다고 판단하고 플레이어를 목표로 전환할 거리입니다.")]
     public float followerJoinRange = 3.5f;
-
-    /// <summary>
-    /// 추종자가 리더 주변의 목표 위치에 도달했다고 판단하는 정지 거리입니다.
-    /// </summary>
     [Tooltip("추종자가 리더 주변의 목표 위치에 도달했다고 판단하는 거리입니다.")]
     public float followerStoppingDistance = 0.2f;
+
+    // === 경직 설정 추가 ===
+    [Header("경직 설정")]
+    [Tooltip("경직 효과가 지속될 최소 시간입니다. (랜덤 범위)")]
+    [SerializeField] private float minStunDuration = 0.7f;
+    [Tooltip("경직 효과가 지속될 최대 시간입니다. (랜덤 범위)")]
+    [SerializeField] private float maxStunDuration = 1.5f;
+
 
     // === 내부 상태 변수 ===
     private bool hasCalledForHelp = false; // 무리 소집을 한 번만 하도록 플래그 설정
     private bool isLeader = false;           // 현재 늑대가 무리의 리더인지 여부
-    private WolfBehavior leader;             // 추종자인 경우, 리더 늑대의 참조
+    private WolfBehavior leader;            // 추종자인 경우, 리더 늑대의 참조
     private List<WolfBehavior> followers = new List<WolfBehavior>(); // 리더인 경우, 추종자 늑대 목록
     private float lastAttackTime;            // 마지막 공격 시간 기록
-
-    /// <summary>
-    /// 추종자가 리더 주변의 합류 위치에 도달하여 플레이어 추격 목표로 전환했는지 여부입니다.
-    /// </summary>
-    private bool isJoinedPack = false;
-
-    /// <summary>
-    /// 추종자가 합류해야 할, 리더 주변의 고정된 목표 위치입니다.
-    /// </summary>
-    private Vector3 initialFlockTarget = Vector3.zero;
-
+    private bool isJoinedPack = false;       // 추종자가 리더 주변 합류 위치에 도달했는지 여부
+    private Vector3 initialFlockTarget = Vector3.zero; // 추종자가 합류해야 할, 리더 주변의 고정된 목표 위치
 
     void Awake()
     {
@@ -79,7 +73,6 @@ public class WolfBehavior : MonoBehaviour
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>(); // AudioSource 컴포넌트 참조
 
-        // AudioSource 포함하여 필수 컴포넌트 유효성 검사
         if (monster == null || monsterPatrol == null || monsterCombat == null || animator == null || audioSource == null)
         {
             Debug.LogError("WolfBehavior: 필수 컴포넌트(Monster, MonsterPatrol, MonsterCombat, Animator, AudioSource) 중 일부를 찾을 수 없습니다.");
@@ -111,6 +104,8 @@ public class WolfBehavior : MonoBehaviour
         if (monsterCombat != null)
         {
             monsterCombat.OnDamageTaken += OnMonsterDamaged;
+            // **[핵심 추가]** 경직 이벤트 구독
+            monsterCombat.OnStunApplied += ApplyHitStun;
         }
     }
 
@@ -120,8 +115,65 @@ public class WolfBehavior : MonoBehaviour
         if (monsterCombat != null)
         {
             monsterCombat.OnDamageTaken -= OnMonsterDamaged;
+            // **[핵심 추가]** 경직 이벤트 구독 해제
+            monsterCombat.OnStunApplied -= ApplyHitStun;
         }
     }
+
+    /// <summary>
+    /// MonsterCombat.OnStunApplied 이벤트 발생 시 호출되며 경직 코루틴을 시작합니다. **[추가]**
+    /// </summary>
+    private void ApplyHitStun()
+    {
+        if (monster.currentState == MonsterBase.MonsterState.Dead) return;
+
+        // 진행 중이던 경직 코루틴이 있다면 중지
+        if (stunCoroutine != null) StopCoroutine(stunCoroutine);
+
+        // 경직 코루틴 시작
+        stunCoroutine = StartCoroutine(StunRoutine());
+    }
+
+    /// <summary>
+    /// 경직 상태를 관리하고 타이머가 끝나면 이전 상태로 복귀시키는 코루틴입니다. **[추가]**
+    /// </summary>
+    private IEnumerator StunRoutine()
+    {
+        // 1. 경직 직전 상태를 저장합니다.
+        MonsterBase.MonsterState previousState = monster.currentState;
+
+        // 2. 상태를 Stun으로 전환
+        monster.ChangeState(MonsterBase.MonsterState.Stun);
+
+        // 3. 순찰 이동 중지 및 애니메이션 정지 (경직 모션 또는 Idle로 전환)
+        monsterPatrol.StopPatrol();
+        animator.SetFloat("Run", 0f);
+
+        // 4. 경직 시간 대기
+        float duration = UnityEngine.Random.Range(minStunDuration, maxStunDuration);
+        yield return new WaitForSeconds(duration);
+
+        // 5. 경직 해제 및 상태 복귀
+        if (monster.currentState != MonsterBase.MonsterState.Dead)
+        {
+            // 이전 상태로 복귀 (늑대는 보통 Patrol, Chase, Flocking 중 하나로 복귀)
+            monster.ChangeState(previousState);
+
+            // 복귀 상태에 따라 순찰 재시작을 명시적으로 호출합니다.
+            if (previousState == MonsterBase.MonsterState.Patrol)
+            {
+                monsterPatrol.StartPatrol();
+                animator.SetFloat("Run", 0f); // Patrol은 걷는 모션
+            }
+            else if (previousState == MonsterBase.MonsterState.Chase || previousState == MonsterBase.MonsterState.Flocking)
+            {
+                animator.SetFloat("Run", 1f); // 추격/무리 상태는 뛰는 모션
+            }
+            // Attack 상태였다면 다음 Update()에서 Chase로 전환되거나 다시 Attack을 시도합니다.
+        }
+        // 코루틴 종료
+    }
+
 
     /// <summary>
     /// 몬스터가 데미지를 입었을 때 호출되는 메서드입니다.
@@ -130,15 +182,20 @@ public class WolfBehavior : MonoBehaviour
     /// <param name="damage">입은 피해량</param>
     private void OnMonsterDamaged(float damage)
     {
+        // 경직 상태와 무관하게 무리 소집 로직은 실행됩니다.
+
         // 체력이 절반 이하로 떨어지면 동료를 소집
         if (!hasCalledForHelp && monsterCombat.GetCurrentHealth() <= monster.monsterData.maxHealth * callForHelpHealthRatio)
         {
+            // 울부짖기 애니메이션 재생
             if (animator != null)
             {
-                animator.SetTrigger("Howl"); // 울부짖기 애니메이션 재생
+                // 경직 중에도 애니메이션 트리거는 실행하여 울부짖기 시퀀스를 만듭니다.
+                // (애니메이션이 Stun 애니메이션을 덮어쓰도록 가정)
+                animator.SetTrigger("Howl");
             }
 
-            //동료 소집(울부짖음) 사운드 재생
+            // 동료 소집(울부짖음) 사운드 재생
             if (audioSource != null && callForHelpClip != null)
             {
                 audioSource.PlayOneShot(callForHelpClip);
@@ -154,10 +211,17 @@ public class WolfBehavior : MonoBehaviour
         {
             return;
         }
-        // 게임 오버 상태 체크는 MainSceneManager.Instance가 유효한 경우에만 실행
+
+        // **[핵심 추가]** Stun 상태일 때는 모든 행동 로직을 건너뛰고 정지합니다.
+        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        {
+            // StunRoutine에서 애니메이션과 이동을 정지시켰으므로 여기서는 대기
+            return;
+        }
+
+        // 게임 오버 상태 체크
         if (MainSceneManager.Instance != null && MainSceneManager.Instance.isGameOver)
         {
-            // 게임 오버 시 모든 행동 중지
             monsterPatrol.StopPatrol();
             if (animator != null) animator.SetFloat("Run", 0f);
             return;
@@ -289,29 +353,20 @@ public class WolfBehavior : MonoBehaviour
             }
 
             // 2-1. [합류 단계] 고정된 목표 위치로 이동
-
-            // 목표 위치로 이동 (MoveTowardsPosition 내부에서 기본 회전 수행)
             MoveTowardsPosition(initialFlockTarget, packAttackSpeed, followerStoppingDistance);
 
-            // -----------------------------------------------------------
             // 합류 중에는 목표 지점이 아닌, 플레이어 방향을 바라보도록 강제 회전 로직을 덮어씁니다.
-            // 이렇게 하면 이동하는 동안에도 플레이어를 주시하는 것처럼 보입니다.
-            // -----------------------------------------------------------
             if (playerTransform != null)
             {
-                // 플레이어 방향 벡터 계산 (Y축 무시)
                 Vector3 lookDirection = playerTransform.position - transform.position;
                 lookDirection.y = 0;
 
                 if (lookDirection != Vector3.zero)
                 {
                     Quaternion lookRotation = Quaternion.LookRotation(lookDirection.normalized);
-                    // 회전 속도를 사용하여 부드럽게 플레이어를 바라보게 합니다.
                     transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
                 }
             }
-            // -----------------------------------------------------------
-
 
             // **합류 여부 판단 및 목표 전환**
             float distanceToTargetPos = Vector3.Distance(transform.position, initialFlockTarget);
@@ -323,7 +378,6 @@ public class WolfBehavior : MonoBehaviour
         }
 
         // 3. 플레이어가 일정 범위를 벗어나면 무리 해제 및 추적 중단 (리더만 결정)
-        // 리더가 플레이어를 놓치면 리더 자신만 순찰로 돌아갑니다.
         if (isLeader && distanceToPlayer > monster.detectionRange + 5f)
         {
             ExitPack();
@@ -339,7 +393,12 @@ public class WolfBehavior : MonoBehaviour
 
         hasCalledForHelp = true;
         isLeader = true;
-        monster.ChangeState(MonsterBase.MonsterState.Flocking); // 리더는 Flocking 상태로 전환
+
+        // 경직 상태가 아니라면 바로 Flocking으로 전환합니다.
+        if (monster.currentState != MonsterBase.MonsterState.Stun)
+        {
+            monster.ChangeState(MonsterBase.MonsterState.Flocking); // 리더는 Flocking 상태로 전환
+        }
 
         Collider[] hitColliders = Physics.OverlapSphere(transform.position, flockDetectionRadius);
 
@@ -347,10 +406,8 @@ public class WolfBehavior : MonoBehaviour
         {
             WolfBehavior otherWolf = hitCollider.GetComponent<WolfBehavior>();
 
-            // 안전한 Null 체크 및 상태 체크
             if (otherWolf != null && otherWolf != this && otherWolf.monster.currentState != MonsterBase.MonsterState.Dead)
             {
-                // 무리에 속해있지 않은 늑대만 합류시킵니다.
                 if (!otherWolf.IsPartOfPack())
                 {
                     otherWolf.JoinPack(this);
@@ -362,7 +419,6 @@ public class WolfBehavior : MonoBehaviour
 
     /// <summary>
     /// 다른 늑대가 이 늑대를 무리에 합류시키는 데 사용합니다.
-    /// 합류 시 고정된 목표 위치(initialFlockTarget)를 한 번만 계산하여 저장합니다.
     /// </summary>
     /// <param name="newLeader">무리의 리더 늑대</param>
     public void JoinPack(WolfBehavior newLeader)
@@ -371,14 +427,17 @@ public class WolfBehavior : MonoBehaviour
 
         leader = newLeader;
         isLeader = false;
-        isJoinedPack = false; // 합류 시도 플래그 초기화
+        isJoinedPack = false;
 
-        // 합류 시, 리더 주변의 합류 지점을 계산하고 저장 (목표 고정)
         Vector3 leaderToPlayerDir = playerTransform.position - leader.transform.position;
-        leaderToPlayerDir.y = 0; // Y축 무시
+        leaderToPlayerDir.y = 0;
         initialFlockTarget = leader.transform.position - leaderToPlayerDir.normalized * followerJoinRange;
 
-        monster.ChangeState(MonsterBase.MonsterState.Flocking); // Flocking 상태로 전환
+        // 추종자도 경직 중이 아니라면 Flocking 상태로 전환합니다.
+        if (monster.currentState != MonsterBase.MonsterState.Stun)
+        {
+            monster.ChangeState(MonsterBase.MonsterState.Flocking); // Flocking 상태로 전환
+        }
     }
 
     /// <summary>
@@ -441,42 +500,30 @@ public class WolfBehavior : MonoBehaviour
     public void MoveTowardsTarget(Transform targetTransform, float speed, float stoppingDistance = 0.1f)
     {
         if (targetTransform == null) return;
-
-        // Transform의 위치를 목표 Position으로 변환하여 오버로드 메서드 호출
         MoveTowardsPosition(targetTransform.position, speed, stoppingDistance);
     }
 
     /// <summary>
     /// 특정 위치(Vector3)를 향해 이동하는 공통 로직. (OCP 준수)
-    /// 이 메서드는 기본적으로 목표 지점을 바라보도록 회전하지만, 
-    /// Flocking 상태에서는 HandleFlocking에서 이 회전을 덮어씁니다.
     /// </summary>
     /// <param name="targetPosition">목표 Vector3 위치</param>
     /// <param name="speed">이동 속도</param>
     /// <param name="stoppingDistance">목표에 도달했다고 판단할 최소 거리</param>
     public void MoveTowardsPosition(Vector3 targetPosition, float speed, float stoppingDistance = 0.1f)
     {
-        // 목표 방향 벡터 (거리 정보 포함)
         Vector3 direction = (targetPosition - transform.position);
         float distance = direction.magnitude;
-
-        // **XZ 평면의 방향 벡터** (Y축 무시)
         Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
 
         // 1. 목표 회전 
         if (flatDirection != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(flatDirection.normalized);
-
-            // 정지 거리에 가까워지면 회전 속도를 줄여 진동을 방지할 수도 있습니다.
             float slerpSpeed = rotationSpeed * Time.deltaTime;
-            // if (distance < stoppingDistance * 5f) slerpSpeed *= (distance / (stoppingDistance * 5f));
-
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, slerpSpeed);
         }
 
         // 2. 이동 (정지 거리 체크)
-        // stoppingDistance에 도달하면 회전 및 이동 모두 정지
         if (distance <= stoppingDistance)
         {
             return;
@@ -485,7 +532,6 @@ public class WolfBehavior : MonoBehaviour
         // 3. 실제 이동
         transform.position += flatDirection.normalized * speed * Time.deltaTime;
     }
-
 
     /// <summary>
     /// 플레이어에게 데미지를 입히는 일반 공격 로직을 실행합니다.
