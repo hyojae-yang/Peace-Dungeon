@@ -73,6 +73,9 @@ public class PlayerCharacter : MonoBehaviour
     [Tooltip("플레이어 애니메이터")]
     public Animator animator;
 
+    [Tooltip("플레이어의 아이템 사용 및 관리를 담당하는 PlayerSkillController 컴포넌트입니다.")]
+    public PlayerItemController playerItemController;
+
     /// <summary>
     /// 모든 하위 시스템(Inventory, Attack, Stats 등)의 초기화가 완료되었을 때 호출되는 이벤트입니다.
     /// 이 이벤트는 IsInitialized 플래그와 동기화됩니다.
@@ -110,6 +113,7 @@ public class PlayerCharacter : MonoBehaviour
         playerSkillController = GetComponent<PlayerSkillController>();
         passiveSkillManager = GetComponent<PassiveSkillManager>();
         animator = GetComponent<Animator>();
+        playerItemController = GetComponent<PlayerItemController>();
 
         // 3. 필수 컴포넌트 누락 여부 확인 (디버깅 목적)
         ValidateSystemReferences();
@@ -242,6 +246,7 @@ public class PlayerCharacter : MonoBehaviour
         if (playerLevelUp == null) Debug.LogError("[PlayerCharacter]: 'PlayerLevelUp' 컴포넌트가 누락되었습니다.");
         if (playerSkillController == null) Debug.LogError("[PlayerCharacter]: 'PlayerSkillController' 컴포넌트가 누락되었습니다.");
         if (animator == null) Debug.LogError("[PlayerCharacter]: 'Animator' 컴포넌트가 누락되었습니다.");
+        if (playerItemController == null) Debug.LogError("[PlayerCharacter]: 'PlayerItemController' 컴포넌트가 누락되었습니다.");
 
         // 필수 컴포넌트 검증이 성공했을 때만 로그를 남길 수도 있습니다.
         if (playerStats != null && playerStatSystem != null && playerController != null && playerAttack != null && playerHealth != null && playerLevelUp != null && playerSkillController != null)

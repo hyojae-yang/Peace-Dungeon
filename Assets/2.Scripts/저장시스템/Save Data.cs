@@ -307,3 +307,10 @@ public class PlayerSkillControllerSaveData
     // 쿨타임이 끝나는 Time.time 값을 저장합니다. (Time.time은 로드 시 보정이 필요합니다.)
     public List<float> cooldownEndTimes;
 }
+
+[System.Serializable]
+public class ItemControllerSaveData
+{
+    // 퀵슬롯 4개에 등록된 아이템의 ID (0이면 비어 있음)
+    public int[] assignedItemIds;
+}

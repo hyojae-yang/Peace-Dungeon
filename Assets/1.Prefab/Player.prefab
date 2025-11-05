@@ -3592,6 +3592,7 @@ GameObject:
   - component: {fileID: 8800812389607288424}
   - component: {fileID: 3313177949677233600}
   - component: {fileID: 1222836104121741666}
+  - component: {fileID: 9069680447687706564}
   m_Layer: 7
   m_Name: Player
   m_TagString: Player
@@ -3974,10 +3975,6 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   skillSpawnPoint: {fileID: 4836869752522272726}
   castingEffectSpawnPoint: {fileID: 8460594232285218631}
 --- !u!114 &3578312240763337132
@@ -4125,6 +4122,23 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &9069680447687706564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6053599658678463011}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8c9051281a3b0e48835d4377af14db0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemSlots:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
 --- !u!1 &6066783794569383266
 GameObject:
   m_ObjectHideFlags: 0

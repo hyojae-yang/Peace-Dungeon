@@ -23,6 +23,7 @@ public class UITutorialHandler : MonoBehaviour
     public UnityEvent OnGearEquipped = new UnityEvent();
     public UnityEvent OnBasicAttack = new UnityEvent(); // [추가] 좌클릭 기본 공격 감지
     public UnityEvent OnAimingPerformed = new UnityEvent(); // [추가] 우클릭 조준/방향 전환 감지
+    public UnityEvent OnZoomChanged = new UnityEvent();
     public UnityEvent OnFrameUIOpened = new UnityEvent();
 
     // 던전 배치 관련 이벤트
@@ -126,7 +127,7 @@ public class UITutorialHandler : MonoBehaviour
     public void NotifyGearEquipped() => OnGearEquipped.Invoke();
     public void NotifyBasicAttack() => OnBasicAttack.Invoke(); // [추가]
     public void NotifyAimingPerformed() => OnAimingPerformed.Invoke(); // [추가]
-
+    public void NotifyZoomChanged() => OnZoomChanged.Invoke();
     // 던전 배치 관련 Invoker
     public void NotifyDungeonPlacementUIClose() => OnDungeonPlacementUIClose.Invoke();
     public void NotifyDungeonEntryDetected() => OnDungeonEntryDetected.Invoke();

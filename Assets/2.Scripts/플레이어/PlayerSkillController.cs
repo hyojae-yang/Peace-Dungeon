@@ -16,8 +16,8 @@ public class PlayerSkillController : MonoBehaviour, ISavable
     private PlayerCharacter playerCharacter;
 
     [Header("스킬 할당")]
-    [Tooltip("1~8 키에 할당할 스킬 데이터를 드래그하여 할당하세요.")]
-    public SkillData[] skillSlots = new SkillData[8];
+    [Tooltip("1~4 키에 할당할 스킬 데이터를 드래그하여 할당하세요.")]
+    public SkillData[] skillSlots = new SkillData[4];
 
     [Header("스킬 발사 지점")]
     [Tooltip("스킬 투사체가 발사될 위치입니다. 플레이어의 자식 오브젝트에 부착하세요. (예: 손, 무기 끝)")]
@@ -104,10 +104,11 @@ public class PlayerSkillController : MonoBehaviour, ISavable
             }
         }
 
-        // 키 입력 처리 (Alpha1 ~ Alpha8)
-        for (int i = 0; i < skillSlots.Length; i++)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+        // 키 입력 처리 (Alpha1 ~ Alpha4로 자동 제한됨)
+        for (int i = 0; i < skillSlots.Length; i++) // skillSlots.Length는 현재 4이므로, i는 0, 1, 2, 3까지만 순회합니다.
+        {
+            // i=0: Alpha1 (키 1), i=3: Alpha4 (키 4)
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 UseSkill(skillSlots[i]);
             }

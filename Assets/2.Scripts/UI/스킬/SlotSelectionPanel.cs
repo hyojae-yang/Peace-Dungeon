@@ -9,7 +9,7 @@ using System.Collections.Generic;
 public class SlotSelectionPanel : MonoBehaviour
 {
     [Header("슬롯 선택 버튼")]
-    [Tooltip("1~8번 슬롯 버튼들을 순서대로 할당하세요.")]
+    [Tooltip("1~4번 슬롯 버튼들을 순서대로 할당하세요.")]
     public Button[] slotButtons;
 
     // 중앙 허브 역할을 하는 PlayerCharacter 인스턴스에 대한 참조입니다.

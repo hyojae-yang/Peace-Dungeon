@@ -38,6 +38,13 @@ public class InventoryManager : MonoBehaviour, ISavable
     /// </summary>
     public event Action<int, int> OnItemRemoved; // string -> int 변경
 
+    /// <summary>
+    /// 소모품 아이템의 수량이 변경될 때 호출되는 이벤트입니다.
+    /// QuickSlotItemPanel에서 구독하여 실시간 수량 업데이트 및 0개 시 자동 해제를 처리합니다.
+    /// int: 변경된 새로운 수량
+    /// </summary>
+    public event Action<ConsumableItemSO, int> OnItemQuantityChanged;
+
     // === 데이터 저장용 변수 ===
     [Header("인벤토리 데이터")]
     [Tooltip("에셋 파일로 저장된 인벤토리 데이터를 할당합니다.")]
@@ -166,12 +173,28 @@ public class InventoryManager : MonoBehaviour, ISavable
     {
         if (amount <= 0) return false;
 
+        // 아이템 SO 템플릿을 미리 가져옵니다. 이 정보로 소모품인지 판단해야 합니다.
+        BaseItemSO itemSO = ItemDatabaseManager.Instance.GetItemByID(itemID);
+
         // 모든 제거 로직을 InventoryLogic에 위임합니다.
-        bool success = logic.RemoveItem(inventoryData, ItemDatabaseManager.Instance.GetItemByID(itemID), amount);
+        // *주의: logic.RemoveItem() 호출 전에 itemSO를 넘겨서 itemSO가 null이 아니도록 보장합니다.
+        bool success = logic.RemoveItem(inventoryData, itemSO, amount);
 
         if (success)
         {
             OnItemRemoved?.Invoke(itemID, amount);
+
+            // [핵심 수정 로직: 소모템 수량 변경 이벤트 발동]
+            // 제거된 아이템이 소모품(ConsumableItemSO)인지 확인합니다.
+            if (itemSO is ConsumableItemSO consumableItem)
+            {
+                // 제거 후 남은 새로운 수량을 조회합니다. (GetItemCount는 logic에 위임되어 있습니다.)
+                int newQuantity = GetItemCount(itemID);
+
+                // 퀵슬롯 컨트롤러가 구독하는 이벤트를 발동합니다.
+                // 이 이벤트가 PlayerItemController의 CheckQuickSlotItemQuantity를 호출하게 됩니다.
+                OnItemQuantityChanged?.Invoke(consumableItem, newQuantity);
+            }
         }
 
         onInventoryChanged?.Invoke();
@@ -309,6 +332,18 @@ public class InventoryManager : MonoBehaviour, ISavable
         // 기존 코드를 유지하되, 이 데이터는 PlayerEquipmentManager에서 관리되어야 합니다.
         return playerCharacter.playerEquipmentManager.GetEquippedItems();
     }
+    /// <summary>
+    /// 소모품 아이템의 현재 인벤토리 수량을 조회합니다.
+    /// PlayerItemController에서 퀵슬롯 등록 시 수량 초기화를 위해 사용합니다.
+    /// </summary>
+    /// <param name="item">수량을 알고 싶은 소모품 아이템 SO</param>
+    /// <returns>현재 인벤토리에 있는 해당 아이템의 총 수량</returns>
+    public int GetItemQuantity(ConsumableItemSO item)
+    {
+        if (item == null) return 0;
+        // GetItemCount는 이미 logic에 위임되어 있으므로 이를 재사용합니다.
+        return GetItemCount(item.itemID);
+    }
 
     // === ISavable 인터페이스 구현 (LoadData만 수정) ===
 
@@ -409,7 +444,7 @@ public class InventoryManager : MonoBehaviour, ISavable
 
     /// <summary>
     /// 저장된 데이터를 읽어 인벤토리에 적용합니다.
-    /// 🚨 [수정] 로드 시, 로드된 아이템을 InventoryData의 7개 리스트로 분배하도록 수정합니다.
+    /// 로드 시, 로드된 아이템을 InventoryData의 7개 리스트로 분배하도록 수정합니다.
     /// </summary>
     /// <param name="data">로드할 데이터가 담긴 InventorySaveData 객체</param>
     public void LoadData(object data)

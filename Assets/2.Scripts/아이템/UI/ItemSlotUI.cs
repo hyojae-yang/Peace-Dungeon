@@ -25,6 +25,10 @@ public class ItemSlotUI : MonoBehaviour // IPointerEnterHandler, IPointerExitHan
     [Tooltip("아이템 툴팁을 표시할 프리팹입니다.")]
     [SerializeField] private GameObject tooltipPrefab;
 
+    [Header("퀵슬롯 등록")]
+    [Tooltip("이 슬롯에 종속된 ItemQuickSlotSelectionPanel (미리 배치된 자식 오브젝트)")]
+    [SerializeField] private ItemQuickSlotSelectionPanel quickSlotSelectionPanel; // 자식 오브젝트 또는 인스펙터 참조
+
     [Tooltip("버튼 패널이 마우스 포인터로부터 얼마나 떨어져서 나타날지 설정합니다.")]
     private Vector3 buttonPanelOffset = new Vector3(50, -25, 0);
 
@@ -131,7 +135,32 @@ public class ItemSlotUI : MonoBehaviour // IPointerEnterHandler, IPointerExitHan
             }
         }
     }
+    /// <summary>
+    /// 버튼 패널(ButtonPanel)에서 '등록' 버튼 클릭 시 호출됩니다.
+    /// 이 슬롯에 종속된 퀵슬롯 선택 패널을 활성화하고 아이템 정보를 전달합니다.
+    /// </summary>
+    /// <param name="itemToRegister">등록할 소모품 아이템 데이터</param>
+    public void ShowQuickSlotPanel(ConsumableItemSO itemToRegister)
+    {
+        // 툴팁 비활성화 및 기존 버튼 패널 파괴 (ButtonPanel이 이미 파괴했거나 곧 파괴될 수 있음)
+        HandleLeftClick();
+        HideTooltip();
 
+        if (quickSlotSelectionPanel != null)
+        {
+            // 퀵슬롯 패널에 아이템 데이터를 전달하고 활성화합니다.
+            // 자식 오브젝트로 배치되었으므로, 위치 조정 없이 활성화만 수행합니다.
+            quickSlotSelectionPanel.ShowPanel(itemToRegister);
+
+            // Note: quickSlotSelectionPanel이 ItemSlotUI의 자식이 아닐 경우, 
+            // 여기에서 위치를 슬롯 위치로 옮겨주거나 SetParent를 해줄 수 있으나,
+            // 사용자님의 의도대로 자식으로 '미리 배치'되었다고 가정합니다.
+        }
+        else
+        {
+            Debug.LogError("ItemQuickSlotSelectionPanel이 ItemSlotUI에 할당되지 않았습니다. 인스펙터를 확인하세요.");
+        }
+    }
     /// <summary>
     /// [SRP] 툴팁 파괴 로직을 수행합니다. ItemPointerDetector.cs의 OnPointerExit에서 호출됩니다.
     /// </summary>
@@ -195,8 +224,9 @@ public class ItemSlotUI : MonoBehaviour // IPointerEnterHandler, IPointerExitHan
             ButtonPanel buttonPanel = instantiatedButtonPanel.GetComponent<ButtonPanel>();
             if (buttonPanel != null)
             {
-                // ButtonPanel의 Initialize 메서드를 호출하여 버튼 기능을 설정합니다.
-                buttonPanel.Initialize(currentItemData.itemSO, currentItemData.stackCount);
+                // 수정: ButtonPanel의 Initialize 메서드를 호출하여 버튼 기능을 설정하고,
+                // 자기 자신의 참조(this)를 함께 전달합니다.
+                buttonPanel.Initialize(currentItemData.itemSO, currentItemData.stackCount, this); // 💡 this 추가
             }
         }
     }

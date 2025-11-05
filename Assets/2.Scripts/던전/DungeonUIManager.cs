@@ -8,6 +8,16 @@ public class DungeonUIManager : MonoBehaviour
 {
     public static DungeonUIManager Instance { get; private set; }
 
+    [Header("패널 활성화창")]
+    [Tooltip("던전배치 시 활성화/비활성화할 패널")]
+    [SerializeField] private GameObject shopPanel;
+    [SerializeField] private GameObject invenPanel;
+    [Tooltip("상점창의 버튼입니다.")]
+    [SerializeField] private Button shopButton;
+    [Tooltip("인벤창의 버튼입니다.")]
+    [SerializeField] private Button invenButton;
+
+
     [Header("던전 진입/퇴장 알림창")]
     [Tooltip("전체 알림창 패널입니다. 비활성화 상태로 시작합니다.")]
     [SerializeField] private GameObject alertPanel;
@@ -54,8 +64,46 @@ public class DungeonUIManager : MonoBehaviour
                 resultsPanel.SetActive(false);
             });
         }
-    }
+        if (shopButton != null)
+        {
+            shopButton.onClick.AddListener(OnShopButtonClicked);
+        }
 
+        if (invenButton != null)
+        {
+            invenButton.onClick.AddListener(OnInventoryButtonClicked);
+        }
+    }
+    /// <summary>
+    /// 상점 버튼 클릭 시 호출됩니다.
+    /// 상점 패널을 토글(활성화/비활성화)하고, 인벤토리 패널은 항상 닫습니다.
+    /// </summary>
+    private void OnShopButtonClicked()
+    {
+        MainSceneManager.Instance.PlayButtonSFXSafely(); 
+
+        // 상점 패널이 존재할 경우 토글합니다.
+        if (shopPanel != null)
+        {
+            bool isActive = shopPanel.activeSelf;
+            shopPanel.SetActive(!isActive);
+        }
+    }
+    /// <summary>
+    /// 인벤토리 버튼 클릭 시 호출됩니다.
+    /// 인벤토리 패널을 토글(활성화/비활성화)하고, 상점 패널은 항상 닫습니다.
+    /// </summary>
+    private void OnInventoryButtonClicked()
+    {
+         MainSceneManager.Instance.PlayButtonSFXSafely(); 
+
+        // 인벤토리 패널이 존재할 경우 토글합니다.
+        if (invenPanel != null)
+        {
+            bool isActive = invenPanel.activeSelf;
+            invenPanel.SetActive(!isActive);
+        }
+    }
     public void ShowDungeonAlert(string message, Action onConfirmAction)
     {
         if (alertPanel == null || alertText == null || confirmButton == null || cancelButton == null)

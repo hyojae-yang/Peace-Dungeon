@@ -1,44 +1,52 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using System; // ActionÀ» »ç¿ëÇÏ±â À§ÇØ Ãß°¡
+using System; // Actionì„ ì‚¬ìš©í•˜ê¸° ìœ„í•´ ì¶”ê°€
 
 /// <summary>
-/// ¾ÆÀÌÅÛ ¿ìÅ¬¸¯ ½Ã ³ªÅ¸³ª´Â ¹öÆ° ÆĞ³ÎÀ» °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ¾ÆÀÌÅÛ Å¸ÀÔ¿¡ µû¶ó ÀûÀıÇÑ ¹öÆ°À» È°¼ºÈ­/ºñÈ°¼ºÈ­ÇÏ°í ±â´ÉÀ» ÇÒ´çÇÕ´Ï´Ù.
+/// ì•„ì´í…œ ìš°í´ë¦­ ì‹œ ë‚˜íƒ€ë‚˜ëŠ” ë²„íŠ¼ íŒ¨ë„ì„ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì•„ì´í…œ íƒ€ì…ì— ë”°ë¼ ì ì ˆí•œ ë²„íŠ¼ì„ í™œì„±í™”/ë¹„í™œì„±í™”í•˜ê³  ê¸°ëŠ¥ì„ í• ë‹¹í•©ë‹ˆë‹¤.
 /// </summary>
 public class ButtonPanel : MonoBehaviour
 {
-    // === ÀÎ½ºÆåÅÍ¿¡ ÇÒ´çÇÒ ÂüÁ¶ º¯¼ö ===
-    [Tooltip("Àåºñ ¾ÆÀÌÅÛ ÀåÂø ¹öÆ°ÀÔ´Ï´Ù.")]
+    // === ì¸ìŠ¤í™í„°ì— í• ë‹¹í•  ì°¸ì¡° ë³€ìˆ˜ ===
+    [Tooltip("ì¥ë¹„ ì•„ì´í…œ ì¥ì°© ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     [SerializeField] private Button equipButton;
 
-    [Tooltip("¼Ò¸ğÇ° ¾ÆÀÌÅÛ »ç¿ë ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("ì†Œëª¨í’ˆ ì•„ì´í…œ ì‚¬ìš© ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     [SerializeField] private Button useButton;
 
-    [Tooltip("¾ÆÀÌÅÛ ¹ö¸®±â ¹öÆ°ÀÔ´Ï´Ù.")]
+    [Tooltip("ì†Œëª¨í’ˆ ì•„ì´í…œ í€µìŠ¬ë¡¯ ë“±ë¡ ë²„íŠ¼ì…ë‹ˆë‹¤. ì†Œëª¨í’ˆì—ë§Œ í™œì„±í™”ë©ë‹ˆë‹¤.")]
+    [SerializeField] private Button registerQuickSlotButton;
+
+    [Tooltip("ì•„ì´í…œ ë²„ë¦¬ê¸° ë²„íŠ¼ì…ë‹ˆë‹¤.")]
     [SerializeField] private Button discardButton;
 
-    // === ³»ºÎ µ¥ÀÌÅÍ º¯¼ö ===
+    // === ë‚´ë¶€ ë°ì´í„° ë³€ìˆ˜ ===
     private BaseItemSO currentItem;
     private int currentItemCount;
-    private PlayerCharacter playerCharacter; // PlayerCharacter ÂüÁ¶ Ãß°¡
+    private PlayerCharacter playerCharacter; // PlayerCharacter ì°¸ì¡° ì¶”ê°€
+
+    // ì¶”ê°€/ìˆ˜ì •: ì´ íŒ¨ë„ì„ í˜¸ì¶œí•œ ItemSlotUI ì°¸ì¡°ë¥¼ ì €ì¥í•©ë‹ˆë‹¤.
+    private ItemSlotUI parentSlotUI;
 
     /// <summary>
-    /// ItemSlotUI¿¡¼­ È£ÃâµÇ¾î ÇöÀç ¾ÆÀÌÅÛ Á¤º¸¸¦ ¹Ş°í, ¹öÆ°À» ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ItemSlotUIì—ì„œ í˜¸ì¶œë˜ì–´ í˜„ì¬ ì•„ì´í…œ ì •ë³´ë¥¼ ë°›ê³ , ë²„íŠ¼ì„ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="item">ÇöÀç ½½·Ô¿¡ ÀÖ´Â ¾ÆÀÌÅÛ µ¥ÀÌÅÍ</param>
-    /// <param name="count">ÇöÀç ½½·Ô¿¡ ÀÖ´Â ¾ÆÀÌÅÛ °³¼ö</param>
-    public void Initialize(BaseItemSO item, int count)
+    /// <param name="item">í˜„ì¬ ìŠ¬ë¡¯ì— ìˆëŠ” ì•„ì´í…œ ë°ì´í„°</param>
+    /// <param name="count">í˜„ì¬ ìŠ¬ë¡¯ì— ìˆëŠ” ì•„ì´í…œ ê°œìˆ˜</param>
+    /// <param name="slotUI"> ì¶”ê°€: ì´ íŒ¨ë„ì„ ìƒì„±í•œ ItemSlotUIì˜ ì°¸ì¡°</param>
+    public void Initialize(BaseItemSO item, int count, ItemSlotUI slotUI) // ğŸ’¡ ì¸ì ì¶”ê°€
     {
         currentItem = item;
         currentItemCount = count;
+        this.parentSlotUI = slotUI; // ì°¸ì¡° ì €ì¥
 
-        // PlayerCharacter ÀÎ½ºÅÏ½º¸¦ °¡Á®¿É´Ï´Ù.
+        // PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("ButtonPanel: PlayerCharacter ÀÎ½ºÅÏ½º¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("ButtonPanel: PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
 
         ShowButtonsByItemType();
@@ -46,50 +54,59 @@ public class ButtonPanel : MonoBehaviour
     }
 
     /// <summary>
-    /// ¹öÆ°¿¡ Å¬¸¯ ÀÌº¥Æ®¸¦ ¿¬°áÇÕ´Ï´Ù.
-    /// Initialize ¸Ş¼­µå¿¡¼­ ÇÑ ¹ø¸¸ È£ÃâµË´Ï´Ù.
+    /// ë²„íŠ¼ì— í´ë¦­ ì´ë²¤íŠ¸ë¥¼ ì—°ê²°í•©ë‹ˆë‹¤.
+    /// Initialize ë©”ì„œë“œì—ì„œ í•œ ë²ˆë§Œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
     private void AddButtonListeners()
     {
-        // Áßº¹ ÇÒ´ç ¹æÁö¸¦ À§ÇØ ¸®½º³Ê¸¦ ¸ÕÀú Á¦°ÅÇÕ´Ï´Ù.
+        // ì¤‘ë³µ í• ë‹¹ ë°©ì§€ë¥¼ ìœ„í•´ ë¦¬ìŠ¤ë„ˆë¥¼ ë¨¼ì € ì œê±°í•©ë‹ˆë‹¤.
         equipButton.onClick.RemoveAllListeners();
         useButton.onClick.RemoveAllListeners();
         discardButton.onClick.RemoveAllListeners();
-
-        // °¢ ¹öÆ°¿¡ ¸Â´Â ±â´ÉÀ» ¿¬°áÇÕ´Ï´Ù.
-        // EquipButtonÀº EquipmentItemSO Å¸ÀÔÀÏ ¶§¸¸ ÀÛµ¿ÇÏµµ·Ï ¾ÈÀü ÀåÄ¡ Ãß°¡
+        if (registerQuickSlotButton != null) registerQuickSlotButton.onClick.RemoveAllListeners();
+        // ê° ë²„íŠ¼ì— ë§ëŠ” ê¸°ëŠ¥ì„ ì—°ê²°í•©ë‹ˆë‹¤.
+        // EquipButtonì€ EquipmentItemSO íƒ€ì…ì¼ ë•Œë§Œ ì‘ë™í•˜ë„ë¡ ì•ˆì „ ì¥ì¹˜ ì¶”ê°€
         if (equipButton != null && currentItem != null && currentItem.itemType == ItemType.Equipment)
         {
-            equipButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
+            // MainSceneManagerì˜ SFXê°€ ì¡´ì¬í•œë‹¤ê³  ê°€ì •
+            // equipButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely); 
             equipButton.onClick.AddListener(OnEquipButtonClicked);
         }
 
-        // UseButtonÀº ConsumableItemSO Å¸ÀÔÀÏ ¶§¸¸ ÀÛµ¿ÇÏµµ·Ï ¾ÈÀü ÀåÄ¡ Ãß°¡
+        // UseButtonì€ ConsumableItemSO íƒ€ì…ì¼ ë•Œë§Œ ì‘ë™í•˜ë„ë¡ ì•ˆì „ ì¥ì¹˜ ì¶”ê°€
         if (useButton != null && currentItem != null && currentItem.itemType == ItemType.Consumable)
         {
-            useButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
+            // useButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             useButton.onClick.AddListener(OnUseButtonClicked);
         }
 
-        // DiscardButtonÀº Ç×»ó ÀÛµ¿ÇÏÁö¸¸, currentItemÀÌ nullÀÌ ¾Æ´Ò ¶§¸¸ À¯È¿ÇÕ´Ï´Ù.
+        if (registerQuickSlotButton != null && currentItem != null && currentItem.itemType == ItemType.Consumable)
+        {
+            // MainSceneManagerì˜ SFXë¥¼ ì—°ê²°í•©ë‹ˆë‹¤.
+            registerQuickSlotButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
+            // í´ë¦­ ë¡œì§ ë©”ì„œë“œë¥¼ ì—°ê²°í•©ë‹ˆë‹¤.
+            registerQuickSlotButton.onClick.AddListener(OnRegisterQuickSlotButtonClicked);
+        }
+
+        // DiscardButtonì€ í•­ìƒ ì‘ë™í•˜ì§€ë§Œ, currentItemì´ nullì´ ì•„ë‹ ë•Œë§Œ ìœ íš¨í•©ë‹ˆë‹¤.
         if (discardButton != null && currentItem != null)
         {
-            discardButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
+            // discardButton.onClick.AddListener(MainSceneManager.Instance.PlayButtonSFXSafely);
             discardButton.onClick.AddListener(OnDiscardButtonClicked);
         }
     }
 
     /// <summary>
-    /// ¾ÆÀÌÅÛ Å¸ÀÔ¿¡ µû¶ó ¹öÆ°µéÀÇ È°¼ºÈ­ »óÅÂ¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+    /// ì•„ì´í…œ íƒ€ì…ì— ë”°ë¼ ë²„íŠ¼ë“¤ì˜ í™œì„±í™” ìƒíƒœë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
     private void ShowButtonsByItemType()
     {
-        // ¸ğµç ¹öÆ°À» ÀÏ´Ü ºñÈ°¼ºÈ­ÇÕ´Ï´Ù.
+        // ëª¨ë“  ë²„íŠ¼ì„ ì¼ë‹¨ ë¹„í™œì„±í™”í•©ë‹ˆë‹¤.
         if (equipButton != null) equipButton.gameObject.SetActive(false);
         if (useButton != null) useButton.gameObject.SetActive(false);
         if (discardButton != null) discardButton.gameObject.SetActive(false);
-
-        // ¾ÆÀÌÅÛ Å¸ÀÔ¿¡ µû¶ó ÇÊ¿äÇÑ ¹öÆ°¸¸ È°¼ºÈ­ÇÕ´Ï´Ù.
+        if (registerQuickSlotButton != null) registerQuickSlotButton.gameObject.SetActive(false);
+        // ì•„ì´í…œ íƒ€ì…ì— ë”°ë¼ í•„ìš”í•œ ë²„íŠ¼ë§Œ í™œì„±í™”í•©ë‹ˆë‹¤.
         if (currentItem != null)
         {
             switch (currentItem.itemType)
@@ -101,94 +118,118 @@ public class ButtonPanel : MonoBehaviour
                 case ItemType.Consumable:
                     if (useButton != null) useButton.gameObject.SetActive(true);
                     if (discardButton != null) discardButton.gameObject.SetActive(true);
+                    // ì†Œëª¨í’ˆì¼ ë•Œ ë“±ë¡ ë²„íŠ¼ í™œì„±í™”
+                    if (registerQuickSlotButton != null) registerQuickSlotButton.gameObject.SetActive(true);
                     break;
                 case ItemType.Material:
                 case ItemType.Quest:
                     if (discardButton != null) discardButton.gameObject.SetActive(true);
                     break;
                 default:
-                    // Æ¯¼ö ¾ÆÀÌÅÛ µîÀº ¾Æ¹« ¹öÆ°µµ Ç¥½ÃÇÏÁö ¾Ê½À´Ï´Ù.
+                    // íŠ¹ìˆ˜ ì•„ì´í…œ ë“±ì€ ì•„ë¬´ ë²„íŠ¼ë„ í‘œì‹œí•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
                     break;
             }
         }
     }
 
-    // === ¹öÆ° Å¬¸¯ ½Ã È£ÃâµÉ ¸Ş¼­µå (·ÎÁ÷ ºĞ´ã) ===
+    // === ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë  ë©”ì„œë“œ (ë¡œì§ ë¶„ë‹´) ===
 
     /// <summary>
-    /// 'ÀåÂø' ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
-    /// PlayerCharacter¸¦ ÅëÇØ PlayerEquipmentManager¿¡°Ô ÀåÂøÀ» ¿äÃ»ÇÕ´Ï´Ù.
+    /// 'ì¥ì°©' ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// PlayerCharacterë¥¼ í†µí•´ PlayerEquipmentManagerì—ê²Œ ì¥ì°©ì„ ìš”ì²­í•©ë‹ˆë‹¤.
     /// </summary>
     public void OnEquipButtonClicked()
     {
-        // Àåºñ ¾ÆÀÌÅÛÀÎÁö È®ÀÎÇÏ°í Ä³½ºÆÃÇÕ´Ï´Ù.
+        // ì¥ë¹„ ì•„ì´í…œì¸ì§€ í™•ì¸í•˜ê³  ìºìŠ¤íŒ…í•©ë‹ˆë‹¤.
         EquipmentItemSO equipItem = currentItem as EquipmentItemSO;
         if (equipItem != null && playerCharacter != null && playerCharacter.playerEquipmentManager != null)
         {
-            // PlayerEquipmentManager¿¡°Ô ÀåÂø ¿äÃ»À» ÇÕ´Ï´Ù.
-            // EquipItem ¸Ş¼­µå ³»ºÎ¿¡¼­ ¾ÆÀÌÅÛ ¼ö·® °¨¼Ò ¹× ÀÎº¥Åä¸® ¾÷µ¥ÀÌÆ® ·ÎÁ÷À» Ã³¸®ÇÕ´Ï´Ù.
-            // ¸¸¾à ½ºÅÃ °¡´ÉÇÑ Àåºñ¶ó¸é ÇØ´ç ·ÎÁ÷Àº º°µµ Ã³¸® ÇÊ¿ä.
+            // PlayerEquipmentManagerì—ê²Œ ì¥ì°© ìš”ì²­ì„ í•©ë‹ˆë‹¤.
             playerCharacter.playerEquipmentManager.EquipItem(equipItem);
 
-            // ¹öÆ° Å¬¸¯ ÈÄ ÆĞ³ÎÀ» ÆÄ±«ÇÕ´Ï´Ù.
+            // ë²„íŠ¼ í´ë¦­ í›„ íŒ¨ë„ì„ íŒŒê´´í•©ë‹ˆë‹¤.
             Destroy(gameObject);
         }
         else if (equipItem == null)
         {
-            Debug.LogWarning("ÀåÂøÇÏ·Á´Â ¾ÆÀÌÅÛÀÌ EquipmentItemSO Å¸ÀÔÀÌ ¾Æ´Õ´Ï´Ù.");
+            Debug.LogWarning("ì¥ì°©í•˜ë ¤ëŠ” ì•„ì´í…œì´ EquipmentItemSO íƒ€ì…ì´ ì•„ë‹™ë‹ˆë‹¤.");
         }
         else if (playerCharacter == null || playerCharacter.playerEquipmentManager == null)
         {
-            Debug.LogError("PlayerCharacter ÀÎ½ºÅÏ½º ¶Ç´Â PlayerEquipmentManager ÄÄÆ÷³ÍÆ®°¡ ¾ø¾î ÀåÂøÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ ë˜ëŠ” PlayerEquipmentManager ì»´í¬ë„ŒíŠ¸ê°€ ì—†ì–´ ì¥ì°©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 
     /// <summary>
-    /// '»ç¿ë' ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
-    /// PlayerCharacter¸¦ ÅëÇØ InventoryManager¿¡ »ç¿ëÀ» ¿äÃ»ÇÕ´Ï´Ù.
+    /// 'ì‚¬ìš©' ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// PlayerCharacterë¥¼ í†µí•´ InventoryManagerì— ì‚¬ìš©ì„ ìš”ì²­í•©ë‹ˆë‹¤.
     /// </summary>
     public void OnUseButtonClicked()
     {
-        // ¼Ò¸ğÇ° ¾ÆÀÌÅÛÀÎÁö È®ÀÎÇÏ°í Ä³½ºÆÃÇÕ´Ï´Ù.
+        // ì†Œëª¨í’ˆ ì•„ì´í…œì¸ì§€ í™•ì¸í•˜ê³  ìºìŠ¤íŒ…í•©ë‹ˆë‹¤.
         ConsumableItemSO consumeItem = currentItem as ConsumableItemSO;
         if (consumeItem != null && playerCharacter != null && playerCharacter.inventoryManager != null)
         {
-            // InventoryManagerÀÇ UseItem ¸Ş¼­µå¸¦ È£ÃâÇÏ¸ç PlayerCharacter¸¦ Àü´ŞÇÕ´Ï´Ù.
+            // InventoryManagerì˜ UseItem ë©”ì„œë“œë¥¼ í˜¸ì¶œí•˜ë©° PlayerCharacterë¥¼ ì „ë‹¬í•©ë‹ˆë‹¤.
             playerCharacter.inventoryManager.UseItem(consumeItem);
-            // ¹öÆ° Å¬¸¯ ÈÄ ÆĞ³ÎÀ» ÆÄ±«ÇÕ´Ï´Ù.
+            // ë²„íŠ¼ í´ë¦­ í›„ íŒ¨ë„ì„ íŒŒê´´í•©ë‹ˆë‹¤.
             Destroy(gameObject);
         }
         else if (consumeItem == null)
         {
-            Debug.LogWarning("»ç¿ëÇÏ·Á´Â ¾ÆÀÌÅÛÀÌ ConsumableItemSO Å¸ÀÔÀÌ ¾Æ´Õ´Ï´Ù.");
+            Debug.LogWarning("ì‚¬ìš©í•˜ë ¤ëŠ” ì•„ì´í…œì´ ConsumableItemSO íƒ€ì…ì´ ì•„ë‹™ë‹ˆë‹¤.");
         }
         else if (playerCharacter == null || playerCharacter.inventoryManager == null)
         {
-            Debug.LogError("PlayerCharacter ÀÎ½ºÅÏ½º ¶Ç´Â InventoryManager ÄÄÆ÷³ÍÆ®°¡ ¾ø¾î ¾ÆÀÌÅÛÀ» »ç¿ëÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ ë˜ëŠ” InventoryManager ì»´í¬ë„ŒíŠ¸ê°€ ì—†ì–´ ì•„ì´í…œì„ ì‚¬ìš©í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
-
     /// <summary>
-    /// '¹ö¸®±â' ¹öÆ° Å¬¸¯ ½Ã È£ÃâµË´Ï´Ù.
-    /// InventoryUIController¿¡ È®ÀÎÃ¢ Ç¥½Ã¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+    /// 'í€µìŠ¬ë¡¯ ë“±ë¡' ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ì†Œëª¨í’ˆ ì•„ì´í…œì„ í€µìŠ¬ë¡¯ì— ë“±ë¡í•˜ê¸° ìœ„í•œ ë‹¤ìŒ ë‹¨ê³„(ìŠ¬ë¡¯ ì„ íƒ UI í™œì„±í™”)ë¥¼ ItemSlotUIì—ê²Œ ìš”ì²­í•©ë‹ˆë‹¤.
+    /// </summary>
+    public void OnRegisterQuickSlotButtonClicked()
+    {
+        // ì†Œëª¨í’ˆ ì•„ì´í…œì¸ì§€ í™•ì¸í•˜ê³  ìºìŠ¤íŒ…í•©ë‹ˆë‹¤.
+        ConsumableItemSO consumeItem = currentItem as ConsumableItemSO;
+
+        //ìˆ˜ì •: parentSlotUI ìœ íš¨ì„± ê²€ì‚¬ ì¶”ê°€
+        if (consumeItem != null && parentSlotUI != null)
+        {
+            // ItemSlotUIì—ê²Œ í€µìŠ¬ë¡¯ ì„ íƒ íŒ¨ë„ì„ í™œì„±í™”í•˜ë„ë¡ ìš”ì²­í•©ë‹ˆë‹¤.
+            // ItemSlotUIì— ì¶”ê°€ëœ ShowQuickSlotPanel ë©”ì„œë“œë¥¼ í˜¸ì¶œí•©ë‹ˆë‹¤.
+            parentSlotUI.ShowQuickSlotPanel(consumeItem);
+
+            // ë²„íŠ¼ í´ë¦­ í›„ íŒ¨ë„ì„ íŒŒê´´í•©ë‹ˆë‹¤. (ì„ë¬´ ì™„ë£Œ)
+            Destroy(gameObject);
+        }
+        else
+        {
+            Debug.LogError("í€µìŠ¬ë¡¯ ë“±ë¡ ë²„íŠ¼ ë¡œì§ ì˜¤ë¥˜: ì†Œëª¨í’ˆì´ ì•„ë‹ˆê±°ë‚˜, ItemSlotUI ì°¸ì¡°ê°€ ì—†ìŠµë‹ˆë‹¤.");
+            Destroy(gameObject);
+        }
+    }
+    /// <summary>
+    /// 'ë²„ë¦¬ê¸°' ë²„íŠ¼ í´ë¦­ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// InventoryUIControllerì— í™•ì¸ì°½ í‘œì‹œë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
     /// </summary>
     public void OnDiscardButtonClicked()
     {
         if (currentItem != null && currentItemCount > 0 && InventoryUIController.Instance != null)
         {
-            // InventoryUIController´Â ½Ì±ÛÅæÀÌ¹Ç·Î Á÷Á¢ Á¢±ÙÇÕ´Ï´Ù.
-            // ½ÇÁ¦ ¹ö¸®±â ·ÎÁ÷Àº ConfirmPanel¿¡¼­ Ã³¸®µË´Ï´Ù.
+            // InventoryUIControllerëŠ” ì‹±ê¸€í†¤ì´ë¯€ë¡œ ì§ì ‘ ì ‘ê·¼í•©ë‹ˆë‹¤.
+            // ì‹¤ì œ ë²„ë¦¬ê¸° ë¡œì§ì€ ConfirmPanelì—ì„œ ì²˜ë¦¬ë©ë‹ˆë‹¤.
             InventoryUIController.Instance.ShowDiscardConfirmPanel(currentItem, currentItemCount);
-            // ¹öÆ° Å¬¸¯ ÈÄ ÆĞ³ÎÀ» ÆÄ±«ÇÕ´Ï´Ù.
+            // ë²„íŠ¼ í´ë¦­ í›„ íŒ¨ë„ì„ íŒŒê´´í•©ë‹ˆë‹¤.
             Destroy(gameObject);
         }
         else if (currentItem == null || currentItemCount <= 0)
         {
-            Debug.LogWarning("¹ö¸± ¾ÆÀÌÅÛÀÌ ¾ø°Å³ª ¼ö·®ÀÌ À¯È¿ÇÏÁö ¾Ê½À´Ï´Ù.");
+            Debug.LogWarning("ë²„ë¦´ ì•„ì´í…œì´ ì—†ê±°ë‚˜ ìˆ˜ëŸ‰ì´ ìœ íš¨í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
         }
         else if (InventoryUIController.Instance == null)
         {
-            Debug.LogError("InventoryUIController ÀÎ½ºÅÏ½º°¡ ¾ø¾î ¾ÆÀÌÅÛÀ» ¹ö¸± ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("InventoryUIController ì¸ìŠ¤í„´ìŠ¤ê°€ ì—†ì–´ ì•„ì´í…œì„ ë²„ë¦´ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
         }
     }
 }

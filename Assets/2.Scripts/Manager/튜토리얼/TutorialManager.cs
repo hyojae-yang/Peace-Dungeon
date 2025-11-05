@@ -21,8 +21,7 @@ public enum TutorialStep
     // [추가] 기본 조작법 안내
     GuideBasicAttack,            // 4. 좌클릭 기본 공격 안내
     GuideAiming,                 // 5. 우클릭 사거리 표시 및 방향 전환 안내
-                                 // --------------------------------------------------
-
+    GuideZoomControl,
     // 6: 유저가 액자 UI를 열기 전까지 대기하는 초기 상태입니다. (기존 4단계에서 변경)
     Init,
     // 7: 액자 UI가 열렸을 때, 던전 조각을 인벤토리에서 '꺼내는' 것을 안내하는 단계입니다.
@@ -202,6 +201,7 @@ public class TutorialManager : MonoBehaviour
         uiHandler.OnGearEquipped.RemoveListener(AdvanceStep);
         uiHandler.OnBasicAttack.RemoveListener(AdvanceStep);
         uiHandler.OnAimingPerformed.RemoveListener(AdvanceStep);
+        uiHandler.OnZoomChanged.RemoveListener(AdvanceStep);
 
         // 액자 및 던전 관련 이벤트 해제
         uiHandler.OnFrameUIOpened.RemoveListener(AdvanceStep);
@@ -260,6 +260,12 @@ public class TutorialManager : MonoBehaviour
                 uiHandler.OnAimingPerformed.AddListener(AdvanceStep);
                 break;
 
+            case TutorialStep.GuideZoomControl:
+                
+                uiHandler?.ShowPrimaryInstruction("마우스 **스크롤(휠)**을 위아래로 움직여서 \n화면을 확대하거나 축소해보세요.");
+                uiHandler.OnZoomChanged.AddListener(AdvanceStep);
+             break; 
+
             case TutorialStep.Init: // 액자 UI 상호작용 준비 단계
                 uiHandler?.ShowPrimaryInstruction("액자 앞으로 이동하여 \n상호작용 E 키를 누르세요.");
                 uiHandler.OnFrameUIOpened.AddListener(AdvanceStep);
@@ -267,7 +273,7 @@ public class TutorialManager : MonoBehaviour
 
             // ----------------- 2번 패널 활성화 단계 (보조 캔버스) -----------------
             case TutorialStep.GuideRetrievePiece:
-                uiHandler?.ShowSecondInstruction("좌측에 보이는 토끼던전을 \n드래그 해서 내려놓으세요.");
+                uiHandler?.ShowSecondInstruction("좌측에 보이는 토끼던전을 \n드래그 해서 내려놓으세요.\n더블클릭하면 인벤으로 돌아갑니다.");
                 uiHandler.OnPieceRetrieved.AddListener(AdvanceStep);
                 break;
 

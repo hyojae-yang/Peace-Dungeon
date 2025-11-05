@@ -111,5 +111,10 @@ public class Unity6ZoomOnlyControl : MonoBehaviour // 스크립트 이름 변경
 
             _followComponent.FollowOffset = newOffset;
         }
+        if (TutorialManager.Instance.CurrentStep == TutorialStep.GuideZoomControl)
+        {
+            UITutorialHandler.Instance.NotifyZoomChanged();
+        }
     }
+
 }

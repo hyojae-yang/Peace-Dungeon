@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 268118961561806860}
   m_Layer: 0
   m_Name: PP_Lake_Ground_04
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
