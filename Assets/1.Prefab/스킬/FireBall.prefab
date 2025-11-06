@@ -112,10 +112,10 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 1
   m_ImplicitTensor: 1
-  m_UseGravity: 1
+  m_UseGravity: 0
   m_IsKinematic: 1
   m_Interpolate: 0
-  m_Constraints: 0
+  m_Constraints: 4
   m_CollisionDetection: 0
 --- !u!114 &-3188454656231124877
 MonoBehaviour:
@@ -130,7 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 20
-  lifetime: 5
+  maxDistance: 80
   ignoreCollisionDuration: 0.2
 --- !u!135 &932420305058148629
 SphereCollider:
@@ -151,8 +151,8 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 0.08147419
-  m_Center: {x: -0.000000048428774, y: 0.00000011920929, z: 0}
+  m_Radius: 0.3
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1001 &6647319536409956556
 PrefabInstance:
   m_ObjectHideFlags: 0

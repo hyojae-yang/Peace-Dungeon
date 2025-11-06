@@ -32958,15 +32958,15 @@ MonoBehaviour:
   chargePrepareClip: {fileID: 8300000, guid: 358844df98b4fee43b12d4aecb747288, type: 3}
   normalAttackClip: {fileID: 8300000, guid: c118d575aaaf25e498e0b2788d112627, type: 3}
   chargeDistance: 7
-  chargeSpeed: 25
+  chargeSpeed: 30
   attackRange: 4
   attackCooldown: 1.5
   manaCostPerCharge: 5
   manaRegenRate: 1
   chargePreparationTime: 2.5
   chargeOvershootDistance: 5
-  minStunDuration: 1
-  maxStunDuration: 2
+  minStunDuration: 0.5
+  maxStunDuration: 1
 --- !u!114 &8390311019723531179
 MonoBehaviour:
   m_ObjectHideFlags: 0

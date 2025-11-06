@@ -165,13 +165,13 @@ GameObject:
   - component: {fileID: 5228330394859826192}
   - component: {fileID: 1274629155470809667}
   - component: {fileID: 1051465256257383482}
-  - component: {fileID: 8566874555203508249}
   - component: {fileID: 8712504182048401535}
   - component: {fileID: 6929321974040167827}
   - component: {fileID: 8999192889082747891}
   - component: {fileID: 1573326570419179162}
   - component: {fileID: -1981122002723324318}
   - component: {fileID: 6236682510776820698}
+  - component: {fileID: 3409014286419304827}
   m_Layer: 8
   m_Name: ForestBoss
   m_TagString: Monster
@@ -252,27 +252,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!65 &8566874555203508249
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4424686701008790751}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1.5, y: 2, z: 1.3}
-  m_Center: {x: 0, y: 1, z: 0}
 --- !u!114 &8712504182048401535
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -485,6 +464,29 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!136 &3409014286419304827
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4424686701008790751}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Radius: 0.8
+  m_Height: 5
+  m_Direction: 1
+  m_Center: {x: 0, y: 1.5, z: 0}
 --- !u!1 &4694010005222326824
 GameObject:
   m_ObjectHideFlags: 0
@@ -1039,7 +1041,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 464624, guid: f2a398acbf213024aa23b14c390770bf, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 464624, guid: f2a398acbf213024aa23b14c390770bf, type: 3}
       propertyPath: m_LocalPosition.z

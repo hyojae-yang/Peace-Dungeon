@@ -30280,8 +30280,8 @@ MonoBehaviour:
   fleeSpeedMultiplier: 1.5
   rotationSpeed: 10
   startledClip: {fileID: 8300000, guid: 8565fe92939b4e94fb1e450ca4a73e6a, type: 3}
-  minStunDuration: 1
-  maxStunDuration: 2
+  minStunDuration: 0.5
+  maxStunDuration: 1
 --- !u!114 &7414339920397291404
 MonoBehaviour:
   m_ObjectHideFlags: 0

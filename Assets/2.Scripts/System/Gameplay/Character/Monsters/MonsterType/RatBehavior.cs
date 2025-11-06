@@ -1,0 +1,289 @@
+using UnityEngine;
+using System.Collections;
+using System; // 이벤트 및 코루틴 사용
+
+/// <summary>
+/// 모든 쥐 몬스터의 공통 행동을 정의하는 추상 기반 클래스입니다.
+/// 이 클래스는 직접 게임 오브젝트에 부착할 수 없으며,
+/// 자식 클래스(RatLeader, RatFollower)에서 상속받아 사용해야 합니다.
+/// SOLID 원칙 중 단일 책임 원칙(SRP)과 개방-폐쇄 원칙(OCP)을 준수합니다.
+/// </summary>
+public abstract class RatBehavior : MonoBehaviour
+{
+    // === 종속성 ===
+    protected Monster monster;
+    protected MonsterCombat monsterCombat;
+    protected Transform playerTransform;
+    Animator animator;
+    Rigidbody rb;
+    protected AudioSource audioSource;
+    private Coroutine stunCoroutine; // **[추가]** 경직 코루틴 참조
+
+    //이동 명령을 저장하고 FixedUpdate에서 처리하기 위한 변수
+    private Vector3 _movementDirection = Vector3.zero;
+
+    [Header("사운드 설정")]
+    [Tooltip("공격 실행 시 한 번 재생되는 공통 효과음")]
+    public AudioClip attackClip;
+
+    // === 들쥐 떼 행동을 위한 공통 설정 ===
+    [Header("공통 행동 설정")]
+    [Tooltip("다른 몬스터를 감지할 수 있는 반경입니다.")]
+    public float flockDetectionRadius = 10f;
+    [Tooltip("일반 공격 쿨타임입니다.")]
+    public float attackCooldown = 1.0f;
+    [Tooltip("일반 공격이 가능한 거리입니다.")]
+    public float attackRange = 3.0f;
+
+    // === 경직 설정 === **[추가]**
+    [Header("경직 설정")]
+    [Tooltip("경직 효과가 지속될 최소 시간입니다. (랜덤 범위)")]
+    [SerializeField] private float minStunDuration = 0.5f;
+    [Tooltip("경직 효과가 지속될 최대 시간입니다. (랜덤 범위)")]
+    [SerializeField] private float maxStunDuration = 1.0f;
+
+    protected float lastAttackTime;
+    protected Vector3 currentPatrolPoint;
+
+    protected virtual void Awake()
+    {
+        monster = GetComponent<Monster>();
+        if (monster == null) Debug.LogError("RatBehavior: Monster 컴포넌트를 찾을 수 없습니다.");
+        monsterCombat = GetComponent<MonsterCombat>();
+        if (monsterCombat == null) Debug.LogError("RatBehavior: MonsterCombat 컴포넌트를 찾을 수 없습니다.");
+        animator = GetComponent<Animator>();
+        rb = GetComponent<Rigidbody>();
+        audioSource = GetComponent<AudioSource>();
+        // Rigidbody 누락 시 경고 및 비활성화
+        if (rb == null)
+        {
+            Debug.LogError(gameObject.name + ": Rigidbody 컴포넌트가 없어 이동이 불가능합니다.");
+            enabled = false;
+        }
+
+        GameObject playerObject = GameObject.FindWithTag("Player");
+        if (playerObject != null)
+        {
+            playerTransform = playerObject.transform;
+        }
+    }
+
+    protected virtual void OnEnable()
+    {
+        monsterCombat.OnDamageTaken += OnMonsterDamaged;
+        // **[핵심 추가]** 경직 이벤트 구독
+        monsterCombat.OnStunApplied += ApplyHitStun;
+    }
+
+    protected virtual void OnDisable()
+    {
+        monsterCombat.OnDamageTaken -= OnMonsterDamaged;
+        // **[핵심 추가]** 경직 이벤트 구독 해제
+        monsterCombat.OnStunApplied -= ApplyHitStun;
+    }
+
+    protected virtual void Start()
+    {
+        animator.SetFloat("Vert", 1f);
+        SetNewPatrolPoint();
+    }
+
+    /// <summary>
+    /// MonsterCombat.OnStunApplied 이벤트 발생 시 호출됩니다.
+    /// 몬스터의 상태를 Stun으로 변경하고 경직 타이머를 시작합니다.
+    /// </summary>
+    private void ApplyHitStun()
+    {
+        // 몬스터가 이미 사망했다면 경직 로직을 무시합니다.
+        if (monster.currentState == MonsterBase.MonsterState.Dead) return;
+
+        // 이전에 진행 중이던 경직 코루틴이 있다면 중지하고 새 경직을 적용합니다.
+        if (stunCoroutine != null) StopCoroutine(stunCoroutine);
+
+        // 경직 코루틴을 시작합니다.
+        stunCoroutine = StartCoroutine(StunRoutine());
+    }
+
+    /// <summary>
+    /// 경직 상태를 관리하고 타이머가 끝나면 이전 상태로 복귀시키는 코루틴입니다.
+    /// </summary>
+    private IEnumerator StunRoutine()
+    {
+        // 1. 경직 직전 상태를 저장합니다.
+        MonsterBase.MonsterState previousState = monster.currentState;
+
+        // 2. 상태를 Stun으로 전환
+        monster.ChangeState(MonsterBase.MonsterState.Stun);
+
+        // 3. 애니메이션 정지 (멈춘 것처럼 보이도록)
+        animator.SetFloat("Vert", 0f);
+
+        // 4. 경직 시간 대기
+        float duration = UnityEngine.Random.Range(minStunDuration, maxStunDuration);
+        yield return new WaitForSeconds(duration);
+
+        // 5. 경직 해제 및 상태 복귀
+        if (monster.currentState != MonsterBase.MonsterState.Dead)
+        {
+            // 이전 상태로 복귀
+            monster.ChangeState(previousState);
+
+            // 6. 복귀 상태에 따라 애니메이션 재개 (쥐 몬스터는 기본적으로 Vert=1f로 이동한다고 가정)
+            if (previousState != MonsterBase.MonsterState.Idle && previousState != MonsterBase.MonsterState.Dead)
+            {
+                animator.SetFloat("Vert", 1f);
+            }
+            else
+            {
+                animator.SetFloat("Vert", 0f);
+            }
+        }
+        // 코루틴 종료
+    }
+
+    // ... (UpdateBehavior()는 추상 메서드로 유지) ...
+    /// <summary>
+    /// Update() 대신 각 역할에 맞는 행동을 정의하는 추상 메서드입니다.
+    /// 자식 클래스에서 반드시 구현해야 합니다.
+    /// </summary>
+    public abstract void UpdateBehavior();
+
+    // MonoBehaviour의 Update() 메서드를 오버라이드하여 UpdateBehavior()를 호출합니다.
+    private void Update()
+    {
+        // **[핵심 수정]** Stun 상태일 때는 UpdateBehavior() 실행을 건너뛰어 회전/공격/순찰 로직을 멈춥니다.
+        // (쥐 몬스터는 회전 로직도 Move() 안에 포함되어 있어 Move()만 막으면 이동과 회전이 모두 멈춥니다.)
+        if (monster.currentState == MonsterBase.MonsterState.Stun || monster.currentState == MonsterBase.MonsterState.Dead)
+        {
+            // Stun 상태일 때 물리 이동은 FixedUpdate에서 _movementDirection = 0 처리로 멈춥니다.
+            return;
+        }
+
+        if (MainSceneManager.Instance.isGameOver)
+        {
+            // 게임 오버 시 몬스터 행동 중지
+            monster.ChangeState(MonsterBase.MonsterState.Patrol); // 임시 상태 변경 (Idle이 적절할 수도 있음)
+            return;
+        }
+
+        UpdateBehavior();
+    }
+
+    /// <summary>
+    ///물리 업데이트: Rigidbody의 실제 이동을 FixedUpdate에서 안전하게 처리합니다.
+    /// </summary>
+    private void FixedUpdate()
+    {
+        // **[핵심 추가]** Stun 상태에서는 이동 명령을 완전히 무시
+        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        {
+            _movementDirection = Vector3.zero; // 혹시 모를 잔여 이동 명령 초기화
+            return;
+        }
+
+        // Rigidbody가 없거나, 이동 명령이 없거나, 죽은 상태면 이동하지 않습니다.
+        if (rb == null || _movementDirection == Vector3.zero || monster.currentState == MonsterBase.MonsterState.Dead)
+        {
+            return;
+        }
+
+        // FixedUpdate에서는 고정된 시간인 Time.fixedDeltaTime을 사용합니다.
+        Vector3 moveVector = _movementDirection.normalized * monster.monsterData.moveSpeed * Time.fixedDeltaTime;
+
+        // Rigidbody.MovePosition을 사용하여 물리 엔진에 안전하게 이동 의사를 전달
+        rb.MovePosition(rb.position + moveVector);
+
+        // 이동 처리가 끝났으므로 다음 Update 명령이 들어올 때까지 방향 초기화
+        _movementDirection = Vector3.zero;
+    }
+
+    /// <summary>
+    /// 몬스터의 이동 방향을 설정하는 공통 메서드입니다.
+    /// [수정] Update 사이클에서 호출되며, 이동 명령(_movementDirection)을 저장하고 회전만 처리합니다.
+    /// </summary>
+    protected void Move(Vector3 direction, float speed)
+    {
+        // **[핵심 제거]** RatBehavior는 Update에서 Stun을 체크하여 UpdateBehavior() 자체를 건너뛰기 때문에,
+        // 이 Move 내부에서 Stun 체크가 불필요합니다.
+
+        if (direction != Vector3.zero)
+        {
+            //이동 명령을 FixedUpdate에서 사용할 변수에 저장
+            _movementDirection = direction;
+
+            // 회전 로직 (Slerp는 Update에서 사용 가능)
+            Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
+            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+        }
+        else
+        {
+            _movementDirection = Vector3.zero;
+        }
+    }
+
+    /// <summary>
+    /// 몬스터가 피해를 입었을 때 호출되는 메서드입니다.
+    /// 자식 클래스에서 오버라이드하여 추가 로직을 구현할 수 있습니다.
+    /// </summary>
+    /// <param name="damage">받은 피해량</param>
+    protected virtual void OnMonsterDamaged(float damage)
+    {
+        // 피격 시의 공통 로직 (예: 상태 변경)
+    }
+
+    /// <summary>
+    /// 플레이어에게 공격을 수행하는 공통 메서드입니다.
+    /// </summary>
+    protected void PerformAttack()
+    {
+        if (Time.time > lastAttackTime + attackCooldown)
+        {
+            if (audioSource != null && attackClip != null)
+            {
+                audioSource.PlayOneShot(attackClip);
+            }
+            IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
+            if (playerDamageable != null)
+            {
+                if (animator != null)
+                { animator.SetTrigger("Attack"); }
+                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
+                lastAttackTime = Time.time;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 몬스터의 순찰 행동을 처리하는 공통 메서드입니다.
+    /// </summary>
+    protected void Patrol()
+    {
+        if (Vector3.Distance(transform.position, currentPatrolPoint) < 1.0f)
+        {
+            SetNewPatrolPoint();
+        }
+        // Move() 내부에서 이동 명령을 저장하고 회전을 처리합니다.
+        Move(currentPatrolPoint - transform.position, monster.monsterData.moveSpeed);
+    }
+
+    /// <summary>
+    /// 새로운 순찰 지점을 설정하는 공통 메서드입니다.
+    /// </summary>
+    protected void SetNewPatrolPoint()
+    {
+        Vector3 randomDirection = UnityEngine.Random.insideUnitSphere * monster.detectionRange;
+        randomDirection += transform.position;
+        randomDirection.y = transform.position.y;
+        currentPatrolPoint = randomDirection;
+    }
+
+    protected virtual void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, flockDetectionRadius);
+    }
+    public Monster GetMonster()
+    {
+        return monster;
+    }
+}

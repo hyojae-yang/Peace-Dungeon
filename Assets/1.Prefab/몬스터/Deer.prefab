@@ -356,6 +356,8 @@ MonoBehaviour:
   fleeSpeedMultiplier: 2
   attackAnimationDuration: 0.8
   rotationSpeed: 10
+  minStunDuration: 1
+  maxStunDuration: 2
 --- !u!114 &1010639436655218528
 MonoBehaviour:
   m_ObjectHideFlags: 0

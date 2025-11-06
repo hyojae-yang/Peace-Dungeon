@@ -17,11 +17,11 @@ MonoBehaviour:
   monsterLevel: 0
   maxHealth: 900
   maxMana: 0
-  attackPower: 170
+  attackPower: 0
   magicAttackPower: 0
   defense: 60
   magicDefense: 60
-  moveSpeed: 7
+  moveSpeed: 6
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0

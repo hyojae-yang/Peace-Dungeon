@@ -21,7 +21,7 @@ MonoBehaviour:
   magicAttackPower: 0
   defense: 50
   magicDefense: 50
-  moveSpeed: 6
+  moveSpeed: 5.5
   criticalChance: 0
   criticalDamageMultiplier: 0
   attackDamageType: 0
