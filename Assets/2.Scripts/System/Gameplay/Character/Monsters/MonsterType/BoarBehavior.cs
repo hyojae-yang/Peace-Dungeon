@@ -19,6 +19,7 @@ public class BoarBehavior : MonoBehaviour
     Animator animator;
     private AudioSource audioSource;
     private Coroutine stunCoroutine;
+    private Coroutine attackCoroutine; // [추가] 공격 코루틴 참조
 
     [Header("사운드 설정")]
     [Tooltip("돌진을 시작하기 직전, 힘을 모을 때 재생되는 효과음.")]
@@ -40,6 +41,13 @@ public class BoarBehavior : MonoBehaviour
     public float manaCostPerCharge = 5f;
     [Tooltip("초당 회복되는 마나 양입니다.")]
     public float manaRegenRate = 1f;
+
+    // **[핵심 추가]** 일반 공격 딜레이 설정
+    [Header("일반 공격 딜레이 설정")]
+    [Tooltip("공격 애니메이션이 시작된 후, 실제 데미지가 적용되기까지의 시간(선딜레이)입니다.")]
+    public float attackPreDelay = 0.5f; // 예시 값
+    [Tooltip("데미지 적용 후, 쿨타임까지 남은 시간(후딜레이)입니다.")]
+    public float attackPostDelay = 0.5f; // 예시 값 (attackCooldown - attackPreDelay - @HitFrameTime)
 
     // [개선 추가] 돌진 준비 시간 설정
     [Header("돌진 준비 시간")]
@@ -68,6 +76,8 @@ public class BoarBehavior : MonoBehaviour
     private float currentChargePreparationTime = 0f;
     private bool isPreparingCharge = false;
 
+    private bool isAttacking = false; // [추가] 현재 공격 코루틴이 진행 중인지 여부
+
     void Awake()
     {
         // 필수 컴포넌트 종속성 확보 및 유효성 검사
@@ -94,7 +104,7 @@ public class BoarBehavior : MonoBehaviour
     void Start()
     {
         // 마나 초기화 및 초기 상태 설정
-        currentMana = monster.monsterData.maxMana;
+        currentMana = monster.MaxMana;
         monster.ChangeState(MonsterBase.MonsterState.Patrol);
     }
 
@@ -125,7 +135,21 @@ public class BoarBehavior : MonoBehaviour
     /// </summary>
     private void OnMonsterDamaged(float damage)
     {
-        // 데미지를 입으면 즉시 공격 상태로 전환 및 순찰 중지
+        // 돌진 상태일 때는 피격으로 인한 상태 전환을 무시합니다.
+        if (monster.currentState == MonsterBase.MonsterState.Charge)
+        {
+            return;
+        }
+
+        // **[수정]** 공격 코루틴이 실행 중일 때 피격 시 코루틴을 중지하고 상태 전환을 시도합니다.
+        if (isAttacking)
+        {
+            if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+            isAttacking = false;
+            // 공격 중 상태 전환은 경직(Stun) 로직에서 처리됨
+        }
+
+        // 데미지를 입으면 즉시 공격 상태로 전환 및 순찰 중지 (Charge 상태가 아닐 때만 실행)
         monster.ChangeState(MonsterBase.MonsterState.Attack);
         monsterPatrol.StopPatrol();
     }
@@ -137,23 +161,30 @@ public class BoarBehavior : MonoBehaviour
     {
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
+        // **[추가]** 공격 중 경직이 들어오면 공격 코루틴을 중지합니다.
+        if (isAttacking)
+        {
+            if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+            isAttacking = false;
+            // 몬스터의 상태는 StunRoutine에서 Stun으로 전환됨
+        }
+
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
 
-        // **[핵심 로직]** Stun 상태로 진입 시, 현재 돌진 중인지 확인하여 상태 전환 여부를 결정합니다.
-        // 돌진 중이 아니라면 (Charge 상태가 아니라면) StunRoutine을 시작합니다.
+        // Stun 상태로 진입 시, 현재 돌진 중인지 확인하여 상태 전환 여부를 결정합니다.
+        // 현재 로직대로 Attack 상태에서는 경직이 작동합니다.
         if (monster.currentState != MonsterBase.MonsterState.Charge)
         {
-            // 돌진 관련 플래그 초기화 및 중지 (Charge 상태가 아닐 때만)
+            // 돌진 중이 아니라면 (일반 상태라면) StunRoutine을 시작합니다.
             hasInitiatedCharge = false;
             isPreparingCharge = false;
+            // 이전 상태가 Attack이었다면, 경직 해제 후 Attack 상태로 복귀하여 HandleAttack 로직을 다시 타게 됩니다.
             stunCoroutine = StartCoroutine(StunRoutine());
         }
         else
         {
-            // **[예외 처리]** Charge 상태에서 피격 시, 경직 타이머만 시작하여
-            // 일정 시간 동안 Attack/Patrol 상태로 복귀하는 것을 지연시킵니다.
-            // 이 동안 이동/회전은 HandleCharge가 계속 담당합니다.
-            stunCoroutine = StartCoroutine(StunDelayRoutine());
+            // Charge 상태에서 피격 시, 경직을 완전히 무시하고 아무것도 하지 않습니다. (맷집 강화)
+            return;
         }
     }
 
@@ -168,8 +199,10 @@ public class BoarBehavior : MonoBehaviour
         // 2. 상태를 Stun으로 전환
         monster.ChangeState(MonsterBase.MonsterState.Stun);
 
-        // 3. 순찰 이동을 즉시 중지! (StopPatrol은 항상 안전하게 호출)
+        // 3. 순찰 이동을 즉시 중지!
         monsterPatrol.StopPatrol();
+
+        // 4. 애니메이션/이펙트 (필요 시 추가)
 
         // 5. 경직 시간 대기
         float duration = UnityEngine.Random.Range(minStunDuration, maxStunDuration);
@@ -191,27 +224,6 @@ public class BoarBehavior : MonoBehaviour
         // 코루틴 종료
     }
 
-    /// <summary>
-    /// 돌진 중일 때 피격 시, 경직 시간만큼 상태 전환을 지연시키는 코루틴입니다.
-    /// 이 루틴이 실행되는 동안 Update는 Charge 상태를 계속 처리합니다.
-    /// </summary>
-    private IEnumerator StunDelayRoutine()
-    {
-        // 1. 경직 시간 대기
-        float duration = UnityEngine.Random.Range(minStunDuration, maxStunDuration);
-        yield return new WaitForSeconds(duration);
-
-        // 2. 대기 시간 종료 후, 여전히 Charge 상태라면 Attack 상태로 강제 전환하여 다음 행동을 유도합니다.
-        // 이미 Charge가 끝났다면 (HandleCharge에 의해 Attack 등으로 전환되었다면) 아무것도 하지 않습니다.
-        if (monster.currentState == MonsterBase.MonsterState.Charge)
-        {
-            // 경직 타이머가 끝났으므로 돌진을 종료하고 일반 공격/추격 상태로 전환합니다.
-            animator.SetTrigger("End");
-            hasInitiatedCharge = false;
-            monster.ChangeState(MonsterBase.MonsterState.Attack);
-        }
-    }
-
 
     /// <summary>
     /// 돌진 중 플레이어와 충돌하면 데미지를 입히는 콜백 함수입니다.
@@ -225,7 +237,7 @@ public class BoarBehavior : MonoBehaviour
             // 플레이어의 IDamageable 컴포넌트 가져오기
             if (other.gameObject.TryGetComponent<IDamageable>(out IDamageable playerDamageable))
             {
-                float chargeDamage = monster.monsterData.attackPower * 1.5f;
+                float chargeDamage = monster.AttackPower * 1.5f;
                 // 물리 피해로 데미지 전달
                 playerDamageable.TakeDamage(chargeDamage, DamageType.Physical);
 
@@ -233,7 +245,6 @@ public class BoarBehavior : MonoBehaviour
             }
 
             // 데미지 처리 후 즉시 일반 공격 상태로 전환하여 돌진을 멈춥니다.
-            // **[핵심]** 이때 StunDelayRoutine이 실행 중이었다면, 이 상태 전환으로 루틴은 종료됩니다.
             monster.ChangeState(MonsterBase.MonsterState.Attack);
         }
     }
@@ -247,14 +258,14 @@ public class BoarBehavior : MonoBehaviour
             return;
         }
 
-        // **[핵심 수정]** Stun 상태일 때, Charge 상태가 아니라면 모든 로직 건너뛰기
-        if (monster.currentState == MonsterBase.MonsterState.Stun && monster.currentState != MonsterBase.MonsterState.Charge)
+        // Stun 상태일 때 모든 로직 건너뛰기 
+        if (monster.currentState == MonsterBase.MonsterState.Stun)
         {
             return;
         }
-        // **[핵심 예외]** Charge 상태가 Stun 상태일 경우, 아래 Switch-Case 문에서 Charge 로직이 계속 실행됩니다.
-        // 마나 회복 로직 (Stun 상태일 때도 마나 회복은 유지할 수 있도록 Update 상단에 배치)
-        if (currentMana < monster.monsterData.maxMana)
+
+        // 마나 회복 로직
+        if (currentMana < monster.MaxMana)
         {
             currentMana += manaRegenRate * Time.deltaTime;
         }
@@ -282,7 +293,7 @@ public class BoarBehavior : MonoBehaviour
                 break;
 
             case MonsterBase.MonsterState.Charge:
-                // 순찰 중지 후 돌진 로직 실행 (Stun 상태 체크 없음)
+                // 순찰 중지 후 돌진 로직 실행 (경직 및 피격으로 인한 상태 전환 무시)
                 monsterPatrol.StopPatrol();
                 HandleCharge(distanceToPlayer);
                 break;
@@ -297,8 +308,7 @@ public class BoarBehavior : MonoBehaviour
                 break;
 
             case MonsterBase.MonsterState.Stun:
-                // Stun 상태일 때 Charge 상태가 아니라면 위에서 return 되었으므로,
-                // 여기에 도달했다면 무시 (Patrol, Attack 등 일반 상태의 Stun 처리는 StunRoutine에서만 담당)
+                // Stun 상태일 때 (위에서 return 처리됨)
                 break;
         }
     }
@@ -317,6 +327,12 @@ public class BoarBehavior : MonoBehaviour
             hasDealtChargeDamage = false;
             isPreparingCharge = true;
             currentChargePreparationTime = 0f;
+
+            // 돌진 초기화 시점에 사운드를 한 번만 재생
+            if (audioSource != null && chargePrepareClip != null)
+            {
+                audioSource.PlayOneShot(chargePrepareClip);
+            }
 
             // 돌진 방향 확정 및 즉시 회전
             Vector3 chargeDirection = (playerTransform.position - transform.position).normalized;
@@ -339,11 +355,7 @@ public class BoarBehavior : MonoBehaviour
         }
 
         // 3. 실제 돌진 이동 로직 
-        if (audioSource != null && chargePrepareClip != null)
-        {
-            audioSource.PlayOneShot(chargePrepareClip);
-        }
-        // **[핵심]** Stun 체크 없이 무조건 이동 실행
+        // Charge 상태는 경직/피격에 영향을 받지 않고 무조건 이동 실행
         transform.position = Vector3.MoveTowards(transform.position, chargeDestination, chargeSpeed * Time.deltaTime);
 
         // 목표 지점에 도착하면 공격 상태로 전환
@@ -352,7 +364,6 @@ public class BoarBehavior : MonoBehaviour
             animator.SetTrigger("End");
             hasInitiatedCharge = false;
             monster.ChangeState(MonsterBase.MonsterState.Attack);
-            // **[추가]** StunDelayRoutine이 실행 중이었다면, 상태가 Attack으로 바뀌면서 코루틴이 자동으로 종료됩니다.
         }
     }
 
@@ -361,8 +372,35 @@ public class BoarBehavior : MonoBehaviour
     /// </summary>
     private void HandleAttack(float distanceToPlayer)
     {
+        // **[핵심 수정 1]** 공격 코루틴이 진행 중이라면, 추격/공격 로직을 모두 무시하고 제자리에 멈춥니다.
+        if (isAttacking)
+        {
+            // 공격 애니메이션 중에는 멈춤
+            return;
+        }
+
+        // **[핵심 수정 2]** 공격 범위 안일 때 (distanceToPlayer <= attackRange)
+        if (distanceToPlayer <= attackRange)
+        {
+            // 공격 쿨타임 체크 후 공격 시작
+            if (Time.time > lastAttackTime + attackCooldown)
+            {
+                // 공격 코루틴이 이미 실행 중이 아닐 때만 시작
+                if (attackCoroutine == null)
+                {
+                    // 공격 시작 전 즉시 플레이어를 바라보게 합니다.
+                    LookAtTarget(playerTransform, float.MaxValue);
+                    attackCoroutine = StartCoroutine(AttackRoutine());
+                }
+            }
+            else
+            {
+                // 쿨타임 중: 플레이어를 향해 부드럽게 회전하면서 대기
+                LookAtTarget(playerTransform, 5f);
+            }
+        }
         // 공격 범위 밖이면 마나에 따라 돌진 또는 추격
-        if (distanceToPlayer > attackRange)
+        else
         {
             if (distanceToPlayer >= chargeDistance && currentMana >= manaCostPerCharge)
             {
@@ -370,19 +408,12 @@ public class BoarBehavior : MonoBehaviour
             }
             else
             {
-                // 일반 추격 이동 (Stun 체크 로직 있음)
+                // 일반 추격 이동
                 MoveTowardsTarget(playerTransform, monster.monsterData.moveSpeed);
             }
         }
-        else // 공격 범위 안일 때 (distanceToPlayer <= attackRange)
-        {
-            // 공격 실행 전에 플레이어를 향해 부드럽게 회전 (Stun 체크 로직 있음)
-            LookAtTarget(playerTransform, 5f);
-            // 공격 실행 (Stun 체크 로직 있음)
-            PerformAttack();
-        }
 
-        // 플레이어가 감지 범위를 벗어나면 Patrol 상태로 전환
+        // 플레이어가 감지 범위를 벗어나면 Patrol 상태로 전환 (공격 코루틴 진행 중에는 이 로직을 타지 않음)
         if (distanceToPlayer > monster.detectionRange)
         {
             monster.ChangeState(MonsterBase.MonsterState.Patrol);
@@ -390,12 +421,58 @@ public class BoarBehavior : MonoBehaviour
     }
 
     /// <summary>
+    /// 일반 공격의 선딜레이, 데미지 적용, 후딜레이를 관리하는 코루틴입니다.
+    /// </summary>
+    private IEnumerator AttackRoutine()
+    {
+        isAttacking = true; // 공격 시작 플래그 설정
+        lastAttackTime = Time.time; // 공격 시작 시간 기록 (쿨타임 카운트 시작)
+
+        // 1. 공격 애니메이션 시작
+        animator.SetTrigger("Attack");
+
+        // 2. 선딜레이 대기 (데미지 적용 전 대기 시간)
+        yield return new WaitForSeconds(attackPreDelay);
+
+        // 3. 데미지 적용 시점 (애니메이션 중간)
+        float currentDistance = Vector3.Distance(transform.position, playerTransform.position);
+
+        // **[핵심]** 데미지 적용 시점에서 플레이어가 여전히 공격 범위 내에 있는지 확인
+        if (currentDistance <= attackRange)
+        {
+            if (playerTransform.TryGetComponent<IDamageable>(out IDamageable playerDamageable))
+            {
+                if (audioSource != null && normalAttackClip != null)
+                {
+                    audioSource.PlayOneShot(normalAttackClip); // 사운드 재생
+                }
+                // 데미지 입히기
+                playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+            }
+        }
+
+        // 4. 후딜레이 대기 (쿨타임의 남은 시간 - 선딜레이)
+        // 안전을 위해 전체 쿨타임에서 선딜레이 시간을 빼고 대기
+        float remainingCooldown = attackCooldown - attackPreDelay;
+        if (remainingCooldown > 0)
+        {
+            yield return new WaitForSeconds(remainingCooldown);
+        }
+
+        // 5. 공격 완료 및 플래그 초기화
+        isAttacking = false;
+        attackCoroutine = null;
+
+        // 공격 완료 후 HandleAttack이 다음 행동을 결정 (추격, 재공격 또는 Patrol 복귀)
+    }
+
+    /// <summary>
     /// 목표 Transform을 향해 이동하는 공통 로직
     /// </summary>
     private void MoveTowardsTarget(Transform targetTransform, float speed)
     {
-        // **[핵심]** Stun 상태일 때는 이동 로직을 실행하지 않고 즉시 종료합니다. (일반 추격만 멈춤)
-        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        // Stun 상태이거나 공격 중일 때는 이동 로직을 실행하지 않습니다.
+        if (monster.currentState == MonsterBase.MonsterState.Stun || isAttacking)
         {
             return;
         }
@@ -413,9 +490,8 @@ public class BoarBehavior : MonoBehaviour
     /// </summary>
     private void LookAtTarget(Transform targetTransform, float rotationSpeed)
     {
-        // **[핵심]** Stun 상태일 때는 회전 로직을 실행하지 않고 즉시 종료합니다. 
-        // (단, HandleCharge 내에서 float.MaxValue로 즉시 회전하는 것은 Stun 체크를 건너뜁니다.)
-        if (monster.currentState == MonsterBase.MonsterState.Stun && rotationSpeed != float.MaxValue)
+        // Stun 상태이거나 공격 중일 때는 회전 로직을 실행하지 않습니다. (단, 즉시 회전 옵션은 제외)
+        if ((monster.currentState == MonsterBase.MonsterState.Stun || isAttacking) && rotationSpeed != float.MaxValue)
         {
             return;
         }
@@ -437,29 +513,7 @@ public class BoarBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어에게 데미지를 입히는 일반 공격 로직을 실행합니다.
+    /// [사용 안 함] PerformAttack()은 HandleAttack 내의 AttackRoutine()으로 대체되었습니다.
     /// </summary>
-    private void PerformAttack()
-    {
-        // **[핵심]** Stun 상태일 때는 공격 로직을 실행하지 않고 즉시 종료합니다.
-        if (monster.currentState == MonsterBase.MonsterState.Stun)
-        {
-            return;
-        }
-
-        // 공격 쿨타임 체크
-        if (Time.time > lastAttackTime + attackCooldown)
-        {
-            if (playerTransform.TryGetComponent<IDamageable>(out IDamageable playerDamageable))
-            {
-                animator.SetTrigger("Attack");
-                if (audioSource != null && normalAttackClip != null)
-                {
-                    audioSource.PlayOneShot(normalAttackClip);
-                }
-                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
-                lastAttackTime = Time.time;
-            }
-        }
-    }
+    private void PerformAttack() { }
 }

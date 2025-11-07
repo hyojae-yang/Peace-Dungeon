@@ -262,6 +262,7 @@ MonoBehaviour:
   flockDetectionRadius: 10
   attackCooldown: 1
   attackRange: 3
+  attackPreDelay: 0.6
   minStunDuration: 0.5
   maxStunDuration: 1
   flockingDistance: 10

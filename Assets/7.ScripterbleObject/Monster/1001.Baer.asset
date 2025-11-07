@@ -66,4 +66,4 @@ MonoBehaviour:
     weight: 35
   minItemDropCount: 3
   maxItemDropCount: 5
-  score: 30
+  score: 300

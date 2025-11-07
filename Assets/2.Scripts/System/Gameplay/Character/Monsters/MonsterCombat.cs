@@ -8,7 +8,7 @@ using System; // 이벤트 사용을 위해 System 네임스페이스 추가
 /// </summary>
 public class MonsterCombat : MonoBehaviour, IDamageable
 {
-    public MonsterBase monsterBase { get; private set; }
+    public Monster monster { get; private set; }
     AudioSource audioSource;
 
     [Header("사운드 설정")] // 추가: 인스펙터 관리를 위해 헤더 추가
@@ -50,15 +50,19 @@ public class MonsterCombat : MonoBehaviour, IDamageable
 
     private void Awake()
     {
-        monsterBase = GetComponent<MonsterBase>();
-        if (monsterBase == null)
+        monster = GetComponent<Monster>();
+        if (monster == null)
         {
             Debug.LogError("MonsterCombat: MonsterBase 컴포넌트를 찾을 수 없습니다.");
             return;
         }
         audioSource = GetComponent<AudioSource>();
-        // Awake 시점에 최대 체력으로 초기화합니다.
-        currentHealth = monsterBase.monsterData.maxHealth;
+        
+    }
+    private void Start()
+    {
+        // 최대 체력으로 초기화합니다.
+        currentHealth = monster.MaxHealth;
     }
 
     // --- IDamageable 인터페이스 구현 ---
@@ -72,7 +76,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
     public void TakeDamage(float damage, DamageType type)
     {
         // 몬스터가 이미 사망했다면 데미지 로직을 무시
-        if (monsterBase.currentState == MonsterBase.MonsterState.Dead) return;
+        if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
         float finalDamage = damage;
         float reductionValue = 0f; // 적용할 방어력/마법 방어력 스탯
@@ -81,7 +85,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
         switch (type)
         {
             case DamageType.Physical:
-                reductionValue = monsterBase.monsterData.defense;
+                reductionValue = monster.Defense;
 
                 // [수정된 로직] LoL 방식의 물리 피해 감소율 적용
                 // 피해 감소율 = reductionValue / (reductionValue + Constant)
@@ -94,7 +98,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
                 break;
 
             case DamageType.Magic:
-                reductionValue = monsterBase.monsterData.magicDefense;
+                reductionValue = monster.MagicDefense;
 
                 // [수정된 로직] LoL 방식의 마법 피해 감소율 적용
                 // 피해 감소율 = reductionValue / (reductionValue + Constant)
@@ -153,7 +157,7 @@ public class MonsterCombat : MonoBehaviour, IDamageable
             }
 
             // 실제 사망 로직 호출
-            monsterBase.Die();
+            monster.Die();
         }
     }
 

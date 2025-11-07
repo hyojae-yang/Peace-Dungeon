@@ -1,5 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.UI; // Button 사용을 위해 추가
 using System.Collections.Generic;
 using TMPro;
 
@@ -18,6 +18,14 @@ public class DungeonShopUIManager : MonoBehaviour
     // 던전 코인 개수를 표시할 텍스트 UI
     [SerializeField] private TextMeshProUGUI dungeonCoinText;
 
+    // 위험도 초기화 버튼 UI 요소
+    [Header("위험도 초기화 UI")]
+    [Tooltip("위험도 초기화 버튼")]
+    [SerializeField] private Button riskResetButton;
+
+    [Tooltip("위험도 초기화 가격을 표시할 텍스트")]
+    [SerializeField] private TextMeshProUGUI riskResetPriceText;
+
     // 던전 상점 로직을 담당하는 매니저
     private DungeonShopManager dungeonShopManager;
 
@@ -32,6 +40,18 @@ public class DungeonShopUIManager : MonoBehaviour
         if (dungeonShopManager == null)
         {
             Debug.LogError("DungeonShopManager가 씬에 존재하지 않습니다.");
+            return;
+        }
+
+        // 초기화 버튼 클릭 이벤트 리스너 등록
+        if (riskResetButton != null)
+        {
+            // 버튼 클릭 시 OnRiskResetButtonClicked 메서드 호출
+            riskResetButton.onClick.AddListener(OnRiskResetButtonClicked);
+        }
+        else
+        {
+            Debug.LogWarning("riskResetButton이 할당되지 않았습니다. UI 기능을 사용할 수 없습니다.");
         }
     }
 
@@ -46,6 +66,9 @@ public class DungeonShopUIManager : MonoBehaviour
 
         // 코인 텍스트 UI를 갱신합니다.
         UpdateDungeonCoinText();
+
+        // 위험도 초기화 UI 갱신
+        UpdateRiskResetUI();
 
         List<DungeonItemData> shopItems = dungeonShopManager.GetShopItems();
         if (shopItems.Count == 0)
@@ -71,6 +94,61 @@ public class DungeonShopUIManager : MonoBehaviour
     }
 
     /// <summary>
+    /// 위험도 초기화 버튼이 클릭되었을 때 호출되는 메서드입니다.
+    /// DungeonShopManager에 구매를 요청합니다.
+    /// </summary>
+    private void OnRiskResetButtonClicked()
+    {
+        if (dungeonShopManager != null)
+        {
+            // 구매 요청 및 초기화 진행
+            // BuyLevelReset 내부에서 던전 코인 차감 및 위험도 초기화가 모두 처리됩니다.
+            bool success = dungeonShopManager.BuyLevelReset();
+
+            if (success)
+            {
+                // 초기화 성공 시, 가격 텍스트 및 버튼 상태를 갱신합니다. (레벨 0 기준으로 가격이 바뀜)
+                // UpdateDungeonCoinText 내부에서 UpdateRiskResetUI()를 호출하므로 별도 호출 불필요
+                //Debug.Log("위험도 초기화 구매 성공! 시스템 리셋됨.");
+            }
+            else
+            {
+                // 구매 실패 (코인 부족 등)
+                //Debug.Log("위험도 초기화 구매 실패. 코인이 부족하거나 시스템 오류.");
+            }
+        }
+    }
+
+    /// <summary>
+    /// DungeonShopManager로부터 가격을 조회하여 UI에 표시하고, 구매 가능 여부에 따라 버튼을 활성화/비활성화합니다.
+    /// 이 메서드는 DungeonShopManager의 GetRiskResetPrice()에 의존합니다.
+    /// </summary>
+    public void UpdateRiskResetUI()
+    {
+        // UI 요소 및 매니저 유효성 검사
+        if (riskResetPriceText == null || riskResetButton == null || dungeonShopManager == null)
+        {
+            // 경고 로그는 Awake에서 했으므로, 여기서는 조용히 종료합니다.
+            return;
+        }
+
+        // 1. DungeonShopManager를 통해 필요한 코인 가격을 가져옵니다. (책임 분리)
+        int requiredCost = dungeonShopManager.GetRiskResetPrice();
+
+        // 2. 가격 유효성 검사 (DungeonRiskManager 오류 시 -1 반환)
+        if (requiredCost < 0)
+        {
+            riskResetPriceText.text = "Error";
+            riskResetButton.interactable = false;
+            return;
+        }
+
+        // 3. UI 텍스트 업데이트
+        riskResetPriceText.text = requiredCost.ToString();
+    }
+
+
+    /// <summary>
     /// 상점 UI에 생성된 모든 아이템 슬롯을 파괴합니다.
     /// 이 메서드는 UI가 비활성화될 때 외부에서 호출되어야 합니다.
     /// </summary>
@@ -93,6 +171,9 @@ public class DungeonShopUIManager : MonoBehaviour
         {
             int currentCoins = dungeonShopManager.GetDungeonCoinCount();
             dungeonCoinText.text = $"{currentCoins.ToString()}개";
+
+            // 코인 개수가 변경되면 초기화 버튼 상태도 갱신
+            UpdateRiskResetUI();
         }
     }
 }

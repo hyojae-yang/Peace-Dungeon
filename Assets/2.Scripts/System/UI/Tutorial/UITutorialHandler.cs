@@ -31,6 +31,7 @@ public class UITutorialHandler : MonoBehaviour
     public UnityEvent OnPlacementComplete = new UnityEvent();
     public UnityEvent OnDungeonPlacementUIClose = new UnityEvent();
     public UnityEvent OnDungeonEntryDetected = new UnityEvent();
+    public UnityEvent OnDungeonExitDetected = new UnityEvent(); // [신규 이벤트] 던전 퇴장 감지
 
     // 성장 및 스킬 관련 이벤트
     public UnityEvent OnLevelUpDetected = new UnityEvent();
@@ -131,6 +132,7 @@ public class UITutorialHandler : MonoBehaviour
     // 던전 배치 관련 Invoker
     public void NotifyDungeonPlacementUIClose() => OnDungeonPlacementUIClose.Invoke();
     public void NotifyDungeonEntryDetected() => OnDungeonEntryDetected.Invoke();
+    public void NotifyDungeonExitDetected() => OnDungeonExitDetected.Invoke();
 
     // 성장 및 스킬 관련 Invoker
     public void NotifyLevelUpDetected() => OnLevelUpDetected.Invoke();

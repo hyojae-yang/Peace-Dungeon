@@ -354,7 +354,7 @@ public class NPCUIManager : MonoBehaviour
         // 골드 보상 업데이트
         if (rewardGoldText != null)
         {
-            rewardGoldText.text = data.goldReward > 0 ? $"보상 골드: +{data.goldReward}" : "보상 골드: 없음";
+            rewardGoldText.text = data.goldReward > 0 ? $"보상 현금: +{data.goldReward}" : "보상 현금: 없음";
         }
     }
 

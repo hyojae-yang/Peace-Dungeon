@@ -1,5 +1,8 @@
 using UnityEngine;
 using Unity.Cinemachine;
+// TutorialManager와 UITutorialHandler를 사용하기 위해 필요
+// 만약 이 스크립트가 TutorialManager보다 먼저 로드된다면 문제가 발생할 수 있습니다.
+// 하지만 씬 구조상 TutorialManager가 먼저 Awake/Start를 수행한다고 가정합니다. 
 
 /// <summary>
 /// VCam의 회전 기능을 모두 제거하고, 자연스러운 Y축 연동 확대/축소(Zoom) 기능만 남깁니다.
@@ -111,8 +114,13 @@ public class Unity6ZoomOnlyControl : MonoBehaviour // 스크립트 이름 변경
 
             _followComponent.FollowOffset = newOffset;
         }
-        if (UITutorialHandler.Instance != null)
-        { UITutorialHandler.Instance.OnZoomChanged.Invoke(); }
-    }
 
+        // **[핵심 수정]** 줌 조작이 있었고, 현재 튜토리얼 단계가 GuideZoomControl일 때만 Invoke를 호출합니다.
+        if (scrollInput != 0 && UITutorialHandler.Instance != null && TutorialManager.Instance != null &&
+            TutorialManager.Instance.CurrentStep == TutorialStep.GuideZoomControl)
+        {
+            // 줌 조작이 감지되었으므로, 다음 단계로 진행을 요청합니다.
+            UITutorialHandler.Instance.OnZoomChanged.Invoke();
+        }
+    }
 }

@@ -19,6 +19,7 @@ public class WolfBehavior : MonoBehaviour
     private Animator animator;              // 애니메이션 제어를 위한 컴포넌트
     private AudioSource audioSource;        // AudioSource 종속성 추가
     private Coroutine stunCoroutine;        // 경직 코루틴 참조
+    private Coroutine attackSequenceCoroutine; // **[추가]** 공격 시퀀스 코루틴 참조
 
     // === 사운드 설정 추가 ===
     [Header("사운드 설정")]
@@ -42,6 +43,8 @@ public class WolfBehavior : MonoBehaviour
     public float attackCooldown = 1.5f;
     [Tooltip("몬스터의 회전 속도 (클수록 더 빠르게 회전합니다.)")]
     public float rotationSpeed = 8f;
+    [Tooltip("공격 애니메이션 시작 후, 실제 데미지가 적용되기까지의 시간(선딜레이)입니다.")]
+    public float attackPreDelay = 0.4f; // **[추가]** 늑대의 공격 선딜레이 (쥐보다 길 수 있음)
 
     [Tooltip("추종자가 리더 주변에 자리잡았다고 판단하고 플레이어를 목표로 전환할 거리입니다.")]
     public float followerJoinRange = 3.5f;
@@ -64,6 +67,7 @@ public class WolfBehavior : MonoBehaviour
     private float lastAttackTime;          // 마지막 공격 시간 기록
     private bool isJoinedPack = false;     // 추종자가 리더 주변 합류 위치에 도달했는지 여부
     private Vector3 initialFlockTarget = Vector3.zero; // 추종자가 합류해야 할, 리더 주변의 고정된 목표 위치
+    private bool isAttacking = false; // **[추가]** 공격 중 플래그
 
     void Awake()
     {
@@ -125,6 +129,9 @@ public class WolfBehavior : MonoBehaviour
             // 경직 이벤트 구독 해제
             monsterCombat.OnStunApplied -= ApplyHitStun;
         }
+        // 비활성화 시 모든 코루틴 및 플래그 초기화
+        StopAllCoroutines();
+        isAttacking = false;
     }
 
     /// <summary>
@@ -133,6 +140,14 @@ public class WolfBehavior : MonoBehaviour
     private void ApplyHitStun()
     {
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
+
+        // **[추가]** 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
+        if (isAttacking && attackSequenceCoroutine != null)
+        {
+            StopCoroutine(attackSequenceCoroutine);
+            isAttacking = false;
+            attackSequenceCoroutine = null;
+        }
 
         // 진행 중이던 경직 코루틴이 있다면 중지
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
@@ -178,6 +193,7 @@ public class WolfBehavior : MonoBehaviour
             }
             // Attack 상태였다면 다음 Update()에서 Chase로 전환되거나 다시 Attack을 시도합니다.
         }
+        stunCoroutine = null; // 코루틴 참조 해제
     }
 
 
@@ -191,13 +207,12 @@ public class WolfBehavior : MonoBehaviour
         // 경직 상태와 무관하게 무리 소집 로직은 실행됩니다.
 
         // 체력이 절반 이하로 떨어지면 동료를 소집
-        if (!hasCalledForHelp && monsterCombat.GetCurrentHealth() <= monster.monsterData.maxHealth * callForHelpHealthRatio)
+        if (!hasCalledForHelp && monsterCombat.GetCurrentHealth() <= monster.MaxHealth * callForHelpHealthRatio)
         {
             // 울부짖기 애니메이션 재생
             if (animator != null)
             {
                 // 경직 중에도 애니메이션 트리거는 실행하여 울부짖기 시퀀스를 만듭니다.
-                // (애니메이션이 Stun 애니메이션을 덮어쓰도록 가정)
                 animator.SetTrigger("Howl");
             }
 
@@ -218,10 +233,10 @@ public class WolfBehavior : MonoBehaviour
             return;
         }
 
-        // Stun 상태일 때는 모든 행동 로직을 건너뛰고 정지합니다.
-        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        // **[수정]** Stun 또는 공격 중(isAttacking)일 때는 모든 행동 로직을 건너뛰고 정지합니다.
+        if (monster.currentState == MonsterBase.MonsterState.Stun || isAttacking)
         {
-            // StunRoutine에서 애니메이션과 이동을 정지시켰으므로 여기서는 대기
+            // StunRoutine 또는 AttackSequenceCoroutine에서 이동과 애니메이션을 처리/정지시켰으므로 여기서 대기
             return;
         }
 
@@ -287,10 +302,10 @@ public class WolfBehavior : MonoBehaviour
 
         if (playerTransform != null)
         {
-            // [수정] 이동 전에 플레이어를 향해 먼저 회전합니다. (떨림 방지 목적)
+            // 이동 전에 플레이어를 향해 먼저 회전합니다.
             RotateTowardsPosition(playerTransform.position, rotationSpeed);
-            // MoveTowardsTarget으로 플레이어 추격 (MoveTowardsPosition은 이제 회전 로직이 제거됨)
-            MoveTowardsTarget(playerTransform, monster.monsterData.moveSpeed * 1.5f, attackRange - 0.1f);
+            // MoveTowardsTarget으로 플레이어 추격
+            MoveTowardsTarget(playerTransform, monster.currentMoveSpeed * 1.5f, attackRange - 0.1f);
         }
 
         // 1. 플레이어가 공격 범위에 들어오면 공격 상태로 전환
@@ -325,7 +340,7 @@ public class WolfBehavior : MonoBehaviour
     {
         if (animator != null) animator.SetFloat("Run", 0f); // 정지
 
-        // [추가] 공격 전에 플레이어를 향해 회전합니다.
+        // 공격 전에 플레이어를 향해 회전합니다.
         if (playerTransform != null)
         {
             RotateTowardsPosition(playerTransform.position, rotationSpeed);
@@ -338,13 +353,12 @@ public class WolfBehavior : MonoBehaviour
         }
         else
         {
-            PerformAttack();
+            PerformAttack(); // 공격 시도 (PerformAttack에서 쿨타임 및 코루틴 체크)
         }
     }
 
     /// <summary>
     /// 무리 행동 상태 로직을 처리합니다. (Flocking 상태)
-    /// 추종자는 리더에게 합류 후 목표를 플레이어를 추적하는 Chase 상태로 전환합니다.
     /// </summary>
     private void HandleFlocking(float distanceToPlayer)
     {
@@ -363,7 +377,7 @@ public class WolfBehavior : MonoBehaviour
         // 2. 이동 처리 (역할에 따라 분리)
         if (isLeader)
         {
-            // [수정] 리더: 플레이어를 직접 추격. 회전과 이동을 분리합니다.
+            // 리더: 플레이어를 직접 추격. 회전과 이동을 분리합니다.
             if (playerTransform != null)
             {
                 RotateTowardsPosition(playerTransform.position, rotationSpeed);
@@ -379,12 +393,10 @@ public class WolfBehavior : MonoBehaviour
                 return;
             }
 
-            // 2-1. [합류 단계] 고정된 목표 위치로 이동 (MoveTowardsPosition은 이제 이동만 수행)
+            // 2-1. [합류 단계] 고정된 목표 위치로 이동
             MoveTowardsPosition(initialFlockTarget, packAttackSpeed, followerStoppingDistance);
 
             // 합류 중에는 목표 지점이 아닌, 플레이어 방향을 바라보도록 강제 회전 로직을 유지합니다.
-            // (이 로직은 목표 이동과 시선 목표가 달라 떨림 이슈가 있었으나, 이제 RotateTowardsPosition으로 분리되지 않고
-            // 이 위치에 남아 Movement와 분리된 자체 회전 로직이 되었습니다.)
             if (playerTransform != null)
             {
                 Vector3 lookDirection = playerTransform.position - transform.position;
@@ -619,17 +631,6 @@ public class WolfBehavior : MonoBehaviour
         float distance = direction.magnitude;
         Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
 
-        // [수정] 이동 로직에서 회전 로직을 완전히 제거했습니다. 회전은 RotateTowardsPosition에서 처리합니다.
-        /*
-        // 1. 목표 회전 (이 로직이 제거되었습니다.)
-        if (flatDirection != Vector3.zero)
-        {
-            Quaternion lookRotation = Quaternion.LookRotation(flatDirection.normalized);
-            float slerpSpeed = rotationSpeed * Time.deltaTime;
-            transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, slerpSpeed);
-        }
-        */
-
         // 2. 이동 (정지 거리 체크)
         if (distance <= stoppingDistance)
         {
@@ -641,30 +642,74 @@ public class WolfBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어에게 데미지를 입히는 일반 공격 로직을 실행합니다.
+    /// 플레이어에게 데미지를 입히는 일반 공격 로직을 실행합니다. **[수정]**
+    /// 쿨타임과 공격 중 여부를 체크하여 AttackSequenceCoroutine을 시작합니다.
     /// </summary>
     private void PerformAttack()
     {
-        if (Time.time > lastAttackTime + attackCooldown)
+        if (Time.time > lastAttackTime + attackCooldown && !isAttacking)
         {
-            IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
-            if (playerDamageable != null)
+            // 코루틴 시작 및 참조 저장
+            attackSequenceCoroutine = StartCoroutine(AttackSequenceCoroutine());
+        }
+    }
+
+    /// <summary>
+    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 쿨타임 설정을 담당하는 코루틴입니다. **[추가]**
+    /// </summary>
+    private IEnumerator AttackSequenceCoroutine()
+    {
+        // 1. 공격 시작 - 이동 중지
+        isAttacking = true;
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack"); // 공격 애니메이션 트리거
+        }
+
+        // 2. 선딜레이 대기 (데미지 적용 전 대기 시간)
+        yield return new WaitForSeconds(attackPreDelay);
+
+        // **[핵심 체크 1]** 선딜레이 후, Stun 상태가 되었다면 데미지 로직을 건너뜁니다.
+        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        {
+            isAttacking = false;
+            attackSequenceCoroutine = null;
+            yield break;
+        }
+
+        // 3. 실제 데미지 적용 시점: 플레이어가 여전히 공격 범위 내에 있는지 확인
+        if (playerTransform != null)
+        {
+            float currentDistance = Vector3.Distance(transform.position, playerTransform.position);
+
+            if (currentDistance <= attackRange + 0.1f) // 약간의 허용 오차 추가
             {
-                if (animator != null)
+                IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
+                if (playerDamageable != null)
                 {
-                    animator.SetTrigger("Attack"); // 공격 애니메이션 재생
+                    // 일반 공격 사운드 재생
+                    if (audioSource != null && normalAttackClip != null)
+                    {
+                        audioSource.PlayOneShot(normalAttackClip);
+                    }
+                    // 데미지 입히기
+                    playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
                 }
-
-                //일반 공격 사운드 재생
-                if (audioSource != null && normalAttackClip != null)
-                {
-                    audioSource.PlayOneShot(normalAttackClip);
-                }
-
-                // 몬스터 컴뱃을 통해 데미지 전달 (추정)
-                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
-                lastAttackTime = Time.time;
             }
         }
+
+        // 4. 공격 후딜레이 및 쿨타임 설정
+        lastAttackTime = Time.time;
+        // 공격 애니메이션이 끝날 때까지 남은 쿨타임 대기 (선딜레이를 제외한 잔여 시간)
+        float postDelay = attackCooldown - attackPreDelay;
+        if (postDelay > 0)
+        {
+            yield return new WaitForSeconds(postDelay);
+        }
+
+        // 5. 공격 종료
+        isAttacking = false; // 이동 로직 재개 허용
+        attackSequenceCoroutine = null; // 코루틴 참조 해제
     }
 }

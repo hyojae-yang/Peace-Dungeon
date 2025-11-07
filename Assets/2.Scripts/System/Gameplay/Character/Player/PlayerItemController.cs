@@ -212,7 +212,6 @@ public class PlayerItemController : MonoBehaviour, ISavable
             // OnSlotItemChanged 이벤트 호출: 등록된 아이템 데이터로 UI 업데이트를 요청합니다.
             OnSlotItemChanged?.Invoke(i, itemSlots[i]);
         }
-        Debug.Log("[PlayerItemController] 저장된 데이터 기반 퀵슬롯 UI 동기화 완료 (이어하기).");
     }
 
 

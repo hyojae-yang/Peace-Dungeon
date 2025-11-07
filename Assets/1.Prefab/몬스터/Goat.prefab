@@ -32961,7 +32961,7 @@ MonoBehaviour:
   chargeSpeed: 30
   attackRange: 4
   attackCooldown: 1.5
-  manaCostPerCharge: 5
+  manaCostPerCharge: 10
   manaRegenRate: 1
   chargePreparationTime: 2.5
   chargeOvershootDistance: 5

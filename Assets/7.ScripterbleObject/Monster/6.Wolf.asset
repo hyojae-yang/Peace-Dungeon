@@ -17,7 +17,7 @@ MonoBehaviour:
   monsterLevel: 0
   maxHealth: 900
   maxMana: 0
-  attackPower: 0
+  attackPower: 170
   magicAttackPower: 0
   defense: 60
   magicDefense: 60
@@ -64,4 +64,4 @@ MonoBehaviour:
     weight: 30
   minItemDropCount: 2
   maxItemDropCount: 4
-  score: 15
+  score: 150

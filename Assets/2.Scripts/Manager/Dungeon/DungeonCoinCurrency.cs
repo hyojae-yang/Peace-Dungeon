@@ -77,7 +77,7 @@ public class DungeonCoinCurrency : MonoBehaviour, ISavable
             currentDungeonCoins -= amount;
             return true;
         }
-        Debug.LogWarning("던전 코인이 부족합니다.");
+        //Debug.LogWarning("던전 코인이 부족합니다.");
         return false;
     }
 

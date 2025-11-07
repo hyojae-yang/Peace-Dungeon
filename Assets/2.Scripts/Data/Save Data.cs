@@ -314,3 +314,15 @@ public class ItemControllerSaveData
     // 퀵슬롯 4개에 등록된 아이템의 ID (0이면 비어 있음)
     public int[] assignedItemIds;
 }
+/// <summary>
+/// 던전 위험도 시스템의 데이터를 저장하기 위한 DTO (Data Transfer Object) 클래스입니다.
+/// </summary>
+[Serializable]
+public class DungeonRiskManagerSaveData
+{
+    // 던전 위험도 레벨의 팩트 기반이 되는 누적 입장 횟수 (Lv 계산용)
+    public int totalExplorationCount;
+
+    // 현재 레벨에서 진행된 게이지의 실질적인 값 (게이지 연속성 유지용)
+    public float currentLevelProgress; // <-- [추가] 게이지 값을 저장해야 합니다!
+}

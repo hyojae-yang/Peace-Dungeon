@@ -84,8 +84,8 @@ public class DungeonRewardSystem : MonoBehaviour
     public void GrantReward(int finalScore)
     {
         // 1. 점수 티어에 따른 골드/경험치 배율을 결정합니다.
-        float goldMultiplier = 1f;
-        float expMultiplier = 1f;
+        float goldMultiplier = 0.1f;
+        float expMultiplier = 0.1f;
         foreach (var tier in rewardTiers)
         {
             if (finalScore >= tier.minScore)

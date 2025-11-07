@@ -76,12 +76,13 @@ public class DungeonDoor : MonoBehaviour
         // 던전 진입 로직
         if (DungeonManager.Instance.IsInDungeon == false)
         {
-            if(SaveManager.Instance != null)
-            {
-                SaveManager.Instance.SaveGame(); // 던전 입장 전에 게임을 저장합니다.
-            }
+            
             // 플레이어를 던전 안으로 이동시킵니다.
             PlayerCharacter.Instance.playerController.inDungeon();
+            if (SaveManager.Instance != null)
+            {
+                SaveManager.Instance.SaveGame(); // 던전 입장 후에 게임을 저장합니다.
+            }
 
             // DungeonManager의 상태를 '던전 안'으로 변경합니다.
             // (DungeonManager 내부 IsInDungeon Setter에서 HandleDungeonEntry()가 호출됨)

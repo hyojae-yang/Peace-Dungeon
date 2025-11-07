@@ -37,9 +37,10 @@ public class MainSceneManager : MonoBehaviour
     [SerializeField]
     private GameObject TutorialPanel;
 
-    [Header("게임 오버 패널")]
+    // [수정] GameObject 대신 연출 로직을 담은 컴포넌트를 직접 참조합니다. (책임 분리)
+    [Header("게임 오버 패널 컨트롤러")]
     [SerializeField]
-    private GameObject gameOverPanel;
+    private GameOverPanelController gameOverPanelController;
 
     public bool isGameOver = false;
 
@@ -52,6 +53,7 @@ public class MainSceneManager : MonoBehaviour
     /// 정적 변수로 설정하여 어떤 씬에서도 접근할 수 있도록 합니다.
     /// </summary>
     public static string NextSceneToLoad = ""; // <-- 이 변수를 추가합니다.
+
     /// <summary>
     /// 스크립트 인스턴스가 로드될 때 호출되어 싱글턴을 설정하고 이벤트 리스너를 등록합니다.
     /// </summary>
@@ -72,16 +74,21 @@ public class MainSceneManager : MonoBehaviour
         UIEventHandler.OnPanelActivated += HandlePanelActivation;
         UIEventHandler.OnPanelDeactivated += HandlePanelDeactivation;
 
-        gameOverPanel.SetActive(false);
+        // [수정] 게임 오버 패널의 초기 비활성화는 GameOverPanelController에 의해 처리되거나,
+        // Inspector에서 비활성화되어 있다고 가정하고 이 코드를 제거합니다.
+        // gameOverPanel.SetActive(false); // 기존 코드 삭제/주석 처리
+
         TutorialPanel.SetActive(true);
     }
+
     private void Start()
     {
         if (SoundManager.Instance != null)
         {
-            SoundManager.Instance.PlayBGM(BGMType.Main_A,2.0f);
+            SoundManager.Instance.PlayBGM(BGMType.Main_A, 2.0f);
         }
     }
+
     /// <summary>
     /// SoundManager 인스턴스 존재 여부를 확인하고 SFX를 안전하게 재생하는 헬퍼 메서드입니다.
     /// 버튼 OnClick() 이벤트에 연결되어 단일 책임 원칙을 보조합니다.
@@ -93,6 +100,7 @@ public class MainSceneManager : MonoBehaviour
             SoundManager.Instance.PlayButtonSFX();
         }
     }
+
     /// <summary>
     /// 이벤트를 통해 패널 활성화 신호를 받으면 호출되는 메서드입니다.
     /// 활성화된 패널이 팝업 패널이면 PlayerCanvas를 비활성화하고, 던전 캔버스라면 상태 변수를 업데이트합니다.
@@ -153,6 +161,7 @@ public class MainSceneManager : MonoBehaviour
         UIEventHandler.OnPanelActivated -= HandlePanelActivation;
         UIEventHandler.OnPanelDeactivated -= HandlePanelDeactivation;
     }
+
     public void Exit()
     {
         // [수정] 1. 최종 목적지(TitleScene)를 정적 변수에 설정
@@ -161,9 +170,11 @@ public class MainSceneManager : MonoBehaviour
         // [수정] 2. LoadingScene으로 전환하여 비동기 로드를 시작
         UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
     }
+
     public void save()
     {
-        if (DungeonManager.Instance.IsInDungeon)
+        // DungeonManager.Instance가 유효한지 확인하고 던전 상태를 체크합니다.
+        if (DungeonManager.Instance != null && DungeonManager.Instance.IsInDungeon)
         {
             if (NotificationManager.Instance != null)
             {
@@ -172,38 +183,64 @@ public class MainSceneManager : MonoBehaviour
                     NotificationType.General
                 );
             }
-            //Debug.Log("던전 내부에서는 저장할 수 없습니다.");
             return;
         }
-        SaveManager.Instance.SaveGame();
+
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.SaveGame();
+        }
+        else
+        {
+            Debug.LogError("SaveManager 인스턴스를 찾을 수 없습니다!");
+        }
     }
+
     /// <summary>
     /// [추가된 기능] 외부(예: PlayerHealth)에서 게임 오버를 선언할 때 호출되는 메서드입니다.
-    /// isGameOver 상태를 true로 설정하고, 게임 오버 시 필요한 초기 UI 로직을 실행합니다.
+    /// 씬 상태를 게임 오버로 전환하고, UI 연출을 해당 컨트롤러에 위임합니다.
     /// </summary>
     public void SetGameOver()
     {
+        isGameOver = true;
         OnGameOver?.Invoke();
+
         // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
         // 플레이어의 상호작용을 막습니다.
         if (playerCanvas != null && playerCanvas.activeInHierarchy)
         {
             playerCanvas.SetActive(false);
         }
-        gameOverPanel.SetActive(true);
+
+        // [수정] GameObject.SetActive(true) 대신, 컨트롤러의 연출 메서드를 호출하여
+        // 패널 활성화와 시각적 효과 시작을 모두 컨트롤러에게 위임합니다. (책임 분리)
+        if (gameOverPanelController != null)
+        {
+            gameOverPanelController.ShowPanelWithEffect();
+        }
+        else
+        {
+            Debug.LogError("GameOverPanelController가 MainSceneManager에 할당되지 않았습니다. UI 연출을 할 수 없습니다.");
+        }
+
         // TODO: Time.timeScale = 0; 또는 게임 오버 패널 활성화 등의 추가 로직을 여기에 구현합니다.
     }
+
     public void Restart()
     {
         // 1. **가장 먼저** isGameOver 상태를 재시작 상태(false)로 변경하여 
         //    DungeonManager가 보상 로직을 실행하지 못하게 막습니다.
-        isGameOver = false; // 위치 변경
+        isGameOver = false;
+
         // 2. 저장 불러오기 (위치, 스탯 등 모든 게임 데이터 복구)
         //    이것이 먼저 실행되어야 던전 상태를 리셋할 때 충돌이 적습니다.
-        SaveManager.Instance.LoadGame();
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.LoadGame();
+        }
 
         // [수정] 3. MainScene으로 즉시 로드하는 대신, 목표를 설정하고 LoadingScene으로 전환
         MainSceneManager.NextSceneToLoad = "MainScene";
-        UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene"); // <-- 이 부분 수정
+        UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
     }
 }

@@ -386,7 +386,7 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // 내려찍기 시간은 attackDownStrokeDuration을 사용합니다.
 
         // 피해 판정 활성화 (단, 이미 활성화된 상태일 수 있으므로 StartStrike()가 안전합니다.)
-        hitbox.StartStrike(_monster.monsterData.attackPower);
+        hitbox.StartStrike(_monster.AttackPower);
 
         while (timeElapsed < attackDownStrokeDuration)
         {
@@ -567,7 +567,7 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
         // =========================================================================================
         Bounds areaBounds = rootSummonAreaCollider.bounds; // Collider의 월드 공간 Bounds 정보를 가져옵니다.
         Vector3 playerPos = _playerTransform.position; // 플레이어 월드 위치를 한 번 저장합니다.
-        float rootMagicDamage = _monster.monsterData.magicAttackPower; // 공격력을 한 번만 계산
+        float rootMagicDamage = _monster.MagicAttackPower; // 공격력을 한 번만 계산
 
         // [추가] 플레이어 집중 소환 개수 계산
         /// <summary>
@@ -803,7 +803,7 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
 
         // 2. 현재 체력 비율 확인
         // MonsterCombat이 현재 체력을, Monster가 최대 체력을 가지고 있으므로 둘 다 필요합니다.
-        float currentHealthRatio = _monsterCombat.GetCurrentHealth() / _monster.monsterData.maxHealth;
+        float currentHealthRatio = _monsterCombat.GetCurrentHealth() / _monster.MaxHealth;
 
         if (currentHealthRatio <= enrageHealthThreshold)
         {

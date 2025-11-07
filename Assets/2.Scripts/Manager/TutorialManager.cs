@@ -31,17 +31,18 @@ public enum TutorialStep
     GuideEnterDungeon,           // 9. 배치 완료 후 문으로 가라는 안내
     WaitDungeonEntry,            // 10. 던전 진입 대기
     GuideWaitForLevelUp,         // 11. 레벨업 대기 및 안내 (이벤트: OnLevelUpDetected)
-    GuideAllocateStat,           // 12. 스탯 창 열기 및 분배 안내 (이벤트: OnStatAllocated)
-    GuideOpenSkillAllocation,    // 13. 스킬 목록에서 좌클릭하여 스킬 할당 UI를 열도록 안내
-    GuideApplySkillPoints,       // 14. 포인트 분배 후 적용 버튼을 누르도록 안내
-    GuideRegisterSkillSlot,      // 15. 스킬을 퀵 슬롯에 등록하도록 안내 (우클릭, 슬롯 등록)
+    GuideExitDungeon,            // 12. [신규] 레벨업 직후, 던전에서 포탈 등으로 나가라는 안내
+    GuideAllocateStat,           // 13. 스탯 창 열기 및 분배 안내 (이벤트: OnStatAllocated)
+    GuideOpenSkillAllocation,    // 14. 스킬 목록에서 좌클릭하여 스킬 할당 UI를 열도록 안내
+    GuideApplySkillPoints,       // 15. 포인트 분배 후 적용 버튼을 누르도록 안내
+    GuideRegisterSkillSlot,      // 16. 스킬을 퀵 슬롯에 등록하도록 안내 (우클릭, 슬롯 등록)
 
     // --------------------------------------------------
     // [최종 추가] 스킬 사용 안내
-    GuideUseSkill,               // 16. 퀵 슬롯에 등록된 스킬을 실제로 사용해보도록 안내
+    GuideUseSkill,               // 17. 퀵 슬롯에 등록된 스킬을 실제로 사용해보도록 안내
     // --------------------------------------------------
 
-    // 17: 튜토리얼이 성공적으로 완료되고, 자유 플레이로 넘어가는 단계입니다. 
+    // 18: 튜토리얼이 성공적으로 완료되고, 자유 플레이로 넘어가는 단계입니다. 
     Complete
 }
 
@@ -209,6 +210,7 @@ public class TutorialManager : MonoBehaviour
         uiHandler.OnPlacementComplete.RemoveListener(AdvanceStep);
         uiHandler.OnDungeonPlacementUIClose.RemoveListener(AdvanceStep);
         uiHandler.OnDungeonEntryDetected.RemoveListener(AdvanceStep);
+        uiHandler.OnDungeonExitDetected.RemoveListener(AdvanceStep); // [신규 이벤트 해제]
 
         // 레벨업 및 스킬 관련 이벤트 해제
         uiHandler.OnLevelUpDetected.RemoveListener(AdvanceStep);
@@ -250,21 +252,21 @@ public class TutorialManager : MonoBehaviour
 
             // [신규] 기본 공격 안내
             case TutorialStep.GuideBasicAttack:
-                uiHandler?.ShowPrimaryInstruction("장비 장착을 완료했습니다. \nESC를 눌러 인벤토리를 닫고, \n마우스를 **좌클릭**하여 기본 공격을 해보세요.");
+                uiHandler?.ShowPrimaryInstruction("장비 장착을 완료했습니다. \nESC를 눌러 인벤토리를 닫고, \n마우스를 '좌클릭'하여 기본 공격을 해보세요.");
                 uiHandler.OnBasicAttack.AddListener(AdvanceStep);
                 break;
 
             // [신규] 방향 전환 및 조준 안내
             case TutorialStep.GuideAiming:
-                uiHandler?.ShowPrimaryInstruction("마우스를 **우클릭**하면 플레이어가 마우스 \n방향으로 돌아서고 무기의 사거리를 보여줍니다. \n우클릭을 해보세요.");
+                uiHandler?.ShowPrimaryInstruction("마우스를 '우클릭'하면 플레이어가 마우스 \n방향으로 돌아서고 무기의 사거리를 보여줍니다. \n우클릭을 해보세요.");
                 uiHandler.OnAimingPerformed.AddListener(AdvanceStep);
                 break;
 
             case TutorialStep.GuideZoomControl:
-                
-                uiHandler?.ShowPrimaryInstruction("마우스 **스크롤(휠)**을 위아래로 움직여서 \n화면을 확대하거나 축소해보세요.");
+
+                uiHandler?.ShowPrimaryInstruction("마우스 '스크롤(휠)'을 위아래로 움직여서 \n화면을 확대하거나 축소해보세요.");
                 uiHandler.OnZoomChanged.AddListener(AdvanceStep);
-             break; 
+                break;
 
             case TutorialStep.Init: // 액자 UI 상호작용 준비 단계
                 uiHandler?.ShowPrimaryInstruction("액자 앞으로 이동하여 \n상호작용 E 키를 누르세요.");
@@ -273,7 +275,7 @@ public class TutorialManager : MonoBehaviour
 
             // ----------------- 2번 패널 활성화 단계 (보조 캔버스) -----------------
             case TutorialStep.GuideRetrievePiece:
-                uiHandler?.ShowSecondInstruction("좌측에 보이는 토끼던전을 \n드래그 해서 내려놓으세요.\n더블클릭하면 인벤으로 돌아갑니다.");
+                uiHandler?.ShowSecondInstruction("좌측에 보이는 토끼던전을 \n드래그 해서 내려놓으세요.\n더블클릭하면 창고로 돌아갑니다.");
                 uiHandler.OnPieceRetrieved.AddListener(AdvanceStep);
                 break;
 
@@ -284,12 +286,12 @@ public class TutorialManager : MonoBehaviour
 
             case TutorialStep.GuideEnterDungeon:
                 // 던전 배치 UI가 닫히기를 기다립니다. (액자 UI 닫기)
-                uiHandler?.ShowSecondInstruction("배치를 완료했습니다! \n이제 ESC를 눌러 액자 UI를 닫고 문으로 가서 \n첫 던전을 탐험하세요.");
+                uiHandler?.ShowSecondInstruction("배치를 완료했습니다! \n이제 ESC를 눌러 액자 UI를 닫고 '포탈'로 가서 \n첫 던전을 탐험하세요.");
                 uiHandler.OnDungeonPlacementUIClose.AddListener(AdvanceStep);
                 break;
 
             case TutorialStep.WaitDungeonEntry:
-                uiHandler?.ShowPrimaryInstruction("좌측에 있는 문으로 다가가면 \n던전입장이 가능합니다.");
+                uiHandler?.ShowPrimaryInstruction("좌측에 있는 '포탈'로 다가가면 \n던전입장이 가능합니다.");
                 uiHandler.OnDungeonEntryDetected.AddListener(AdvanceStep);
                 break;
 
@@ -298,8 +300,14 @@ public class TutorialManager : MonoBehaviour
                 uiHandler.OnLevelUpDetected.AddListener(AdvanceStep);
                 break;
 
+            case TutorialStep.GuideExitDungeon: // [신규 단계 처리] 레벨업 직후
+                // 레벨업이 감지된 직후, 스탯/스킬 분배를 위해 마을로 돌아가도록 안내합니다.
+                uiHandler?.ShowPrimaryInstruction("축하합니다! 레벨업에 성공했습니다!  \n스탯 및 스킬 분배를 위해 '포탈'을 통해 \n마을로 돌아가세요.");
+                uiHandler.OnDungeonExitDetected.AddListener(AdvanceStep);
+                break;
+
             case TutorialStep.GuideAllocateStat:
-                uiHandler?.ShowPrimaryInstruction("C 키를 눌러 스탯 창을 열고, 획득한 스탯 포인트를 원하는 능력치에 분배하세요!분배 후 아래에 있는 적용 버튼을 눌러 최종확정시키세요!");
+                uiHandler?.ShowPrimaryInstruction("C 키를 눌러 스탯 창을 열고, \n획득한 스탯 포인트를 원하는 능력치에 분배하세요!\n아래에 있는 적용 버튼을 눌러 최종확정시키세요!");
                 uiHandler.OnStatAllocated.AddListener(AdvanceStep);
                 break;
 

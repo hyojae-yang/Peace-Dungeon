@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 /// <summary>
 /// 곰 몬스터의 특화된 행동 로직을 관리하는 스크립트입니다.
@@ -14,6 +15,7 @@ public class BearBehavior : MonoBehaviour
     private MonsterPatrol monsterPatrol;
     private Animator animator; // 애니메이터 참조 변수
     private AudioSource audioSource;
+    private Coroutine meleeAttackCoroutine; // **[추가]** 일반 공격 시퀀스 코루틴 참조
 
     // === 사운드 설정 추가 ===
     [Header("사운드 설정")]
@@ -40,6 +42,8 @@ public class BearBehavior : MonoBehaviour
     [Header("일반 공격 설정")]
     [Tooltip("일반 공격의 쿨타임입니다.")]
     [SerializeField] private float attackCooldown = 2f;
+    [Tooltip("일반 공격 애니메이션 시작 후 데미지가 적용되기까지의 시간(선딜레이)입니다.")]
+    [SerializeField] private float meleeAttackPreDelay = 0.5f; // **[추가]** 일반 공격 선딜레이
     private float lastAttackTime;
 
     // === 특수 공격 설정 변수 ===
@@ -67,6 +71,7 @@ public class BearBehavior : MonoBehaviour
     private bool isAttackingSpecial = false; // 특수 공격 모션 재생 플래그
     /// <summary>특수 공격 모션이 끝나는 실제 게임 시간(Time.time)을 저장합니다.</summary>
     private float specialAttackEndTime; // 특수 공격 모션 종료 시간
+    private bool isAttackingMelee = false; // **[추가]** 일반 공격 코루틴 진행 중 플래그
 
     /// <summary>
     /// 컴포넌트 초기화 및 종속성 확보를 담당합니다.
@@ -114,6 +119,16 @@ public class BearBehavior : MonoBehaviour
     }
 
     /// <summary>
+    /// 스크립트 비활성화 시 모든 코루틴을 중지합니다.
+    /// </summary>
+    private void OnDisable()
+    {
+        StopAllCoroutines();
+        isAttackingMelee = false;
+    }
+
+
+    /// <summary>
     /// 매 프레임 업데이트 로직을 처리합니다. 상태 전환 로직에 유예 범위를 적용하고 Charge 상태를 잠급니다.
     /// </summary>
     private void Update()
@@ -125,10 +140,10 @@ public class BearBehavior : MonoBehaviour
             return;
         }
 
-        //Charge 또는 특수 공격 모션 재생 중에는 거리 검사를 통한 상태 전환을 건너뛰어 안정성을 확보합니다.
-        if (monster.currentState == MonsterBase.MonsterState.Charge || isAttackingSpecial)
+        // **[수정]** Charge 또는 특수/일반 공격 모션 재생 중에는 거리 검사를 통한 상태 전환을 건너뛰어 안정성을 확보합니다.
+        if (monster.currentState == MonsterBase.MonsterState.Charge || isAttackingSpecial || isAttackingMelee)
         {
-            // 이 상태에서는 HandleChargeState 또는 HandleAttackState에서 내부 로직만 수행됨
+            // 이 상태에서는 HandleChargeState, HandleAttackState (내부 로직), 또는 MeleeAttackSequenceCoroutine에서 로직 수행
         }
         else if (monster.detectableTarget != null) // 플레이어가 감지 범위 내에 있는 경우
         {
@@ -179,8 +194,8 @@ public class BearBehavior : MonoBehaviour
         }
         else // 플레이어를 놓쳤거나 감지 범위 내에 없는 경우 (detectableTarget == null)
         {
-            // isAttackingSpecial이 false일 때만 순찰 복귀를 허용합니다. (모션 완료 후 복귀)
-            if (monster.currentState != MonsterBase.MonsterState.Patrol && !isAttackingSpecial)
+            // isAttackingSpecial 또는 isAttackingMelee가 false일 때만 순찰 복귀를 허용합니다. (모션 완료 후 복귀)
+            if (monster.currentState != MonsterBase.MonsterState.Patrol && !isAttackingSpecial && !isAttackingMelee)
             {
                 DeactivateAoeVisual(); // 특수 공격 시각 효과 비활성화 (순찰 복귀 전 안전 장치)
 
@@ -199,7 +214,7 @@ public class BearBehavior : MonoBehaviour
         switch (monster.currentState)
         {
             case MonsterBase.MonsterState.Chase:
-                HandleChaseState(); // ⬅️ [핵심 추가] Chase 상태 처리
+                HandleChaseState();
                 break;
             case MonsterBase.MonsterState.Attack:
                 HandleAttackState();
@@ -226,7 +241,7 @@ public class BearBehavior : MonoBehaviour
 
         // 2. 플레이어를 향해 이동 (attackRange 직전까지)
         // 멈출 거리를 attackRange보다 약간 작게 설정하여 공격 범위에 정확히 진입하도록 합니다.
-        MoveTowardsTarget(targetTransform, monster.monsterData.moveSpeed*1.5f, attackRange - 0.1f);
+        MoveTowardsTarget(targetTransform, monster.currentMoveSpeed * 1.5f, attackRange - 0.1f);
     }
 
     /// <summary>
@@ -280,38 +295,44 @@ public class BearBehavior : MonoBehaviour
     /// </summary>
     private void HandleAttackState()
     {
-        // ... (기존 로직 유지 - 모션 대기 시간 처리) ...
+        if (monster.detectableTarget == null) return;
+
+        // 1. 특수 공격 모션 대기 중인 경우 (우선 처리)
         if (isAttackingSpecial)
         {
+            // 특수 공격 모션 종료 시간 도달 시 실제 데미지 적용
             if (Time.time >= specialAttackEndTime)
             {
                 DeactivateAoeVisual();
                 PerformAOEAttack();
-                isAttackingSpecial = false;
+                isAttackingSpecial = false; // 플래그 해제
             }
-            return;
+            return; // 모션 중에는 다른 공격 시도나 상태 전환 금지
         }
 
-        if (monster.detectableTarget == null) return;
+        // 2. 일반 공격 모션 대기 중인 경우
+        if (isAttackingMelee)
+        {
+            return; // 일반 공격 코루틴이 완료될 때까지 대기
+        }
 
-        // 1. 특수 공격 쿨타임 체크 -> Charge 상태로 전환 (준비 단계)
+        // 3. 특수 공격 쿨타임 체크 -> Charge 상태로 전환 (준비 단계)
         if (Time.time >= lastAoeAttackTime + aoeAttackCooldown)
         {
             monster.ChangeState(MonsterBase.MonsterState.Charge);
             currentChargeTime = 0;
 
-            // [수정] aoeVisualObject 활성화 및 Chase 트리거 실행 로직을 Charge 상태 진입 시점으로 이동
             ActivateAoeVisual();
-            if (animator != null) animator.SetTrigger("Chase"); // [핵심 수정] 준비 모션 시작 (단 한 번)
+            if (animator != null) animator.SetTrigger("Chase"); // [수정 없음] 준비 모션 시작 (단 한 번)
 
             return;
         }
 
-        // 2. 일반 공격 쿨타임 체크 -> 일반 공격 실행
+        // 4. 일반 공격 쿨타임 체크 -> 일반 공격 실행 (PerformMeleeAttack에서 코루틴 시작)
         if (Time.time >= lastAttackTime + attackCooldown)
         {
             PerformMeleeAttack();
-            lastAttackTime = Time.time;
+            // lastAttackTime 갱신은 코루틴 완료 시점에 이루어집니다.
         }
     }
 
@@ -349,22 +370,66 @@ public class BearBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 플레이어에게 근접 공격을 실행하고 데미지를 입히는 메서드입니다.
+    /// 플레이어에게 근접 공격을 실행합니다. 쿨타임 및 진행 여부를 체크하여 코루틴을 시작합니다. **[수정]**
     /// </summary>
     private void PerformMeleeAttack()
     {
-        if (monster.detectableTarget == null) return;
-
-        if (monster.detectableTarget.GetTransform().TryGetComponent(out IDamageable damageable))
+        if (!isAttackingMelee)
         {
-            if (animator != null) animator.SetTrigger("Attack");
-            if (audioSource != null && normalAttackClip != null)
-            {
-                audioSource.PlayOneShot(normalAttackClip);
-            }
-
-            damageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
+            // 코루틴 시작 및 참조 저장
+            meleeAttackCoroutine = StartCoroutine(MeleeAttackSequenceCoroutine());
         }
+    }
+
+    /// <summary>
+    /// 일반 공격 애니메이션 재생, 선딜레이, 데미지 적용, 쿨타임 설정을 담당하는 코루틴입니다. **[추가]**
+    /// </summary>
+    private IEnumerator MeleeAttackSequenceCoroutine()
+    {
+        // 1. 공격 시작 - 플래그 설정 및 애니메이션 트리거
+        isAttackingMelee = true;
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Attack"); // 공격 애니메이션 재생
+        }
+
+        // 2. 선딜레이 대기 (데미지 적용 전 대기 시간)
+        yield return new WaitForSeconds(meleeAttackPreDelay);
+
+        // 3. 실제 데미지 적용 시점: 플레이어가 여전히 공격 범위 내에 있는지 확인
+        if (monster.detectableTarget != null)
+        {
+            Transform playerTransform = monster.detectableTarget.GetTransform();
+            float currentDistance = Vector3.Distance(transform.position, playerTransform.position);
+
+            if (currentDistance <= attackRange + 0.1f) // 약간의 허용 오차 추가
+            {
+                if (playerTransform.TryGetComponent(out IDamageable damageable))
+                {
+                    // 일반 공격 사운드 재생
+                    if (audioSource != null && normalAttackClip != null)
+                    {
+                        audioSource.PlayOneShot(normalAttackClip);
+                    }
+                    // 데미지 입히기
+                    damageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+                }
+            }
+        }
+
+        // 4. 공격 후딜레이 및 쿨타임 설정
+        lastAttackTime = Time.time;
+        // 공격 애니메이션이 끝날 때까지 남은 쿨타임 대기 (선딜레이를 제외한 잔여 시간)
+        float postDelay = attackCooldown - meleeAttackPreDelay;
+        if (postDelay > 0)
+        {
+            yield return new WaitForSeconds(postDelay);
+        }
+
+        // 5. 공격 종료
+        isAttackingMelee = false; // 이동 로직 재개 허용
+        meleeAttackCoroutine = null; // 코루틴 참조 해제
     }
 
     /// <summary>
@@ -386,7 +451,7 @@ public class BearBehavior : MonoBehaviour
             {
                 if (hitCollider.TryGetComponent(out IDamageable damageable))
                 {
-                    float magicDamage = monster.monsterData.magicAttackPower;
+                    float magicDamage = monster.MagicAttackPower;
                     damageable.TakeDamage(magicDamage, DamageType.Magic);
                     break;
                 }

@@ -127,12 +127,12 @@ public class QuestUIHandler : MonoBehaviour
         }
 
         // 모든 텍스트 필드를 비우거나 안내 메시지로 설정합니다.
-        if (questNameText != null) questNameText.text = "안내";
+        if (questNameText != null) questNameText.text = "의뢰서";
         if (npcNameText != null) npcNameText.text = "의뢰인: -";
-        if (questDescriptionText != null) questDescriptionText.text = "퀘스트 로그가 비어있습니다. \n마을의 NPC들을 찾아가 \n새로운 모험을 시작해 보세요!";
+        if (questDescriptionText != null) questDescriptionText.text = "의뢰서가 비어있습니다. \n마을의 주민들을 찾아가 \n새로운 모험을 시작해 보세요!";
 
         // 사용자 요청에 따라 핵심 메시지를 진행 상태 텍스트에 띄웁니다.
-        if (questProgressText != null) questProgressText.text = " 현재 진행중인 \n퀘스트가 없습니다 ";
+        if (questProgressText != null) questProgressText.text = " 현재 진행중인 \n의뢰가 없습니다 ";
 
         // 현재 선택된 퀘스트 ID 초기화
         currentSelectedQuestID = -1;

@@ -16,7 +16,7 @@ public class DeerBehavior : MonoBehaviour
     private Transform playerTransform;
     private Animator animator;
     private AudioSource audioSource;
-    private Coroutine stunCoroutine; // **[추가]** 경직 코루틴 참조
+    private Coroutine stunCoroutine; // 경직 코루틴 참조
 
     [Header("사운드 설정")]
     [Tooltip("도망 상태로 전환될 때 한 번 재생되는 놀람 소리.")]
@@ -38,12 +38,20 @@ public class DeerBehavior : MonoBehaviour
     public float attackCooldown = 1.5f;
     [Tooltip("도망치는 방향으로의 이동 속도 배율입니다.")]
     public float fleeSpeedMultiplier = 1.5f;
-    [Tooltip("공격 애니메이션이 실제로 재생되는 시간입니다. (애니메이터 클립 길이에 맞춰야 함)")]
-    public float attackAnimationDuration = 0.8f; // 공격 중 이동 중지를 위한 시간
+
+    // **[핵심 추가]** 공격 딜레이 변수
+    [Tooltip("공격 애니메이션 시작 후, 실제 데미지가 적용되기까지의 시간(선딜레이)입니다.")]
+    public float attackPreDelay = 0.5f;
+    [Tooltip("데미지 적용 후, 다음 공격 쿨타임까지 남은 시간(후딜레이)입니다.")]
+    public float attackPostDelay = 0.5f;
+
     [Tooltip("도주/추격 상태에서 플레이어를 향해 회전하는 속도입니다.")]
     [SerializeField] private float rotationSpeed = 10.0f;
 
-    // === 경직 설정 === **[추가]**
+    // 기존 attackAnimationDuration은 사용하지 않거나, attackPreDelay + attackPostDelay와 연동되게 조정할 수 있습니다.
+    // 여기서는 로직을 명확히 하기 위해 제거하고 위 두 딜레이를 사용합니다.
+
+    // === 경직 설정 ===
     [Header("경직 설정")]
     [Tooltip("경직 효과가 지속될 최소 시간입니다. (랜덤 범위)")]
     [SerializeField] private float minStunDuration = 0.5f;
@@ -55,6 +63,7 @@ public class DeerBehavior : MonoBehaviour
     private float lastAttackTime;        // 마지막 공격 시간
     private bool isAttacking = false;    // 현재 공격 애니메이션 재생 중 여부 (이동/회전 제어용 플래그)
     private float basePatrolSpeed = 3.0f;
+    private Coroutine attackSequenceCoroutine; // **[추가]** 공격 코루틴 참조
 
     void Awake()
     {
@@ -86,32 +95,32 @@ public class DeerBehavior : MonoBehaviour
 
         if (monster.monsterData != null)
         {
-            basePatrolSpeed = monster.monsterData.moveSpeed;
+            basePatrolSpeed = monster.currentMoveSpeed;
         }
     }
 
     /// <summary>
-    /// 스크립트가 활성화될 때 데미지 및 **경직 이벤트를 구독**합니다.
+    /// 스크립트가 활성화될 때 데미지 및 경직 이벤트를 구독합니다.
     /// </summary>
     private void OnEnable()
     {
         if (monsterCombat != null)
         {
             monsterCombat.OnDamageTaken += OnMonsterDamaged;
-            // **[핵심 추가]** 경직 이벤트 구독
+            // 경직 이벤트 구독
             monsterCombat.OnStunApplied += ApplyHitStun;
         }
     }
 
     /// <summary>
-    /// 스크립트가 비활성화될 때 데미지 및 **경직 이벤트를 구독 해제**합니다.
+    /// 스크립트가 비활성화될 때 데미지 및 경직 이벤트를 구독 해제합니다.
     /// </summary>
     private void OnDisable()
     {
         if (monsterCombat != null)
         {
             monsterCombat.OnDamageTaken -= OnMonsterDamaged;
-            // **[핵심 추가]** 경직 이벤트 구독 해제
+            // 경직 이벤트 구독 해제
             monsterCombat.OnStunApplied -= ApplyHitStun;
         }
         StopAllCoroutines();
@@ -126,31 +135,41 @@ public class DeerBehavior : MonoBehaviour
     /// </summary>
     private void OnMonsterDamaged(float damage)
     {
-        // **[수정]** 경직 중에는 상태 전환 로직을 실행하지 않습니다.
+        // 경직 중에는 상태 전환 로직을 실행하지 않습니다.
         if (monster.currentState == MonsterBase.MonsterState.Stun) return;
 
         hasTakenDamage = true; // 복수심 발동!
+
+        // 공격 중 피격 시 코루틴을 중지하여 바로 추격으로 전환합니다.
+        if (isAttacking && attackSequenceCoroutine != null)
+        {
+            StopCoroutine(attackSequenceCoroutine);
+            isAttacking = false;
+        }
+
         // 데미지를 입으면 즉시 공격(추격) 상태로 전환합니다.
         if (monster.currentState != MonsterBase.MonsterState.Attack)
         {
             monster.ChangeState(MonsterBase.MonsterState.Attack);
             StartAttackRoarLoop();
         }
-        StopAllCoroutines();
-        isAttacking = false; // 공격 플래그 초기화 (바로 추격 시작)
+
+        // StunRoutine이 아닌 OnMonsterDamaged에서 StopAllCoroutines()을 사용하면
+        // AttackSequenceCoroutine 외의 다른 코루틴(예: Patrol)도 멈출 수 있으므로,
+        // 명시적으로 AttackSequenceCoroutine만 중지하도록 로직을 변경했습니다.
     }
 
     /// <summary>
-    /// MonsterCombat.OnStunApplied 이벤트 발생 시 호출되며 경직 코루틴을 시작합니다. **[추가]**
+    /// MonsterCombat.OnStunApplied 이벤트 발생 시 호출되며 경직 코루틴을 시작합니다.
     /// </summary>
     private void ApplyHitStun()
     {
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
         // 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
-        if (isAttacking)
+        if (isAttacking && attackSequenceCoroutine != null)
         {
-            StopCoroutine(AttackSequenceCoroutine());
+            StopCoroutine(attackSequenceCoroutine);
             isAttacking = false;
         }
 
@@ -160,7 +179,7 @@ public class DeerBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 경직 상태를 관리하고 타이머가 끝나면 이전 상태로 복귀시키는 코루틴입니다. **[추가]**
+    /// 경직 상태를 관리하고 타이머가 끝나면 이전 상태로 복귀시키는 코루틴입니다.
     /// </summary>
     private IEnumerator StunRoutine()
     {
@@ -197,9 +216,9 @@ public class DeerBehavior : MonoBehaviour
                 // Patrol 상태로 복귀 시 순찰 재개
                 monsterPatrol.StartPatrol();
             }
-            // Flee 상태로 복귀하면 HandleFleeState에서 도망 로직이 재개됩니다.
         }
         // 코루틴 종료
+        stunCoroutine = null;
     }
 
 
@@ -223,10 +242,9 @@ public class DeerBehavior : MonoBehaviour
             return;
         }
 
-        // **[핵심 추가]** Stun 상태일 때는 모든 행동 로직을 건너뜁니다.
+        // Stun 상태일 때는 모든 행동 로직을 건너뜁니다.
         if (monster.currentState == MonsterBase.MonsterState.Stun)
         {
-            // StunRoutine에서 이미 애니메이션과 사운드를 멈췄으므로 여기서는 아무것도 하지 않고 대기합니다.
             return;
         }
 
@@ -286,7 +304,7 @@ public class DeerBehavior : MonoBehaviour
         }
     }
     // ---------------------------------------------------------------------
-    // === 상태별 전용 핸들러 메서드 (경직 로직이 Update()에서 분기되므로 로직 변경 최소화) ===
+    // === 상태별 전용 핸들러 메서드 ===
     // ---------------------------------------------------------------------
 
     /// <summary>
@@ -294,7 +312,6 @@ public class DeerBehavior : MonoBehaviour
     /// </summary>
     private void HandlePatrolState()
     {
-        // ... (로직 동일) ...
         animator.SetFloat("Vert", 1f);
         animator.SetFloat("State", 0f);
 
@@ -318,7 +335,6 @@ public class DeerBehavior : MonoBehaviour
     /// </summary>
     private void HandleFleeState(float distanceToPlayer)
     {
-        // ... (로직 동일) ...
         // 1. 복수심이 발동되면 Flee 상태를 벗어납니다.
         if (hasTakenDamage)
         {
@@ -358,7 +374,6 @@ public class DeerBehavior : MonoBehaviour
     /// </summary>
     private void HandleAttackState(float distanceToPlayer)
     {
-        // ... (로직 동일) ...
         if (audioSource != null && (audioSource.clip != attackRoarLoop || !audioSource.loop || !audioSource.isPlaying))
         {
             StartAttackRoarLoop();
@@ -379,8 +394,6 @@ public class DeerBehavior : MonoBehaviour
             animator.SetFloat("State", 0f);
             return;
         }
-
-        // ... (추격 및 공격 준비 로직 동일) ...
 
         if (distanceToPlayer > attackDistance)
         {
@@ -407,12 +420,16 @@ public class DeerBehavior : MonoBehaviour
     {
         if (Time.time > lastAttackTime + attackCooldown)
         {
-            StartCoroutine(AttackSequenceCoroutine());
+            // 중복 실행 방지
+            if (attackSequenceCoroutine == null)
+            {
+                attackSequenceCoroutine = StartCoroutine(AttackSequenceCoroutine());
+            }
         }
     }
 
     /// <summary>
-    /// 공격 애니메이션 재생, 데미지 적용, 쿨타임 설정을 담당하는 코루틴입니다.
+    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 후딜레이를 담당하는 코루틴입니다. **[핵심 수정]**
     /// </summary>
     private IEnumerator AttackSequenceCoroutine()
     {
@@ -420,34 +437,50 @@ public class DeerBehavior : MonoBehaviour
         isAttacking = true;
         animator.SetTrigger("Attack"); // 공격 애니메이션 트리거
 
-        // 공격 애니메이션이 끝날 때까지 멈춰있도록 대기
-        yield return new WaitForSeconds(attackAnimationDuration);
+        // 2. 선딜레이 대기 (데미지 적용 전 대기 시간)
+        yield return new WaitForSeconds(attackPreDelay);
 
-        // **[추가]** 코루틴 대기 후, Stun 상태가 되었다면 데미지 로직을 건너뜁니다.
+        // **[핵심 체크 1]** 선딜레이 후, Stun 상태가 되었다면 데미지 로직을 건너뜁니다.
         if (monster.currentState == MonsterBase.MonsterState.Stun)
         {
-            isAttacking = false; // StunRoutine이 끝나면 Attack 상태로 복귀할 것이므로, 공격 플래그를 false로 미리 설정
+            isAttacking = false;
+            attackSequenceCoroutine = null;
             yield break;
         }
 
-        // 2. 실제 데미지 적용
-        IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
-        if (playerDamageable != null)
+        // 3. 실제 데미지 적용 시점: 플레이어가 여전히 공격 범위 내에 있는지 확인
+        float currentDistance = Vector3.Distance(transform.position, playerTransform.position);
+
+        if (currentDistance <= attackDistance)
         {
-            if (audioSource != null && attackHitClip != null)
+            IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
+            if (playerDamageable != null)
             {
-                audioSource.PlayOneShot(attackHitClip);
+                if (audioSource != null && attackHitClip != null)
+                {
+                    audioSource.PlayOneShot(attackHitClip);
+                }
+                // 데미지 입히기
+                playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
             }
-            playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical); // **[수정]** DamageType 추가
         }
 
-        // 3. 공격 종료 및 쿨타임 설정
+        // 4. 후딜레이 대기 (쿨타임의 남은 시간)
+        // 전체 쿨타임에서 선딜레이를 뺀 시간을 대기합니다.
+        float remainingCooldown = attackCooldown - attackPreDelay;
+        if (remainingCooldown > 0)
+        {
+            yield return new WaitForSeconds(remainingCooldown);
+        }
+
+        // 5. 공격 종료 및 쿨타임 설정
         lastAttackTime = Time.time;
         isAttacking = false; // 이동 로직 재개 허용
+        attackSequenceCoroutine = null; // 코루틴 참조 해제
     }
 
     // ---------------------------------------------------------------------
-    // === 이동/회전 헬퍼 메서드 (경직 상태 체크 불필요 - Update()에서 이미 막아줌) ===
+    // === 이동/회전 헬퍼 메서드 (변경 없음) ===
     // ---------------------------------------------------------------------
 
     /// <summary>
@@ -456,7 +489,6 @@ public class DeerBehavior : MonoBehaviour
     private void MoveTowardsTarget(Transform target, float speed, float stoppingDistance)
     {
         // Update()에서 Stun 상태가 이미 필터링되므로, 여기에 Stun 체크는 불필요합니다.
-        // ... (로직 동일) ...
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
         if (distanceToTarget > stoppingDistance)
@@ -473,7 +505,6 @@ public class DeerBehavior : MonoBehaviour
     private void MoveAwayFromTarget(Transform target, float speed, float stoppingDistance)
     {
         // Update()에서 Stun 상태가 이미 필터링되므로, 여기에 Stun 체크는 불필요합니다.
-        // ... (로직 동일) ...
         float distanceToTarget = Vector3.Distance(transform.position, target.position);
 
         if (distanceToTarget < stoppingDistance || monster.detectableTarget != null)
@@ -490,7 +521,6 @@ public class DeerBehavior : MonoBehaviour
     private void RotateTowardsTarget(Transform target, float slerpSpeed = -1f)
     {
         // Update()에서 Stun 상태가 이미 필터링되므로, 여기에 Stun 체크는 불필요합니다.
-        // ... (로직 동일) ...
         float finalSpeed = (slerpSpeed > 0) ? slerpSpeed : rotationSpeed;
 
         Vector3 direction = target.position - transform.position;
@@ -509,7 +539,6 @@ public class DeerBehavior : MonoBehaviour
     private void RotateAwayFromTarget(Transform target)
     {
         // Update()에서 Stun 상태가 이미 필터링되므로, 여기에 Stun 체크는 불필요합니다.
-        // ... (로직 동일) ...
         Vector3 direction = transform.position - target.position;
         Vector3 flatDirection = new Vector3(direction.x, 0, direction.z);
 

@@ -88,7 +88,7 @@ public class FireballProjectile : MonoBehaviour
 
             Debug.Log("IDamageable 타겟(" + other.gameObject.name + ")과 충돌하여 파괴됨.");
 
-            // 5. ⭐ [핵심 목표 달성] 데미지 대상과 충돌했으므로 투사체를 파괴합니다.
+            // 5. [핵심 목표 달성] 데미지 대상과 충돌했으므로 투사체를 파괴합니다.
             Destroy(gameObject);
         }
 

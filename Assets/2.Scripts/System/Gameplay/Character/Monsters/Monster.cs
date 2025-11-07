@@ -7,6 +7,45 @@ using UnityEngine;
 /// </summary>
 public class Monster : MonsterBase, IDetectable
 {
+    // =======================================================
+    // [핵심 추가] MonsterData 기반 읽기 전용 스탯 속성
+    // =======================================================
+
+    /// <summary>
+    /// 최대 체력(Max Health) 값을 반환하는 읽기 전용 속성입니다.
+    /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
+    /// </summary>
+    public float MaxHealth { get; private set; }
+
+    /// <summary>
+    /// 최대 마나(Max Mana) 값을 반환하는 읽기 전용 속성입니다.
+    /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
+    /// </summary>
+    public int MaxMana { get; private set; }
+
+    /// <summary>
+    /// 공격력(Attack Power) 값을 반환하는 읽기 전용 속성입니다.
+    /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
+    /// </summary>
+    public int AttackPower { get; private set; }
+
+    /// <summary>
+    /// 마법 공격력(Magic Attack Power) 값을 반환하는 읽기 전용 속성입니다.
+    /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
+    /// </summary>
+    public float MagicAttackPower { get; private set; }
+
+    /// <summary>
+    /// 방어력(Defense) 값을 반환하는 읽기 전용 속성입니다.
+    /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
+    /// </summary>
+    public int Defense { get; private set; }
+
+    /// <summary>
+    /// 마법 방어력(Magic Defense) 값을 반환하는 읽기 전용 속성입니다.
+    /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
+    /// </summary>
+    public int MagicDefense { get; private set; }
     // === 플레이어 감지 관련 변수 ===
     [Header("플레이어 감지 설정")]
     [Tooltip("플레이어를 감지하는 범위(반경)입니다.")]
@@ -54,9 +93,65 @@ public class Monster : MonsterBase, IDetectable
             // [MonsterData.score] 필드가 있다고 가정합니다. (없다면 MonsterData에 추가 필요)
             scoreValue = monsterData.score;
             currentMoveSpeed = monsterData.moveSpeed;
+            InitializeAndApplyRiskCorrection(monsterData);
         }
     }
+    /// <summary>
+    /// MonsterData의 스탯 데이터를 Monster 클래스의 읽기 전용 속성에 할당합니다.
+    /// </summary>
+    /// <param name="data">할당할 MonsterData ScriptableObject입니다.</param>
+    // =======================================================
+    // [핵심 추가] 초기 스탯 설정 및 위험도 보정 로직
+    // =======================================================
 
+    /// <summary>
+    /// MonsterData를 기반으로 스탯을 초기화하고, DungeonRiskManager의 레벨에 따라 스탯 보정을 적용합니다.
+    /// </summary>
+    /// <param name="data">기본 스탯을 포함하는 MonsterData ScriptableObject입니다.</param>
+    private void InitializeAndApplyRiskCorrection(MonsterData data)
+    {
+        // 1. 던전 위험도 레벨 가져오기
+        int riskLevel = 0;
+        if (DungeonRiskManager.Instance != null)
+        {
+            // 던전 위험도 매니저로부터 현재 위험도 레벨을 가져옵니다.
+            riskLevel = DungeonRiskManager.Instance.GetCurrentRiskLevel();
+        }
+        else
+        {
+            // Debug.LogWarning("DungeonRiskManager 인스턴스를 찾을 수 없습니다. 기본 레벨 0으로 설정됩니다.");
+            // riskLevel이 0이면 보정은 1.0f가 됩니다.
+        }
+
+        // 2. 보정 승수 계산 (레벨당 20% 증가)
+        // 보정 승수 = 1.0f + (위험도 레벨 * 0.2f)
+        // 예시: Lv 10 -> 1.0 + (10 * 0.2) = 3.0f (300% 증가, 즉 3배)
+        const float CORRECTION_PER_LEVEL = 0.20f;
+        float correctionMultiplier = 1.0f + (riskLevel * CORRECTION_PER_LEVEL);
+
+        // 3. 스탯에 보정 승수 적용하여 읽기 전용 속성에 할당
+
+        // 체력 (float)
+        MaxHealth = data.maxHealth * correctionMultiplier;
+
+        // 마나 (int, 정수로 변환 시 소수점 버림)
+        MaxMana = Mathf.FloorToInt(data.maxMana * correctionMultiplier);
+
+        // 공격력 (int)
+        AttackPower = Mathf.FloorToInt(data.attackPower * correctionMultiplier);
+
+        // 마법 공격력 (float)
+        MagicAttackPower = data.magicAttackPower * correctionMultiplier;
+
+        // 방어력 (int)
+        Defense = Mathf.FloorToInt(data.defense * correctionMultiplier);
+
+        // 마법 방어력 (int)
+        MagicDefense = Mathf.FloorToInt(data.magicDefense * correctionMultiplier);
+
+        // 디버그 (선택 사항)
+        // Debug.Log($"[Monster Stats] Lv: {riskLevel}, 보정치: {correctionMultiplier:F2}x, 최종 공격력: {AttackPower}");
+    }
     private void Update()
     {
         DetectPlayer();

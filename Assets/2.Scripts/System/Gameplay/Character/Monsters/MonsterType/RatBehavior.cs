@@ -17,7 +17,8 @@ public abstract class RatBehavior : MonoBehaviour
     Animator animator;
     Rigidbody rb;
     protected AudioSource audioSource;
-    private Coroutine stunCoroutine; // **[추가]** 경직 코루틴 참조
+    private Coroutine stunCoroutine; // 경직 코루틴 참조
+    private Coroutine attackSequenceCoroutine; // **[추가]** 공격 코루틴 참조
 
     //이동 명령을 저장하고 FixedUpdate에서 처리하기 위한 변수
     private Vector3 _movementDirection = Vector3.zero;
@@ -34,8 +35,10 @@ public abstract class RatBehavior : MonoBehaviour
     public float attackCooldown = 1.0f;
     [Tooltip("일반 공격이 가능한 거리입니다.")]
     public float attackRange = 3.0f;
+    [Tooltip("공격 애니메이션 시작 후, 실제 데미지가 적용되기까지의 시간(선딜레이)입니다.")]
+    public float attackPreDelay = 0.3f; // **[추가]** 쥐처럼 빠른 몬스터는 짧게 설정
 
-    // === 경직 설정 === **[추가]**
+    // === 경직 설정 ===
     [Header("경직 설정")]
     [Tooltip("경직 효과가 지속될 최소 시간입니다. (랜덤 범위)")]
     [SerializeField] private float minStunDuration = 0.5f;
@@ -44,6 +47,7 @@ public abstract class RatBehavior : MonoBehaviour
 
     protected float lastAttackTime;
     protected Vector3 currentPatrolPoint;
+    private bool isAttacking = false; // **[추가]** 공격 중 플래그
 
     protected virtual void Awake()
     {
@@ -70,16 +74,25 @@ public abstract class RatBehavior : MonoBehaviour
 
     protected virtual void OnEnable()
     {
-        monsterCombat.OnDamageTaken += OnMonsterDamaged;
-        // **[핵심 추가]** 경직 이벤트 구독
-        monsterCombat.OnStunApplied += ApplyHitStun;
+        if (monsterCombat != null)
+        {
+            monsterCombat.OnDamageTaken += OnMonsterDamaged;
+            // 경직 이벤트 구독
+            monsterCombat.OnStunApplied += ApplyHitStun;
+        }
     }
 
     protected virtual void OnDisable()
     {
-        monsterCombat.OnDamageTaken -= OnMonsterDamaged;
-        // **[핵심 추가]** 경직 이벤트 구독 해제
-        monsterCombat.OnStunApplied -= ApplyHitStun;
+        if (monsterCombat != null)
+        {
+            monsterCombat.OnDamageTaken -= OnMonsterDamaged;
+            // 경직 이벤트 구독 해제
+            monsterCombat.OnStunApplied -= ApplyHitStun;
+        }
+        // 비활성화 시 모든 코루틴 및 플래그 초기화
+        StopAllCoroutines();
+        isAttacking = false;
     }
 
     protected virtual void Start()
@@ -96,6 +109,14 @@ public abstract class RatBehavior : MonoBehaviour
     {
         // 몬스터가 이미 사망했다면 경직 로직을 무시합니다.
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
+
+        // **[수정]** 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
+        if (isAttacking && attackSequenceCoroutine != null)
+        {
+            StopCoroutine(attackSequenceCoroutine);
+            isAttacking = false;
+            attackSequenceCoroutine = null;
+        }
 
         // 이전에 진행 중이던 경직 코루틴이 있다면 중지하고 새 경직을 적용합니다.
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
@@ -139,9 +160,9 @@ public abstract class RatBehavior : MonoBehaviour
             }
         }
         // 코루틴 종료
+        stunCoroutine = null;
     }
 
-    // ... (UpdateBehavior()는 추상 메서드로 유지) ...
     /// <summary>
     /// Update() 대신 각 역할에 맞는 행동을 정의하는 추상 메서드입니다.
     /// 자식 클래스에서 반드시 구현해야 합니다.
@@ -151,18 +172,25 @@ public abstract class RatBehavior : MonoBehaviour
     // MonoBehaviour의 Update() 메서드를 오버라이드하여 UpdateBehavior()를 호출합니다.
     private void Update()
     {
-        // **[핵심 수정]** Stun 상태일 때는 UpdateBehavior() 실행을 건너뛰어 회전/공격/순찰 로직을 멈춥니다.
-        // (쥐 몬스터는 회전 로직도 Move() 안에 포함되어 있어 Move()만 막으면 이동과 회전이 모두 멈춥니다.)
+        // Stun 또는 Dead 상태일 때는 UpdateBehavior() 실행을 건너뛰어 회전/공격/순찰 로직을 멈춥니다.
         if (monster.currentState == MonsterBase.MonsterState.Stun || monster.currentState == MonsterBase.MonsterState.Dead)
         {
             // Stun 상태일 때 물리 이동은 FixedUpdate에서 _movementDirection = 0 처리로 멈춥니다.
             return;
         }
 
-        if (MainSceneManager.Instance.isGameOver)
+        if (MainSceneManager.Instance != null && MainSceneManager.Instance.isGameOver)
         {
             // 게임 오버 시 몬스터 행동 중지
-            monster.ChangeState(MonsterBase.MonsterState.Patrol); // 임시 상태 변경 (Idle이 적절할 수도 있음)
+            monster.ChangeState(MonsterBase.MonsterState.Patrol); // 임시 상태 변경
+            return;
+        }
+
+        // **[추가]** 공격 중일 때는 추격/순찰 로직을 건너뛰고 정지 상태를 유지합니다.
+        if (isAttacking)
+        {
+            // 공격 애니메이션 중에는 정지
+            animator.SetFloat("Vert", 0f);
             return;
         }
 
@@ -170,19 +198,19 @@ public abstract class RatBehavior : MonoBehaviour
     }
 
     /// <summary>
-    ///물리 업데이트: Rigidbody의 실제 이동을 FixedUpdate에서 안전하게 처리합니다.
+    /// 물리 업데이트: Rigidbody의 실제 이동을 FixedUpdate에서 안전하게 처리합니다.
     /// </summary>
     private void FixedUpdate()
     {
-        // **[핵심 추가]** Stun 상태에서는 이동 명령을 완전히 무시
-        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        // Stun 또는 공격 중일 때는 이동 명령을 완전히 무시
+        if (monster.currentState == MonsterBase.MonsterState.Stun || isAttacking || monster.currentState == MonsterBase.MonsterState.Dead)
         {
-            _movementDirection = Vector3.zero; // 혹시 모를 잔여 이동 명령 초기화
+            _movementDirection = Vector3.zero; // 이동 명령 초기화
             return;
         }
 
         // Rigidbody가 없거나, 이동 명령이 없거나, 죽은 상태면 이동하지 않습니다.
-        if (rb == null || _movementDirection == Vector3.zero || monster.currentState == MonsterBase.MonsterState.Dead)
+        if (rb == null || _movementDirection == Vector3.zero)
         {
             return;
         }
@@ -199,13 +227,10 @@ public abstract class RatBehavior : MonoBehaviour
 
     /// <summary>
     /// 몬스터의 이동 방향을 설정하는 공통 메서드입니다.
-    /// [수정] Update 사이클에서 호출되며, 이동 명령(_movementDirection)을 저장하고 회전만 처리합니다.
+    /// Update 사이클에서 호출되며, 이동 명령(_movementDirection)을 저장하고 회전만 처리합니다.
     /// </summary>
     protected void Move(Vector3 direction, float speed)
     {
-        // **[핵심 제거]** RatBehavior는 Update에서 Stun을 체크하여 UpdateBehavior() 자체를 건너뛰기 때문에,
-        // 이 Move 내부에서 Stun 체크가 불필요합니다.
-
         if (direction != Vector3.zero)
         {
             //이동 명령을 FixedUpdate에서 사용할 변수에 저장
@@ -214,10 +239,14 @@ public abstract class RatBehavior : MonoBehaviour
             // 회전 로직 (Slerp는 Update에서 사용 가능)
             Quaternion lookRotation = Quaternion.LookRotation(new Vector3(direction.x, 0, direction.z));
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * 5f);
+
+            // 이동 중 애니메이션
+            animator.SetFloat("Vert", 1f);
         }
         else
         {
             _movementDirection = Vector3.zero;
+            animator.SetFloat("Vert", 0f); // 이동 명령이 없으면 정지 애니메이션
         }
     }
 
@@ -233,24 +262,70 @@ public abstract class RatBehavior : MonoBehaviour
 
     /// <summary>
     /// 플레이어에게 공격을 수행하는 공통 메서드입니다.
+    /// 쿨타임을 확인하고 AttackSequenceCoroutine을 시작합니다. **[수정]**
     /// </summary>
     protected void PerformAttack()
     {
-        if (Time.time > lastAttackTime + attackCooldown)
+        // 쿨타임 체크 및 공격 중 여부 체크
+        if (Time.time > lastAttackTime + attackCooldown && !isAttacking)
         {
-            if (audioSource != null && attackClip != null)
+            // 코루틴 시작 및 참조 저장
+            attackSequenceCoroutine = StartCoroutine(AttackSequenceCoroutine());
+        }
+    }
+
+    /// <summary>
+    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 쿨타임 설정을 담당하는 코루틴입니다. **[추가]**
+    /// </summary>
+    private IEnumerator AttackSequenceCoroutine()
+    {
+        // 1. 공격 시작 - 이동 중지
+        isAttacking = true;
+        animator.SetTrigger("Attack"); // 공격 애니메이션 트리거
+
+        // 2. 선딜레이 대기 (데미지 적용 전 대기 시간)
+        yield return new WaitForSeconds(attackPreDelay);
+
+        // **[핵심 체크 1]** 선딜레이 후, Stun 상태가 되었다면 데미지 로직을 건너뜁니다.
+        if (monster.currentState == MonsterBase.MonsterState.Stun)
+        {
+            isAttacking = false;
+            attackSequenceCoroutine = null;
+            yield break;
+        }
+
+        // 3. 실제 데미지 적용 시점: 플레이어가 여전히 공격 범위 내에 있는지 확인
+        if (playerTransform != null)
+        {
+            float currentDistance = Vector3.Distance(transform.position, playerTransform.position);
+
+            if (currentDistance <= attackRange)
             {
-                audioSource.PlayOneShot(attackClip);
-            }
-            IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
-            if (playerDamageable != null)
-            {
-                if (animator != null)
-                { animator.SetTrigger("Attack"); }
-                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
-                lastAttackTime = Time.time;
+                IDamageable playerDamageable = playerTransform.GetComponent<IDamageable>();
+                if (playerDamageable != null)
+                {
+                    if (audioSource != null && attackClip != null)
+                    {
+                        audioSource.PlayOneShot(attackClip);
+                    }
+                    // 데미지 입히기
+                    playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+                }
             }
         }
+
+        // 4. 공격 후딜레이 및 쿨타임 설정
+        lastAttackTime = Time.time;
+        // 공격 애니메이션이 끝날 때까지 남은 쿨타임 대기 (선딜레이를 제외한 잔여 시간)
+        float postDelay = attackCooldown - (Time.time - lastAttackTime);
+        if (postDelay > 0)
+        {
+            yield return new WaitForSeconds(postDelay);
+        }
+
+        // 5. 공격 종료
+        isAttacking = false; // 이동 로직 재개 허용
+        attackSequenceCoroutine = null; // 코루틴 참조 해제
     }
 
     /// <summary>

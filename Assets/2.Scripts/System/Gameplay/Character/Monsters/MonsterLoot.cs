@@ -1,6 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System; // Math.Min을 사용하기 위해 추가
+using System;
 
 /// <summary>
 /// 몬스터 사망 시 보상(경험치, 골드, 아이템)을 지급하는 클래스입니다.
@@ -8,7 +8,13 @@ using System; // Math.Min을 사용하기 위해 추가
 /// </summary>
 public class MonsterLoot : MonoBehaviour
 {
-    private MonsterBase monsterBase;
+    private Monster monster;
+
+    //  위험도 보너스 상수 (레벨당 5% 추가)
+    /// <summary>
+    /// 위험도 레벨 1 증가 시 경험치와 골드에 추가되는 보너스 비율입니다. (0.05f = 5%)
+    /// </summary>
+    private const float EXP_GOLD_BONUS_PER_LEVEL = 0.05f;
 
     [Header("아이템 등급 드롭 확률 설정")]
     [Tooltip("ItemGrade별 드롭 가중치를 설정합니다. 가중치가 높을수록 해당 등급이 드롭될 확률이 높습니다.")]
@@ -35,11 +41,11 @@ public class MonsterLoot : MonoBehaviour
     private void Awake()
     {
         // 몬스터의 기본 데이터를 가져옵니다.
-        monsterBase = GetComponent<MonsterBase>();
-        if (monsterBase == null)
+        monster = GetComponent<Monster>();
+        if (monster == null)
         {
             // 의존성 주입 실패 시 오류 로깅
-            Debug.LogError("MonsterLoot: MonsterBase 컴포넌트를 찾을 수 없습니다.", this);
+            Debug.LogError("MonsterLoot: Monster 컴포넌트를 찾을 수 없습니다.", this);
         }
     }
 
@@ -50,19 +56,34 @@ public class MonsterLoot : MonoBehaviour
     public void GiveReward()
     {
         // 몬스터 데이터 유효성 검사 (계약 조건)
-        if (monsterBase == null || monsterBase.monsterData == null)
+        if (monster == null || monster.monsterData == null)
         {
             Debug.LogError("MonsterLoot: MonsterData가 할당되지 않았거나 MonsterBase를 찾을 수 없습니다.", this);
             return;
         }
 
-        // 몬스터 사망 시 경험치와 골드를 랜덤하게 계산하고 지급합니다.
-        int expReward = UnityEngine.Random.Range(monsterBase.monsterData.minExpReward, monsterBase.monsterData.maxExpReward + 1);
-        int goldReward = UnityEngine.Random.Range(monsterBase.monsterData.minGoldReward, monsterBase.monsterData.maxGoldReward + 1);
+        // 던전 위험도 레벨을 가져와 EXP/Gold 보너스 승수를 계산합니다.
+        int riskLevel = 0;
+        if (DungeonRiskManager.Instance != null)
+        {
+            riskLevel = DungeonRiskManager.Instance.GetCurrentRiskLevel();
+        }
+        // 보너스 승수 계산: 1.0 + (레벨 * 0.05)
+        float bonusMultiplier = 1.0f + (riskLevel * EXP_GOLD_BONUS_PER_LEVEL);
 
-        // 플레이어에게 경험치와 골드를 지급하는 책임 분리
-        PlayerCharacter.Instance.playerLevelUp.AddExperience(expReward);
-        PlayerCharacter.Instance.playerStats.gold += goldReward;
+        // 1. 경험치 계산 및 지급
+        int baseExpReward = UnityEngine.Random.Range(monster.monsterData.minExpReward, monster.monsterData.maxExpReward + 1);
+        // 위험도 보너스 적용
+        int finalExpReward = Mathf.FloorToInt(baseExpReward * bonusMultiplier);
+        PlayerCharacter.Instance.playerLevelUp.AddExperience(finalExpReward);
+
+        // 2. 골드 계산 및 지급
+        int baseGoldReward = UnityEngine.Random.Range(monster.monsterData.minGoldReward, monster.monsterData.maxGoldReward + 1);
+        // 위험도 보너스 적용
+        int finalGoldReward = Mathf.FloorToInt(baseGoldReward * bonusMultiplier);
+        PlayerCharacter.Instance.playerStats.gold += finalGoldReward;
+
+        // Debug.Log($"[MonsterLoot] 위험도 Lv {riskLevel}, 승수 {bonusMultiplier:F2}. EXP: {finalExpReward}, Gold: {finalGoldReward} 지급.");
 
         // 아이템 드롭 기능 호출
         DropItem();
@@ -77,15 +98,15 @@ public class MonsterLoot : MonoBehaviour
     private void GiveDungeonCoinReward()
     {
         // 몬스터 데이터 유효성 검사는 GiveReward에서 이미 수행되었습니다.
-        if (monsterBase.monsterData.minDungeonCoinReward <= 0 && monsterBase.monsterData.maxDungeonCoinReward <= 0)
+        if (monster.monsterData.minDungeonCoinReward <= 0 && monster.monsterData.maxDungeonCoinReward <= 0)
         {
             return;
         }
 
         // 던전 코인 보상을 랜덤하게 계산합니다.
         int coinReward = UnityEngine.Random.Range(
-            monsterBase.monsterData.minDungeonCoinReward,
-            monsterBase.monsterData.maxDungeonCoinReward + 1);
+            monster.monsterData.minDungeonCoinReward,
+            monster.monsterData.maxDungeonCoinReward + 1);
 
         if (coinReward > 0)
         {
@@ -107,10 +128,10 @@ public class MonsterLoot : MonoBehaviour
     /// </summary>
     private void DropItem()
     {
-        var lootTable = monsterBase.monsterData.lootTable;
+        var lootTable = monster.monsterData.lootTable;
 
         // 1. 드롭할 아이템의 총 개수를 결정합니다.
-        int dropCount = UnityEngine.Random.Range(monsterBase.monsterData.minItemDropCount, monsterBase.monsterData.maxItemDropCount + 1);
+        int dropCount = UnityEngine.Random.Range(monster.monsterData.minItemDropCount, monster.monsterData.maxItemDropCount + 1);
 
         // LootTable이 비어 있거나 null이면 처리를 종료합니다.
         if (lootTable == null || lootTable.Count == 0)
@@ -225,7 +246,7 @@ public class MonsterLoot : MonoBehaviour
         // 2. 총 가중치가 0 이하라면 기본 등급을 반환하고 경고합니다.
         if (totalWeight <= 0)
         {
-            Debug.LogWarning("아이템 등급 드롭 가중치 설정이 유효하지 않습니다. 기본 등급(Normal)을 반환합니다.");
+            Debug.LogWarning("아이템 등급 드롭 가중치 설정이 유효하지 않습니다. 기본 등급(Common)을 반환합니다.");
             return ItemGrade.Common;
         }
 
