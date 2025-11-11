@@ -40,7 +40,7 @@ MonoBehaviour:
       value: 1
       isPercentage: 0
   - manaCost: 60
-    cooldown: 25
+    cooldown: 18
     stats:
     - statType: 0
       value: 100
@@ -49,13 +49,13 @@ MonoBehaviour:
       value: 60
       isPercentage: 0
     - statType: 1
-      value: 25
+      value: 18
       isPercentage: 0
     - statType: 18
       value: 2
       isPercentage: 0
   - manaCost: 90
-    cooldown: 30
+    cooldown: 15
     stats:
     - statType: 0
       value: 150
@@ -64,13 +64,13 @@ MonoBehaviour:
       value: 90
       isPercentage: 0
     - statType: 1
-      value: 30
+      value: 15
       isPercentage: 0
     - statType: 18
       value: 3
       isPercentage: 0
   - manaCost: 120
-    cooldown: 40
+    cooldown: 12
     stats:
     - statType: 0
       value: 200
@@ -79,13 +79,13 @@ MonoBehaviour:
       value: 120
       isPercentage: 0
     - statType: 1
-      value: 40
+      value: 12
       isPercentage: 0
     - statType: 18
       value: 4
       isPercentage: 0
   - manaCost: 150
-    cooldown: 50
+    cooldown: 10
     stats:
     - statType: 0
       value: 250
@@ -94,7 +94,7 @@ MonoBehaviour:
       value: 150
       isPercentage: 0
     - statType: 1
-      value: 50
+      value: 10
       isPercentage: 0
     - statType: 18
       value: 5

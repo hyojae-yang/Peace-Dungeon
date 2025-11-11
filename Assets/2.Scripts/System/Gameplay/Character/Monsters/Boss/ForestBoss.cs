@@ -25,9 +25,9 @@ public class ForestBoss : MonoBehaviour, IBossInitializer
     [Tooltip("특수 공격 시전 종료 및 발동 직전의 에너지 해방 사운드")]
     public AudioClip chargeReleaseClip;
     [Tooltip("분노 상태 진입 시 재생될, 길고 웅장한 포효 또는 경고 사운드")]
-    public AudioClip enrageClip; // ⭐️ 새로 추가
+    public AudioClip enrageClip; 
     [Tooltip("뿌리 소환 공격 시작 시 재생될, 마법 발동 또는 땅 뚫는 소리")]
-    public AudioClip rootSummonClip; // ⭐️ 새로 추가
+    public AudioClip rootSummonClip;
     [Tooltip("몬스터 소환 공격 시작 시 재생될, 공간 이동 또는 게이트 열리는 소리")]
     public AudioClip minionSummonClip;
     // === 보스 행동 설정 변수 ===

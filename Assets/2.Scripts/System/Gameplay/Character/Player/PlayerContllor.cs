@@ -16,8 +16,10 @@ public class PlayerController : MonoBehaviour
     public float walkSpeed = 10f;
     [Tooltip("달리기 시 적용될 속도 배율입니다.")]
     public float runSpeedMultiplier = 2f;
-    [Tooltip("점프 시 적용될 힘의 크기입니다.")]
-    public float jumpForce = 5f;
+    //  (수정된 부분) jumpForce를 속도에 곱해지는 최종 배율로 변경하고 기본값을 0.5f로 변경했습니다.
+    [Tooltip("점프 시 적용될 힘의 크기입니다. (이 값이 현재 이동 속도에 곱해져 최종 점프력이 결정됩니다. 1.0f는 속도 그대로 반영을 의미합니다.)")]
+    public float jumpForce = 0.5f; 
+    
     [Header("회전 설정")]
     [Tooltip("플레이어가 이동 방향으로 회전하는 속도입니다. 값이 높을수록 더 빠르게 회전합니다.")]
     public float rotationSpeed = 10f;
@@ -153,7 +155,7 @@ public class PlayerController : MonoBehaviour
             playerCharacter.animator.SetFloat("Walk", 0, AnimationDamping, Time.fixedDeltaTime);
             playerCharacter.animator.SetFloat("Run", 0, AnimationDamping, Time.fixedDeltaTime);
 
-            // ⭐ 추가: 움직이지 않을 때는 타이머 리셋
+            // 움직이지 않을 때는 타이머 리셋
             footstepTimer = 0f;
             return;
         }
@@ -262,14 +264,11 @@ public class PlayerController : MonoBehaviour
         playerAudioSource.PlayOneShot(clipToPlay, volumeMultiplier);
     }
 
-    // ... (기존 RotateTowardsMouseCursor, OnCollisionEnter 등 유지)
-
     /// <summary>
     /// 마우스 포인터가 월드 공간에서 가리키는 지점을 바라보도록 플레이어를 회전시키는 메서드입니다.
     /// </summary>
     public void RotateTowardsMouseCursor()
     {
-        // ... (기존 RotateTowardsMouseCursor 로직 유지)
         int layerMask = LayerMask.GetMask("Ground");
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         RaycastHit hit;
@@ -297,28 +296,44 @@ public class PlayerController : MonoBehaviour
             isGrounded = true;
         }
     }
+    
+    // (최종 수정된 부분) 점프력을 현재 수평 속도에 비례하도록 정확히 반영합니다.
     /// <summary>
     /// 점프 애니메이션 시작 후, 지정된 딜레이 후에 물리적인 점프를 실행합니다.
+    /// 최종 점프력은 '현재 수평 속도'에 'jumpForce' 변수(배율 역할)를 곱하여 결정됩니다.
     /// SOLID 원칙: 단일 책임 원칙 (점프 실행의 순차적 책임을 가짐)
     /// </summary>
     private IEnumerator PerformJumpWithDelay()
     {
+        // 1. **점프 힘 계산**: 현재 Rigidbody의 수평 속도의 크기(magnitude)를 점프력에 반영합니다.
+        
+        // Rigidbody의 현재 수평 속도(x, z)를 가져와 크기를 계산합니다. 
+        // 이 값이 걷기 속도(예: 10) 또는 달리기 속도(예: 20)가 됩니다.
+        Vector3 horizontalVelocity = new Vector3(playerRigidbody.linearVelocity.x, 0, playerRigidbody.linearVelocity.z);
+        float currentMovementSpeed = horizontalVelocity.magnitude;
+        
+        // 최종 점프력 = (현재 이동 속도) * (jumpForce 변수 값: 배율 역할)
+        float actualJumpForce = currentMovementSpeed * jumpForce;
+        
+        // 정지 상태일 때 (속도가 0에 가까울 때) 점프력도 0에 가까워집니다. 
+        // 이는 요청하신 '이동 속도 그대로 반영'을 충족합니다.
+
         // 점프 효과음 재생
         if (playerAudioSource != null && jumpSoundClip != null)
         {
             playerAudioSource.PlayOneShot(jumpSoundClip);
         }
 
-        // 1. 애니메이터에게 점프 시작을 알립니다. (점프 준비 동작 시작)
+        // 2. 애니메이터에게 점프 시작을 알립니다. (점프 준비 동작 시작)
         playerCharacter.animator.SetTrigger("Jump");
 
-        // 2. jumpDelayTime 만큼 대기 (애니메이션 싱크를 맞추는 핵심)
+        // 3. jumpDelayTime 만큼 대기 (애니메이션 싱크를 맞추는 핵심)
         yield return new WaitForSeconds(jumpDelayTime);
 
-        // 3. 딜레이 후, 물리적인 힘을 적용하여 실제 점프를 실행합니다.
-        playerRigidbody.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+        // 4. 딜레이 후, 계산된 실제 점프 힘을 적용하여 실제 점프를 실행합니다.
+        playerRigidbody.AddForce(Vector3.up * actualJumpForce, ForceMode.Impulse);
 
-        // 4. 땅에 닿지 않은 상태로 변경
+        // 5. 땅에 닿지 않은 상태로 변경
         isGrounded = false;
     }
 

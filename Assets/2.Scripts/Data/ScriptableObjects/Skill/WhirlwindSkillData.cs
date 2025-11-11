@@ -43,8 +43,8 @@ public class WhirlwindSkillData : ActiveSkillData
             }
         }
 
-        // 플레이어의 물리 공격력과 스킬의 기본 데미지를 합산하여 최종 데미지를 계산합니다.
-        float finalDamage = playerStats.attackPower + baseDamage;
+        // 플레이어의 마법 공격력과 스킬의 기본 데미지를 합산하여 최종 데미지를 계산합니다.
+        float finalDamage = playerStats.magicAttackPower + baseDamage;
 
         // === 2. 주변 Collider 감지 (OverlapSphere) ===
         // 플레이어의 위치를 중심으로 damageRadius 반경 내의 모든 Collider를 감지합니다.

@@ -32963,6 +32963,8 @@ MonoBehaviour:
   attackCooldown: 1.5
   manaCostPerCharge: 10
   manaRegenRate: 1
+  attackPreDelay: 0.5
+  attackPostDelay: 0.5
   chargePreparationTime: 2.5
   chargeOvershootDistance: 5
   minStunDuration: 0.5
@@ -33001,7 +33003,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 5
   MaxDistance: 160
   Pan2D: 0
   rolloffMode: 0

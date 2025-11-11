@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a867e428598fe46ae3494b83e4014a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundImpactClip: {fileID: 0}
+  groundImpactClip: {fileID: 8300000, guid: 8e728a1e9d3dc5f41a2d59668c45e98e, type: 3}
 --- !u!1 &3354763852043871861
 GameObject:
   m_ObjectHideFlags: 0
@@ -313,13 +313,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c98403df2e1ebd94aaa1cec9986579cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  basicAttackLiftClip: {fileID: 0}
-  basicAttackStrikeClip: {fileID: 0}
-  chargeLoopClip: {fileID: 0}
-  chargeReleaseClip: {fileID: 0}
-  enrageClip: {fileID: 0}
-  rootSummonClip: {fileID: 0}
-  minionSummonClip: {fileID: 0}
+  basicAttackLiftClip: {fileID: 8300000, guid: 2562f28a52b24ed45a3b563b9ad8ac73, type: 3}
+  basicAttackStrikeClip: {fileID: 8300000, guid: 02d534e1e22780a418556be9bfdbeb1c, type: 3}
+  chargeLoopClip: {fileID: 8300000, guid: 24eaeae153b524bb6a55fdcc7ee3c735, type: 3}
+  chargeReleaseClip: {fileID: 8300000, guid: aa56a9a240f7f4261b6b3c11198a0b1a, type: 3}
+  enrageClip: {fileID: 8300000, guid: 134bab590d7624647a39e5ccb50d9cf5, type: 3}
+  rootSummonClip: {fileID: 8300000, guid: 08dde6b3ac64048ec880a15d0913455f, type: 3}
+  minionSummonClip: {fileID: 8300000, guid: b71edef5d6eb84fe0b6837f05a411bd4, type: 3}
   activationRange: 30
   attackCooldown: 2
   chargeCooldown: 10
@@ -388,7 +388,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 10
   MaxDistance: 100
   Pan2D: 0
   rolloffMode: 0
@@ -608,7 +608,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d6a867e428598fe46ae3494b83e4014a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  groundImpactClip: {fileID: 0}
+  groundImpactClip: {fileID: 8300000, guid: 8e728a1e9d3dc5f41a2d59668c45e98e, type: 3}
 --- !u!1 &8106120684948026637
 GameObject:
   m_ObjectHideFlags: 0
@@ -911,6 +911,22 @@ PrefabInstance:
     - target: {fileID: 459138, guid: ccfacd3b91beef8459b0d829b7aac729, type: 3}
       propertyPath: m_ConstrainProportionsScale
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 19899516, guid: ccfacd3b91beef8459b0d829b7aac729, type: 3}
+      propertyPath: InitialModule.startSizeY.minMaxState
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19899516, guid: ccfacd3b91beef8459b0d829b7aac729, type: 3}
+      propertyPath: InitialModule.startSizeZ.minMaxState
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19899516, guid: ccfacd3b91beef8459b0d829b7aac729, type: 3}
+      propertyPath: InitialModule.startRotationX.minMaxState
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 19899516, guid: ccfacd3b91beef8459b0d829b7aac729, type: 3}
+      propertyPath: InitialModule.startRotationY.minMaxState
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

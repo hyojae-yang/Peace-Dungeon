@@ -37,7 +37,7 @@ MonoBehaviour:
       value: 7
       isPercentage: 0
   - manaCost: 20
-    cooldown: 8
+    cooldown: 6.5
     stats:
     - statType: 0
       value: 50
@@ -46,10 +46,10 @@ MonoBehaviour:
       value: 20
       isPercentage: 0
     - statType: 1
-      value: 8
+      value: 6.5
       isPercentage: 0
   - manaCost: 30
-    cooldown: 9
+    cooldown: 6
     stats:
     - statType: 0
       value: 70
@@ -58,10 +58,10 @@ MonoBehaviour:
       value: 30
       isPercentage: 0
     - statType: 1
-      value: 9
+      value: 6
       isPercentage: 0
   - manaCost: 45
-    cooldown: 10
+    cooldown: 5.5
     stats:
     - statType: 0
       value: 100
@@ -70,10 +70,10 @@ MonoBehaviour:
       value: 45
       isPercentage: 0
     - statType: 1
-      value: 10
+      value: 5.5
       isPercentage: 0
   - manaCost: 60
-    cooldown: 12
+    cooldown: 5
     stats:
     - statType: 0
       value: 150
@@ -82,7 +82,7 @@ MonoBehaviour:
       value: 60
       isPercentage: 0
     - statType: 1
-      value: 12
+      value: 5
       isPercentage: 0
   animationTriggerName: UseSkill2
   castingEffectPrefab: {fileID: 109802, guid: 1cbb8bd81ac665b429d00d6370bdc28e, type: 3}

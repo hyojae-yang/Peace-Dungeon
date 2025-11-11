@@ -31780,6 +31780,7 @@ MonoBehaviour:
   packAttackSpeed: 20
   attackCooldown: 1.5
   rotationSpeed: 8
+  attackPreDelay: 0.4
   followerJoinRange: 7
   followerStoppingDistance: 1
   minStunDuration: 0.5
@@ -31818,7 +31819,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 1
+  MinDistance: 5
   MaxDistance: 200
   Pan2D: 0
   rolloffMode: 0

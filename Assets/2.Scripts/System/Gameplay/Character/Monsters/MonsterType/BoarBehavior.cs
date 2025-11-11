@@ -106,6 +106,8 @@ public class BoarBehavior : MonoBehaviour
         // 마나 초기화 및 초기 상태 설정
         currentMana = monster.MaxMana;
         monster.ChangeState(MonsterBase.MonsterState.Patrol);
+        // lastAttackTime을 초기화하여 Start 직후 공격이 가능하도록 설정 (선택 사항)
+        lastAttackTime = -attackCooldown;
     }
 
     private void OnEnable()
@@ -132,6 +134,7 @@ public class BoarBehavior : MonoBehaviour
 
     /// <summary>
     /// 몬스터가 데미지를 입었을 때 호출되며, 즉시 공격 상태로 전환합니다.
+    /// **[핵심 수정]** 공격 중 피격되면 코루틴을 중지하고 쿨타임을 초기화합니다.
     /// </summary>
     private void OnMonsterDamaged(float damage)
     {
@@ -141,40 +144,59 @@ public class BoarBehavior : MonoBehaviour
             return;
         }
 
-        // **[수정]** 공격 코루틴이 실행 중일 때 피격 시 코루틴을 중지하고 상태 전환을 시도합니다.
+        bool wasAttacking = isAttacking; // 쿨타임 초기화에 사용하기 위해 현재 공격 상태 저장
+
+        // 공격 코루틴이 실행 중일 때 피격 시 코루틴을 중지하고 상태 전환을 시도합니다.
         if (isAttacking)
         {
             if (attackCoroutine != null) StopCoroutine(attackCoroutine);
             isAttacking = false;
-            // 공격 중 상태 전환은 경직(Stun) 로직에서 처리됨
+            attackCoroutine = null; // 코루틴 참조 해제
+        }
+
+        //공격 중 피격으로 취소되었다면, 쿨타임을 초기화하여 즉시 다음 공격 준비 가능하게 설정합니다.
+        // 쿨타임을 충분히 과거로 돌려 즉시 공격 가능하게 설정
+        if (wasAttacking)
+        {
+            lastAttackTime = -attackCooldown;
         }
 
         // 데미지를 입으면 즉시 공격 상태로 전환 및 순찰 중지 (Charge 상태가 아닐 때만 실행)
+        // 경직 로직에서 상태가 Stun으로 전환되므로, 여기서는 기본적으로 Attack으로 전환을 시도합니다.
         monster.ChangeState(MonsterBase.MonsterState.Attack);
         monsterPatrol.StopPatrol();
     }
 
     /// <summary>
     /// MonsterCombat.OnStunApplied 이벤트 발생 시 호출되며 경직 코루틴을 시작합니다.
+    /// **[핵심 수정]** 경직 시 공격 코루틴을 중지하고 쿨타임을 초기화합니다.
     /// </summary>
     private void ApplyHitStun()
     {
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
-        // **[추가]** 공격 중 경직이 들어오면 공격 코루틴을 중지합니다.
+        bool wasAttacking = isAttacking; // 쿨타임 초기화에 사용하기 위해 현재 공격 상태 저장
+
+        //공격 중 경직이 들어오면 공격 코루틴을 중지하고 쿨타임을 초기화합니다.
         if (isAttacking)
         {
             if (attackCoroutine != null) StopCoroutine(attackCoroutine);
             isAttacking = false;
-            // 몬스터의 상태는 StunRoutine에서 Stun으로 전환됨
+            attackCoroutine = null; // 코루틴 참조 해제
         }
 
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
 
         // Stun 상태로 진입 시, 현재 돌진 중인지 확인하여 상태 전환 여부를 결정합니다.
-        // 현재 로직대로 Attack 상태에서는 경직이 작동합니다.
         if (monster.currentState != MonsterBase.MonsterState.Charge)
         {
+            //경직이 해제된 후 바로 공격할 수 있도록 쿨타임 초기화
+            if (wasAttacking)
+            {
+                // 쿨타임을 충분히 과거로 돌려 즉시 공격 가능하게 설정
+                lastAttackTime = -attackCooldown;
+            }
+
             // 돌진 중이 아니라면 (일반 상태라면) StunRoutine을 시작합니다.
             hasInitiatedCharge = false;
             isPreparingCharge = false;
@@ -372,14 +394,14 @@ public class BoarBehavior : MonoBehaviour
     /// </summary>
     private void HandleAttack(float distanceToPlayer)
     {
-        // **[핵심 수정 1]** 공격 코루틴이 진행 중이라면, 추격/공격 로직을 모두 무시하고 제자리에 멈춥니다.
+        // 공격 코루틴이 진행 중이라면, 추격/공격 로직을 모두 무시하고 제자리에 멈춥니다.
         if (isAttacking)
         {
             // 공격 애니메이션 중에는 멈춤
             return;
         }
 
-        // **[핵심 수정 2]** 공격 범위 안일 때 (distanceToPlayer <= attackRange)
+        //공격 범위 안일 때 (distanceToPlayer <= attackRange)
         if (distanceToPlayer <= attackRange)
         {
             // 공격 쿨타임 체크 후 공격 시작

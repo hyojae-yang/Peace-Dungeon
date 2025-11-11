@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+ï»¿using System.Collections.Generic;
 using UnityEngine;
 
 public class SmallMap : MonoBehaviour
@@ -6,23 +6,23 @@ public class SmallMap : MonoBehaviour
     private Camera mainCam;
     private bool isDragging = false;
 
-    // ´õºíÅ¬¸¯ °¨Áö¸¦ À§ÇÑ º¯¼ö
+    // ë”ë¸”í´ë¦­ ê°ì§€ë¥¼ ìœ„í•œ ë³€ìˆ˜
     private float lastClickTime = 0f;
     private const float doubleClickTime = 0.3f;
 
-    // SmallMapItem ½ºÅ©¸³Æ® ÂüÁ¶
+    // SmallMapItem ìŠ¤í¬ë¦½íŠ¸ ì°¸ì¡°
     private SmallMapItem smallMapItem;
 
-    // µå·¡±× ½ÃÀÛ À§Ä¡¸¦ ÀúÀåÇÒ º¯¼ö (·ÎÁ÷Àº »ç¿ëÇÏÁö¸¸ Á¦ÇÑ ±âÁØÁ¡Àº ¾Æ´Ô)
+    // ë“œë˜ê·¸ ì‹œì‘ ìœ„ì¹˜ë¥¼ ì €ì¥í•  ë³€ìˆ˜ (ë¡œì§ì€ ì‚¬ìš©í•˜ì§€ë§Œ ì œí•œ ê¸°ì¤€ì ì€ ì•„ë‹˜)
     private Vector3 dragStartPosition;
 
-    [Header("µå·¡±× Á¦ÇÑ ¼³Á¤ (°íÁ¤µÈ ¿ùµå¸Ê ¿µ¿ª)")]
-    [Tooltip("µå·¡±× Á¦ÇÑ ¿µ¿ªÀÇ ¿ùµå ÁÂÇ¥ Áß½ÉÁ¡ÀÔ´Ï´Ù. ÀÌ À§Ä¡¸¦ ±âÁØÀ¸·Î °æ°è°¡ »ı¼ºµË´Ï´Ù.")]
-    // **[ÇÙ½É ¼öÁ¤]** µå·¡±× Á¦ÇÑÀÇ °íÁ¤µÈ Áß½ÉÁ¡ ¿ùµå ÁÂÇ¥
+    [Header("ë“œë˜ê·¸ ì œí•œ ì„¤ì • (ê³ ì •ëœ ì›”ë“œë§µ ì˜ì—­)")]
+    [Tooltip("ë“œë˜ê·¸ ì œí•œ ì˜ì—­ì˜ ì›”ë“œ ì¢Œí‘œ ì¤‘ì‹¬ì ì…ë‹ˆë‹¤. ì´ ìœ„ì¹˜ë¥¼ ê¸°ì¤€ìœ¼ë¡œ ê²½ê³„ê°€ ìƒì„±ë©ë‹ˆë‹¤.")]
+    // ë“œë˜ê·¸ ì œí•œì˜ ê³ ì •ëœ ì¤‘ì‹¬ì  ì›”ë“œ ì¢Œí‘œ
     [SerializeField] private Vector3 dragLimitCenter = Vector3.zero;
 
-    [Tooltip("Áß½ÉÁ¡¿¡¼­ X, Y, ZÃàÀ¸·Î °¢°¢ Çã¿ëµÇ´Â ÃÖ´ë ÀÌµ¿ °Å¸®ÀÔ´Ï´Ù. (¸Ê °æ°è Å©±â)")]
-    // **[ÇÙ½É À¯Áö]** Áß½ÉÁ¡À¸·ÎºÎÅÍÀÇ ¹üÀ§ (Extent)
+    [Tooltip("ì¤‘ì‹¬ì ì—ì„œ X, Y, Zì¶•ìœ¼ë¡œ ê°ê° í—ˆìš©ë˜ëŠ” ìµœëŒ€ ì´ë™ ê±°ë¦¬ì…ë‹ˆë‹¤. (ë§µ ê²½ê³„ í¬ê¸°)")]
+    // ì¤‘ì‹¬ì ìœ¼ë¡œë¶€í„°ì˜ ë²”ìœ„ (Extent)
     [SerializeField] private Vector3 dragLimitExtent = new Vector3(500f, 0f, 350f);
 
     [Header("Map Tile Data")]
@@ -43,7 +43,7 @@ public class SmallMap : MonoBehaviour
 
         if (mainCam == null)
         {
-            Debug.LogError("¸ŞÀÎ Ä«¸Ş¶ó¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù. 'MainCamera' ÅÂ±×°¡ ¿Ã¹Ù¸£°Ô ¼³Á¤µÇ¾ú´ÂÁö È®ÀÎÇÏ¼¼¿ä.");
+            Debug.LogError("ë©”ì¸ ì¹´ë©”ë¼ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤. 'MainCamera' íƒœê·¸ê°€ ì˜¬ë°”ë¥´ê²Œ ì„¤ì •ë˜ì—ˆëŠ”ì§€ í™•ì¸í•˜ì„¸ìš”.");
         }
 
         smallMapItem = GetComponent<SmallMapItem>();
@@ -51,7 +51,7 @@ public class SmallMap : MonoBehaviour
 
     private void Start()
     {
-        // YÃà Á¦ÇÑÀº ÇÊ¿ä ¾ø´Â °æ¿ì°¡ ¸¹À¸¹Ç·Î ¾ÈÀüÀåÄ¡
+        // Yì¶• ì œí•œì€ í•„ìš” ì—†ëŠ” ê²½ìš°ê°€ ë§ìœ¼ë¯€ë¡œ ì•ˆì „ì¥ì¹˜
         if (dragLimitExtent.y < 0) dragLimitExtent.y = 0;
     }
 
@@ -74,25 +74,25 @@ public class SmallMap : MonoBehaviour
 
             Vector3 targetPosition = GetMouseWorldPosition();
 
-            // **[ÇÙ½É ¼öÁ¤]** °íÁ¤µÈ Áß½ÉÁ¡À» ±âÁØÀ¸·Î Á÷»ç°¢Çü µå·¡±× Á¦ÇÑ ·ÎÁ÷ Àû¿ë
+            // ê³ ì •ëœ ì¤‘ì‹¬ì ì„ ê¸°ì¤€ìœ¼ë¡œ ì§ì‚¬ê°í˜• ë“œë˜ê·¸ ì œí•œ ë¡œì§ ì ìš©
 
-            // 1. ¸ñÇ¥ À§Ä¡¿Í Á¦ÇÑ Áß½ÉÁ¡(dragLimitCenter) °£ÀÇ »ó´ëÀû ÀÌµ¿ °Å¸® °è»ê
+            // 1. ëª©í‘œ ìœ„ì¹˜ì™€ ì œí•œ ì¤‘ì‹¬ì (dragLimitCenter) ê°„ì˜ ìƒëŒ€ì  ì´ë™ ê±°ë¦¬ ê³„ì‚°
             Vector3 offsetFromCenter = targetPosition - dragLimitCenter;
 
-            // 2. °¢ Ãà(X, Y, Z)º°·Î Á¦ÇÑ ¹üÀ§ ³»¿¡ ÀÖ´ÂÁö È®ÀÎÇÏ°í º¸Á¤ (Clamp)
-            // Áï, offsetFromCenterÀÇ °¢ ¿ä¼Ò°¡ -Extent¿Í +Extent »çÀÌ¿¡ ÀÖµµ·Ï Á¦ÇÑÇÕ´Ï´Ù.
+            // 2. ê° ì¶•(X, Y, Z)ë³„ë¡œ ì œí•œ ë²”ìœ„ ë‚´ì— ìˆëŠ”ì§€ í™•ì¸í•˜ê³  ë³´ì • (Clamp)
+            // ì¦‰, offsetFromCenterì˜ ê° ìš”ì†Œê°€ -Extentì™€ +Extent ì‚¬ì´ì— ìˆë„ë¡ ì œí•œí•©ë‹ˆë‹¤.
             offsetFromCenter.x = Mathf.Clamp(offsetFromCenter.x, -dragLimitExtent.x, dragLimitExtent.x);
             offsetFromCenter.y = Mathf.Clamp(offsetFromCenter.y, -dragLimitExtent.y, dragLimitExtent.y);
             offsetFromCenter.z = Mathf.Clamp(offsetFromCenter.z, -dragLimitExtent.z, dragLimitExtent.z);
 
-            // 3. Á¦ÇÑµÈ ¿ÀÇÁ¼ÂÀ» Á¦ÇÑ Áß½ÉÁ¡¿¡ ´õÇÏ¿© ÃÖÁ¾ À§Ä¡¸¦ ¼³Á¤
+            // 3. ì œí•œëœ ì˜¤í”„ì…‹ì„ ì œí•œ ì¤‘ì‹¬ì ì— ë”í•˜ì—¬ ìµœì¢… ìœ„ì¹˜ë¥¼ ì„¤ì •
             targetPosition = dragLimitCenter + offsetFromCenter;
 
             transform.position = targetPosition;
         }
     }
 
-    // (OnEnable, OnDisable ¸Ş¼­µå´Â º¯°æ ¾øÀÌ À¯Áö)
+    // (OnEnable, OnDisable ë©”ì„œë“œëŠ” ë³€ê²½ ì—†ì´ ìœ ì§€)
     private void OnEnable()
     {
         if (DungeonMap.Instance != null)
@@ -130,7 +130,7 @@ public class SmallMap : MonoBehaviour
         }
         TestSenser.tt = false;
 
-        // µå·¡±× ½ÃÀÛ À§Ä¡ ÀúÀå (³ªÁß¿¡ ½º³À ½Ã ÇÊ¿äÇÒ ¼ö ÀÖÀ¸³ª, Á¦ÇÑ Áß½ÉÁ¡À¸·Î´Â »ç¿ëÇÏÁö ¾ÊÀ½)
+        // ë“œë˜ê·¸ ì‹œì‘ ìœ„ì¹˜ ì €ì¥ (ë‚˜ì¤‘ì— ìŠ¤ëƒ… ì‹œ í•„ìš”í•  ìˆ˜ ìˆìœ¼ë‚˜, ì œí•œ ì¤‘ì‹¬ì ìœ¼ë¡œëŠ” ì‚¬ìš©í•˜ì§€ ì•ŠìŒ)
         dragStartPosition = transform.position;
 
         isDragging = true;
@@ -140,11 +140,23 @@ public class SmallMap : MonoBehaviour
 
     private void OnMouseUp()
     {
-        isDragging = false;
+Â  Â  Â  Â  // ë“œë˜ê·¸ ì‹œì‘ ì‹œ isDraggingì„ trueë¡œ ì„¤ì •í–ˆìœ¼ë¯€ë¡œ,
+        // ë“œë˜ê·¸ê°€ ìœ íš¨í•˜ê²Œ ì‹œì‘ëëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+        // ê·¸ë¦¬ê³  ë“œë˜ê·¸ê°€ ì‹¤ì œë¡œ ì‹œì‘ëœ ê²½ìš°ì—ë§Œ ë°°ì¹˜ ì‹œë„ ë° ì‚¬ìš´ë“œë¥¼ ì¬ìƒí•©ë‹ˆë‹¤.
+        if (!isDragging)
+        {
+            return; // ë“œë˜ê·¸ ìƒíƒœê°€ ì•„ë‹ˆì—ˆë‹¤ë©´ ì•„ë¬´ê²ƒë„ í•˜ì§€ ì•Šê³  ì¢…ë£Œ
+        }
+
+Â  Â  Â  Â  // isDraggingì„ falseë¡œ ë°”ê¾¸ëŠ” ê²ƒì€ ìœ íš¨í•œ ë“œë˜ê·¸ í›„ ë°°ì¹˜ ì‹œë„ ì§ì „ì— ìœ„ì¹˜í•˜ëŠ” ê²ƒì´ ì ì ˆí•©ë‹ˆë‹¤.
+Â  Â  Â  Â  isDragging = false;
+
+        // [ìˆ˜ì •ëœ ë¡œì§] ë“œë˜ê·¸ê°€ ëë‚¬ì„ ë•Œë§Œ ë°°ì¹˜ ì‚¬ìš´ë“œë¥¼ ì¬ìƒí•©ë‹ˆë‹¤.
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlaySFX(SFXType.Map_Place, 0.5f);
         }
+
         if (DungeonMap.Instance != null)
         {
             TestSenser.tt = true;
@@ -152,7 +164,7 @@ public class SmallMap : MonoBehaviour
         }
     }
 
-    // DungeonMap¿¡¼­ »ç¿ëÇÒ ¼ö ÀÖµµ·Ï ¸Ê Å¸ÀÏ ¸ñ·Ï ¹İÈ¯
+    // DungeonMapì—ì„œ ì‚¬ìš©í•  ìˆ˜ ìˆë„ë¡ ë§µ íƒ€ì¼ ëª©ë¡ ë°˜í™˜
     public List<Vector3> GetRotatedMapTiles()
     {
         List<Vector3> rotatedTiles = new List<Vector3>();
@@ -183,49 +195,49 @@ public class SmallMap : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        // OnDrawGizmos()´Â ¿¡µğÅÍ¿¡¼­¸¸ È£Ãâ
+        // OnDrawGizmos()ëŠ” ì—ë””í„°ì—ì„œë§Œ í˜¸ì¶œ
         if (!Application.isPlaying)
         {
             DrawGizmoTiles(transform.position);
 
-            // **[ÇÙ½É Àû¿ë]** °íÁ¤µÈ Áß½ÉÁ¡À» ±âÁØÀ¸·Î Á÷»ç°¢Çü µå·¡±× Á¦ÇÑ ±âÁî¸ğ Ç¥½Ã
+            // ê³ ì •ëœ ì¤‘ì‹¬ì ì„ ê¸°ì¤€ìœ¼ë¡œ ì§ì‚¬ê°í˜• ë“œë˜ê·¸ ì œí•œ ê¸°ì¦ˆëª¨ í‘œì‹œ
             DrawDragLimitBox(dragLimitCenter);
         }
         else
         {
-            // °ÔÀÓ Áß
+            // ê²Œì„ ì¤‘
             DrawGizmoTiles(transform.position);
 
-            // **[ÇÙ½É Àû¿ë]** °íÁ¤µÈ Áß½ÉÁ¡À» ±âÁØÀ¸·Î Á÷»ç°¢Çü µå·¡±× Á¦ÇÑ ±âÁî¸ğ Ç¥½Ã
+            // ê³ ì •ëœ ì¤‘ì‹¬ì ì„ ê¸°ì¤€ìœ¼ë¡œ ì§ì‚¬ê°í˜• ë“œë˜ê·¸ ì œí•œ ê¸°ì¦ˆëª¨ í‘œì‹œ
             if (isDragging)
             {
-                // µå·¡±× ÁßÀÌ´õ¶óµµ °íÁ¤µÈ dragLimitCenter¸¦ ±âÁØÀ¸·Î ¹Ú½º¸¦ ±×¸³´Ï´Ù.
+                // ë“œë˜ê·¸ ì¤‘ì´ë”ë¼ë„ ê³ ì •ëœ dragLimitCenterë¥¼ ê¸°ì¤€ìœ¼ë¡œ ë°•ìŠ¤ë¥¼ ê·¸ë¦½ë‹ˆë‹¤.
                 DrawDragLimitBox(dragLimitCenter);
             }
         }
 
-        // Áß½É Å¸ÀÏÀÇ À§Ä¡¸¦ »¡°£»ö Å¥ºê·Î Ç¥½Ã
+        // ì¤‘ì‹¬ íƒ€ì¼ì˜ ìœ„ì¹˜ë¥¼ ë¹¨ê°„ìƒ‰ íë¸Œë¡œ í‘œì‹œ
         Gizmos.color = Color.red;
         Vector3 rotatedOriginTile = transform.rotation * originTile;
         Gizmos.DrawSphere(transform.position + rotatedOriginTile, 10f);
     }
 
     /// <summary>
-    /// ÀÎ½ºÆåÅÍ¿¡ ¼³Á¤µÈ dragLimitExtent¸¦ ±âÁØÀ¸·Î Á÷»ç°¢Çü Á¦ÇÑ ¿µ¿ªÀ» ±âÁî¸ğ·Î ±×¸³´Ï´Ù.
+    /// ì¸ìŠ¤í™í„°ì— ì„¤ì •ëœ dragLimitExtentë¥¼ ê¸°ì¤€ìœ¼ë¡œ ì§ì‚¬ê°í˜• ì œí•œ ì˜ì—­ì„ ê¸°ì¦ˆëª¨ë¡œ ê·¸ë¦½ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="center">Á¦ÇÑ ¿µ¿ªÀÇ Áß½É À§Ä¡ (°íÁ¤µÈ dragLimitCenter)</param>
+    /// <param name="center">ì œí•œ ì˜ì—­ì˜ ì¤‘ì‹¬ ìœ„ì¹˜ (ê³ ì •ëœ dragLimitCenter)</param>
     private void DrawDragLimitBox(Vector3 center)
     {
         Gizmos.color = Color.yellow;
 
-        // Size´Â ExtentÀÇ 2¹èÀÔ´Ï´Ù. (Extents´Â Áß½É¿¡¼­ °¢ ¸é±îÁöÀÇ °Å¸®)
+        // SizeëŠ” Extentì˜ 2ë°°ì…ë‹ˆë‹¤. (ExtentsëŠ” ì¤‘ì‹¬ì—ì„œ ê° ë©´ê¹Œì§€ì˜ ê±°ë¦¬)
         Vector3 size = dragLimitExtent * 2f;
 
-        // Gizmos.DrawWireCube¸¦ »ç¿ëÇÏ¿© Á÷»ç°¢Çü(Å¥ºê) ÇüÅÂ·Î °æ°è¸¦ Ç¥½ÃÇÕ´Ï´Ù.
+        // Gizmos.DrawWireCubeë¥¼ ì‚¬ìš©í•˜ì—¬ ì§ì‚¬ê°í˜•(íë¸Œ) í˜•íƒœë¡œ ê²½ê³„ë¥¼ í‘œì‹œí•©ë‹ˆë‹¤.
         Gizmos.DrawWireCube(center, size);
     }
 
-    // Å¸ÀÏ ±×¸®±â ·ÎÁ÷À» ºĞ¸®ÇÏ¿© OnDrawGizmos¿¡¼­ ÀçÈ°¿ëÇÕ´Ï´Ù.
+    // íƒ€ì¼ ê·¸ë¦¬ê¸° ë¡œì§ì„ ë¶„ë¦¬í•˜ì—¬ OnDrawGizmosì—ì„œ ì¬í™œìš©í•©ë‹ˆë‹¤.
     private void DrawGizmoTiles(Vector3 currentPosition)
     {
         Gizmos.color = validGizmoColor;

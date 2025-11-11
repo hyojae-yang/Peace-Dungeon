@@ -269,11 +269,14 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         // 오브젝트 비활성화 및 컨트롤 제한
         if (playerCollider != null) playerCollider.enabled = false; // 충돌 비활성화
         if (playerRigidbody != null) playerRigidbody.isKinematic = true; // 물리 비활성화
-        if (playerCharacter != null && playerCharacter.playerController != null)
+        if (playerCharacter != null && playerCharacter.playerController != null && playerCharacter.playerAttack != null)
+        {
             playerCharacter.playerController.enabled = false; // 플레이어 컨트롤러 비활성화
+            playerCharacter.playerAttack.enabled = false; // 공격 비활성화
+        }
 
-        // 사망 효과음 재생
-        if (playerAudioSource != null && dieSoundClip != null)
+            // 사망 효과음 재생
+            if (playerAudioSource != null && dieSoundClip != null)
         {
             // PlayOneShot을 사용하여 사망 BGM이 시작되기 직전에 단발성 효과음을 재생합니다.
             playerAudioSource.PlayOneShot(dieSoundClip);
