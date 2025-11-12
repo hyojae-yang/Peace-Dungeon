@@ -54,7 +54,7 @@ public class ShopManager : MonoBehaviour, INPCFunction
     /// </summary>
     public string FunctionButtonName
     {
-        get { return "상점"; }
+        get { return "잡화점"; }
     }
 
     /// <summary>

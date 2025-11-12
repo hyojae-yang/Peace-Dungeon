@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq; // HashSet 생성자를 사용하기 위해 추가
 
 public class ViligeMap : MonoBehaviour
 {
@@ -14,7 +15,7 @@ public class ViligeMap : MonoBehaviour
 
     private Vector3 gridOrigin; // 스크립트가 내부적으로 사용할 그리드 원점
     [SerializeField]
-    private Vector3 offGridPosition = new Vector3(-9999f, 0f, 0f);
+    private Vector3 offGridPosition = new Vector3(-9999f, 0f, 0f); // 유효하지 않은 맵의 최종 위치
 
     // 1단계: 인스펙터에서 할당할 던전 타일들을 저장할 배열
     [Header("던전 타일 정보")]
@@ -144,6 +145,40 @@ public class ViligeMap : MonoBehaviour
             // Debug.Log($"Register: 맵 {map.name}의 점유 정보 등록 완료.");
         }
     }
+
+    // ==========================================================
+    // [추가된 기능] 유효하지 않은 맵 조각 검색
+    // ==========================================================
+
+    /// <summary>
+    /// 현재 씬에 배치된 TownMap 인스턴스 중 유효하지 않은 위치(occupiedTiles에 등록되지 않은 맵)에 있는 맵들을 검색하여 반환합니다.
+    /// **(수정됨: offGridPosition 대신 occupiedTiles 등록 여부로 판단)**
+    /// </summary>
+    /// <returns>회수해야 할 TownMap 인스턴스 리스트</returns>
+    public List<TownMap> GetInvalidlyPlacedMaps()
+    {
+        List<TownMap> invalidMaps = new List<TownMap>();
+
+        // FindObjectsByType을 사용하여 씬 전체에서 모든 TownMap 인스턴스를 검색합니다.
+        TownMap[] allMaps = Object.FindObjectsByType<TownMap>(FindObjectsSortMode.None);
+
+        // occupiedTiles 딕셔너리의 Value (TownMap.transform)들만 추출하여 HashSet을 생성합니다.
+        // 이는 O(1)의 속도로 맵의 Transform이 유효하게 점유되었는지 확인하기 위함입니다.
+        HashSet<Transform> occupiedTransforms = new HashSet<Transform>(occupiedTiles.Values);
+
+        foreach (TownMap map in allMaps)
+        {
+            // DUMMY_DENIAL_MAP은 Denial Tile을 의미하며, TownMap 조각은 아니므로 비교 시 안전합니다.
+            // 맵의 Transform이 occupiedTiles에 등록되지 않았다면, 이는 유효하게 배치되지 않은 맵으로 간주합니다.
+            if (!occupiedTransforms.Contains(map.transform))
+            {
+                invalidMaps.Add(map);
+            }
+        }
+
+        return invalidMaps;
+    }
+
     // 마우스 위치를 그리드 좌표로 변환하여 반환
     public Vector2Int GetGridCoordinates(Vector3 worldPos)
     {
@@ -176,6 +211,7 @@ public class ViligeMap : MonoBehaviour
             {
                 if (occupiedTiles[gridCoords] != map.transform)
                 {
+                    // Debug.Log($"Placement Invalid: 맵 {map.name}이 위치 {gridCoords}에서 다른 맵과 겹칩니다.");
                     return false; // 다른 스몰맵과 겹치므로 유효하지 않음
                 }
             }
@@ -184,6 +220,7 @@ public class ViligeMap : MonoBehaviour
         // 최종 판정: 던전 타일과 전혀 겹치지 않았다면
         if (!hasContactWithDungeon)
         {
+            // Debug.Log($"Placement Valid: 던전 외부에 자유 배치.");
             return true; // 유효성 검사 통과 (자유 배치 허용)
         }
         else
@@ -197,9 +234,11 @@ public class ViligeMap : MonoBehaviour
                 // 핵심 수정: 스몰맵의 모든 타일이 던전 범위 안에 있는지 확인
                 if (!validDungeonTileCoords.Contains(gridCoords))
                 {
+                    // Debug.Log($"Placement Invalid: 맵 {map.name}이 던전 범위를 벗어납니다.");
                     return false; // 하나라도 던전 범위를 벗어나면 유효하지 않음
                 }
             }
+            // Debug.Log($"Placement Valid: 던전 내부에 완벽하게 배치됨.");
             return true; // 모든 검사 통과
         }
     }
@@ -213,8 +252,6 @@ public class ViligeMap : MonoBehaviour
 
         // 유효성 검사를 먼저 수행합니다.
         bool isValidPlacement = IsPlacementValid(map, currentMouseWorldPos);
-
-        // Debug.Log($"SnapAndPlace: 맵 {map.name} 위치 {currentMouseWorldPos} 에서 유효성 검사. 결과: {isValidPlacement}");
 
         // 1. 제거 로직: 일단 현재 맵이 점유하고 있던 모든 타일 정보를 제거합니다.
         RemoveOccupiedTiles(map);
@@ -235,20 +272,23 @@ public class ViligeMap : MonoBehaviour
                 }
             }
 
-            if (hasContact) // 던전 타일 위에 놓으려는 경우
+            if (hasContact) // 던전 타일 위에 놓으려는 경우 (유효한 배치)
             {
                 map.transform.position = snappedPos; // 그리드에 맞춰 스냅된 위치로 배치
-                AddOccupiedTiles(map); // 새로운 위치 정보를 occupiedTiles에 추가
+                AddOccupiedTiles(map); // 새로운 위치 정보를 occupiedTiles에 **등록**
+                // Debug.Log($"SnapAndPlace: 맵 {map.name}이 던전 내부 그리드 {originCoords}에 스냅됨.");
             }
-            else // 던전 타일 외부에 놓으려는 경우
+            else // 던전 타일 외부에 놓으려는 경우 (유효한 배치이나 관리 대상 아님)
             {
                 // 맵의 transform.position은 이미 currentMouseWorldPos에 있습니다.
                 // 던전 외부는 occupiedTiles에 등록하지 않습니다.
+                // Debug.Log($"SnapAndPlace: 맵 {map.name}이 던전 외부에 자유 배치됨.");
             }
         }
         else // IsPlacementValid가 false인 경우 (유효하지 않은 배치: 겹침, 범위를 벗어남 등)
         {
             map.transform.position = offGridPosition; // OffGridPosition으로 이동
+            // 유효하지 않은 배치는 occupiedTiles에 등록되지 않습니다.
         }
     }
 

@@ -100,7 +100,8 @@ public class CookingUIManager : MonoBehaviour
 
         // UI 패널을 활성화합니다.
         cookingUIPanel.SetActive(true);
-
+        if (PlayerCharacter.Instance != null)
+        { PlayerCharacter.Instance.playerController.enabled = false; }
         // 수정된 부분: 인벤토리 UI를 갱신하는 메서드를 호출합니다.
         UpdateInventoryUI();
 
@@ -234,5 +235,7 @@ public class CookingUIManager : MonoBehaviour
     public void HideCookingUI()
     {
         cookingUIPanel.SetActive(false);
+        if (PlayerCharacter.Instance != null)
+        { PlayerCharacter.Instance.playerController.enabled = true; }
     }
 }

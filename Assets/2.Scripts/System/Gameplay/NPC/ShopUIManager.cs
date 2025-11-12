@@ -121,7 +121,8 @@ public class ShopUIManager : MonoBehaviour
             Debug.LogWarning("Shop UI 패널이 할당되지 않았습니다.");
             return;
         }
-
+        if (PlayerCharacter.Instance != null)
+        { PlayerCharacter.Instance.playerController.enabled = false; }
         // NPC 이름을 UI에 표시합니다.
         if (npcNameText != null)
         {
@@ -153,6 +154,8 @@ public class ShopUIManager : MonoBehaviour
         {
             shopPanel.SetActive(false);
         }
+        if (PlayerCharacter.Instance != null)
+        { PlayerCharacter.Instance.playerController.enabled = true; }
     }
 
     /// <summary>

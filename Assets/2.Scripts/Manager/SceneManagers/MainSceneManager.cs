@@ -204,7 +204,11 @@ public class MainSceneManager : MonoBehaviour
     {
         isGameOver = true;
         OnGameOver?.Invoke();
-
+        // BGM 변경 및 게임 오버 처리
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlayBGM(BGMType.Main_D);
+        }
         // 게임 오버 상태에 진입하면 PlayerCanvas를 비활성화하여
         // 플레이어의 상호작용을 막습니다.
         if (playerCanvas != null && playerCanvas.activeInHierarchy)

@@ -12,9 +12,10 @@ public enum BGMType
     Title,      // 1: 타이틀 씬 BGM
     Loading,    // 2: 로딩 씬 BGM
     Main_A,     // 3: 메인 씬 BGM
-    Main_B,     // 4: 던전입장 씬 BGM
+    Main_B,     // 4: 던전 씬 BGM
     Main_C,     // 5: 보스룸 씬 BGM
-    Main_D      // 6: 사망 씬 BGM
+    Main_D,      // 6: 사망 씬 BGM
+    Clear,       // 7: 클리어 씬 BGM
 }
 
 [System.Serializable]

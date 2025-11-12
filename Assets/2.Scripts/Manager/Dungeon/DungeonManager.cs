@@ -458,7 +458,8 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
         {
             // 1. SaveManager를 거치지 않고, DungeonManager가 직접 자신의 딕셔너리를 사용합니다.
             bool isAlreadyKilled = this.bossFirstKillRecords.ContainsKey(currentBossID); // 수정된 부분!
-
+            if (SoundManager.Instance != null)
+            { SoundManager.Instance.PlayBGM(BGMType.Clear, 1.0f); }
             if (!isAlreadyKilled)
             {
                 if (NotificationManager.Instance != null)
@@ -475,7 +476,11 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                     DungeonInventoryManager.Instance.AddPlayerItem("2"); // 요리마을 조각
                 }
                 // ==========================================================
-
+                // EndingManager에게 엔딩 크레딧 표시를 명령합니다.
+                if (EndingManager.Instance != null)
+                {
+                    EndingManager.Instance.ActivateEndingPanel();
+                }
                 // 2. 내부 딕셔너리에 기록을 업데이트합니다.
                 this.bossFirstKillRecords[currentBossID] = true; // 수정된 부분!
                 // 3. 변경 사항을 영구 저장하려면 SaveManager.SaveGame()을 호출합니다.

@@ -28,7 +28,6 @@ public class DungeonScoreManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            // DontDestroyOnLoad(gameObject); // 만약 씬 전환에도 유지되어야 한다면 이 주석을 해제합니다.
         }
         else
         {
@@ -68,6 +67,12 @@ public class DungeonScoreManager : MonoBehaviour
     /// <param name="baseScore">몬스터로부터 획득한 기본 점수</param>
     public void AddScore(int baseScore)
     {
+        // 몬스터 처치로 점수를 얻었으므로, 총 처치 횟수를 증가시킵니다.
+        if (KillCountManager.Instance != null)
+        {
+            KillCountManager.Instance.AddKillCount();
+        }
+
         int riskLevel = 0;
 
         // [핵심 수정] DungeonRiskManager에서 레벨을 가져옵니다.

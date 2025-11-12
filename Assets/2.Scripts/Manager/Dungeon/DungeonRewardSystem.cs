@@ -172,7 +172,7 @@ public class DungeonRewardSystem : MonoBehaviour
         {
             Debug.LogWarning("DungeonUIManager가 존재하지 않아 결과 화면을 표시할 수 없습니다.");
         }
-        // **[추가]** 4-1. 던전 코인 재화 지급 위임 (DungeonCoinCurrency에 단일 책임 위임)
+        // 4-1. 던전 코인 재화 지급 위임 (DungeonCoinCurrency에 단일 책임 위임)
         if (DungeonCoinCurrency.Instance != null && finalCoins > 0)
         {
             DungeonCoinCurrency.Instance.AddCoins(finalCoins);

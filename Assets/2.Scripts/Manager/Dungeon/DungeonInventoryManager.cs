@@ -5,6 +5,7 @@ using UnityEngine;
 /// <summary>
 /// 던전 내 인벤토리 관리를 담당하는 싱글톤 클래스입니다.
 /// ISavable 인터페이스를 구현하여 아이템 데이터를 저장하고 로드합니다.
+/// SOLID 원칙 중 SRP(단일 책임)와 OCP(개방-폐쇄)를 지향합니다.
 /// </summary>
 public class DungeonInventoryManager : MonoBehaviour, ISavable
 {
@@ -15,12 +16,11 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
     public static DungeonInventoryManager Instance { get; private set; }
 
     // === 필드 ===
-    // ObjectPool 의존성 제거
     [SerializeField] private ItemDatabase itemDatabase;
     [SerializeField] private Transform contentParent;
     [SerializeField] private RectTransform dungeonInventoryRect;
 
-    // 플레이어가 보유한 아이템 ID와 고유 ID 리스트
+    // 플레이어가 보유한 아이템 ID와 고유 ID 리스트 (Tuple<ItemID, UniqueID>)
     public List<Tuple<string, int>> playerItems = new List<Tuple<string, int>>();
     private int nextUniqueID = 0; // 고유 ID를 생성하는 카운터
 
@@ -29,7 +29,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
     /// </summary>
     private void Awake()
     {
-        // 1. 싱글톤 인스턴스 설정
+        // 1. 싱글톤 인스턴스 설정 (SRP, Single Responsibility Principle)
         if (Instance == null)
         {
             Instance = this;
@@ -43,7 +43,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
             return; // 중복 인스턴스는 즉시 작업을 중단합니다.
         }
 
-        // 2. ItemDatabase 초기화 (기존 로직 유지)
+        // 2. ItemDatabase 초기화 (의존성 검사)
         if (itemDatabase != null)
         {
             itemDatabase.Init();
@@ -56,7 +56,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
 
     private void Start()
     {
-        // SaveManager에 자신을 등록합니다. (기존 로직 유지)
+        // SaveManager에 자신을 등록합니다.
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.RegisterSavable(this);
@@ -66,7 +66,6 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
         if (SaveManager.Instance != null && !SaveManager.Instance.HasLoadedData)
         {
             // 테스트용 초기 아이템 ID를 직접 리스트에 추가
-           // playerItems.Add(new Tuple<string, int>("2", nextUniqueID++));
             playerItems.Add(new Tuple<string, int>("4", nextUniqueID++));
             playerItems.Add(new Tuple<string, int>("8", nextUniqueID++));
             // 초기화 시에만 전체 새로고침
@@ -74,6 +73,10 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
         }
     }
 
+    /// <summary>
+    /// 던전 인벤토리의 RectTransform을 반환합니다.
+    /// </summary>
+    /// <returns>인벤토리의 RectTransform</returns>
     public RectTransform GetInventoryRect()
     {
         return dungeonInventoryRect;
@@ -86,8 +89,8 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
     /// <param name="itemID">획득할 아이템의 ID입니다.</param>
     public void AddPlayerItem(string itemID)
     {
-        int newUniqueID = nextUniqueID++;
-        playerItems.Add(new Tuple<string, int>(itemID, newUniqueID));
+        int newUniqueID = nextUniqueID++; // 새로운 고유 ID 할당
+        playerItems.Add(new Tuple<string, int>(itemID, newUniqueID)); // 데이터 리스트에 추가
 
         // 새로 추가된 아이템 하나만 UI에 추가
         AddUIItem(itemID, newUniqueID);
@@ -97,7 +100,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
     /// 3D 오브젝트를 인벤토리 아이템으로 전환할 때 호출됩니다.
     /// 3D 오브젝트를 파괴하고 아이템을 인벤토리에 추가합니다.
     /// </summary>
-    /// <param name="smallMapObj">파괴할 3D 오브젝트입니다.</param>
+    /// <param name="smallMapObj">파괴할 3D 오브젝트입니다. (SmallMap이 아닐 수 있으므로 GameObject로 받음)</param>
     /// <param name="itemID">획득할 아이템의 ID입니다.</param>
     public void Convert3DToUI(GameObject smallMapObj, string itemID)
     {
@@ -143,6 +146,11 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
     private void AddUIItem(string itemID, int uniqueID)
     {
         DungeonItemData data = itemDatabase.GetItem(itemID);
+        if (data == null || data.uiItemPrefab == null)
+        {
+            Debug.LogError($"Error: ID '{itemID}'에 해당하는 데이터 또는 UI 프리팹을 찾을 수 없습니다.");
+            return;
+        }
 
         // 오브젝트 풀 대신 Instantiate()를 사용하여 오브젝트 생성
         GameObject uiItemGO = Instantiate(data.uiItemPrefab);
@@ -200,6 +208,63 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
         }
     }
 
+    // ==========================================================
+    // [추가된 기능] 유효하지 않은 맵 조각 인벤토리 회수 (OCP 준수)
+    // ==========================================================
+
+    /// <summary>
+    /// 씬에 배치된 TownMap 오브젝트를 인벤토리로 회수합니다.
+    /// SmallMapItem에서 아이템 ID를 추출하여 인벤토리에 추가하고 3D 오브젝트를 파괴합니다.
+    /// </summary>
+    /// <param name="mapToReclaim">회수할 TownMap 인스턴스입니다.</param>
+    public void ReclaimMapPiece(TownMap mapToReclaim)
+    {
+        // SmallMapItem 컴포넌트에서 아이템 ID를 가져옵니다.
+        SmallMapItem smallMapItem = mapToReclaim.GetComponent<SmallMapItem>();
+
+        if (smallMapItem == null || string.IsNullOrEmpty(smallMapItem.itemID))
+        {
+            Debug.LogWarning($"TownMap '{mapToReclaim.name}'에 유효한 SmallMapItem 데이터가 없어 즉시 파괴됩니다.");
+            Destroy(mapToReclaim.gameObject);
+            return;
+        }
+
+        string itemID = smallMapItem.itemID;
+
+        // 1. 인벤토리 데이터에 아이템 추가 (새 고유 ID 할당 및 UI 아이템 생성)
+        AddPlayerItem(itemID);
+
+        // 2. 씬의 3D TownMap 오브젝트 파괴 (회수 완료)
+        Destroy(mapToReclaim.gameObject);
+
+    }
+
+    /// <summary>
+    /// **[새로 추가됨: OCP 준수]** 씬에 배치된 SmallMap 오브젝트를 인벤토리로 회수합니다.
+    /// 이 메서드는 DungeonMap 시스템에서 반환하는 SmallMap 타입을 처리합니다.
+    /// </summary>
+    /// <param name="mapToReclaim">회수할 SmallMap 인스턴스입니다.</param>
+    public void ReclaimMapPiece(SmallMap mapToReclaim) // <--- CS1503 에러 해결을 위한 오버로드
+    {
+        // SmallMapItem 컴포넌트에서 아이템 ID를 가져옵니다.
+        SmallMapItem smallMapItem = mapToReclaim.GetComponent<SmallMapItem>();
+
+        if (smallMapItem == null || string.IsNullOrEmpty(smallMapItem.itemID))
+        {
+            Debug.LogWarning($"SmallMap '{mapToReclaim.name}'에 유효한 SmallMapItem 데이터가 없어 즉시 파괴됩니다.");
+            Destroy(mapToReclaim.gameObject);
+            return;
+        }
+
+        string itemID = smallMapItem.itemID;
+
+        // 1. 인벤토리 데이터에 아이템 추가 (새 고유 ID 할당 및 UI 아이템 생성)
+        AddPlayerItem(itemID);
+
+        // 2. 씬의 3D SmallMap 오브젝트 파괴 (회수 완료)
+        Destroy(mapToReclaim.gameObject);
+    }
+
     // === ISavable 인터페이스 구현 ===
     /// <summary>
     /// 현재 인벤토리 상태를 저장할 데이터 객체로 변환합니다.
@@ -242,13 +307,26 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
                 playerItems.Add(new Tuple<string, int>(item.itemID, item.uniqueID));
             }
 
-            this.nextUniqueID = loadedData.nextUniqueID;
+            // 가장 큰 uniqueID + 1로 nextUniqueID를 설정하여 고유성 유지
+            if (playerItems.Count > 0)
+            {
+                int maxUniqueID = 0;
+                foreach (var item in playerItems)
+                {
+                    if (item.Item2 > maxUniqueID)
+                    {
+                        maxUniqueID = item.Item2;
+                    }
+                }
+                this.nextUniqueID = maxUniqueID + 1;
+            }
+            else
+            {
+                this.nextUniqueID = loadedData.nextUniqueID;
+            }
+
 
             RefreshInventoryUI();
-        }
-        else
-        {
-            Debug.LogWarning($"<color=red>LoadData() 실패: 유효한 데이터가 없습니다.</color>");
         }
     }
 }

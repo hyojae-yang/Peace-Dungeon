@@ -276,16 +276,14 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         }
 
             // 사망 효과음 재생
-            if (playerAudioSource != null && dieSoundClip != null)
+        if (playerAudioSource != null && dieSoundClip != null)
         {
             // PlayOneShot을 사용하여 사망 BGM이 시작되기 직전에 단발성 효과음을 재생합니다.
             playerAudioSource.PlayOneShot(dieSoundClip);
         }
-
-        // BGM 변경 및 게임 오버 처리
-        if (SoundManager.Instance != null)
+        if (DeathCountManager.Instance != null)
         {
-            SoundManager.Instance.PlayBGM(BGMType.Main_D);
+            DeathCountManager.Instance.AddDeathCount();
         }
         MainSceneManager.Instance.isGameOver = true;
         DungeonManager.Instance.DeadDungeon(); // 던전 상태 리셋
