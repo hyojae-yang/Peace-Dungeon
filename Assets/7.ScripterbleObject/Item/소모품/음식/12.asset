@@ -21,3 +21,4 @@ MonoBehaviour:
   consumptionEffects: []
   maxStackCount: 99
   effectDuration: 0
+  useSFXType: 18

@@ -27,7 +27,7 @@ public class BuffItemSO : ConsumableItemSO
             Debug.LogError("플레이어 또는 플레이어의 스탯 시스템을 찾을 수 없습니다. 아이템을 사용할 수 없습니다.");
             return;
         }
-
+        base.Use(player);
         // 일시적 버프인 경우, 기존 버프를 모두 초기화합니다.
         // 영구 버프는 초기화 로직을 건너뜁니다.
         if (!isPermanentBuff)

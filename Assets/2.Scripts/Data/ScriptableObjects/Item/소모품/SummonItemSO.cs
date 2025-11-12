@@ -24,7 +24,7 @@ public class SummonItemSO : ConsumableItemSO
             Debug.LogError("플레이어 또는 소환할 프리팹이 설정되지 않았습니다.");
             return;
         }
-
+        base.Use(player);
         // 2. 소환 위치 계산 (플레이어 주변 랜덤 위치 + 지면 검색)
         Vector3 spawnPosition = CalculateSpawnPosition(player.transform.position);
 

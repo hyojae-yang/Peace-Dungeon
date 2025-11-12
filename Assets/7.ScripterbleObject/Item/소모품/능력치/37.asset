@@ -26,4 +26,5 @@ MonoBehaviour:
     isPercentage: 0
   maxStackCount: 99
   effectDuration: 60
+  useSFXType: 19
   isPermanentBuff: 0

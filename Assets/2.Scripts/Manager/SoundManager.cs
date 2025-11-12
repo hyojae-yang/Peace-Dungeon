@@ -66,6 +66,8 @@ public enum SFXType
     Map_Rotate, // 맵 타일 회전할 때30
     text_sound, //텍스트 넘기는 소리31
     Dog_Bark, //강아지 짖는 소리32
+    Map_Enter, // 맵 타일 배치 모드 진입33
+    Map_Exit, // 맵 타일 배치 모드 종료34
 }
 
 [System.Serializable]

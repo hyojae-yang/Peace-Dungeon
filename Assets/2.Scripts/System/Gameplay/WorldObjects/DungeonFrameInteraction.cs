@@ -94,7 +94,10 @@ public class DungeonFrameInteraction : MonoBehaviour
             // TownMap을 위한 이벤트이더라도 일단 호출 (DungeonFrameInteraction이 Village에서도 사용될 수 있으므로)
             UITutorialHandler.Instance.OnFrameUIOpened.Invoke();
         }
-
+        if(SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Map_Enter);
+        }
         isInventoryOpen = true;
 
         if (playerController != null)
@@ -143,7 +146,10 @@ public class DungeonFrameInteraction : MonoBehaviour
         {
             dungeonShopUIManager.ClearShopUI();
         }
-
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Map_Exit);
+        }
         // ==========================================================
         // [핵심 수정] 유효하지 않은 맵 조각 회수 요청 로직
         // ==========================================================

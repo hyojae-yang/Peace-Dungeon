@@ -28,3 +28,4 @@ MonoBehaviour:
     isPercentage: 0
   maxStackCount: 99
   effectDuration: 0
+  useSFXType: 18

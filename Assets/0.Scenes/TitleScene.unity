@@ -8943,13 +8943,13 @@ MonoBehaviour:
   - Type: 16
     Clip: {fileID: 8300000, guid: 490bfbc72255342408984f60044487de, type: 3}
   - Type: 17
-    Clip: {fileID: 8300000, guid: b90f53164c32de64f9aef08e3223091f, type: 3}
-  - Type: 18
-    Clip: {fileID: 8300000, guid: ae47c7c379de4b14ab8cabecbaca84f0, type: 3}
-  - Type: 19
     Clip: {fileID: 8300000, guid: d451d3f66a63bae4c835e22799afe1bd, type: 3}
-  - Type: 20
+  - Type: 18
     Clip: {fileID: 8300000, guid: 65db7c94d2904774781d7cab7629f8fd, type: 3}
+  - Type: 19
+    Clip: {fileID: 8300000, guid: b90f53164c32de64f9aef08e3223091f, type: 3}
+  - Type: 20
+    Clip: {fileID: 8300000, guid: ae47c7c379de4b14ab8cabecbaca84f0, type: 3}
   - Type: 21
     Clip: {fileID: 8300000, guid: d654174ef194bd7479bf4b8d8f753318, type: 3}
   - Type: 22
@@ -8972,6 +8972,10 @@ MonoBehaviour:
     Clip: {fileID: 8300000, guid: 84057f1e80d924eb6a5d471d6fb37083, type: 3}
   - Type: 31
     Clip: {fileID: 8300000, guid: ab29024b5a8af1e459f69e5cfa5199af, type: 3}
+  - Type: 32
+    Clip: {fileID: 8300000, guid: 7bd6b897eb5ca4b7d88a205c4a51640c, type: 3}
+  - Type: 31
+    Clip: {fileID: 8300000, guid: 5039414d94a6e4e70a5ab9e8833e992a, type: 3}
 --- !u!114 &1977849113
 MonoBehaviour:
   m_ObjectHideFlags: 0

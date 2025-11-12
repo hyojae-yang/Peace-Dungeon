@@ -23,7 +23,7 @@ public class HealingItemSO : ConsumableItemSO
             Debug.LogError("플레이어 또는 플레이어의 스탯 시스템을 찾을 수 없습니다. 아이템을 사용할 수 없습니다.");
             return;
         }
-
+        base.Use(player);
         // consumptionEffects 리스트에 담긴 모든 효과를 플레이어에게 적용합니다.
         foreach (var effect in consumptionEffects)
         {

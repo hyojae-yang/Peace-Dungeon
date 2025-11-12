@@ -86,7 +86,7 @@ public class ReturnScrollSO : ConsumableItemSO
             Debug.LogError("핵심 인스턴스 부재로 Use 실행 불가.");
             return;
         }
-
+        base.Use(player);
         // [수정] 딜레이 후 실행될 최종 귀환 로직을 Action으로 정의합니다. (SRP 유지)
         System.Action finalReturnAction = () =>
         {

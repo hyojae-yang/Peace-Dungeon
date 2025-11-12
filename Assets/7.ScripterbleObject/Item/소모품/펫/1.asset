@@ -21,6 +21,7 @@ MonoBehaviour:
   consumptionEffects: []
   maxStackCount: 99
   effectDuration: 0
+  useSFXType: 31
   petPrefab: {fileID: 8179126157510140887, guid: d1dcf334fc92936449cdef7084355cfc, type: 3}
   spawnRadius: 5
   groundLayerMask:

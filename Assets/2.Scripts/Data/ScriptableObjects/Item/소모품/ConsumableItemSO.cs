@@ -33,11 +33,12 @@ public class ConsumableItemSO : BaseItemSO
     /// </summary>
     public virtual void Use(PlayerCharacter player)
     {
+
         //Debug.Log($"{itemName}을 사용했습니다!");
         if (SoundManager.Instance != null && useSFXType != SFXType.None)
         {
             // 아이템 사용 효과음은 적당한 0.7f 볼륨으로 설정합니다.
-            SoundManager.Instance.PlaySFX(useSFXType, 0.7f);
+            SoundManager.Instance.PlaySFX(useSFXType);
         }
         // consumptionEffects 리스트에 담긴 모든 효과를 플레이어에게 적용하는 로직
         // 예: 체력 회복, 마나 회복 등
