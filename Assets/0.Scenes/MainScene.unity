@@ -23878,6 +23878,7 @@ GameObject:
   - component: {fileID: 300275636}
   - component: {fileID: 300275637}
   - component: {fileID: 300275638}
+  - component: {fileID: 300275639}
   m_Layer: 0
   m_Name: DungeonManager
   m_TagString: Untagged
@@ -24271,6 +24272,50 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   totalExplorationCount: 0
+--- !u!114 &300275639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 300275628}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ec1b8074e2e60084d9d65f328050d1df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  directionalLight: {fileID: 410087040}
+  lightingSettings:
+  - directionalLightColor: {r: 0.6373626, g: 1, b: 0.5707547, a: 0}
+    directionalLightIntensity: 1.2
+    fogColor: {r: 1, g: 1, b: 1, a: 0}
+    fogDensity: 0.001
+    transitionDuration: 1
+  - directionalLightColor: {r: 1, g: 1, b: 1, a: 0}
+    directionalLightIntensity: 1
+    fogColor: {r: 0.735849, g: 0.735849, b: 0.735849, a: 0}
+    fogDensity: 0.005
+    transitionDuration: 1
+  - directionalLightColor: {r: 1, g: 1, b: 0, a: 0}
+    directionalLightIntensity: 0.7
+    fogColor: {r: 0.6603774, g: 0.4828231, b: 0.4828231, a: 0}
+    fogDensity: 0.02
+    transitionDuration: 1.5
+  - directionalLightColor: {r: 1, g: 0.4738788, b: 0, a: 0}
+    directionalLightIntensity: 0.5
+    fogColor: {r: 0.6320754, g: 0.3863504, b: 0.2236116, a: 0}
+    fogDensity: 0.04
+    transitionDuration: 1
+  - directionalLightColor: {r: 1, g: 0, b: 0, a: 0}
+    directionalLightIntensity: 0.4
+    fogColor: {r: 0.5943396, g: 0.20839386, b: 0.15979885, a: 0}
+    fogDensity: 0.07
+    transitionDuration: 0.7
+  - directionalLightColor: {r: 0.5283019, g: 0.012459949, b: 0.012459949, a: 0}
+    directionalLightIntensity: 0.2
+    fogColor: {r: 0.254717, g: 0.0650431, b: 0.04205233, a: 0}
+    fogDensity: 0.1
+    transitionDuration: 0.5
 --- !u!1 &301779026
 GameObject:
   m_ObjectHideFlags: 0
@@ -36526,7 +36571,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.5471698, g: 0.028390888, b: 0.028390888, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -42563,6 +42608,8 @@ GameObject:
   - component: {fileID: 564450298}
   - component: {fileID: 564450299}
   - component: {fileID: 564450300}
+  - component: {fileID: 564450301}
+  - component: {fileID: 564450302}
   m_Layer: 0
   m_Name: Manager
   m_TagString: Untagged
@@ -42800,6 +42847,32 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe028e5c029440a47bbabc3f5075bbdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &564450301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564450280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7323a8256c8dfda40a5456da9be084ec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rewardTextPrefab: {fileID: 1235011018987461951, guid: 0b34db31741fe0347bfd50b45d1f02cf, type: 3}
+  targetCanvas: {fileID: 586175175}
+--- !u!114 &564450302
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 564450280}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f5c5b69373bb9974ab464500c61a6742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1001 &564879260
@@ -47487,6 +47560,7 @@ GameObject:
   m_Component:
   - component: {fileID: 640250024}
   - component: {fileID: 640250025}
+  - component: {fileID: 640250026}
   m_Layer: 5
   m_Name: Content
   m_TagString: Untagged
@@ -47511,7 +47585,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 300}
+  m_SizeDelta: {x: -619, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &640250025
 MonoBehaviour:
@@ -47539,6 +47613,20 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &640250026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 640250023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_HorizontalFit: 2
+  m_VerticalFit: 2
 --- !u!1 &641169439
 GameObject:
   m_ObjectHideFlags: 0
@@ -90593,7 +90681,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0.022027401, g: 0.5188679, b: 0.022027401, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -160589,6 +160677,10 @@ PrefabInstance:
     - target: {fileID: 6053599658678463011, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8047084264792485299, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
+      propertyPath: baseMaxHealth
+      value: 100
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

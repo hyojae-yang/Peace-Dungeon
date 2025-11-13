@@ -241,7 +241,7 @@ public class BearBehavior : MonoBehaviour
 
         // 2. 플레이어를 향해 이동 (attackRange 직전까지)
         // 멈출 거리를 attackRange보다 약간 작게 설정하여 공격 범위에 정확히 진입하도록 합니다.
-        MoveTowardsTarget(targetTransform, monster.currentMoveSpeed * 1.5f, attackRange - 0.1f);
+        MoveTowardsTarget(targetTransform, monster.monsterData.moveSpeed * 1.5f, attackRange - 0.1f);
     }
 
     /// <summary>
@@ -413,7 +413,7 @@ public class BearBehavior : MonoBehaviour
                         audioSource.PlayOneShot(normalAttackClip);
                     }
                     // 데미지 입히기
-                    damageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+                    damageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 }
             }
         }
@@ -451,7 +451,7 @@ public class BearBehavior : MonoBehaviour
             {
                 if (hitCollider.TryGetComponent(out IDamageable damageable))
                 {
-                    float magicDamage = monster.MagicAttackPower;
+                    float magicDamage = monster.monsterData.magicAttackPower;
                     damageable.TakeDamage(magicDamage, DamageType.Magic);
                     break;
                 }

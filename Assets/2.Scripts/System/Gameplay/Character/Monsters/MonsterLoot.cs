@@ -81,7 +81,7 @@ public class MonsterLoot : MonoBehaviour
         int baseGoldReward = UnityEngine.Random.Range(monster.monsterData.minGoldReward, monster.monsterData.maxGoldReward + 1);
         // 위험도 보너스 적용
         int finalGoldReward = Mathf.FloorToInt(baseGoldReward * bonusMultiplier);
-        PlayerCharacter.Instance.playerStats.gold += finalGoldReward;
+        PlayerCharacter.Instance.playerStats.AddGold(finalGoldReward);
 
         // Debug.Log($"[MonsterLoot] 위험도 Lv {riskLevel}, 승수 {bonusMultiplier:F2}. EXP: {finalExpReward}, Gold: {finalGoldReward} 지급.");
 

@@ -1,152 +1,177 @@
+ï»¿// MagicMissileProjectile.cs
 using UnityEngine;
 
 /// <summary>
-/// ¸ÅÁ÷ ¹Ì»çÀÏ Åõ»çÃ¼ÀÇ ¿òÁ÷ÀÓ, Å¸°ÙÆÃ ¹× Ãæµ¹ Ã³¸®¸¦ ´ã´çÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-/// SRP (´ÜÀÏ Ã¥ÀÓ ¿øÄ¢): ¿ÀÁ÷ Åõ»çÃ¼ÀÇ »ı¸í ÁÖ±â¿Í ÃßÀû, µ¥¹ÌÁö Àû¿ë Ã¥ÀÓ¸¸À» °¡Áı´Ï´Ù.
+/// ë§¤ì§ ë¯¸ì‚¬ì¼ íˆ¬ì‚¬ì²´ì˜ ì›€ì§ì„, íƒ€ê²ŸíŒ… ë° ì¶©ëŒ ì²˜ë¦¬ë¥¼ ë‹´ë‹¹í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// SRP (ë‹¨ì¼ ì±…ì„ ì›ì¹™): ì˜¤ì§ íˆ¬ì‚¬ì²´ì˜ ìƒëª… ì£¼ê¸°ì™€ ì¶”ì , ë°ë¯¸ì§€ ì ìš© ì±…ì„ë§Œì„ ê°€ì§‘ë‹ˆë‹¤.
+/// ëª©í‘œ: íƒ€ê²Ÿì´ ì£½ìœ¼ë©´ ì¦‰ì‹œ ì¬íƒìƒ‰ í›„ íŒŒê´´/ì¶”ì . íƒ€ê²Ÿì—ê²Œ ë°ë¯¸ì§€ë¥¼ ì£¼ê³  íŒŒê´´ë©ë‹ˆë‹¤.
 /// </summary>
 public class MagicMissileProjectile : MonoBehaviour
 {
-    // === ³»ºÎ »óÅÂ ¹× ¼³Á¤ ÇÊµå ===
+    // === ë‚´ë¶€ ìƒíƒœ ë° ì„¤ì • í•„ë“œ ===
 
-    [Header("Åõ»çÃ¼ ÀÌµ¿ ¼³Á¤")]
-    [Tooltip("Åõ»çÃ¼°¡ Å¸°ÙÀ» ÇâÇØ ÀÌµ¿ÇÏ´Â ¼ÓµµÀÔ´Ï´Ù.")]
+    [Header("íˆ¬ì‚¬ì²´ ì´ë™ ì„¤ì •")]
+    [Tooltip("íˆ¬ì‚¬ì²´ê°€ íƒ€ê²Ÿì„ í–¥í•´ ì´ë™í•˜ëŠ” ì†ë„ì…ë‹ˆë‹¤.")]
     [SerializeField]
     private float moveSpeed = 10f;
 
-    [Tooltip("Åõ»çÃ¼°¡ Å¸°ÙÀ¸·Î ¹æÇâÀ» Æ² ¶§ÀÇ È¸Àü ¼ÓµµÀÔ´Ï´Ù. (0ÀÌ¸é Áï½Ã È¸Àü)")]
+    [Tooltip("íˆ¬ì‚¬ì²´ê°€ íƒ€ê²Ÿìœ¼ë¡œ ë°©í–¥ì„ í‹€ ë•Œì˜ íšŒì „ ì†ë„ì…ë‹ˆë‹¤. (0ì´ë©´ ì¦‰ì‹œ íšŒì „)")]
     [SerializeField]
     private float rotationSpeed = 5f;
 
-    // === ½ºÅ³ µ¥ÀÌÅÍ·ÎºÎÅÍ ÁÖÀÔ¹Ş´Â ÇÊµå (Private) ===
-    private float damage;             // ÀÌ Åõ»çÃ¼°¡ °¡ÇÒ µ¥¹ÌÁö
-    private float maxTargetingRange;  // ¸ó½ºÅÍ¸¦ Ã£À» ÃÖ´ë ¹İ°æ
-    private LayerMask monsterLayer;   // ¸ó½ºÅÍ ·¹ÀÌ¾î ¸¶½ºÅ©
-    private DamageType damageType; // <--- µ¥¹ÌÁö Å¸ÀÔ ÇÊµå Ãß°¡
+    // === ìŠ¤í‚¬ ë°ì´í„°ë¡œë¶€í„° ì£¼ì…ë°›ëŠ” í•„ë“œ (Private) ===
+    private float damage;Â  Â  Â  Â  Â  Â  Â // ì´ íˆ¬ì‚¬ì²´ê°€ ê°€í•  ë°ë¯¸ì§€
+    private float maxTargetingRange;Â  // ëª¬ìŠ¤í„°ë¥¼ ì°¾ì„ ìµœëŒ€ ë°˜ê²½
+    private LayerMask monsterLayer;Â  Â // ëª¬ìŠ¤í„° ë ˆì´ì–´ ë§ˆìŠ¤í¬
+    private DamageType damageType;Â  Â  // ë°ë¯¸ì§€ íƒ€ì… í•„ë“œ
 
-    // === Å¸°Ù »óÅÂ ÇÊµå ===
-    private Transform targetTransform; // ÇöÀç ÃßÀû ÁßÀÎ ¸ó½ºÅÍÀÇ Transform
-    private Vector3 initialTargetingOrigin; // Å¸°ÙÀ» Ã£À» ¶§ÀÇ Áß½É À§Ä¡ (ÀçÅ½»ö¿¡ »ç¿ë)
+    // === íƒ€ê²Ÿ ìƒíƒœ í•„ë“œ ===
+    private Transform targetTransform; // í˜„ì¬ ì¶”ì  ì¤‘ì¸ ëª¬ìŠ¤í„°ì˜ Transform
 
     /// <summary>
-    /// ¸Å ÇÁ·¹ÀÓ Å¸°ÙÀ» ÃßÀûÇÏ°í, Å¸°ÙÀÇ À¯È¿¼ºÀ» °Ë»çÇÕ´Ï´Ù.
+    /// ë§¤ í”„ë ˆì„ íƒ€ê²Ÿì„ ì¶”ì í•˜ê³ , íƒ€ê²Ÿì˜ ìœ íš¨ì„±ì„ ê²€ì‚¬í•©ë‹ˆë‹¤.
     /// </summary>
     private void Update()
     {
-        // 1. Å¸°Ù À¯È¿¼º °Ë»ç
-        // Å¸°Ù TransformÀÌ »ç¶óÁ³°Å³ª(null), ºñÈ°¼ºÈ­(Á×¾ú°Å³ª)µÈ °æ¿ì¸¦ Ã¼Å©ÇÕ´Ï´Ù.
+        // 1. íƒ€ê²Ÿ ìœ íš¨ì„± ê²€ì‚¬ ë° ì¬íƒìƒ‰
+        bool targetIsInvalid = false;
+
+        // A. Transform íŒŒê´´ ë˜ëŠ” ë¹„í™œì„±í™” ìƒíƒœ í™•ì¸
         if (targetTransform == null || !targetTransform.gameObject.activeInHierarchy)
         {
-            // Å¸°ÙÀÌ Á×¾ú°Å³ª »ç¶óÁ³À¸¹Ç·Î, ÀçÅ½»ö ·ÎÁ÷À» ½ÇÇàÇÕ´Ï´Ù. (¿¹¿Ü Ã³¸® 3¹ø)
-            FindTargetAndStartTracking();
+            targetIsInvalid = true;
+        }
+        else
+        {
+            // B. [Dead ìƒíƒœ ê°ì§€ ë¡œì§ ìœ ì§€]
+            IDetectable targetDetectable = targetTransform.GetComponent<IDetectable>();
 
-            // ÀçÅ½»ö ÈÄ¿¡µµ Å¸°ÙÀÌ ¾øÀ¸¸é FindTargetAndStartTracking() ³»¿¡¼­ DestroyµË´Ï´Ù.
-            // µû¶ó¼­ ¿©±â¼­´Â Ãß°¡ ·ÎÁ÷ ¾øÀÌ ¸®ÅÏÇÕ´Ï´Ù.
-            return;
+            if (targetDetectable != null && !targetDetectable.IsDetectable())
+            {
+                targetIsInvalid = true;
+            }
         }
 
-        // 2. Å¸°ÙÀ» ÇâÇØ È¸Àü (¹æÇâ Á¤·Ä)
+        if (targetIsInvalid)
+        {
+            FindTargetAndStartTracking();
+
+            if (targetTransform == null)
+            {
+                return;
+            }
+        }
+
+        // 2. íƒ€ê²Ÿì„ í–¥í•´ íšŒì „ (ë°©í–¥ ì •ë ¬)
         Vector3 directionToTarget = (targetTransform.position - transform.position).normalized;
 
-        // ¹Ì»çÀÏÀÌ Ç×»ó Å¸°ÙÀ» ÇâÇÏµµ·Ï ºÎµå·´°Ô È¸ÀüÇÕ´Ï´Ù.
         if (directionToTarget != Vector3.zero)
         {
             Quaternion lookRotation = Quaternion.LookRotation(directionToTarget);
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, Time.deltaTime * rotationSpeed);
         }
 
-        // 3. Å¸°ÙÀ» ÇâÇØ ÀÌµ¿
-        // ºÎµå·¯¿î ÃßÀûÀ» À§ÇØ Vector3.MoveTowards¸¦ »ç¿ëÇÏ°Å³ª, ´Ü¼øÈ÷ Transform.Translate¸¦ »ç¿ëÇÒ ¼ö ÀÖ½À´Ï´Ù.
+        // 3. íƒ€ê²Ÿì„ í–¥í•´ ì´ë™
         transform.position = Vector3.MoveTowards(transform.position, targetTransform.position, moveSpeed * Time.deltaTime);
-
-        // *º¸Á¶ ·ÎÁ÷: Å¸°Ù¿¡ ³Ê¹« °¡±î¿öÁö¸é Ãæµ¹ Ã³¸® ¾øÀÌ DestroyµÉ ¼ö ÀÖÀ¸¹Ç·Î, 
-        // ÀÏÁ¤ °Å¸® ÀÌ³»·Î Á¢±ÙÇÏ¸é OnDestroy³ª OnTriggerEnter¸¦ À¯µµÇÏµµ·Ï ÇÒ ¼öµµ ÀÖ½À´Ï´Ù.
     }
+
     /// <summary>
-    /// Äİ¶óÀÌ´õ Ãæµ¹ ½Ã µ¥¹ÌÁö¸¦ Àû¿ëÇÏ°í Åõ»çÃ¼¸¦ ÆÄ±«ÇÕ´Ï´Ù.
+    /// ì½œë¼ì´ë” ì¶©ëŒ ì‹œ ë°ë¯¸ì§€ë¥¼ ì ìš©í•˜ê³  íˆ¬ì‚¬ì²´ë¥¼ íŒŒê´´í•©ë‹ˆë‹¤.
     /// </summary>
     private void OnTriggerEnter(Collider other)
     {
-        if (other.transform != targetTransform)
+        // 1. í•µì‹¬ ë¡œì§: ëª¬ìŠ¤í„° ë ˆì´ì–´ê°€ ì•„ë‹Œ ê²½ìš° ë¬´ì¡°ê±´ ê´€í†µ (íŒŒê´´í•˜ì§€ ì•Šê³  ë¦¬í„´)
+        if (((1 << other.gameObject.layer) & monsterLayer) == 0)
         {
-            // Å¸°ÙÀÌ ¾Æ´Ñ °Í¿¡ ºÎµúÇûÁö¸¸, Ãæµ¹ Áï½Ã ÆÄ±«¸¦ ¿øÇÑ´Ù¸é ÀÌ ºÎºĞÀ» ¼öÁ¤
-            // ¸¸¾à Å¸°Ù ¿ÜÀÇ ¸ğµç °Í¿¡ Ãæµ¹ÇÏ¸é ÆÄ±«µÇ±æ ¿øÇÑ´Ù¸é, ¾Æ·¡ returnÀ» Á¦°ÅÇÏ°í
-            // ÀÏ¹İÀûÀÎ Ãæµ¹ Ã³¸® ·ÎÁ÷À¸·Î ³Ñ°Ü¾ß ÇÕ´Ï´Ù.
-            // ÇöÀç´Â 'Å¸°Ù¿¡¸¸ µ¥¹ÌÁö¸¦ ÁÖ°Ú´Ù'´Â ·ÎÁ÷ÀÌ¹Ç·Î returnÀ» À¯ÁöÇÕ´Ï´Ù.
             return;
         }
 
+        // 2. IDamageable ì»´í¬ë„ŒíŠ¸ ì°¾ê¸° (ëª¬ìŠ¤í„° ë ˆì´ì–´ì¸ ê²½ìš°)
         IDamageable damageable = other.GetComponent<IDamageable>();
+
+        if (damageable == null)
+        {
+            // ìì‹ ì½œë¼ì´ë”ì¸ ê²½ìš°, ë¶€ëª¨ì—ì„œ IDamageableì„ ì°¾ìŠµë‹ˆë‹¤.
+            damageable = other.GetComponentInParent<IDamageable>();
+        }
 
         if (damageable != null)
         {
+
+            // 3. ë°ë¯¸ì§€ ì ìš©
             damageable.TakeDamage(damage, damageType);
-            Destroy(gameObject); // ¼º°øÀûÀ¸·Î µ¥¹ÌÁö Àû¿ë ÈÄ ÆÄ±«
+
+            // 4. ì„±ê³µì ìœ¼ë¡œ ë°ë¯¸ì§€ ì ìš© í›„ íŒŒê´´
+            Destroy(gameObject);
         }
         else
         {
-            // Å¸°ÙÀº ¸ÂÃèÁö¸¸ IDamageableÀÌ ¾ø´Â °æ¿ì (¿¹: µ¥¹ÌÁö¸¦ ¹ŞÁö ¾Ê´Â ¸ó½ºÅÍÀÇ ÀÚ½Ä ¿ÀºêÁ§Æ®)
-            Destroy(gameObject); // µ¥¹ÌÁö´Â ¸ø Áàµµ ÆÄ±«´Â ÇØ¾ß ÇÔ!
+            // 5. ëª¬ìŠ¤í„° ë ˆì´ì–´ì´ì§€ë§Œ IDamageableì´ ì—†ëŠ” ê²½ìš° (íˆ¬ì‚¬ì²´ íŒŒê´´)
+            Destroy(gameObject);
         }
     }
 
     /// <summary>
-    /// Åõ»çÃ¼¸¦ ÃÊ±âÈ­ÇÏ°í Å¸°Ù Å½»öÀ» ½ÃÀÛÇÕ´Ï´Ù.
-    /// [¼öÁ¤] DamageType ÀÎÀÚ¸¦ Ãß°¡ÇÏ¿© °ø°İ Å¸ÀÔÀ» ÁÖÀÔ¹Ş½À´Ï´Ù.
+    /// íˆ¬ì‚¬ì²´ë¥¼ ì´ˆê¸°í™”í•˜ê³  íƒ€ê²Ÿ íƒìƒ‰ì„ ì‹œì‘í•©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="initialDamage">ÀÌ Åõ»çÃ¼°¡ °¡ÇÒ µ¥¹ÌÁö</param>
-    /// <param name="range">Å¸°ÙÀ» Ã£À» ÃÖ´ë ¹İ°æ</param>
-    /// <param name="layer">Å¸°Ù ·¹ÀÌ¾î ¸¶½ºÅ©</param>
-    /// <param name="type">°ø°İ Å¸ÀÔ (¹°¸®, ¸¶¹ı µî)</param>
     public void Initialize(float initialDamage, float range, LayerMask layer, DamageType type)
     {
-        // 1. µ¥ÀÌÅÍ ÀúÀå
         this.damage = initialDamage;
         this.maxTargetingRange = range;
         this.monsterLayer = layer;
-        this.damageType = type; // <--- Å¸ÀÔ ÀúÀå ·ÎÁ÷ Ãß°¡
+        this.damageType = type;
 
-        // 2. Å¸°ÙÀ» Ã£°í ÃßÀûÀ» ½ÃÀÛÇÏ´Â ·ÎÁ÷ È£Ãâ (ÇÙ½É ·ÎÁ÷ À§ÀÓ)
         FindTargetAndStartTracking();
     }
+
     /// <summary>
-    /// Åõ»çÃ¼ÀÇ Å½»ö ¹İ°æ ³»¿¡¼­ °¡Àå °¡±î¿î ¸ó½ºÅÍ¸¦ Ã£¾Æ targetTransform¿¡ ÀúÀåÇÕ´Ï´Ù.
-    /// ¸ó½ºÅÍ¸¦ Ã£Áö ¸øÇÏ¸é ½º½º·Î¸¦ ÆÄ±«ÇÕ´Ï´Ù.
+    /// íˆ¬ì‚¬ì²´ì˜ íƒìƒ‰ ë°˜ê²½ ë‚´ì—ì„œ ê°€ì¥ ê°€ê¹Œìš´ ëª¬ìŠ¤í„°ë¥¼ ì°¾ì•„ targetTransformì— ì €ì¥í•©ë‹ˆë‹¤.
+    /// ëª¬ìŠ¤í„°ë¥¼ ì°¾ì§€ ëª»í•˜ë©´ ìŠ¤ìŠ¤ë¡œë¥¼ íŒŒê´´í•©ë‹ˆë‹¤.
     /// </summary>
     private void FindTargetAndStartTracking()
     {
-        // [¼öÁ¤] Å½»ö Áß½ÉÀ» 'initialTargetingOrigin' ´ë½Å 'transform.position' (ÇöÀç À§Ä¡)À¸·Î º¯°æ
         Vector3 searchOrigin = transform.position;
-
-        // 1. OverlapSphere¸¦ »ç¿ëÇØ ÁÖº¯ ¸ó½ºÅÍ¸¦ ¸ğµÎ Ã£½À´Ï´Ù.
         Collider[] hitColliders = Physics.OverlapSphere(searchOrigin, maxTargetingRange, monsterLayer);
 
-        targetTransform = null; // Å¸°ÙÀ» Ã£±â Àü¿¡ ÃÊ±âÈ­
+        targetTransform = null;
 
         if (hitColliders.Length > 0)
         {
             float closestDistance = Mathf.Infinity;
             Transform closestMonster = null;
 
-            // 2. °¡Àå °¡±î¿î ¸ó½ºÅÍ¸¦ Ã£½À´Ï´Ù. (°Å¸® °è»ê ±âÁØµµ searchOriginÀ¸·Î ÅëÀÏ)
             foreach (Collider col in hitColliders)
             {
-                float distance = Vector3.Distance(searchOrigin, col.transform.position);
-
-                if (distance < closestDistance)
+                if (col.gameObject.activeInHierarchy)
                 {
-                    closestDistance = distance;
-                    closestMonster = col.transform;
+                    IDetectable target = col.GetComponent<IDetectable>();
+
+                    if (target == null)
+                    {
+                        target = col.GetComponentInParent<IDetectable>();
+                    }
+
+                    if (target != null && target.IsDetectable())
+                    {
+                        // ëª¬ìŠ¤í„°ì˜ ë£¨íŠ¸ íŠ¸ëœìŠ¤í¼ì„ íƒ€ê²Ÿìœ¼ë¡œ ì €ì¥í•©ë‹ˆë‹¤.
+                        Transform monsterRoot = col.transform.root;
+
+                        float distance = Vector3.Distance(searchOrigin, monsterRoot.position);
+
+                        if (distance < closestDistance)
+                        {
+                            closestDistance = distance;
+                            closestMonster = monsterRoot;
+                        }
+                    }
                 }
             }
 
-            // 3. Å¸°Ù ¼³Á¤
             targetTransform = closestMonster;
         }
 
-        // 4. ¿¹¿Ü Ã³¸®: Å¸°ÙÀ» Ã£Áö ¸øÇÏ¸é Áï½Ã ÆÄ±«
         if (targetTransform == null)
         {
-            // Debug.Log("¸ÅÁ÷ ¹Ì»çÀÏ: ÁÖº¯¿¡ À¯È¿ Å¸°ÙÀÌ ¾ø¾î ½º½º·Î ¼Ò¸êÇÕ´Ï´Ù.");
             Destroy(gameObject);
         }
     }

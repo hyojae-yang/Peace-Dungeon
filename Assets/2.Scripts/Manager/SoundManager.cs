@@ -15,7 +15,7 @@ public enum BGMType
     Main_B,     // 4: 던전 씬 BGM
     Main_C,     // 5: 보스룸 씬 BGM
     Main_D,      // 6: 사망 씬 BGM
-    Clear,       // 7: 클리어 씬 BGM
+    Clear,       // 7: 클리어 씬 BGM
 }
 
 [System.Serializable]
@@ -66,8 +66,8 @@ public enum SFXType
     Map_Rotate, // 맵 타일 회전할 때30
     text_sound, //텍스트 넘기는 소리31
     Dog_Bark, //강아지 짖는 소리32
-    Map_Enter, // 맵 타일 배치 모드 진입33
-    Map_Exit, // 맵 타일 배치 모드 종료34
+    Map_Enter, // 맵 타일 배치 모드 진입33
+    Map_Exit, // 맵 타일 배치 모드 종료34
 }
 
 [System.Serializable]
@@ -95,9 +95,26 @@ public class SoundManager : MonoBehaviour
     /// </summary>
     public static SoundManager Instance { get; private set; }
 
-    // --- AudioSource 관리 ---
+    // --- BGM 피치 제어 필드 추가 (새로운 기능) ---
 
-    [Header("BGM Settings")]
+    [Header("BGM Pitch Control")]
+    [Tooltip("BGM 피치가 목표 피치로 변하는 속도입니다. (값이 높을수록 즉각적)")]
+    [SerializeField]
+    private float _pitchChangeSpeed = 3.0f; // 피치 부드러움 조절
+
+    /// <summary>
+    /// DungeonRiskManager에서 설정하는 BGM의 최종 목표 피치입니다. (기본값 1.0f)
+    /// </summary>
+    private float _targetBGMPitch = 1.0f;
+
+    /// <summary>
+        /// 피치 변조 코루틴의 중복 실행을 막기 위한 플래그입니다.
+        /// </summary>
+    private Coroutine _pitchUpdateCoroutine;
+
+    // --- AudioSource 관리 ---
+
+    [Header("BGM Settings")]
     [SerializeField]
     private AudioSource _bgmAudioSource; // 배경 음악 전용 AudioSource
 
@@ -156,6 +173,8 @@ public class SoundManager : MonoBehaviour
             InitializeBGMCilps();
             InitializeSFXClips(); // **[추가]** SFX 클립 초기화
             InitializeBGMAudioSource();
+            // **[핵심 추가]** 피치 업데이트 코루틴 시작
+            StartPitchUpdateCoroutine();
         }
     }
 
@@ -188,7 +207,8 @@ public class SoundManager : MonoBehaviour
         _bgmAudioSource.playOnAwake = false; // 명시적 호출로만 재생
         // _bgmAudioSource.volume은 페이드 코루틴이 관리하므로 초기 볼륨을 0으로 둡니다.
         _bgmAudioSource.volume = 0f;
-    }
+        _bgmAudioSource.pitch = 1.0f; // 초기 피치 설정
+    }
 
     /// <summary>
     /// 인스펙터에서 할당된 BGM 클립 배열을 딕셔너리에 매핑하여 런타임 접근 속도를 최적화합니다.
@@ -236,20 +256,73 @@ public class SoundManager : MonoBehaviour
         }
     }
 
-    // --- SFX 직접 주입 기능 (기존과 동일) ---
+    // --- BGM 피치 제어 메서드 (핵심 추가) ---
 
     /// <summary>
-    /// 씬에 배치된 SFX AudioSource를 SoundManager에 등록하는 메서드입니다.
+    /// DungeonRiskManager에서 호출하여 BGM의 목표 피치 값을 설정합니다.
+    /// 이 값은 Co_UpdatePitchSmoothly 코루틴에 의해 부드럽게 적용됩니다. (DIP 준수)
     /// </summary>
-    public void RegisterSFXSource(AudioSource source)
+    /// <param name="newPitch">적용할 목표 피치 값 (0.1f ~ 3.0f)</param>
+    public void SetTargetBGMPitch(float newPitch)
+    {
+        // 유효 범위 클램프
+        _targetBGMPitch = Mathf.Clamp(newPitch, 0.1f, 3.0f);
+        // Debug.Log($"[SoundManager] 목표 피치 설정: {_targetBGMPitch:F2}");
+    }
+
+    /// <summary>
+        /// BGM의 현재 피치와 목표 피치를 부드럽게 보간하여 적용하는 코루틴을 시작합니다.
+        /// </summary>
+    private void StartPitchUpdateCoroutine()
+    {
+        // 중복 실행 방지
+        if (_pitchUpdateCoroutine == null)
+        {
+            _pitchUpdateCoroutine = StartCoroutine(Co_UpdatePitchSmoothly());
+        }
+    }
+
+    /// <summary>
+    /// BGM의 피치를 매 프레임 목표 피치로 부드럽게 변경하는 코루틴입니다. (핵심 로직)
+    /// </summary>
+    private IEnumerator Co_UpdatePitchSmoothly()
+    {
+        while (true)
+        {
+            if (_bgmAudioSource != null && _bgmAudioSource.isPlaying)
+            {
+                // 현재 피치를 목표 피치(_targetBGMPitch)로 부드럽게 보간합니다.
+                _bgmAudioSource.pitch = Mathf.Lerp(
+          _bgmAudioSource.pitch,
+          _targetBGMPitch,
+          Time.deltaTime * _pitchChangeSpeed
+        );
+            }
+            else
+            {
+                // BGM이 재생 중이 아닐 때는 피치를 1.0f (정상)으로 유지합니다.
+                _bgmAudioSource.pitch = 1.0f;
+                _targetBGMPitch = 1.0f;
+            }
+
+            yield return null;
+        }
+    }
+
+    // --- SFX 직접 주입 기능 (기존과 동일) ---
+
+    /// <summary>
+        /// 씬에 배치된 SFX AudioSource를 SoundManager에 등록하는 메서드입니다.
+        /// </summary>
+    public void RegisterSFXSource(AudioSource source)
     {
         if (source != null && !_sfxAudioSources.Contains(source))
         {
             _sfxAudioSources.Add(source);
             source.loop = false;
             source.playOnAwake = false;
-            //Debug.Log($"[SoundManager] SFX Source 등록 완료. 현재 SFX Pool 개수: {_sfxAudioSources.Count}");
-        }
+            //Debug.Log($"[SoundManager] SFX Source 등록 완료. 현재 SFX Pool 개수: {_sfxAudioSources.Count}");
+        }
     }
 
     /// <summary>
@@ -260,8 +333,8 @@ public class SoundManager : MonoBehaviour
         if (source != null && _sfxAudioSources.Contains(source))
         {
             _sfxAudioSources.Remove(source);
-            // Debug.Log($"[SoundManager] SFX Source 해제 완료. 현재 SFX Pool 개수: {_sfxAudioSources.Count}");
-        }
+            // Debug.Log($"[SoundManager] SFX Source 해제 완료. 현재 SFX Pool 개수: {_sfxAudioSources.Count}");
+        }
     }
 
     // --- BGM 기능 메서드 (기존과 동일) ---
@@ -337,6 +410,9 @@ public class SoundManager : MonoBehaviour
             _bgmAudioSource.clip = null;
             // 다음 재생을 위해 볼륨은 0으로 유지 (FadeBGM에서 다시 올림)
             _bgmAudioSource.volume = 0f;
+            // BGM 정지 시 피치도 정상값으로 즉시 리셋합니다.
+            _bgmAudioSource.pitch = 1.0f;
+            _targetBGMPitch = 1.0f;
         }
         StopExistingFadeCoroutine();
     }
@@ -398,9 +474,9 @@ public class SoundManager : MonoBehaviour
             availableSource.volume = Mathf.Clamp01(volume) * _maxSFXVolume;
             availableSource.Play();
 
-            // 요청하신 디버그 로그를 출력합니다.
-            //Debug.Log($"[SoundManager] SFX 재생: {type}");
-        }
+            // 요청하신 디버그 로그를 출력합니다.
+            //Debug.Log($"[SoundManager] SFX 재생: {type}");
+        }
         else
         {
             // 요청하신 정책: 모든 소스가 재생 중일 때 경고 후 재생 건너뛰기
@@ -443,7 +519,7 @@ public class SoundManager : MonoBehaviour
     /// <param name="stopAfterFade">페이드 아웃 후 정지할지 여부</param>
     private IEnumerator FadeBGM(AudioClip targetClip, float targetVolume, float duration, bool stopAfterFade = false)
     {
-        // ... (기존 BGM Fade 로직 유지)
+        // (기존 BGM Fade 로직 유지)
         if (targetClip != null)
         {
             if (_bgmAudioSource.clip != targetClip)

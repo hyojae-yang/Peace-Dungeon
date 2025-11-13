@@ -65,7 +65,7 @@ public class PlayerStatsSaveData
     /// <summary>
     /// 플레이어의 현재 경험치입니다.
     /// </summary>
-    public int experience;
+    public long experience;
     /// <summary>
     /// 플레이어가 현재 보유한 스킬 포인트입니다.
     /// </summary>

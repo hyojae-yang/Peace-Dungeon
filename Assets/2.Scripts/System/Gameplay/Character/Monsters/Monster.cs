@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using static MonsterBase; // MonsterBase.MonsterState에 접근하기 위해 사용됩니다.
 
 /// <summary>
 /// 몬스터의 AI 행동(감지, 추적, 상태 관리)을 담당하는 클래스입니다.
@@ -30,7 +31,7 @@ public class Monster : MonsterBase, IDetectable
     public int AttackPower { get; private set; }
 
     /// <summary>
-    /// 마법 공격력(Magic Attack Power) 값을 반환하는 읽기 전용 속성입니다.
+    /// 마법 공격력(Magic Attack Power) 값을 반환하는 읽기 전성 속성입니다.
     /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
     /// </summary>
     public float MagicAttackPower { get; private set; }
@@ -46,6 +47,14 @@ public class Monster : MonsterBase, IDetectable
     /// MonsterData에서 값을 가져오며 외부에서 설정할 수 없습니다.
     /// </summary>
     public int MagicDefense { get; private set; }
+
+    // === 지형 높이 보정 설정 [핵심 추가] ===
+    [Header("지형 높이 보정 설정")]
+    [Tooltip("지형을 식별하고 Raycast를 수행할 레이어 마스크입니다.")]
+    public LayerMask groundLayer;
+    [Tooltip("바닥(hit.point)으로부터 몬스터의 중심(Pivot)을 띄울 높이 값입니다. (예: 몬스터 키의 절반)")]
+    public float verticalOffset = 0.5f;
+
     // === 플레이어 감지 관련 변수 ===
     [Header("플레이어 감지 설정")]
     [Tooltip("플레이어를 감지하는 범위(반경)입니다.")]
@@ -55,9 +64,11 @@ public class Monster : MonsterBase, IDetectable
     public float detectionAngle = 120f;
     [Tooltip("플레이어 레이어 마스크입니다.")]
     public LayerMask playerLayer;
+
     [Header("점수 설정")]
     [Tooltip("이 몬스터를 처치했을 때 획득할 점수입니다.")]
     private int scoreValue = 0;
+
     // [수정] currentMoveSpeed는 이동 로직이 Behavior로 위임되면서 더 이상 Monster 내부에서 사용되지 않지만,
     // 외부 Behavior 스크립트에서 참조용으로 사용될 수 있으므로 일단 public으로 유지합니다. (혹은 private/속성으로 변경 권장)
     [HideInInspector] // Inspector에 노출되지 않도록 처리
@@ -96,6 +107,7 @@ public class Monster : MonsterBase, IDetectable
             InitializeAndApplyRiskCorrection(monsterData);
         }
     }
+
     /// <summary>
     /// MonsterData의 스탯 데이터를 Monster 클래스의 읽기 전용 속성에 할당합니다.
     /// </summary>
@@ -152,6 +164,7 @@ public class Monster : MonsterBase, IDetectable
         // 디버그 (선택 사항)
         // Debug.Log($"[Monster Stats] Lv: {riskLevel}, 보정치: {correctionMultiplier:F2}x, 최종 공격력: {AttackPower}");
     }
+
     private void Update()
     {
         DetectPlayer();
@@ -220,12 +233,6 @@ public class Monster : MonsterBase, IDetectable
     }
 
     /// <summary>
-    /// [핵심 수정] Monster 클래스의 모든 이동 책임이 Behavior 스크립트로 위임되었으므로, 이 메서드를 제거하거나 비워둡니다.
-    /// 여기서는 깔끔하게 제거합니다.
-    /// </summary>
-    // private void MoveTowardsTarget(Transform targetTransform) { } 
-
-    /// <summary>
     /// 외부에서 몬스터의 상태를 안전하게 변경하기 위한 메서드입니다. (로직 변경 없음)
     /// </summary>
     /// <param name="newState">변경할 몬스터의 새로운 상태</param>
@@ -273,7 +280,10 @@ public class Monster : MonsterBase, IDetectable
 
         GetComponent<Collider>().enabled = false;
         if (rb != null)
-        { rb.isKinematic = true; }
+        {
+            // 사망 시 isKinematic을 true로 설정하여 시체가 움직이지 않게 합니다.
+            rb.isKinematic = true;
+        }
         if (animator != null)
         {
             animator.SetTrigger("Die");
@@ -288,8 +298,6 @@ public class Monster : MonsterBase, IDetectable
             Destroy(gameObject);
         }
     }
-
-    // ... (HandleDeathSequence, IsDetectable, GetTransform, OnDrawGizmosSelected 로직 유지)
 
     /// <summary>
     /// 몬스터 사망 애니메이션 재생 시간만큼 대기한 후 오브젝트를 파괴합니다.

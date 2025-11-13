@@ -32874,7 +32874,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!114 &4015134339957586064
 MonoBehaviour:
@@ -32890,6 +32890,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterData: {fileID: 11400000, guid: 1553a9844da34124f974d7a04134f07e, type: 2}
   currentState: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  verticalOffset: 0.5
   detectionRange: 10
   detectionAngle: 120
   playerLayer:

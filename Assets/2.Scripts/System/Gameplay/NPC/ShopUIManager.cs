@@ -131,7 +131,7 @@ public class ShopUIManager : MonoBehaviour
         // 보유골드를 UI에 표시합니다.
         if (goldText != null)
         {
-            goldText.text = PlayerCharacter.Instance.playerStats.gold.ToString() + " 원";
+            goldText.text = PlayerCharacter.Instance.playerStats.Gold.ToString() + " 원";
         }
         // 메인 상점 UI를 활성화하고, 구매/판매 패널은 비활성화합니다.
         shopPanel.SetActive(true);
@@ -280,7 +280,7 @@ public class ShopUIManager : MonoBehaviour
         // 보유골드를 UI에 표시합니다.
         if (goldText != null)
         {
-            goldText.text = PlayerCharacter.Instance.playerStats.gold.ToString() + " 원";
+            goldText.text = PlayerCharacter.Instance.playerStats.Gold.ToString() + " 원";
         }
         confirmationPanel.SetActive(false);
     }
@@ -302,7 +302,7 @@ public class ShopUIManager : MonoBehaviour
     /// </summary>
     private void ValidateBuyQuantity(BaseItemSO item)
     {
-        int maxQuantity = Mathf.FloorToInt(PlayerCharacter.Instance.playerStats.gold / item.itemPrice);
+        int maxQuantity = Mathf.FloorToInt(PlayerCharacter.Instance.playerStats.Gold / item.itemPrice);
         int currentQuantity = GetInputValue();
 
         if (currentQuantity > maxQuantity)

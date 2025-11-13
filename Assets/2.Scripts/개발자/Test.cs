@@ -53,8 +53,8 @@ public class Test : MonoBehaviour
             return;
         }
 
-        PlayerCharacter.Instance.playerStats.gold += 10000;
-        Debug.Log($"[Cheat] 골드 10000 추가됨. 현재 골드: {PlayerCharacter.Instance.playerStats.gold}");
+        PlayerCharacter.Instance.playerStats.AddGold(10000);
+        Debug.Log($"[Cheat] 골드 10000 추가됨. 현재 골드: {PlayerCharacter.Instance.playerStats.Gold}");
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public class Test : MonoBehaviour
         // 2. 다음 레벨에 필요한 경험치량(requiredExperience)을 가져옵니다.
         float expToGrant = PlayerCharacter.Instance.playerStats.requiredExperience + 1;
 
-        Debug.Log($"[Cheat] 다음 레벨에 필요한 경험치({PlayerCharacter.Instance.playerStats.requiredExperience:F0}) 이상인 {expToGrant:F0}를 부여하여 레벨업을 유도합니다.");
+        //Debug.Log($"[Cheat] 다음 레벨에 필요한 경험치({PlayerCharacter.Instance.playerStats.requiredExperience:F0}) 이상인 {expToGrant:F0}를 부여하여 레벨업을 유도합니다.");
 
         // 3. AddExperience 메서드를 호출하여 경험치를 부여합니다.
         PlayerCharacter.Instance.playerLevelUp.AddExperience(expToGrant);
@@ -88,7 +88,7 @@ public class Test : MonoBehaviour
         if (DungeonCoinCurrency.Instance != null)
         {
             DungeonCoinCurrency.Instance.AddCoins(100);
-            Debug.Log($"[Cheat] 던전 코인 100개 추가됨.");
+           // Debug.Log($"[Cheat] 던전 코인 100개 추가됨.");
         }
         else
         {
@@ -193,13 +193,13 @@ public class Test : MonoBehaviour
                 return;
             }
 
-            Debug.Log($"[Cheat] 장비 생성 성공: **{itemToGrant.itemName}** (등급: {selectedGradeName}, ID: {itemToGrant.itemID})");
+            //Debug.Log($"[Cheat] 장비 생성 성공: **{itemToGrant.itemName}** (등급: {selectedGradeName}, ID: {itemToGrant.itemID})");
         }
         else
         {
             // 3. 일반 아이템인 경우, 템플릿을 그대로 지급합니다. (수량은 1개이므로 템플릿 자체를 사용해도 무방)
             itemToGrant = templateItem;
-            Debug.Log($"[Cheat] 일반 아이템 추가: **{itemToGrant.itemName}** (ID: {itemToGrant.itemID}, 개수: {ItemQuantity})");
+           // Debug.Log($"[Cheat] 일반 아이템 추가: **{itemToGrant.itemName}** (ID: {itemToGrant.itemID}, 개수: {ItemQuantity})");
         }
 
         // 4. 인벤토리에 아이템 추가

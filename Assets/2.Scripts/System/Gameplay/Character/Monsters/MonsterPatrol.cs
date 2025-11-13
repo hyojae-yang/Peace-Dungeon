@@ -1,36 +1,42 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
-using static MonsterBase; // MonsterBase.MonsterState¿¡ Á¢±ÙÇÏ±â À§ÇØ »ç¿ëµË´Ï´Ù.
+using static MonsterBase; // MonsterBase.MonsterStateì— ì ‘ê·¼í•˜ê¸° ìœ„í•´ ì‚¬ìš©ë©ë‹ˆë‹¤.
 
 /// <summary>
-/// ¸ó½ºÅÍÀÇ ¼øÂû Çàµ¿À» Àü´ãÇÏ´Â Å¬·¡½ºÀÔ´Ï´Ù.
-/// ÄÚ·çÆ¾À» ÀÌ¿ëÇÑ ¼øÂû ·ÎÁ÷°ú Ãæµ¹ °¨Áö ÈÄ °æ·Î Àç¼³Á¤ ±â´ÉÀ» Æ÷ÇÔÇÕ´Ï´Ù.
-/// ¿ÀºêÁ§Æ® Ç®¸µ ½Ã½ºÅÛ È¯°æÀ» °í·ÁÇÏ¿©, ºñÈ°¼ºÈ­ ½Ã ÄÚ·çÆ¾ ½ÇÇàÀ» ¸·´Â ¾ÈÀü ÀåÄ¡¿Í ÀçÈ°¼ºÈ­ ½Ã ÃÊ±âÈ­ ·ÎÁ÷À» Ãß°¡Çß½À´Ï´Ù.
+/// ëª¬ìŠ¤í„°ì˜ ìˆœì°° í–‰ë™ì„ ì „ë‹´í•˜ëŠ” í´ë˜ìŠ¤ì…ë‹ˆë‹¤.
+/// ì½”ë£¨í‹´ì„ ì´ìš©í•œ ìˆœì°° ë¡œì§ê³¼ ì¶©ëŒ ê°ì§€ í›„ ê²½ë¡œ ì¬ì„¤ì • ê¸°ëŠ¥ì„ í¬í•¨í•©ë‹ˆë‹¤.
+/// ì˜¤ë¸Œì íŠ¸ í’€ë§ ì‹œìŠ¤í…œ í™˜ê²½ì„ ê³ ë ¤í•˜ì—¬, ë¹„í™œì„±í™” ì‹œ ì½”ë£¨í‹´ ì‹¤í–‰ì„ ë§‰ëŠ” ì•ˆì „ ì¥ì¹˜ì™€ ì¬í™œì„±í™” ì‹œ ì´ˆê¸°í™” ë¡œì§ì„ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤.
+/// SOLID ì›ì¹™: SRP(ë‹¨ì¼ ì±…ì„ ì›ì¹™)ì— ë”°ë¼ ìˆœì°° ë¡œì§ ë° ê²½ë¡œ ê´€ë¦¬ë¥¼ ì „ì ìœ¼ë¡œ ë‹´ë‹¹í•©ë‹ˆë‹¤.
 /// </summary>
 public class MonsterPatrol : MonoBehaviour
 {
-    // === ¼øÂû Çàµ¿ ¼³Á¤ ===
-    [Header("¼øÂû Çàµ¿ ¼³Á¤")]
-    [Tooltip("¼øÂûÀÇ Áß½ÉÀÌ µÇ´Â ÁöÁ¡ÀÔ´Ï´Ù. (¿ùµå ÁÂÇ¥)")]
+    // === ìˆœì°° í–‰ë™ ì„¤ì • ===
+    [Header("ìˆœì°° í–‰ë™ ì„¤ì •")]
+    [Tooltip("ìˆœì°°ì˜ ì¤‘ì‹¬ì´ ë˜ëŠ” ì§€ì ì…ë‹ˆë‹¤. (ì›”ë“œ ì¢Œí‘œ)")]
     public Vector3 homePoint;
-    [Tooltip("Áß½É ÁöÁ¡À» ±âÁØÀ¸·Î ¼øÂûÇÒ ¹İ°æÀÔ´Ï´Ù.")]
+    [Tooltip("ì¤‘ì‹¬ ì§€ì ì„ ê¸°ì¤€ìœ¼ë¡œ ìˆœì°°í•  ë°˜ê²½ì…ë‹ˆë‹¤.")]
     public float patrolRadius = 10f;
-    [Tooltip("¼øÂû ½Ã ÀÌµ¿ ¼ÓµµÀÔ´Ï´Ù. ¸ó½ºÅÍÀÇ ±âº» ÀÌµ¿ ¼Óµµ¿¡ °öÇÏ¿© »ç¿ëµË´Ï´Ù.")]
+    [Tooltip("ìˆœì°° ì‹œ ì´ë™ ì†ë„ì…ë‹ˆë‹¤. ëª¬ìŠ¤í„°ì˜ ê¸°ë³¸ ì´ë™ ì†ë„ì— ê³±í•˜ì—¬ ì‚¬ìš©ë©ë‹ˆë‹¤.")]
     public float patrolSpeedMultiplier = 1f;
-    [Tooltip("»õ·Î¿î ¼øÂû ÁöÁ¡À» ¼³Á¤ÇÏ±â Àü ´ë±â ½Ã°£ÀÔ´Ï´Ù.")]
+    [Tooltip("ìƒˆë¡œìš´ ìˆœì°° ì§€ì ì„ ì„¤ì •í•˜ê¸° ì „ ëŒ€ê¸° ì‹œê°„ì…ë‹ˆë‹¤.")]
     public float waitTimeBetweenPatrols = 1f;
-    [Tooltip("¼øÂû ÁöÁ¡À¸·Î ÀÌµ¿ÇÏ±â Àü±îÁö ±â´Ù¸®´Â ÃÖ´ë ½Ã°£ÀÔ´Ï´Ù. ÀÌ ½Ã°£ÀÌ Áö³ª¸é ¸ñÇ¥ ÁöÁ¡±îÁö µµÂøÇÏÁö ¾Ê¾Ò¾îµµ »õ ÁöÁ¡À» ¼³Á¤ÇÕ´Ï´Ù.")]
+    [Tooltip("ìˆœì°° ì§€ì ìœ¼ë¡œ ì´ë™í•˜ê¸° ì „ê¹Œì§€ ê¸°ë‹¤ë¦¬ëŠ” ìµœëŒ€ ì‹œê°„ì…ë‹ˆë‹¤. ì´ ì‹œê°„ì´ ì§€ë‚˜ë©´ ëª©í‘œ ì§€ì ê¹Œì§€ ë„ì°©í•˜ì§€ ì•Šì•˜ì–´ë„ ìƒˆ ì§€ì ì„ ì„¤ì •í•©ë‹ˆë‹¤.")]
     public float patrolPointChangeInterval = 5f;
-    [Tooltip("¼øÂû Áß½É(HomePoint)À» º¯°æÇÏ´Â ÁÖ±âÀÔ´Ï´Ù. ÀÌ ½Ã°£ÀÌ Áö³ª¾ß »õ·Î¿î ±¸¿ªÀ¸·Î ¼øÂû ¹üÀ§¸¦ ¿Å±é´Ï´Ù.")]
+    [Tooltip("ìˆœì°° ì¤‘ì‹¬(HomePoint)ì„ ë³€ê²½í•˜ëŠ” ì£¼ê¸°ì…ë‹ˆë‹¤. ì´ ì‹œê°„ì´ ì§€ë‚˜ì•¼ ìƒˆë¡œìš´ êµ¬ì—­ìœ¼ë¡œ ìˆœì°° ë²”ìœ„ë¥¼ ì˜®ê¹ë‹ˆë‹¤.")]
     public float homePointChangeInterval = 50f;
 
-    // === Á¾¼Ó¼º ===
+    // === [í•µì‹¬ ìˆ˜ì •] ì§€í˜• ë³´ì • ì„¤ì • í•„ë“œë¥¼ Monster í´ë˜ìŠ¤ë¡œ ì´ë™í–ˆê¸° ë•Œë¬¸ì— ì´ í•„ë“œë“¤ì„ ì œê±°í•©ë‹ˆë‹¤. ===
+    // [ì œê±°] public LayerMask groundLayer;
+    // [ì œê±°] public float verticalOffset = 0.5f;
+
+    // === ì¢…ì†ì„± ===
     private Transform monsterTransform;
-    // ÇöÀç ¼øÂû ÄÚ·çÆ¾ÀÇ ÂüÁ¶¸¦ ´ã¾Æ Áßº¹ ½ÇÇàÀÌ³ª °­Á¦ ÁßÁö¸¦ °¡´ÉÇÏ°Ô ÇÕ´Ï´Ù.
+    // í˜„ì¬ ìˆœì°° ì½”ë£¨í‹´ì˜ ì°¸ì¡°ë¥¼ ë‹´ì•„ ì¤‘ë³µ ì‹¤í–‰ì´ë‚˜ ê°•ì œ ì¤‘ì§€ë¥¼ ê°€ëŠ¥í•˜ê²Œ í•©ë‹ˆë‹¤.
     private Coroutine patrolCoroutine;
     private MonsterBase monsterBase;
+    private Monster monster; // Monster í´ë˜ìŠ¤ì˜ AdjustToGround í˜¸ì¶œì„ ìœ„í•´ í•„ìš”
 
-    // === ³»ºÎ º¯¼ö ===
+    // === ë‚´ë¶€ ë³€ìˆ˜ ===
     private Vector3 currentPatrolPoint;
     private float homePointTimer;
 
@@ -38,68 +44,68 @@ public class MonsterPatrol : MonoBehaviour
     {
         monsterTransform = this.transform;
         monsterBase = GetComponent<MonsterBase>();
+        monster = GetComponent<Monster>(); // Monster ì»´í¬ë„ŒíŠ¸ ì°¸ì¡°
 
-        if (monsterBase == null)
+        if (monsterBase == null || monster == null)
         {
-            Debug.LogError("MonsterPatrol: MonsterBase ÄÄÆ÷³ÍÆ®¸¦ Ã£À» ¼ö ¾ø½À´Ï´Ù.");
+            Debug.LogError("MonsterPatrol: í•„ìˆ˜ ì»´í¬ë„ŒíŠ¸(MonsterBase ë˜ëŠ” Monster)ë¥¼ ì°¾ì„ ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             enabled = false;
             return;
         }
 
-        // È¨ Æ÷ÀÎÆ®°¡ ÁöÁ¤µÇÁö ¾Ê¾ÒÀ¸¸é ¸ó½ºÅÍÀÇ ½ÃÀÛ À§Ä¡¸¦ ¼øÂûÀÇ Áß½ÉÁ¡À¸·Î »ç¿ëÇÕ´Ï´Ù.
+        // í™ˆ í¬ì¸íŠ¸ê°€ ì§€ì •ë˜ì§€ ì•Šì•˜ìœ¼ë©´ ëª¬ìŠ¤í„°ì˜ ì‹œì‘ ìœ„ì¹˜ë¥¼ ìˆœì°°ì˜ ì¤‘ì‹¬ì ìœ¼ë¡œ ì‚¬ìš©í•©ë‹ˆë‹¤.
         if (homePoint == Vector3.zero)
         {
             homePoint = monsterTransform.position;
         }
 
-        // Å¸ÀÌ¸Ó ÃÊ±âÈ­´Â OnEnable¿¡¼­ Ã³¸®ÇÏ¿© Ç®¸µ Àç»ç¿ë¿¡ ´ëºñÇÕ´Ï´Ù.
+        // íƒ€ì´ë¨¸ ì´ˆê¸°í™”ëŠ” OnEnableì—ì„œ ì²˜ë¦¬í•˜ì—¬ í’€ë§ ì¬ì‚¬ìš©ì— ëŒ€ë¹„í•©ë‹ˆë‹¤.
     }
 
     /// <summary>
-    /// ¿ÀºêÁ§Æ®°¡ È°¼ºÈ­(¿ÀºêÁ§Æ® Ç®¿¡¼­ Àç»ç¿ë)µÉ ¶§ È£ÃâµË´Ï´Ù.
-    /// ¼øÂû »óÅÂ¸¦ ±ú²ıÇÏ°Ô ÃÊ±âÈ­ÇÕ´Ï´Ù.
+    /// ì˜¤ë¸Œì íŠ¸ê°€ í™œì„±í™”(ì˜¤ë¸Œì íŠ¸ í’€ì—ì„œ ì¬ì‚¬ìš©)ë  ë•Œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ìˆœì°° ìƒíƒœë¥¼ ê¹¨ë—í•˜ê²Œ ì´ˆê¸°í™”í•©ë‹ˆë‹¤.
     /// </summary>
     private void OnEnable()
     {
-        // ÀÌÀü ¼øÂû ÄÚ·çÆ¾ÀÌ ³²¾ÆÀÖ´Ù¸é È®½ÇÈ÷ ÁßÁö½ÃÅµ´Ï´Ù.
+        // ì´ì „ ìˆœì°° ì½”ë£¨í‹´ì´ ë‚¨ì•„ìˆë‹¤ë©´ í™•ì‹¤íˆ ì¤‘ì§€ì‹œí‚µë‹ˆë‹¤.
         StopPatrol();
 
-        // Å¸ÀÌ¸Ó¸¦ ¹«ÀÛÀ§·Î ÃÊ±âÈ­ÇÏ¿© ¸ğµç ¸ó½ºÅÍ°¡ µ¿½Ã¿¡ ¼øÂû ¹üÀ§¸¦ ¹Ù²Ù´Â °ÍÀ» ¹æÁöÇÕ´Ï´Ù.
+        // íƒ€ì´ë¨¸ë¥¼ ë¬´ì‘ìœ„ë¡œ ì´ˆê¸°í™”í•˜ì—¬ ëª¨ë“  ëª¬ìŠ¤í„°ê°€ ë™ì‹œì— ìˆœì°° ë²”ìœ„ë¥¼ ë°”ê¾¸ëŠ” ê²ƒì„ ë°©ì§€í•©ë‹ˆë‹¤.
         homePointTimer = UnityEngine.Random.Range(0, homePointChangeInterval);
 
-        // ¿©±â¼­ StartPatrolÀ» ¹Ù·Î È£ÃâÇÏ±âº¸´Ù, MonsterBaseÀÇ State Machine¿¡ µû¶ó È£ÃâµÇµµ·Ï ÇÏ´Â °ÍÀÌ
-        // ´õ À¯¿¬ÇÏ°í SOLID ¿øÄ¢¿¡ ºÎÇÕÇÕ´Ï´Ù. (¿¹: MonsterBase.OnStateChange(Patrol) -> MonsterPatrol.StartPatrol())
-        // ÇÊ¿äÇÏ´Ù¸é ¿©±â¼­ StartPatrol()À» È£ÃâÇÒ ¼ö ÀÖ½À´Ï´Ù.
+        // ì—¬ê¸°ì„œ StartPatrolì„ ë°”ë¡œ í˜¸ì¶œí•˜ê¸°ë³´ë‹¤, MonsterBaseì˜ State Machineì— ë”°ë¼ í˜¸ì¶œë˜ë„ë¡ í•˜ëŠ” ê²ƒì´
+        // ë” ìœ ì—°í•˜ê³  SOLID ì›ì¹™ì— ë¶€í•©í•©ë‹ˆë‹¤. (ì˜ˆ: MonsterBase.OnStateChange(Patrol) -> MonsterPatrol.StartPatrol())
+        // í•„ìš”í•˜ë‹¤ë©´ ì—¬ê¸°ì„œ StartPatrol()ì„ í˜¸ì¶œí•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.
     }
 
     /// <summary>
-    /// ¸Å ÇÁ·¹ÀÓ ¸ó½ºÅÍÀÇ »óÅÂ¸¦ È®ÀÎÇÏ¿© »ç¸Á »óÅÂÀÏ °æ¿ì ¼øÂûÀ» ÁßÁöÇÏ°í Ç®·Î ¹İÈ¯ÇÕ´Ï´Ù.
-    /// ÀÌ ·ÎÁ÷Àº MonsterBase°¡ ¾Æ´Ñ Patrol ÄÄÆ÷³ÍÆ®ÀÇ Update¿¡¼­ °ü¸®ÇÕ´Ï´Ù.
+    /// ë§¤ í”„ë ˆì„ ëª¬ìŠ¤í„°ì˜ ìƒíƒœë¥¼ í™•ì¸í•˜ì—¬ ì‚¬ë§ ìƒíƒœì¼ ê²½ìš° ìˆœì°°ì„ ì¤‘ì§€í•˜ê³  í’€ë¡œ ë°˜í™˜í•©ë‹ˆë‹¤.
+    /// ì´ ë¡œì§ì€ MonsterBaseê°€ ì•„ë‹Œ Patrol ì»´í¬ë„ŒíŠ¸ì˜ Updateì—ì„œ ê´€ë¦¬í•©ë‹ˆë‹¤.
     /// </summary>
     private void Update()
     {
-        // ¸ó½ºÅÍ°¡ 'Dead' »óÅÂÀÎ °æ¿ì
+        // ëª¬ìŠ¤í„°ê°€ 'Dead' ìƒíƒœì¸ ê²½ìš°
         if (monsterBase != null && monsterBase.currentState == MonsterState.Dead)
         {
-            StopPatrol(); // ÄÚ·çÆ¾ÀÌ ½ÇÇà ÁßÀÌ¸é ¸ØÃä´Ï´Ù.
+            StopPatrol(); // ì½”ë£¨í‹´ì´ ì‹¤í–‰ ì¤‘ì´ë©´ ë©ˆì¶¥ë‹ˆë‹¤.
             return;
         }
 
-        // È¨ Æ÷ÀÎÆ® Å¸ÀÌ¸Ó°¡ ¼øÂû Áß½É º¯°æ °£°İº¸´Ù Å¬ °æ¿ì (PatrolCoroutine ³»ºÎ¿¡¼­ Ã³¸®ÇÏ¿© È¿À²¼ºÀ» ³ôÀÔ´Ï´Ù.)
-        // homePointTimer += Time.deltaTime; // Å¸ÀÌ¸Ó Áõ°¡ ·ÎÁ÷Àº ÄÚ·çÆ¾ ¾È¿¡¼­ Ã³¸®ÇÕ´Ï´Ù.
+        // homePointTimer += Time.deltaTime; // íƒ€ì´ë¨¸ ì¦ê°€ ë¡œì§ì€ ì½”ë£¨í‹´ ì•ˆì—ì„œ ì²˜ë¦¬í•©ë‹ˆë‹¤.
     }
 
     /// <summary>
-    /// ¿ÜºÎ¿¡¼­ ¼øÂû Çàµ¿À» ½ÃÀÛÇÏ´Â ¸Ş¼­µåÀÔ´Ï´Ù.
-    /// ÀÌ¹Ì ¼øÂû ÁßÀÌ¸é Áßº¹ ½ÇÇàÀ» ¹æÁöÇÏ¸ç, ºñÈ°¼º »óÅÂ¿¡¼­´Â ÄÚ·çÆ¾ ½ÇÇàÀ» ¸·¾Æ ¿¡·¯¸¦ ¹æÁöÇÕ´Ï´Ù.
+    /// ì™¸ë¶€ì—ì„œ ìˆœì°° í–‰ë™ì„ ì‹œì‘í•˜ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
+    /// ì´ë¯¸ ìˆœì°° ì¤‘ì´ë©´ ì¤‘ë³µ ì‹¤í–‰ì„ ë°©ì§€í•˜ë©°, ë¹„í™œì„± ìƒíƒœì—ì„œëŠ” ì½”ë£¨í‹´ ì‹¤í–‰ì„ ë§‰ì•„ ì—ëŸ¬ë¥¼ ë°©ì§€í•©ë‹ˆë‹¤.
     /// </summary>
     public void StartPatrol()
     {
-        // ¿ÀºêÁ§Æ®¿Í ÄÄÆ÷³ÍÆ®°¡ ¸ğµÎ È°¼ºÈ­µÇ¾î ÀÖ´ÂÁö È®ÀÎÇÏ¿© 
-        // "Coroutine couldn't be started because the game object is inactive!" ¿À·ù¸¦ ¹æÁöÇÕ´Ï´Ù.
+        // ì˜¤ë¸Œì íŠ¸ì™€ ì»´í¬ë„ŒíŠ¸ê°€ ëª¨ë‘ í™œì„±í™”ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸í•˜ì—¬ 
+        // "Coroutine couldn't be started because the game object is inactive!" ì˜¤ë¥˜ë¥¼ ë°©ì§€í•©ë‹ˆë‹¤.
         if (!isActiveAndEnabled)
         {
-            // Debug.LogWarning($"{gameObject.name}ÀÌ(°¡) ºñÈ°¼ºÈ­ »óÅÂÀÌ¹Ç·Î ¼øÂû ÄÚ·çÆ¾À» ½ÃÀÛÇÒ ¼ö ¾ø½À´Ï´Ù.");
+            // Debug.LogWarning($"{gameObject.name}ì´(ê°€) ë¹„í™œì„±í™” ìƒíƒœì´ë¯€ë¡œ ìˆœì°° ì½”ë£¨í‹´ì„ ì‹œì‘í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤.");
             return;
         }
 
@@ -110,7 +116,7 @@ public class MonsterPatrol : MonoBehaviour
     }
 
     /// <summary>
-    /// ¿ÜºÎ¿¡¼­ ¼øÂû Çàµ¿À» ¸ØÃß´Â ¸Ş¼­µåÀÔ´Ï´Ù.
+    /// ì™¸ë¶€ì—ì„œ ìˆœì°° í–‰ë™ì„ ë©ˆì¶”ëŠ” ë©”ì„œë“œì…ë‹ˆë‹¤.
     /// </summary>
     public void StopPatrol()
     {
@@ -122,20 +128,20 @@ public class MonsterPatrol : MonoBehaviour
     }
 
     /// <summary>
-    /// ¼øÂû ·ÎÁ÷À» ½ÇÇàÇÏ´Â ÄÚ·çÆ¾ÀÔ´Ï´Ù.
-    /// ¸ñÇ¥ ÁöÁ¡±îÁö ÀÌµ¿ÇÏ°í, µµÂø ¶Ç´Â ÀÏÁ¤ ½Ã°£ °æ°ú ÈÄ »õ ÁöÁ¡À¸·Î ÀÌµ¿ÇÕ´Ï´Ù.
+    /// ìˆœì°° ë¡œì§ì„ ì‹¤í–‰í•˜ëŠ” ì½”ë£¨í‹´ì…ë‹ˆë‹¤.
+    /// ëª©í‘œ ì§€ì ê¹Œì§€ ì´ë™í•˜ê³ , ë„ì°© ë˜ëŠ” ì¼ì • ì‹œê°„ ê²½ê³¼ í›„ ìƒˆ ì§€ì ìœ¼ë¡œ ì´ë™í•©ë‹ˆë‹¤.
     /// </summary>
     private IEnumerator PatrolCoroutine()
     {
-        SetNewPatrolPoint(); // ÃÊ±â ¼øÂû ÁöÁ¡ ¼³Á¤
+        SetNewPatrolPoint(); // ì´ˆê¸° ìˆœì°° ì§€ì  ì„¤ì •
 
         float patrolTimer = 0f;
         while (true)
         {
-            // ¸ñÇ¥ ÁöÁ¡¿¡ °ÅÀÇ µµÂøÇß°Å³ª, ÀÏÁ¤ ½Ã°£ÀÌ Áö³µÀ¸¸é »õ·Î¿î ¼øÂû ÁöÁ¡À» ¼³Á¤ÇÕ´Ï´Ù.
+            // ëª©í‘œ ì§€ì ì— ê±°ì˜ ë„ì°©í–ˆê±°ë‚˜, ì¼ì • ì‹œê°„ì´ ì§€ë‚¬ìœ¼ë©´ ìƒˆë¡œìš´ ìˆœì°° ì§€ì ì„ ì„¤ì •í•©ë‹ˆë‹¤.
             if (Vector3.Distance(monsterTransform.position, currentPatrolPoint) < 1.0f || patrolTimer >= patrolPointChangeInterval)
             {
-                // ¼øÂû Áß½É º¯°æ Å¸ÀÌ¸Ó°¡ ¸¸·áµÇ¸é ¼øÂû Áß½É(HomePoint)µµ ÇÔ²² º¯°æÇÕ´Ï´Ù.
+                // ìˆœì°° ì¤‘ì‹¬ ë³€ê²½ íƒ€ì´ë¨¸ê°€ ë§Œë£Œë˜ë©´ ìˆœì°° ì¤‘ì‹¬(HomePoint)ë„ í•¨ê»˜ ë³€ê²½í•©ë‹ˆë‹¤.
                 if (homePointTimer >= homePointChangeInterval)
                 {
                     UpdateHomePointAndPatrolPoint();
@@ -145,44 +151,45 @@ public class MonsterPatrol : MonoBehaviour
                     SetNewPatrolPoint();
                 }
 
-                patrolTimer = 0f; // ¼øÂû ÁöÁ¡ Å¸ÀÌ¸Ó ¸®¼Â
+                patrolTimer = 0f; // ìˆœì°° ì§€ì  íƒ€ì´ë¨¸ ë¦¬ì…‹
                 yield return new WaitForSeconds(waitTimeBetweenPatrols);
             }
 
-            // ¸ñÇ¥ ÁöÁ¡À» ÇâÇØ ÀÌµ¿
+            // ëª©í‘œ ì§€ì ì„ í–¥í•´ ì´ë™
             Vector3 direction = (currentPatrolPoint - monsterTransform.position).normalized;
             if (direction != Vector3.zero)
             {
-                // ÀÌµ¿ ¼Óµµ Àû¿ë
+                // ì´ë™ ì†ë„ ì ìš©
                 monsterTransform.position += direction * monsterBase.monsterData.moveSpeed * patrolSpeedMultiplier * Time.deltaTime;
 
-                // È¸Àü (ºÎµå·¯¿î ½Ã¼± Ã³¸®)
+                // íšŒì „ (ë¶€ë“œëŸ¬ìš´ ì‹œì„  ì²˜ë¦¬)
                 Quaternion lookRotation = Quaternion.LookRotation(direction);
                 monsterTransform.rotation = Quaternion.Slerp(monsterTransform.rotation, lookRotation, Time.deltaTime * 5f);
+
             }
 
-            patrolTimer += Time.deltaTime; // ¼øÂû ÁöÁ¡ Å¸ÀÌ¸Ó ¾÷µ¥ÀÌÆ®
-            homePointTimer += Time.deltaTime; // È¨ Æ÷ÀÎÆ® Å¸ÀÌ¸Ó ¾÷µ¥ÀÌÆ®
-            yield return null; // ´ÙÀ½ ÇÁ·¹ÀÓ±îÁö ´ë±â
+            patrolTimer += Time.deltaTime; // ìˆœì°° ì§€ì  íƒ€ì´ë¨¸ ì—…ë°ì´íŠ¸
+            homePointTimer += Time.deltaTime; // í™ˆ í¬ì¸íŠ¸ íƒ€ì´ë¨¸ ì—…ë°ì´íŠ¸
+            yield return null; // ë‹¤ìŒ í”„ë ˆì„ê¹Œì§€ ëŒ€ê¸°
         }
     }
 
     /// <summary>
-    /// ¼øÂû Áß½É(HomePoint)À» À¯ÁöÇÑ Ã¤ ¼øÂû ¹İ°æ ³»¿¡ »õ·Î¿î ·£´ı ÁöÁ¡À» ¼³Á¤ÇÕ´Ï´Ù.
+    /// ìˆœì°° ì¤‘ì‹¬(HomePoint)ì„ ìœ ì§€í•œ ì±„ ìˆœì°° ë°˜ê²½ ë‚´ì— ìƒˆë¡œìš´ ëœë¤ ì§€ì ì„ ì„¤ì •í•©ë‹ˆë‹¤.
     /// </summary>
     public void SetNewPatrolPoint()
     {
         Vector3 randomDirection = UnityEngine.Random.insideUnitSphere * patrolRadius;
         randomDirection += homePoint;
 
-        // YÃàÀº ÇöÀç ¸ó½ºÅÍ À§Ä¡¿Í µ¿ÀÏÇÏ°Ô À¯ÁöÇÏ¿© °øÁßÀ¸·Î ¶ß´Â °ÍÀ» ¹æÁöÇÕ´Ï´Ù.
+        // Yì¶•ì€ í˜„ì¬ ëª¬ìŠ¤í„° ìœ„ì¹˜ì™€ ë™ì¼í•˜ê²Œ ìœ ì§€í•˜ì—¬ ê³µì¤‘ìœ¼ë¡œ ëœ¨ëŠ” ê²ƒì„ ë°©ì§€í•©ë‹ˆë‹¤.
         randomDirection.y = monsterTransform.position.y;
         currentPatrolPoint = randomDirection;
     }
 
     /// <summary>
-    /// ¼øÂû Áß½ÉÀ» ÇöÀç À§Ä¡·Î º¯°æÇÏ°í »õ·Î¿î ·£´ı ÁöÁ¡À» ¼³Á¤ÇÑ ÈÄ Å¸ÀÌ¸Ó¸¦ ¸®¼ÂÇÕ´Ï´Ù.
-    /// ¸ó½ºÅÍ°¡ ÇÑ ±¸¿ª¿¡ ³Ê¹« ¿À·¡ ¸Ó¹«¸£´Â °ÍÀ» ¹æÁöÇÕ´Ï´Ù.
+    /// ìˆœì°° ì¤‘ì‹¬ì„ í˜„ì¬ ìœ„ì¹˜ë¡œ ë³€ê²½í•˜ê³  ìƒˆë¡œìš´ ëœë¤ ì§€ì ì„ ì„¤ì •í•œ í›„ íƒ€ì´ë¨¸ë¥¼ ë¦¬ì…‹í•©ë‹ˆë‹¤.
+    /// ëª¬ìŠ¤í„°ê°€ í•œ êµ¬ì—­ì— ë„ˆë¬´ ì˜¤ë˜ ë¨¸ë¬´ë¥´ëŠ” ê²ƒì„ ë°©ì§€í•©ë‹ˆë‹¤.
     /// </summary>
     private void UpdateHomePointAndPatrolPoint()
     {
@@ -192,15 +199,15 @@ public class MonsterPatrol : MonoBehaviour
     }
 
     /// <summary>
-    /// Ãæµ¹ÀÌ ¹ß»ıÇßÀ» ¶§ È£ÃâµÇ¾î ¼øÂû ÁöÁ¡°ú Áß½ÉÀ» Àç¼³Á¤ÇÏ°í ¼øÂûÀ» Àç½ÃÀÛÇÕ´Ï´Ù.
-    /// (º®ÀÌ³ª Àå¾Ö¹° È¸ÇÇ ·ÎÁ÷)
+    /// ì¶©ëŒì´ ë°œìƒí–ˆì„ ë•Œ í˜¸ì¶œë˜ì–´ ìˆœì°° ì§€ì ê³¼ ì¤‘ì‹¬ì„ ì¬ì„¤ì •í•˜ê³  ìˆœì°°ì„ ì¬ì‹œì‘í•©ë‹ˆë‹¤.
+    /// (ë²½ì´ë‚˜ ì¥ì• ë¬¼ íšŒí”¼ ë¡œì§)
     /// </summary>
     private void OnCollisionEnter(Collision collision)
     {
-        // Ãæµ¹ÇÑ ¿ÀºêÁ§Æ®ÀÇ ÅÂ±×°¡ 'Player' ¶Ç´Â 'Monster'°¡ ¾Æ´Ò ¶§¸¸ ¹İÀÀÇÕ´Ï´Ù. 
+        // ì¶©ëŒí•œ ì˜¤ë¸Œì íŠ¸ì˜ íƒœê·¸ê°€ 'Player' ë˜ëŠ” 'Monster'ê°€ ì•„ë‹ ë•Œë§Œ ë°˜ì‘í•©ë‹ˆë‹¤. 
         if (!collision.gameObject.CompareTag("Player") && !collision.gameObject.CompareTag("Monster"))
         {
-            // Ãæµ¹ °¨Áö -> ¼øÂû Á¤Áö -> °æ·Î º¯°æ -> ¼øÂû Àç½ÃÀÛ
+            // ì¶©ëŒ ê°ì§€ -> ìˆœì°° ì •ì§€ -> ê²½ë¡œ ë³€ê²½ -> ìˆœì°° ì¬ì‹œì‘
             StopPatrol();
             UpdateHomePointAndPatrolPoint();
             StartPatrol();
@@ -208,17 +215,17 @@ public class MonsterPatrol : MonoBehaviour
     }
 
     /// <summary>
-    /// ÇöÀç ¼øÂû ¸ñÇ¥ ÁöÁ¡ÀÇ °ªÀ» ¹İÈ¯ÇÕ´Ï´Ù.
+    /// í˜„ì¬ ìˆœì°° ëª©í‘œ ì§€ì ì˜ ê°’ì„ ë°˜í™˜í•©ë‹ˆë‹¤.
     /// </summary>
     public Vector3 GetPatrolPoint()
     {
         return currentPatrolPoint;
     }
 
-    // °³¹ß/µğ¹ö±ëÀ» À§ÇÑ ½Ã°¢È­ ÄÚµå
+    // ê°œë°œ/ë””ë²„ê¹…ì„ ìœ„í•œ ì‹œê°í™” ì½”ë“œ
     private void OnDrawGizmosSelected()
     {
-        // homePoint°¡ ÃÊ±âÈ­µÇÁö ¾ÊÀº °æ¿ì ÇöÀç À§Ä¡¸¦ Áß½ÉÀ¸·Î °¡Á¤ÇÕ´Ï´Ù.
+        // homePointê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì€ ê²½ìš° í˜„ì¬ ìœ„ì¹˜ë¥¼ ì¤‘ì‹¬ìœ¼ë¡œ ê°€ì •í•©ë‹ˆë‹¤.
         Vector3 gizmoHomePoint = (Application.isPlaying && monsterTransform != null) ? homePoint : transform.position;
 
         Gizmos.color = Color.yellow;
@@ -227,9 +234,9 @@ public class MonsterPatrol : MonoBehaviour
         Gizmos.color = Color.cyan;
         if (Application.isPlaying)
         {
-            // ÇöÀç ¼øÂû ¸ñÇ¥ ÁöÁ¡À» ½Ã°¢È­
+            // í˜„ì¬ ìˆœì°° ëª©í‘œ ì§€ì ì„ ì‹œê°í™”
             Gizmos.DrawSphere(currentPatrolPoint, 0.5f);
-            // ¸ó½ºÅÍ À§Ä¡¿¡¼­ ¸ñÇ¥ ÁöÁ¡±îÁöÀÇ ¼±À» ½Ã°¢È­
+            // ëª¬ìŠ¤í„° ìœ„ì¹˜ì—ì„œ ëª©í‘œ ì§€ì ê¹Œì§€ì˜ ì„ ì„ ì‹œê°í™”
             Gizmos.DrawLine(transform.position, currentPatrolPoint);
         }
     }

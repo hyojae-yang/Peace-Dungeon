@@ -28,7 +28,7 @@ MonoBehaviour:
     cooldown: 20
     stats:
     - statType: 0
-      value: 50
+      value: 150
       isPercentage: 0
     - statType: 2
       value: 30
@@ -43,7 +43,7 @@ MonoBehaviour:
     cooldown: 18
     stats:
     - statType: 0
-      value: 100
+      value: 300
       isPercentage: 0
     - statType: 2
       value: 60
@@ -58,7 +58,7 @@ MonoBehaviour:
     cooldown: 15
     stats:
     - statType: 0
-      value: 150
+      value: 450
       isPercentage: 0
     - statType: 2
       value: 90
@@ -73,7 +73,7 @@ MonoBehaviour:
     cooldown: 12
     stats:
     - statType: 0
-      value: 200
+      value: 600
       isPercentage: 0
     - statType: 2
       value: 120
@@ -88,7 +88,7 @@ MonoBehaviour:
     cooldown: 10
     stats:
     - statType: 0
-      value: 250
+      value: 750
       isPercentage: 0
     - statType: 2
       value: 150

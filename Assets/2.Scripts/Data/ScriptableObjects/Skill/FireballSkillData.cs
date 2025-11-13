@@ -20,11 +20,11 @@ public class FireballSkillData : ActiveSkillData, IHasAiming // ⭐ IHasAiming �
     [Tooltip("발사할 파이어볼 투사체 프리펩을 할당하세요.")]
     public GameObject fireballPrefab;
 
-    // ⭐ 새로 추가: IHasAiming 인터페이스를 통해 주입받을 마우스 목표 위치
+    // IHasAiming 인터페이스를 통해 주입받을 마우스 목표 위치
     private Vector3 targetAimPosition = Vector3.zero;
 
     /// <summary>
-    /// ⭐ IHasAiming 인터페이스 구현: PlayerSkillController로부터 마우스 목표 위치를 받습니다.
+    /// IHasAiming 인터페이스 구현: PlayerSkillController로부터 마우스 목표 위치를 받습니다.
     /// </summary>
     /// <param name="targetPosition">마우스 Raycast로 계산된 목표 월드 좌표</param>
     public void SetTargetPosition(Vector3 targetPosition)
@@ -41,7 +41,7 @@ public class FireballSkillData : ActiveSkillData, IHasAiming // ⭐ IHasAiming �
     /// <param name="playerStats">스킬 발동 시 필요한 플레이어의 현재 능력치</param>
     /// <param name="skillLevel">현재 스킬의 레벨</param>
     /// <returns>스킬의 효과가 논리적으로 성공적으로 발동되었으면 true, 실패했으면 false를 반환합니다.</returns>
-    public override bool Execute(Transform spawnPoint, PlayerStats playerStats, int skillLevel) // ⭐ 시그니처 변경 없음!
+    public override bool Execute(Transform spawnPoint, PlayerStats playerStats, int skillLevel) // 시그니처 변경 없음!
     {
         // 1. 스킬 레벨이 유효한 범위인지 확인 및 프리팹 확인
         if (skillLevel > levelInfo.Length || skillLevel < 1 || fireballPrefab == null)
@@ -64,7 +64,7 @@ public class FireballSkillData : ActiveSkillData, IHasAiming // ⭐ IHasAiming �
         }
         float finalDamage = playerStats.magicAttackPower + baseDamage;
 
-        // ⭐ 3. 방향 벡터 계산 (추가된 핵심 로직)
+        // 3. 방향 벡터 계산 (추가된 핵심 로직)
         // 저장된 targetAimPosition을 사용하여 발사 방향을 계산합니다.
         Vector3 direction = (targetAimPosition - spawnPoint.position).normalized;
 
@@ -78,7 +78,7 @@ public class FireballSkillData : ActiveSkillData, IHasAiming // ⭐ IHasAiming �
         {
             projectile.SetDamage(finalDamage, damageType);
 
-            // ⭐ 핵심: 투사체에 계산된 방향을 주입합니다.
+            // 투사체에 계산된 방향을 주입합니다.
             projectile.SetDirection(direction);
         }
         else

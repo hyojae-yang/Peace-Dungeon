@@ -143,7 +143,7 @@ public class DungeonRewardSystem : MonoBehaviour
         }
 
         // 4. 골드, 경험치를 플레이어에게 적용합니다.
-        PlayerCharacter.Instance.playerStats.gold += finalGold;
+        PlayerCharacter.Instance.playerStats.AddGold(finalGold);
         PlayerCharacter.Instance.playerLevelUp.AddExperience(finalExp);
 
         // 5. 던전 코인 보상 계산

@@ -106,6 +106,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterData: {fileID: 11400000, guid: d5420490ba23d7042a95f940953bed8a, type: 2}
   currentState: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  verticalOffset: 0.5
   detectionRange: 7
   detectionAngle: 120
   playerLayer:

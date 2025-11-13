@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6600695189344857298}
   - component: {fileID: 323906523184849445}
   - component: {fileID: 1665872038911449025}
+  - component: {fileID: 1367129802871066458}
   m_Layer: 0
   m_Name: Masic
   m_TagString: Untagged
@@ -124,6 +125,33 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.07611515
   m_Center: {x: 0, y: 0.00000013411045, z: 0}
+--- !u!54 &1367129802871066458
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1762111417546369586}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 2
 --- !u!1001 &4276188411887042678
 PrefabInstance:
   m_ObjectHideFlags: 0

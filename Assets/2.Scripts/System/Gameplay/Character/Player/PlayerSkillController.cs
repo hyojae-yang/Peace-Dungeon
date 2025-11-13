@@ -26,6 +26,11 @@ public class PlayerSkillController : MonoBehaviour, ISavable
     [Tooltip("캐스팅 및 지면 효과가 생성될 위치입니다. (주로 플레이어의 발 밑/중앙 지점)")]
     public Transform castingEffectSpawnPoint;
 
+    [Header("Raycast 설정")]
+    [Tooltip("마우스 조준 시 Raycast가 검출할 레이어 마스크를 지정합니다. (예: Ground, Enemy)")]
+    // LayerMask는 여러 레이어를 동시에 선택할 수 있게 해줍니다.
+    public LayerMask aimingLayerMask; // 🎯 Raycast 필터링을 위한 LayerMask 변수 추가
+
     // 현재 쿨타임이 진행 중인 스킬의 ID와 쿨타임이 끝나는 시점(Time.time)을 저장합니다.
     private Dictionary<int, float> cooldownTimers = new Dictionary<int, float>();
 
@@ -105,10 +110,10 @@ public class PlayerSkillController : MonoBehaviour, ISavable
         }
 
         // 키 입력 처리 (Alpha1 ~ Alpha4로 자동 제한됨)
-        for (int i = 0; i < skillSlots.Length; i++) // skillSlots.Length는 현재 4이므로, i는 0, 1, 2, 3까지만 순회합니다.
-        {
-            // i=0: Alpha1 (키 1), i=3: Alpha4 (키 4)
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
+        for (int i = 0; i < skillSlots.Length; i++) // skillSlots.Length는 현재 4이므로, i는 0, 1, 2, 3까지만 순회합니다.
+        {
+            // i=0: Alpha1 (키 1), i=3: Alpha4 (키 4)
+            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
             {
                 UseSkill(skillSlots[i]);
             }
@@ -192,11 +197,13 @@ public class PlayerSkillController : MonoBehaviour, ISavable
                 // 1. 마우스 목표 위치 계산 (Raycast 사용)
                 Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
                 Vector3 targetPosition;
-                // 플레이어의 현재 Y 높이
-                float playerYPosition = playerCharacter.transform.position.y;
 
-                // Raycast는 '지면'이나 '몬스터' 등 목표를 맞추는 데 사용합니다. LayerMask를 사용하는 것이 권장됩니다.
-                if (Physics.Raycast(ray, out RaycastHit hit))
+                RaycastHit hit; // RaycastHit을 if문 밖으로 뺍니다.
+                // LayerMask를 사용하여 aimingLayerMask에 포함된 레이어만 감지하도록 수정
+                bool rayHit = Physics.Raycast(ray, out hit, Mathf.Infinity, aimingLayerMask); // <-- LayerMask 적용!
+                string hitObjectName = rayHit ? hit.collider.gameObject.name : "None"; // 맞은 오브젝트 이름
+
+                if (rayHit)
                 {
                     // Raycast에 맞은 지점
                     targetPosition = hit.point;

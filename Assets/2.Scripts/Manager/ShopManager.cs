@@ -101,7 +101,6 @@ public class ShopManager : MonoBehaviour, INPCFunction
         }
     }
 
-    // 수정된 메서드: 수량(quantity) 인자 추가
     /// <summary>
     /// 상점에서 아이템을 구매하는 로직을 처리합니다.
     /// </summary>
@@ -112,8 +111,8 @@ public class ShopManager : MonoBehaviour, INPCFunction
         // 총 구매 가격 계산
         int totalPrice = itemToBuy.itemPrice * quantity;
 
-        // 1. 플레이어 소지금 확인
-        if (PlayerCharacter.Instance.playerStats.gold < totalPrice)
+        // 1.플레이어 소지금 확인: CanAfford 메서드 사용
+        if (!PlayerCharacter.Instance.playerStats.CanAfford(totalPrice))
         {
             Debug.Log("소지금이 부족합니다.");
             // UI를 닫고 싶다면 여기에 추가
@@ -123,9 +122,12 @@ public class ShopManager : MonoBehaviour, INPCFunction
         // 2. 인벤토리에 아이템 추가 시도
         if (PlayerCharacter.Instance.inventoryManager.AddItem(itemToBuy, quantity))
         {
-            // 3. 아이템 추가 성공 시 소지금 차감
-            PlayerCharacter.Instance.playerStats.gold -= totalPrice;
-            Debug.Log($"{itemToBuy.itemName}을(를) {quantity}개 구매했습니다. 남은 골드: {PlayerCharacter.Instance.playerStats.gold}");
+            // 3. 아이템 추가 성공 시 소지금 차감: SpendGold 메서드 사용
+            // SpendGold가 내부적으로 골드 차감과 이벤트를 모두 처리합니다.
+            PlayerCharacter.Instance.playerStats.SpendGold(totalPrice);
+
+            // 4. Debug.Log에서 캡슐화된 Gold 속성을 사용합니다.
+            //Debug.Log($"{itemToBuy.itemName}을(를) {quantity}개 구매했습니다. 남은 골드: {PlayerCharacter.Instance.playerStats.Gold}");
         }
         else
         {
@@ -194,8 +196,7 @@ public class ShopManager : MonoBehaviour, INPCFunction
         // 2. 제거 성공 시 골드 추가
         if (removalSuccess)
         {
-            PlayerCharacter.Instance.playerStats.gold += sellPrice;
-            Debug.Log($"획득 골드: {sellPrice}. 현재 골드: {PlayerCharacter.Instance.playerStats.gold}");
+            PlayerCharacter.Instance.playerStats.AddGold(sellPrice);
         }
         else
         {

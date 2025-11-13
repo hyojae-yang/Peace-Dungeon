@@ -95,7 +95,7 @@ public class DeerBehavior : MonoBehaviour
 
         if (monster.monsterData != null)
         {
-            basePatrolSpeed = monster.currentMoveSpeed;
+            basePatrolSpeed = monster.monsterData.moveSpeed;
         }
     }
 
@@ -461,7 +461,7 @@ public class DeerBehavior : MonoBehaviour
                     audioSource.PlayOneShot(attackHitClip);
                 }
                 // 데미지 입히기
-                playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+                playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
             }
         }
 

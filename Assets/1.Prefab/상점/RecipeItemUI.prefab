@@ -932,3 +932,4 @@ MonoBehaviour:
   - {fileID: 1842912957362332966}
   - {fileID: 4159499414812889793}
   - {fileID: 2723067291721683809}
+  unknownSprite: {fileID: 21300000, guid: bc0ebc033b6d0524c97b5ce8c5ed0f08, type: 3}

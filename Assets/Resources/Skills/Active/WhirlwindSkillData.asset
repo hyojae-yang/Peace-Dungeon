@@ -16,7 +16,7 @@ MonoBehaviour:
   skillName: "\uC18C\uC6A9\uB3CC\uC774 \uBCA0\uAE30"
   skillImage: {fileID: 21300000, guid: a76632d934b2c66489d965cd8e260622, type: 3}
   skillType: 0
-  damageType: 0
+  damageType: 1
   skillDescription: "\uD50C\uB808\uC774\uC5B4\uB97C \uC911\uC2EC\uC73C\uB85C \uC77C\uC815
     \uBC18\uACBD \uB0B4 \uBAAC\uC2A4\uD130\uB4E4\uC5D0\uAC8C \uB370\uBBF8\uC9C0\uB97C
     \uC90D\uB2C8\uB2E4."
@@ -28,7 +28,7 @@ MonoBehaviour:
     cooldown: 7
     stats:
     - statType: 0
-      value: 30
+      value: 75
       isPercentage: 0
     - statType: 2
       value: 15
@@ -40,7 +40,7 @@ MonoBehaviour:
     cooldown: 6.5
     stats:
     - statType: 0
-      value: 50
+      value: 150
       isPercentage: 0
     - statType: 2
       value: 20
@@ -52,7 +52,7 @@ MonoBehaviour:
     cooldown: 6
     stats:
     - statType: 0
-      value: 70
+      value: 225
       isPercentage: 0
     - statType: 2
       value: 30
@@ -64,7 +64,7 @@ MonoBehaviour:
     cooldown: 5.5
     stats:
     - statType: 0
-      value: 100
+      value: 300
       isPercentage: 0
     - statType: 2
       value: 45
@@ -76,7 +76,7 @@ MonoBehaviour:
     cooldown: 5
     stats:
     - statType: 0
-      value: 150
+      value: 375
       isPercentage: 0
     - statType: 2
       value: 60
@@ -87,6 +87,6 @@ MonoBehaviour:
   animationTriggerName: UseSkill2
   castingEffectPrefab: {fileID: 109802, guid: 1cbb8bd81ac665b429d00d6370bdc28e, type: 3}
   castSFXType: 8
-  activationDelay: 0.6
+  activationDelay: 1
   damageRadius: 5
   impactEffectPrefab: {fileID: 0}

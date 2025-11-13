@@ -289,7 +289,7 @@ public class QuestManager : MonoBehaviour, ISavable
 
         if (questData.goldReward > 0)
         {
-            player.playerStats.gold += questData.goldReward;
+            player.playerStats.AddGold(questData.goldReward);
         }
 
         // 아이템 지급 로직

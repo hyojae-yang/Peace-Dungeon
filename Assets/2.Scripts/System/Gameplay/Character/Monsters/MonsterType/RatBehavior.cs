@@ -309,7 +309,7 @@ public abstract class RatBehavior : MonoBehaviour
                         audioSource.PlayOneShot(attackClip);
                     }
                     // 데미지 입히기
-                    playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+                    playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 }
             }
         }

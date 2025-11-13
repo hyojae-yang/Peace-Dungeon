@@ -75,11 +75,11 @@ public class SquirrelBehavior : MonoBehaviour
         monster.ChangeState(MonsterBase.MonsterState.Patrol);
         animator.SetFloat("Vert", 0.5f);
 
-        // **[핵심 추가]** MonsterCombat의 경직 이벤트 구독
+        // MonsterCombat의 경직 이벤트 구독
         monsterCombat.OnStunApplied += ApplyHitStun;
     }
 
-    // **[추가]** 컴포넌트가 파괴될 때 이벤트 구독 해제
+    // 컴포넌트가 파괴될 때 이벤트 구독 해제
     private void OnDestroy()
     {
         if (monsterCombat != null)

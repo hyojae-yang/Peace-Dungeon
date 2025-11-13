@@ -156,7 +156,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 112
+  m_Constraints: 0
   m_CollisionDetection: 0
 --- !u!65 &1652747523437718879
 BoxCollider:
@@ -193,6 +193,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   monsterData: {fileID: 11400000, guid: 272f3cafcc21fda4d9f55ab484062001, type: 2}
   currentState: 0
+  groundLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  verticalOffset: 0.5
   detectionRange: 7
   detectionAngle: 120
   playerLayer:

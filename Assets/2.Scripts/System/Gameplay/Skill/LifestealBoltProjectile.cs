@@ -89,7 +89,7 @@ public class LifestealBoltProjectile : MonoBehaviour
                 // PlayerStats.health에 직접 접근하여 체력을 회복시키고 최대치를 넘지 않도록 보정합니다.
                 casterStats.health = Mathf.Min(currentHealth + healAmount, maxHealth);
 
-                Debug.Log($"[흡혈 성공] {other.name}에게 {damage} 피해를 입히고, {healAmount}만큼 체력을 회복했습니다. (흡혈률: {lifestealRate * 100}%)");
+               // Debug.Log($"[흡혈 성공] {other.name}에게 {damage} 피해를 입히고, {healAmount}만큼 체력을 회복했습니다. (흡혈률: {lifestealRate * 100}%)");
             }
         }
 

@@ -207,7 +207,7 @@ public class WolfBehavior : MonoBehaviour
         // 경직 상태와 무관하게 무리 소집 로직은 실행됩니다.
 
         // 체력이 절반 이하로 떨어지면 동료를 소집
-        if (!hasCalledForHelp && monsterCombat.GetCurrentHealth() <= monster.MaxHealth * callForHelpHealthRatio)
+        if (!hasCalledForHelp && monsterCombat.GetCurrentHealth() <= monster.monsterData.maxHealth * callForHelpHealthRatio)
         {
             // 울부짖기 애니메이션 재생
             if (animator != null)
@@ -305,7 +305,7 @@ public class WolfBehavior : MonoBehaviour
             // 이동 전에 플레이어를 향해 먼저 회전합니다.
             RotateTowardsPosition(playerTransform.position, rotationSpeed);
             // MoveTowardsTarget으로 플레이어 추격
-            MoveTowardsTarget(playerTransform, monster.currentMoveSpeed * 1.5f, attackRange - 0.1f);
+            MoveTowardsTarget(playerTransform, monster.monsterData.moveSpeed * 1.5f, attackRange - 0.1f);
         }
 
         // 1. 플레이어가 공격 범위에 들어오면 공격 상태로 전환
@@ -694,7 +694,7 @@ public class WolfBehavior : MonoBehaviour
                         audioSource.PlayOneShot(normalAttackClip);
                     }
                     // 데미지 입히기
-                    playerDamageable.TakeDamage(monster.AttackPower, DamageType.Physical);
+                    playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
                 }
             }
         }

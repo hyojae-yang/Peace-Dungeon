@@ -14,16 +14,21 @@ public class CookingManager : MonoBehaviour, INPCFunction
     // CookingManager의 싱글턴 인스턴스 (UI와의 연결을 위해 추가)
     public static CookingManager Instance { get; private set; }
 
+    // 현재 플레이어 인벤토리 접근을 위한 참조
+    private InventoryManager inventoryManager;
+
     // === INPCFunction 인터페이스 구현 ===
 
     [Header("Cooking Data")]
     [Tooltip("이 NPC가 제공할 요리 레시피 목록을 담은 ScriptableObject입니다.")]
     [SerializeField]
     private CookingDataSO cookingData;
+
     [Header("Cooking Result")]
     [Tooltip("레시피를 찾지 못했을 때 지급할 실패작 아이템입니다.")]
     [SerializeField]
     private BaseItemSO failResultItem;
+
     /// <summary>
     /// INPCFunction 인터페이스의 요구사항: UI 버튼에 표시될 이름을 반환합니다.
     /// </summary>
@@ -75,121 +80,88 @@ public class CookingManager : MonoBehaviour, INPCFunction
             Debug.LogError("NPC 또는 NPCManager 인스턴스를 찾을 수 없습니다. 요리 기능 등록에 실패했습니다.");
         }
     }
-    // === 요리 기능 메서드 ===
-    /// <summary>
-    /// 투입된 재료 목록과 일치하는 레시피를 찾아 반환합니다.
-    /// SOLID: 단일 책임 원칙 (레시피를 찾는 역할만 수행).
-    /// </summary>
-    /// <param name="ingredientList">투입된 재료의 BaseItemSO 리스트입니다.</param>
-    /// <returns>일치하는 레시피 SO, 없으면 null을 반환합니다.</returns>
-    private RecipeSO FindMatchingRecipe(List<BaseItemSO> ingredientList)
+
+    private void Start()
     {
-        // 1. 투입된 재료를 아이템ID 기준으로 정렬하여 순서에 상관없이 비교 가능하게 합니다.
-        ingredientList.Sort((a, b) => a.itemID.CompareTo(b.itemID));
-
-        // 2. 레시피 목록을 하나씩 순회하며 일치하는 레시피를 찾습니다.
-        foreach (var recipe in cookingData.recipes)
+        // 인벤토리 매니저 참조 (다른 시스템이 모두 초기화된 후 접근)
+        if (PlayerCharacter.Instance != null)
         {
-            // 투입된 재료의 개수가 레시피의 재료 개수와 같은지 먼저 확인합니다.
-            if (recipe.ingredients.Count == ingredientList.Count)
-            {
-                // 재료 개수가 같다면, 각 재료의 아이템 ID도 같은지 비교합니다.
-                bool isMatch = true;
-                // **수정된 부분:** 레시피의 재료 목록도 정렬하여 비교 준비를 합니다.
-                var recipeIngredientIDs = recipe.ingredients.Select(i => i.item.itemID).OrderBy(id => id).ToList();
-
-                for (int i = 0; i < ingredientList.Count; i++)
-                {
-                    if (ingredientList[i].itemID != recipeIngredientIDs[i])
-                    {
-                        isMatch = false;
-                        break;
-                    }
-                }
-
-                if (isMatch)
-                {
-                    // **이곳에서 일치하는 레시피를 찾았습니다!**
-                    // 다음 단계에서 이 코드를 TryCraft 메서드에 연결할 것입니다.
-                    return recipe;
-                }
-            }
+            inventoryManager = PlayerCharacter.Instance.inventoryManager;
         }
-
-        // 반복문을 모두 돌았는데도 일치하는 레시피가 없으면 null을 반환합니다.
-        return null;
     }
+
+    // === 요리 기능 메서드 ===
+
     /// <summary>
     /// 냄비에 투입된 재료 목록을 기반으로 요리를 시도합니다.
+    /// 요리 성공/실패 여부와 관계없이 재료가 있다면 소모를 시도하고 결과물을 지급합니다.
+    /// *주의: 투입된 모든 재료는 수량 1개로 고정되어 처리됩니다.
     /// </summary>
-    /// <param name="ingredients">플레이어가 냄비에 투입한 재료 목록입니다.</param>
+    /// <param name="ingredients">플레이어가 냄비에 투입한 ItemData 목록입니다.</param>
     public bool TryCraft(List<ItemData> ingredients)
     {
+        if (inventoryManager == null)
+        {
+            Debug.LogError("[CookingManager] InventoryManager를 찾을 수 없어 요리를 진행할 수 없습니다.");
+            return false;
+        }
+
         // 요리는 최소한 하나의 재료를 필요로 하는 행위이므로, 빈 목록은 유효하지 않습니다.
         if (ingredients == null || ingredients.Count == 0)
         {
             Debug.LogWarning("투입된 재료가 없습니다. 요리를 시도할 수 없습니다.");
-            // UI를 닫거나 메시지를 표시하는 등의 추가 처리가 필요하다면 여기에 넣습니다.
-            // 현재는 UI 초기화 없이 false를 반환하여 요리 시도를 무효화합니다.
             return false;
         }
-        // 1. 투입된 재료 목록을 BaseItemSO 리스트로 변환합니다.
+
+        // 1. 투입된 재료 목록을 BaseItemSO 리스트로 변환합니다. (수량은 1개로 고정됨을 가정)
         List<BaseItemSO> currentIngredientSOs = ingredients.Select(itemData => itemData.itemSO).ToList();
 
         // 2. 투입된 재료 목록과 정확히 일치하는 레시피를 찾습니다.
-        // 이 한 줄이 FindMatchingRecipe 메서드를 호출하여 레시피를 찾습니다.
         RecipeSO matchedRecipe = FindMatchingRecipe(currentIngredientSOs);
 
-        // 3. 인벤토리에서 재료를 소모합니다.
-        // 이 단계에서는 재료가 정상적으로 제거되는지만 확인합니다.
-        bool allIngredientsRemoved = true;
-        foreach (var itemSO in currentIngredientSOs)
-        {
-            // PlayerCharacter의 InventoryManager를 통해 아이템을 제거합니다.
-            // 현재는 각 아이템이 한 개씩 소모된다고 가정합니다.
-            bool removed = PlayerCharacter.Instance.inventoryManager.RemoveItem(itemSO, 1);
-            if (!removed)
-            {
-                // 재료가 부족하여 제거에 실패하면 플래그를 false로 바꾸고 반복문을 중단합니다.
-                allIngredientsRemoved = false;
-                break;
-            }
-        }
+        // 3. 인벤토리에서 재료를 소모합니다. (모든 재료를 1개씩 소모)
+        bool allIngredientsRemoved = ConsumeIngredients(currentIngredientSOs);
 
         if (allIngredientsRemoved)
         {
             // 최종적으로 플레이어에게 지급할 결과 아이템을 담을 변수입니다.
             BaseItemSO resultItem = null;
-            // 2. 일치하는 레시피를 찾았는지 확인하고 결과 아이템을 결정합니다.
+
+            // 4. 일치하는 레시피를 찾았는지 확인하고 결과 아이템을 결정합니다.
             if (matchedRecipe != null)
             {
                 // 레시피를 찾았다면, 레시피의 결과 아이템을 가져옵니다.
                 resultItem = matchedRecipe.resultItem;
+
+                // 5. [핵심 추가 로직] 레시피 발견 상태 업데이트
+                // 요리에 성공했으므로, 이 레시피를 발견 상태로 저장합니다.
+                if (RecipeDiscoveryManager.Instance != null)
+                {
+                    RecipeDiscoveryManager.Instance.DiscoverRecipe(matchedRecipe.recipeID);
+                }
+                //요리성공 사운드
             }
             else
             {
                 // 레시피를 찾지 못했다면, 실패작 아이템을 가져옵니다.
                 resultItem = failResultItem;
-            }
-            // **추가된 한 줄:** resultItem을 인벤토리에 추가합니다.
-            if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.inventoryManager != null)
-            {
-                PlayerCharacter.Instance.inventoryManager.AddItem(resultItem, 1);
-            }
-            else
-            {
-                Debug.LogError("플레이어 또는 인벤토리 매니저를 찾을 수 없습니다. 아이템 추가에 실패했습니다.");
+                Debug.LogWarning("[Crafting Failure] 일치하는 레시피를 찾지 못했습니다. 실패작을 만들었습니다.");
+                //요리실패 사운드
             }
 
-            // 추가된 부분: 재료 소모가 성공하면 냄비 UI를 초기화합니다.
+            // 6. 결과 아이템을 인벤토리에 추가합니다.
+            inventoryManager.AddItem(resultItem, 1);
+
+            // 7. UI 초기화 및 갱신
             if (CookingUIManager.Instance != null)
             {
                 CookingUIManager.Instance.ResetCookingIngredientUI();
-            }
-            
+                CookingUIManager.Instance.UpdateInventoryUI();
 
-            // 요리 성공 시 UI를 갱신해야 합니다.
-            CookingUIManager.Instance.UpdateInventoryUI();
+                // **[요청 사항 반영]** 요리 성공 직후 레시피 목록 UI를 갱신하여 해금된 레시피를 즉시 표시합니다.
+                CookingUIManager.Instance.RefreshRecipeList();
+            }
+
             return true;
         }
         else
@@ -199,4 +171,88 @@ public class CookingManager : MonoBehaviour, INPCFunction
         }
     }
 
+    /// <summary>
+    /// 냄비에 투입된 BaseItemSO 리스트를 기반으로 인벤토리에서 재료를 소모하는 단일 책임을 가집니다.
+    /// *주의: 투입된 BaseItemSO 목록의 각 아이템은 1개씩 소모됩니다.
+    /// </summary>
+    /// <param name="ingredients">냄비에 투입된 BaseItemSO 목록</param>
+    /// <returns>모든 재료가 성공적으로 제거되었으면 true, 하나라도 실패하면 false</returns>
+    private bool ConsumeIngredients(List<BaseItemSO> ingredients)
+    {
+        // 1. 재료를 ItemID와 수량별로 그룹화합니다. (중복 재료가 투입된 경우를 대비)
+        var groupedIngredients = ingredients
+            .GroupBy(item => item.itemID)
+            .Select(group => new
+            {
+                itemSO = group.First(), // BaseItemSO 참조
+                totalCount = group.Count() // 투입된 횟수 = 소모할 수량
+            })
+            .ToList();
+
+        // 2. 모든 재료를 인벤토리에서 제거합니다.
+        foreach (var ingredient in groupedIngredients)
+        {
+            // InventoryManager의 RemoveItem(BaseItemSO, int)를 사용하여 소모 로직을 위임합니다.
+            if (!inventoryManager.RemoveItem(ingredient.itemSO, ingredient.totalCount))
+            {
+                Debug.LogWarning($"[Crafting Error] 재료 소모 실패: {ingredient.itemSO.itemName} x{ingredient.totalCount} (재료 부족)");
+                return false;
+            }
+        }
+
+        return true; // 모든 재료 소모 성공
+    }
+
+
+    /// <summary>
+    /// 투입된 재료 목록과 일치하는 레시피를 찾아 반환합니다.
+    /// **수량 1개 고정:** 투입된 재료의 종류와 개수만 검사하며, 수량은 항상 1개로 가정합니다.
+    /// </summary>
+    /// <param name="ingredientList">투입된 BaseItemSO의 리스트입니다.</param>
+    /// <returns>일치하는 레시피 SO, 없으면 null을 반환합니다.</returns>
+    private RecipeSO FindMatchingRecipe(List<BaseItemSO> ingredientList)
+    {
+        // 1. 투입된 재료를 아이템ID 기준으로 정렬합니다. (순서 불변성 확보)
+        var inputIDs = ingredientList.Select(item => item.itemID).OrderBy(id => id).ToList();
+
+        // 2. 레시피 목록을 하나씩 순회하며 일치하는 레시피를 찾습니다.
+        foreach (var recipe in cookingData.recipes)
+        {
+            // 2-1. 레시피의 재료 목록도 아이템 ID 기준으로 정렬합니다.
+            var recipeIngredientIDs = recipe.ingredients.Select(i => i.item.itemID).OrderBy(id => id).ToList();
+
+            // 2-2. 개수가 다르면 바로 통과
+            if (recipeIngredientIDs.Count != inputIDs.Count)
+            {
+                continue;
+            }
+
+            // **수량 1개 고정:** 모든 레시피 재료의 수량이 1개인지 확인 (선택 사항이지만 일관성을 위해 추가)
+            bool isRecipeValid = recipe.ingredients.All(i => i.quantity == 1);
+            if (!isRecipeValid)
+            {
+                Debug.LogError($"[CookingManager] 레시피 ID {recipe.recipeID}의 재료 수량이 1개가 아닙니다. 시스템 정책 위반!");
+                continue;
+            }
+
+            // 2-3. 정렬된 ID 목록을 비교하여 일치 여부를 확인합니다.
+            bool isMatch = true;
+            for (int i = 0; i < inputIDs.Count; i++)
+            {
+                if (inputIDs[i] != recipeIngredientIDs[i])
+                {
+                    isMatch = false;
+                    break;
+                }
+            }
+
+            if (isMatch)
+            {
+                return recipe;
+            }
+        }
+
+        // 반복문을 모두 돌았는데도 일치하는 레시피가 없으면 null을 반환합니다.
+        return null;
+    }
 }

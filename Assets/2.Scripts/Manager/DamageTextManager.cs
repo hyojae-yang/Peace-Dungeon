@@ -8,7 +8,7 @@ public class DamageTextManager : MonoBehaviour
     // === 싱글톤 구현 ===
     public static DamageTextManager Instance { get; private set; }
 
-    // === [추가] 데미지 유형별 색상 정의 ===
+    // === 데미지 유형별 색상 정의 ===
     private static readonly Color PHYSICAL_COLOR = Color.red;       // 물리 데미지: 빨간색
     private static readonly Color MAGIC_COLOR = Color.blue;        // 마법 데미지: 파란색
     // 고정 데미지: 보라색 (RGB: 255, 0, 255)
@@ -55,7 +55,7 @@ public class DamageTextManager : MonoBehaviour
         }
     }
 
-    // ⭐️ [수정] DamageType 인수를 추가합니다.
+    // DamageType 인수를 추가합니다.
     /// <summary>
     /// 외부(MonsterCombat)에서 데미지 텍스트 팝업을 요청할 때 호출됩니다.
     /// </summary>
@@ -69,7 +69,7 @@ public class DamageTextManager : MonoBehaviour
             return;
         }
 
-        // 1. ⭐️ [추가] 색상 결정
+        // 1.색상 결정
         Color textColor = GetColorByDamageType(damageType);
 
         // 2. 3D 월드 좌표를 2D 화면 좌표로 변환합니다.
