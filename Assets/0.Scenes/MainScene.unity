@@ -160618,6 +160618,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1222836104121741666, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
+      propertyPath: MinDistance
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2878102793862709366, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: exitSpawnPoint
       value: 
@@ -160630,6 +160634,14 @@ PrefabInstance:
       propertyPath: bossRoomSpawnPoint
       value: 
       objectReference: {fileID: 1354598643}
+    - target: {fileID: 3187094203208314425, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
+      propertyPath: dieSoundClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 1cd77858ca9cb77438fc5b37640137d6, type: 3}
+    - target: {fileID: 3187094203208314425, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
+      propertyPath: hitSoundClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 9a62f3fab66aef443a8dbeeb7002266b, type: 3}
     - target: {fileID: 3187094203208314425, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: damageVignetteImage
       value: 

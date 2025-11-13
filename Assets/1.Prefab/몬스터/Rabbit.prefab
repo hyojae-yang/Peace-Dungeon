@@ -30320,7 +30320,7 @@ AudioSource:
   SpatializePostEffects: 0
   Priority: 128
   DopplerLevel: 1
-  MinDistance: 5
+  MinDistance: 10
   MaxDistance: 60
   Pan2D: 0
   rolloffMode: 0
