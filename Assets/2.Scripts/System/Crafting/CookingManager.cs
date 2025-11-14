@@ -1,4 +1,4 @@
-﻿// 파일명: CookingManager.cs
+﻿// 파일명: CookingManager.cs (수정된 전문)
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,18 @@ public class CookingManager : MonoBehaviour, INPCFunction
     [Header("Cooking Result")]
     [Tooltip("레시피를 찾지 못했을 때 지급할 실패작 아이템입니다.")]
     [SerializeField]
-    private BaseItemSO failResultItem;
+    public BaseItemSO failResultItem; // **[참고]** UI에서 참조할 수 있도록 public으로 유지
+
+    /// <summary>
+    /// 요리 결과를 담는 데이터 구조체입니다.
+    /// </summary>
+    public class CookingResultData
+    {
+        // 요리 결과 아이템 (성공작 or 실패작)
+        public BaseItemSO resultItem;
+        // 재료 소모 성공 여부
+        public bool isIngredientsConsumed;
+    }
 
     /// <summary>
     /// INPCFunction 인터페이스의 요구사항: UI 버튼에 표시될 이름을 반환합니다.
@@ -94,8 +105,8 @@ public class CookingManager : MonoBehaviour, INPCFunction
 
     /// <summary>
     /// 냄비에 투입된 재료 목록을 기반으로 요리를 시도합니다.
-    /// 요리 성공/실패 여부와 관계없이 재료가 있다면 소모를 시도하고 결과물을 지급합니다.
-    /// *주의: 투입된 모든 재료는 수량 1개로 고정되어 처리됩니다.
+    /// **[핵심 수정]** 이 메서드는 재료 소모를 시도하고, 결과를 CookingUIManager에게 전달만 합니다.
+    /// 아이템 지급 및 UI 갱신 로직은 CookingUIManager의 코루틴으로 이동했습니다.
     /// </summary>
     /// <param name="ingredients">플레이어가 냄비에 투입한 ItemData 목록입니다.</param>
     public bool TryCraft(List<ItemData> ingredients)
@@ -106,82 +117,97 @@ public class CookingManager : MonoBehaviour, INPCFunction
             return false;
         }
 
-        // 요리는 최소한 하나의 재료를 필요로 하는 행위이므로, 빈 목록은 유효하지 않습니다.
         if (ingredients == null || ingredients.Count == 0)
         {
             Debug.LogWarning("투입된 재료가 없습니다. 요리를 시도할 수 없습니다.");
             return false;
         }
 
-        // 1. 투입된 재료 목록을 BaseItemSO 리스트로 변환합니다. (수량은 1개로 고정됨을 가정)
+        // 1. 재료 소모 및 결과 아이템 결정을 위임하고 결과 데이터를 받습니다. (재료 소모는 여기서 완료됨)
+        CookingResultData resultData = GetCookingResult(ingredients);
+
+        // 2. 재료 소모가 실패했다면 요리 중단.
+        if (!resultData.isIngredientsConsumed)
+        {
+            Debug.LogWarning("재료가 부족하여 요리를 만들 수 없습니다. (재료 소모 실패)");
+            return false;
+        }
+
+        // 3. UI Manager에게 요리 결과를 전달하고 코루틴 실행을 위임합니다.
+        if (CookingUIManager.Instance != null)
+        {
+            // CookingUIManager의 새 메서드를 호출하여 코루틴을 시작합니다.
+            CookingUIManager.Instance.StartCookingProcessCoroutine(resultData);
+            return true;
+        }
+
+        // UI Manager가 없으면 실패
+        return false;
+    }
+
+    /// <summary>
+    /// 냄비에 투입된 재료를 기반으로 요리 결과를 계산하고 재료를 소모하는 핵심 로직입니다.
+    /// </summary>
+    /// <param name="ingredients">플레이어가 냄비에 투입한 ItemData 목록입니다.</param>
+    /// <returns>CookingResultData 객체. isIngredientsConsumed가 false면 재료 소모에 실패한 것임.</returns>
+    private CookingResultData GetCookingResult(List<ItemData> ingredients)
+    {
+        CookingResultData resultData = new CookingResultData();
+
+        // 1. 투입된 재료 목록을 BaseItemSO 리스트로 변환합니다.
         List<BaseItemSO> currentIngredientSOs = ingredients.Select(itemData => itemData.itemSO).ToList();
 
         // 2. 투입된 재료 목록과 정확히 일치하는 레시피를 찾습니다.
         RecipeSO matchedRecipe = FindMatchingRecipe(currentIngredientSOs);
 
-        // 3. 인벤토리에서 재료를 소모합니다. (모든 재료를 1개씩 소모)
+        // 3. 인벤토리에서 재료를 소모합니다.
         bool allIngredientsRemoved = ConsumeIngredients(currentIngredientSOs);
+        resultData.isIngredientsConsumed = allIngredientsRemoved;
 
-        if (allIngredientsRemoved)
+        if (!allIngredientsRemoved)
         {
-            // 최종적으로 플레이어에게 지급할 결과 아이템을 담을 변수입니다.
-            BaseItemSO resultItem = null;
+            // 재료 소모에 실패했으면, 결과 아이템은 null로 두고 반환합니다.
+            resultData.resultItem = null;
+            return resultData;
+        }
 
-            // 4. 일치하는 레시피를 찾았는지 확인하고 결과 아이템을 결정합니다.
-            if (matchedRecipe != null)
+        // 4. 일치하는 레시피를 찾았는지 확인하고 결과 아이템을 결정합니다.
+        if (matchedRecipe != null)
+        {
+            // 레시피를 찾았다면, 레시피의 결과 아이템을 가져옵니다.
+            resultData.resultItem = matchedRecipe.resultItem;
+
+            // 5. [핵심 추가 로직] 레시피 발견 상태 업데이트
+            if (RecipeDiscoveryManager.Instance != null)
             {
-                // 레시피를 찾았다면, 레시피의 결과 아이템을 가져옵니다.
-                resultItem = matchedRecipe.resultItem;
-
-                // 5. [핵심 추가 로직] 레시피 발견 상태 업데이트
-                // 요리에 성공했으므로, 이 레시피를 발견 상태로 저장합니다.
-                if (RecipeDiscoveryManager.Instance != null)
-                {
-                    RecipeDiscoveryManager.Instance.DiscoverRecipe(matchedRecipe.recipeID);
-                }
-                //요리성공 사운드
-                if(SoundManager.Instance != null)
-                {
-                    SoundManager.Instance.PlaySFX(SFXType.Good_Cooking);
-                }
+                RecipeDiscoveryManager.Instance.DiscoverRecipe(matchedRecipe.recipeID);
             }
-            else
+            //요리성공 사운드
+            if (SoundManager.Instance != null)
             {
-                // 레시피를 찾지 못했다면, 실패작 아이템을 가져옵니다.
-                resultItem = failResultItem;
-                Debug.LogWarning("[Crafting Failure] 일치하는 레시피를 찾지 못했습니다. 실패작을 만들었습니다.");
-                //요리실패 사운드
-                if (SoundManager.Instance != null)
-                {
-                    SoundManager.Instance.PlaySFX(SFXType.Bad_Cooking);
-                }
+                SoundManager.Instance.PlaySFX(SFXType.Good_Cooking);
             }
-
-            // 6. 결과 아이템을 인벤토리에 추가합니다.
-            inventoryManager.AddItem(resultItem, 1);
-
-            // 7. UI 초기화 및 갱신
-            if (CookingUIManager.Instance != null)
-            {
-                CookingUIManager.Instance.ResetCookingIngredientUI();
-                CookingUIManager.Instance.UpdateInventoryUI();
-
-                // **[요청 사항 반영]** 요리 성공 직후 레시피 목록 UI를 갱신하여 해금된 레시피를 즉시 표시합니다.
-                CookingUIManager.Instance.RefreshRecipeList();
-            }
-
-            return true;
         }
         else
         {
-            Debug.LogWarning("재료가 부족하여 요리를 만들 수 없습니다.");
-            return false;
+            // 레시피를 찾지 못했다면, 실패작 아이템을 가져옵니다.
+            resultData.resultItem = failResultItem;
+            //Debug.LogWarning("[Crafting Failure] 일치하는 레시피를 찾지 못했습니다. 실패작을 만들었습니다.");
+            //요리실패 사운드
+            if (SoundManager.Instance != null)
+            {
+                SoundManager.Instance.PlaySFX(SFXType.Bad_Cooking);
+            }
         }
+
+        // **[기존 로직 삭제]** 아이템 지급 및 UI 갱신 로직 (6, 7번)을 삭제했습니다.
+
+        return resultData;
     }
+
 
     /// <summary>
     /// 냄비에 투입된 BaseItemSO 리스트를 기반으로 인벤토리에서 재료를 소모하는 단일 책임을 가집니다.
-    /// *주의: 투입된 BaseItemSO 목록의 각 아이템은 1개씩 소모됩니다.
     /// </summary>
     /// <param name="ingredients">냄비에 투입된 BaseItemSO 목록</param>
     /// <returns>모든 재료가 성공적으로 제거되었으면 true, 하나라도 실패하면 false</returns>
@@ -213,8 +239,7 @@ public class CookingManager : MonoBehaviour, INPCFunction
 
 
     /// <summary>
-    /// 투입된 재료 목록과 일치하는 레시피를 찾아 반환합니다.
-    /// **수량 1개 고정:** 투입된 재료의 종류와 개수만 검사하며, 수량은 항상 1개로 가정합니다.
+    /// 투입된 재료 목록과 일치하는 레시피를 찾아 반환합니다. (로직 유지)
     /// </summary>
     /// <param name="ingredientList">투입된 BaseItemSO의 리스트입니다.</param>
     /// <returns>일치하는 레시피 SO, 없으면 null을 반환합니다.</returns>

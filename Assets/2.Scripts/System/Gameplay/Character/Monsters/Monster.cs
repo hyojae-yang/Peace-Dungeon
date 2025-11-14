@@ -257,16 +257,27 @@ public class Monster : MonsterBase, IDetectable
     {
         // ... (이하 Die 로직 유지)
         ChangeState(MonsterState.Dead);
-        // Destroy()가 호출되기 전에 점수 보고를 완료하여 타이밍 문제를 방지합니다.
         if (DungeonScoreManager.Instance != null)
         {
-            DungeonScoreManager.Instance.AddScore(scoreValue);
-            // Debug.Log($"[Monster:Die] 점수 {scoreValue} 보고 완료!"); // 디버그 로그
+            // [핵심 수정] 몬스터의 점수와 MonsterData의 고유 ID를 함께 전달하여
+            // KillCountManager가 종류별 처치 횟수를 기록할 수 있도록 합니다.
+            if (monsterData != null)
+            {
+                DungeonScoreManager.Instance.AddScore(scoreValue, monsterData.monsterID);
+                // Debug.Log($"[Monster:Die] 점수 {scoreValue}와 ID {monsterData.monsterID} 보고 완료!");
+            }
+            else
+            {
+                // MonsterData가 없으면 ID 없이 점수만 보고 (이 경우 KillCountManager에 기록되지 않음)
+                DungeonScoreManager.Instance.AddScore(scoreValue, -1); // 임시 ID: -1
+                Debug.LogError("[Monster:Die] MonsterData가 할당되지 않아 몬스터 ID 보고에 실패했습니다. 점수만 보고합니다.");
+            }
         }
         else
         {
             Debug.LogError("[Monster:Die] DungeonScoreManager 인스턴스를 찾을 수 없어 점수 보고에 실패했습니다!");
         }
+
         loot.GiveReward();
 
         if (monsterData != null)

@@ -1782,6 +1782,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: stump
       objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 8d5453e6d207c6740bf86d137e9d866c, type: 3}
+      propertyPath: m_Layer
+      value: 13
+      objectReference: {fileID: 0}
     - target: {fileID: 400000, guid: 8d5453e6d207c6740bf86d137e9d866c, type: 3}
       propertyPath: m_LocalScale.x
       value: 2
@@ -3061,6 +3065,10 @@ PrefabInstance:
     - target: {fileID: 151318, guid: 1688cf80e3928914a88c9d25662990d0, type: 3}
       propertyPath: m_Name
       value: Medieval_Building_LowPoly_V4
+      objectReference: {fileID: 0}
+    - target: {fileID: 151318, guid: 1688cf80e3928914a88c9d25662990d0, type: 3}
+      propertyPath: m_Layer
+      value: 13
       objectReference: {fileID: 0}
     - target: {fileID: 403586, guid: 1688cf80e3928914a88c9d25662990d0, type: 3}
       propertyPath: m_LocalScale.x

@@ -35,9 +35,6 @@ public class SkillConfirmationPanel : MonoBehaviour
     private int tempLevel;
 
     // SkillPointManager는 이제 싱글턴으로 접근하므로 변수가 필요 없습니다.
-    // [Header("매니저 참조")]
-    // [Tooltip("스킬 포인트 로직을 관리하는 SkillPointManager 스크립트")]
-    // public SkillPointManager skillPointManager;
 
     void Awake()
     {
@@ -86,6 +83,7 @@ public class SkillConfirmationPanel : MonoBehaviour
 
     /// <summary>
     /// UI 텍스트들을 현재 임시 레벨에 맞춰 업데이트합니다.
+    /// 핵심: SkillStat.isPercentage 플래그를 확인하여 스탯 표시 포맷을 동적으로 결정합니다.
     /// </summary>
     private void UpdatePanelUI()
     {
@@ -116,13 +114,15 @@ public class SkillConfirmationPanel : MonoBehaviour
             // 스킬 능력치 텍스트를 동적으로 생성합니다.
             if (!string.IsNullOrEmpty(currentSkillData.statFormatString) && currentLevelInfo != null)
             {
-                // 스탯 타입과 값을 저장할 딕셔너리 생성
-                Dictionary<StatType, float> statValues = new Dictionary<StatType, float>();
+                // [수정]: 스탯 타입과 SkillStat 객체 전체를 저장하여 isPercentage 정보를 보존합니다.
+                // SkillStat 클래스가 SkillData 스크립트 파일에 정의되어 있다고 가정합니다.
+                Dictionary<StatType, SkillStat> statInfos = new Dictionary<StatType, SkillStat>();
 
                 // 현재 레벨의 모든 스탯을 딕셔너리에 저장합니다.
                 foreach (var stat in currentLevelInfo.stats)
                 {
-                    statValues[stat.statType] = stat.value;
+                    // 스탯 객체 전체를 저장
+                    statInfos[stat.statType] = stat;
                 }
 
                 // 정규 표현식을 사용하여 템플릿의 {스탯이름}을 찾아서 값으로 대체합니다.
@@ -131,31 +131,44 @@ public class SkillConfirmationPanel : MonoBehaviour
                     string statName = match.Groups[1].Value;
                     StatType statType;
 
-                    // StatType 열거형으로 변환 성공 여부 확인
-                    if (System.Enum.TryParse(statName, out statType) && statValues.ContainsKey(statType))
+                    // StatType 열거형으로 변환 성공 및 딕셔너리에 키가 있는지 확인
+                    if (System.Enum.TryParse(statName, out statType) && statInfos.ContainsKey(statType))
                     {
-                        // === NEW: 스탯 값과 포맷팅 변수 선언 ===
-                        float value = statValues[statType];
+                        // [수정]: 딕셔너리에서 SkillStat 전체를 가져옵니다.
+                        SkillStat skillStat = statInfos[statType];
+                        float value = skillStat.value;
                         string formattedValue;
+                        float multiplier = 1f; // 기본 배수
 
-                        // **수정 시작:** LifestealRate만 퍼센트로 처리합니다.
-                        if (statType == StatType.LifestealRate)
+                        // [핵심 로직]: SkillStat의 isPercentage 플래그 또는 LifestealRate 타입 확인
+                        // LifestealRate는 항상 퍼센트로 표시합니다.
+                        bool shouldFormatAsPercentage = skillStat.isPercentage || statType == StatType.LifestealRate;
+
+                        if (shouldFormatAsPercentage)
                         {
-                            // 흡혈률인 경우, 값에 100을 곱하고 소수점 1자리까지 표시 후 '%'를 붙입니다.
-                            formattedValue = (value * 100f).ToString("F1") + "%";
+                            // HealOverTime에 대해서는 10만 곱합니다. (0.1 -> 1.0%)
+                            if (statType == StatType.HealOverTime)
+                            {
+                                multiplier = 10f;
+                            }
+                            // 그 외의 일반 퍼센트 스탯(AttackPowerRate, LifestealRate 등)은 100을 곱합니다. (0.1 -> 10.0%)
+                            else
+                            {
+                                multiplier = 100f;
+                            }
+
+                            // 최종 값 계산 및 포맷 적용
+                            formattedValue = (value * multiplier).ToString("F1") + "%";
                         }
                         else
                         {
-                            // 그 외의 일반 스탯은 기존대로 소수점 2자리로 포맷하여 반환합니다.
+                            // 그 외의 일반 수치 스탯은 기존대로 소수점 2자리로 포맷하여 반환합니다. (예: 10.0 -> 10.00)
                             formattedValue = value.ToString("F2");
                         }
 
                         // 수정된 포맷 값을 반환합니다.
                         return formattedValue;
-                        // === 수정 끝 ===
-
-                        // return statValues[statType].ToString("F2"); // <- 기존 코드는 이것이었습니다.
-                    }
+                    }
                     else
                     {
                         // 해당하는 스탯이 없으면 N/A로 반환

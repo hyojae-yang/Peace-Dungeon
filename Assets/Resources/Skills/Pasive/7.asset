@@ -26,31 +26,31 @@ MonoBehaviour:
     cooldown: 0
     stats:
     - statType: 14
-      value: 1
-      isPercentage: 0
+      value: 0.1
+      isPercentage: 1
   - manaCost: 0
     cooldown: 0
     stats:
     - statType: 14
-      value: 2
-      isPercentage: 0
+      value: 0.2
+      isPercentage: 1
   - manaCost: 0
     cooldown: 0
     stats:
     - statType: 14
-      value: 3
-      isPercentage: 0
+      value: 0.3
+      isPercentage: 1
   - manaCost: 0
     cooldown: 0
     stats:
     - statType: 14
-      value: 4
-      isPercentage: 0
+      value: 0.4
+      isPercentage: 1
   - manaCost: 0
     cooldown: 0
     stats:
     - statType: 14
-      value: 5
-      isPercentage: 0
+      value: 0.5
+      isPercentage: 1
   passiveType: 1
   dynamicEffectPrefab: {fileID: 0}

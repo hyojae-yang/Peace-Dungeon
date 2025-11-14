@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 1783177219180985030}
   - component: {fileID: 1929977756293404275}
   - component: {fileID: 4445408641737596538}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Root
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -263,9 +263,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1522486405420723642}
     m_Modifications:
+    - target: {fileID: 113442, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 119818, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
       propertyPath: m_Name
       value: magic_black
+      objectReference: {fileID: 0}
+    - target: {fileID: 119818, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 165006, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 168532, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 175472, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
+      propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 198032, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 407420, guid: 01f1e1f1177f76d499251acb5b14b63a, type: 3}
       propertyPath: m_LocalPosition.x

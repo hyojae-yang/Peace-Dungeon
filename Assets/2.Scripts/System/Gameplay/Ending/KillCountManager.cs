@@ -1,8 +1,9 @@
 using UnityEngine;
 using System;
+using System.Collections.Generic; // Dictionary를 사용하기 위해 추가
 
 /// <summary>
-/// KillCountManager 클래스는 게임 내 몬스터의 총 처치 마릿수를 추적하고 관리하는 싱글톤입니다.
+/// KillCountManager 클래스는 게임 내 몬스터의 종류별 처치 마릿수를 추적하고 관리하는 싱글톤입니다.
 /// ISavable을 구현하여 처치 기록을 저장하고 불러올 수 있습니다. (엔딩 크레딧 통계용)
 /// </summary>
 public class KillCountManager : MonoBehaviour, ISavable
@@ -31,19 +32,35 @@ public class KillCountManager : MonoBehaviour, ISavable
     }
 
     /// <summary>
-    /// 현재까지 플레이어가 처치한 몬스터의 총 마릿수입니다. (저장 대상)
+    /// [수정] 몬스터 종류별 처치 횟수를 저장합니다. (Key: 몬스터 ID (int), Value: 처치 횟수)
     /// </summary>
-    private int _totalKills = 0;
+    private Dictionary<int, int> _typeKills = new Dictionary<int, int>();
 
-    // 처치 횟수는 외부에서 읽을 수만 있도록 프로퍼티로 제공합니다.
-    public int TotalKills => _totalKills;
+    /// <summary>
+    /// [추가] 몬스터 종류별 처치 기록을 외부에서 읽을 수 있도록 읽기 전용 딕셔너리로 제공합니다.
+    /// </summary>
+    public IReadOnlyDictionary<int, int> TypeKills => _typeKills;
+
+    /// <summary>
+    /// [수정] 모든 몬스터의 총 처치 횟수를 딕셔너리를 기반으로 계산하여 반환합니다.
+    /// </summary>
+    public int TotalKills
+    {
+        get
+        {
+            int total = 0;
+            // 딕셔너리의 모든 값(처치 횟수)을 합산합니다.
+            foreach (var count in _typeKills.Values)
+            {
+                total += count;
+            }
+            return total;
+        }
+    }
 
     // 로드된 데이터가 성공적으로 적용되었는지 확인하는 플래그입니다. 
     private bool _isLoaded = false;
 
-    /// <summary>
-    /// 싱글톤 패턴의 무결성을 보장하고, 씬 로드 시 파괴되지 않도록 설정합니다.
-    /// </summary>
     private void Awake()
     {
         if (_instance != null && _instance != this)
@@ -63,7 +80,6 @@ public class KillCountManager : MonoBehaviour, ISavable
     {
         if (SaveManager.Instance != null)
         {
-            // SaveManager에 자신을 등록하여 로드된 데이터가 있으면 LoadData를 호출하도록 합니다.
             SaveManager.Instance.RegisterSavable(this);
         }
         else
@@ -74,29 +90,46 @@ public class KillCountManager : MonoBehaviour, ISavable
         // 로드되지 않은 경우 (새 게임 시작 등): 처치 기록 초기화
         if (!_isLoaded)
         {
-            _totalKills = 0;
+            _typeKills.Clear(); // 딕셔너리 초기화
         }
     }
 
     /// <summary>
-    /// 몬스터 처치 시 DungeonScoreManager로부터 호출되어 총 처치 마릿수를 1 증가시킵니다.
+    /// [수정] 몬스터 처치 시 호출되어 특정 타입의 처치 마릿수를 1 증가시킵니다.
     /// </summary>
-    public void AddKillCount()
+    /// <param name="monsterID">처치된 몬스터의 고유 ID입니다.</param>
+    public void AddKillCount(int monsterID)
     {
-        _totalKills++;
-        // Debug.Log($"몬스터 처치! 총 처치 수: {_totalKills}");
-        // 몬스터 처치는 자주 발생하므로, 저장 로직은 별도의 SaveGame() 호출 시점에 하는 것이 효율적입니다.
+        if (_typeKills.ContainsKey(monsterID))
+        {
+            _typeKills[monsterID]++;
+        }
+        else
+        {
+            _typeKills.Add(monsterID, 1);
+        }
+        // Debug.Log($"몬스터 ID {monsterID} 처치! 현재 누적 수: {_typeKills[monsterID]}");
     }
 
     // === ISavable 구현을 위한 데이터 구조 ===
+
+    [Serializable]
+    public class KillEntry
+    {
+        [Tooltip("몬스터의 고유 ID")]
+        public int monsterID;
+        [Tooltip("처치 횟수")]
+        public int count;
+    }
 
     [Serializable] // JSON 직렬화를 위해 필요합니다.
     private class KillCountSaveData
     {
         /// <summary>
-        /// 총 몬스터 처치 마릿수를 저장합니다.
+        /// [수정] 몬스터 종류별 처치 기록 리스트를 저장합니다.
+        /// Dictionary는 직렬화되지 않으므로 List 형태로 변환합니다.
         /// </summary>
-        public int totalKills;
+        public List<KillEntry> killEntries = new List<KillEntry>();
     }
 
     // === ISavable 구현 ===
@@ -106,11 +139,18 @@ public class KillCountManager : MonoBehaviour, ISavable
     /// </summary>
     public object SaveData()
     {
-        // 현재까지의 총 처치 마릿수를 SaveData 객체에 담아 반환합니다.
-        return new KillCountSaveData
+        var saveData = new KillCountSaveData();
+
+        // 딕셔너리를 List<KillEntry>로 변환하여 저장합니다.
+        foreach (var pair in _typeKills)
         {
-            totalKills = _totalKills
-        };
+            saveData.killEntries.Add(new KillEntry
+            {
+                monsterID = pair.Key,
+                count = pair.Value
+            });
+        }
+        return saveData;
     }
 
     /// <summary>
@@ -121,11 +161,19 @@ public class KillCountManager : MonoBehaviour, ISavable
     {
         if (data is KillCountSaveData saveData)
         {
-            // 로드된 처치 기록으로 현재 총 처치 마릿수를 설정합니다.
-            _totalKills = saveData.totalKills;
-            _isLoaded = true; // 데이터 로드 성공 플래그 설정
+            _typeKills.Clear(); // 기존 데이터 초기화
 
-            //Debug.Log($"[KillCountManager] 몬스터 처치 기록을 로드했습니다. 총 처치 수: {_totalKills}마리");
+            // 로드된 List<KillEntry>를 딕셔너리로 재구성합니다.
+            foreach (var entry in saveData.killEntries)
+            {
+                if (!_typeKills.ContainsKey(entry.monsterID))
+                {
+                    _typeKills.Add(entry.monsterID, entry.count);
+                }
+            }
+
+            _isLoaded = true; // 데이터 로드 성공 플래그 설정
+            // Debug.Log($"[KillCountManager] 몬스터 처치 기록을 로드했습니다. 총 처치 수: {TotalKills}마리");
         }
         else
         {

@@ -315,6 +315,5 @@ public class SettingsManager : MonoBehaviour
         // 해상도 초기화는 defaultResolutionIndex를 따르게 됩니다.
         LoadSettings();
 
-        Debug.Log("설정이 기본값으로 초기화되었습니다.");
     }
 }

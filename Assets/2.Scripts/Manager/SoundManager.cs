@@ -70,6 +70,7 @@ public enum SFXType
     Map_Exit, // 맵 타일 배치 모드 종료34
     Good_Cooking, //요리 성공35
     Bad_Cooking, //요리 실패36
+    Cooking, //요리 중37
 }
 
 [System.Serializable]

@@ -33,7 +33,7 @@ public class PlayerLevelUp : MonoBehaviour
     /// 참고: 이 이벤트는 현재 'int'를 인수로 받으므로, 21억을 초과하는 경험치가 획득될 경우 
     /// 오버플로우를 방지하기 위해 'int.MaxValue'로 제한되어(Clamp) 전달됩니다.
     /// </summary>
-    public static event System.Action<int> OnExperienceAdded;
+    public static event System.Action<long> OnExperienceAdded;
 
     void Start()
     {
@@ -54,7 +54,7 @@ public class PlayerLevelUp : MonoBehaviour
     /// 경험치 변수가 long 타입이므로 21억 이상도 안전하게 처리됩니다.
     /// </summary>
     /// <param name="amount">추가할 경험치량</param>
-    public void AddExperience(float amount)
+    public void AddExperience(long amount)
     {
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
@@ -75,10 +75,7 @@ public class PlayerLevelUp : MonoBehaviour
             Debug.LogWarning("경험치가 최대 허용치(long.MaxValue)에 도달했습니다!");
         }
 
-        // OnExperienceAdded 이벤트는 int를 요구하므로, 
-        // 획득량이 21억을 넘는다면 int.MaxValue로 제한하여 전달합니다.
-        int clampedAmountForEvent = (int)Mathf.Clamp(finalAmount, 0, int.MaxValue);
-        OnExperienceAdded?.Invoke(clampedAmountForEvent);
+        OnExperienceAdded?.Invoke(finalAmount);
 
         CheckForLevelUp();
     }

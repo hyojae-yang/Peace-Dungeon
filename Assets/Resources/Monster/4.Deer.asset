@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
+  m_Name: 4.Deer
+  m_EditorClassIdentifier: 
+  monsterID: 4
+  monsterName: "\uC0AC\uC2B4"
+  monsterLevel: 0
+  maxHealth: 300
+  maxMana: 10
+  attackPower: 70
+  magicAttackPower: 0
+  defense: 40
+  magicDefense: 40
+  moveSpeed: 5
+  criticalChance: 0
+  criticalDamageMultiplier: 0
+  attackDamageType: 0
+  minExpReward: 5
+  maxExpReward: 20
+  minGoldReward: 10
+  maxGoldReward: 30
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 0
+  lootTable:
+  - itemData: {fileID: 11400000, guid: 773b876dd07a99a429c01aedd950922d, type: 2}
+    weight: 300
+  - itemData: {fileID: 11400000, guid: ea32578317976f743b9bbfd952bf0fcd, type: 2}
+    weight: 200
+  - itemData: {fileID: 11400000, guid: 323bad99f08855d4d81ded1178626017, type: 2}
+    weight: 5
+  - itemData: {fileID: 11400000, guid: 5fd3a479550ba224a9648c6108569e7c, type: 2}
+    weight: 100
+  - itemData: {fileID: 11400000, guid: f4797e60a9165e84786516daae8d9588, type: 2}
+    weight: 100
+  - itemData: {fileID: 11400000, guid: 181db9b9167cd944b8ce400bfee879ca, type: 2}
+    weight: 5
+  - itemData: {fileID: 11400000, guid: 263ab1e05d353fb4086e2ffcd3e51c89, type: 2}
+    weight: 5
+  - itemData: {fileID: 11400000, guid: 88eb455ccf83d49458feac5a1a611309, type: 2}
+    weight: 15
+  - itemData: {fileID: 11400000, guid: 84697a7c2488c134e8d17ae08730c3bf, type: 2}
+    weight: 15
+  - itemData: {fileID: 11400000, guid: a4ab95fe551805642b8790589ba27599, type: 2}
+    weight: 15
+  - itemData: {fileID: 11400000, guid: 6375f606ed750c54db5013b5d7f64501, type: 2}
+    weight: 15
+  - itemData: {fileID: 11400000, guid: 2af8620aa11f7ee47bc383ddf825f00a, type: 2}
+    weight: 15
+  - itemData: {fileID: 11400000, guid: a240f6c0c7b8d814eb98c5947952b244, type: 2}
+    weight: 15
+  - itemData: {fileID: 11400000, guid: 37da615bc6bb66f46a026b9c8961576c, type: 2}
+    weight: 15
+  minItemDropCount: 1
+  maxItemDropCount: 3
+  score: 70

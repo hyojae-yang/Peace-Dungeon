@@ -10,7 +10,7 @@ public class DungeonScoreManager : MonoBehaviour
 {
     public static DungeonScoreManager Instance { get; private set; }
 
-    // 대신, 몬스터가 처치될 때마다 점수를 누적할 변수를 사용합니다.
+    // 몬스터 처치로 점수를 누적할 변수입니다.
     private int currentDungeonScore = 0;
 
     /// <summary>
@@ -34,7 +34,6 @@ public class DungeonScoreManager : MonoBehaviour
             Destroy(gameObject);
         }
         scorePanel.SetActive(false);
-        // 참고: totalScore는 던전마다 초기화되어야 하므로 Awake에서는 초기화하지 않습니다.
     }
 
     private void Update()
@@ -57,42 +56,38 @@ public class DungeonScoreManager : MonoBehaviour
     public void ResetScore()
     {
         currentDungeonScore = 0;
-        // Debug.Log("[ScoreManager:Reset] 점수 누적 시스템 초기화 완료. 현재 점수: 0");
     }
 
     /// <summary>
-    /// 이 메서드는 점수 누적의 단일 책임을 가집니다. (Monster.cs에서 호출됩니다.)
+    /// [수정] 이 메서드는 점수 누적과 몬스터 처치 기록 전달의 단일 책임을 가집니다. (Monster.cs에서 호출됩니다.)
     /// 현재 던전 위험도 레벨에 따라 보너스 점수를 적용합니다.
     /// </summary>
     /// <param name="baseScore">몬스터로부터 획득한 기본 점수</param>
-    public void AddScore(int baseScore)
+    /// <param name="monsterID">처치된 몬스터의 고유 ID (KillCountManager로 전달)</param>
+    public void AddScore(int baseScore, int monsterID)
     {
-        // 몬스터 처치로 점수를 얻었으므로, 총 처치 횟수를 증가시킵니다.
+        // 1. [핵심 수정] 몬스터 처치로 점수를 얻었으므로, 몬스터 ID와 함께 처치 횟수를 증가시킵니다.
         if (KillCountManager.Instance != null)
         {
-            KillCountManager.Instance.AddKillCount();
+            KillCountManager.Instance.AddKillCount(monsterID);
         }
 
         int riskLevel = 0;
 
-        // [핵심 수정] DungeonRiskManager에서 레벨을 가져옵니다.
         if (DungeonRiskManager.Instance != null)
         {
-            // 1. DungeonRiskManager로부터 현재 위험도 레벨을 안전하게 가져옵니다.
+            // 2. DungeonRiskManager로부터 현재 위험도 레벨을 안전하게 가져옵니다.
             riskLevel = DungeonRiskManager.Instance.GetCurrentRiskLevel();
         }
-        // else: 위험도 매니저가 없으면 riskLevel은 0이 됩니다. (보너스 없음)
 
-        // 2. 위험도 보너스 승수 계산
-        // 승수 = 1.0 + (레벨 * 0.1)
+        // 3. 위험도 보너스 승수 계산
         float bonusMultiplier = 1.0f + (riskLevel * RISK_BONUS_PER_LEVEL);
 
-        // 3. 보너스가 적용된 최종 점수 계산 (정수형으로 변환 시 소수점 버림)
+        // 4. 보너스가 적용된 최종 점수 계산 (정수형으로 변환 시 소수점 버림)
         int finalScore = Mathf.FloorToInt(baseScore * bonusMultiplier);
 
-        // 4. 점수 누적
+        // 5. 점수 누적
         currentDungeonScore += finalScore;
-        // Debug.Log($"[ScoreManager:Add] 기본 점수 {baseScore}, 위험도 {riskLevel} 적용! 최종 점수 {finalScore} 획득! 누적 점수: {currentDungeonScore}");
     }
 
     /// <summary>
@@ -107,7 +102,6 @@ public class DungeonScoreManager : MonoBehaviour
         // 2. 다음 던전 진입을 위해 점수를 즉시 초기화합니다.
         ResetScore();
 
-        // Debug.Log($"[ScoreManager:Calculate] 최종 던전 점수: {finalScore}점 반환.");
         return finalScore;
     }
 }

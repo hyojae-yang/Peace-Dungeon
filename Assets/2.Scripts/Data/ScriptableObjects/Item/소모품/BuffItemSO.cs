@@ -153,7 +153,7 @@ public class BuffItemSO : ConsumableItemSO
             }
         }
         PlayerStats.TimedBuffs.Clear();
-        Debug.Log("모든 기존 버프가 초기화되었습니다.");
+        //Debug.Log("모든 기존 버프가 초기화되었습니다.");
     }
 
 
@@ -219,7 +219,7 @@ public class BuffItemSO : ConsumableItemSO
         // 딕셔너리에 버프 값 저장
         PlayerStats.TimedBuffs[effect.statType] = effect.value;
 
-        Debug.Log($"{effect.statType}이(가) {duration}초 동안 {effect.value}만큼 증가했습니다.");
+        //Debug.Log($"{effect.statType}이(가) {duration}초 동안 {effect.value}만큼 증가했습니다.");
 
         yield return new WaitForSeconds(duration);
 
@@ -262,6 +262,6 @@ public class BuffItemSO : ConsumableItemSO
             }
             PlayerStats.TimedBuffs.Remove(effect.statType);
         }
-        Debug.Log($"{effect.statType} 버프가 종료되었습니다.");
+        //Debug.Log($"{effect.statType} 버프가 종료되었습니다.");
     }
 }

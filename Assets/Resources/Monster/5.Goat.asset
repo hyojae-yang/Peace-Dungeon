@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48b5ee29e882ea64e8f0c55a1f1fa89b, type: 3}
+  m_Name: 5.Goat
+  m_EditorClassIdentifier: 
+  monsterID: 5
+  monsterName: "\uC0B0\uC591"
+  monsterLevel: 0
+  maxHealth: 600
+  maxMana: 30
+  attackPower: 120
+  magicAttackPower: 0
+  defense: 50
+  magicDefense: 50
+  moveSpeed: 5.5
+  criticalChance: 0
+  criticalDamageMultiplier: 0
+  attackDamageType: 0
+  minExpReward: 20
+  maxExpReward: 50
+  minGoldReward: 30
+  maxGoldReward: 50
+  minDungeonCoinReward: 0
+  maxDungeonCoinReward: 0
+  lootTable:
+  - itemData: {fileID: 11400000, guid: eed43c3b26365324589d1a8617f845b9, type: 2}
+    weight: 200
+  - itemData: {fileID: 11400000, guid: 5fd3a479550ba224a9648c6108569e7c, type: 2}
+    weight: 200
+  - itemData: {fileID: 11400000, guid: 9379ff947f6464e4fbc7516f323e23b3, type: 2}
+    weight: 100
+  - itemData: {fileID: 11400000, guid: f4797e60a9165e84786516daae8d9588, type: 2}
+    weight: 100
+  - itemData: {fileID: 11400000, guid: c414fd07d09763b4f8ce4ece70c4d6e3, type: 2}
+    weight: 5
+  - itemData: {fileID: 11400000, guid: b2a0a7aecbd653243b7ae589abb684e2, type: 2}
+    weight: 5
+  - itemData: {fileID: 11400000, guid: ab441ffc07f340543a4a3851781bf206, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: 5eb2826a8fe79b8419bd04866ae39a69, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: 24f87a0770254f8429a0b896b6ee8d29, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: c5e4c0d563fadd442bcb26b554b1f5ca, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: fdbde60ba52255640bec6e6e5a08ea4b, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: e506066e758f33a4290a8daee3559d02, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: 60b76b68c6442bc4888230b1809a0e12, type: 2}
+    weight: 20
+  - itemData: {fileID: 11400000, guid: 5fd3a479550ba224a9648c6108569e7c, type: 2}
+    weight: 10
+  minItemDropCount: 2
+  maxItemDropCount: 4
+  score: 100

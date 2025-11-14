@@ -15,13 +15,20 @@ public class PlayerCharacter : MonoBehaviour
     // PlayerCharacter 클래스의 유일한 인스턴스를 저장하는 정적 속성입니다.
     public static PlayerCharacter Instance;
 
-    // === 귀환 관련 상수 및 필드 (추가된 부분) ===
+    // === 레벨업 이펙트 필드 (추가된 부분) ===
+    [Header("이펙트 관리")]
+    [Tooltip("레벨업 시 재생할 이펙트 오브젝트입니다. (예: 파티클 시스템)")]
+    [SerializeField] private GameObject levelUpEffectPrefab;
+    [Tooltip("레벨업 이펙트를 활성화할 시간(초)입니다.")]
+    private const float LEVEL_UP_EFFECT_DURATION = 1.5f;
+
+    // === 귀환 관련 상수 및 필드 ===
     /// <summary>
     /// 귀환 주문서 사용 시 딜레이 시간 (초) 입니다.
     /// </summary>
     public const float RETURN_DELAY = 5.0f;
     private Coroutine returnCoroutine;
-    [SerializeField] private GameObject currentReturnEffect; // 귀환 효과 프리팹 참조
+    [SerializeField] private GameObject currentReturnEffect; 
 
     /// <summary>
     /// 현재 귀환 프로세스(딜레이 코루틴)가 진행 중인지 여부를 나타냅니다. (읽기 전용)
@@ -29,7 +36,7 @@ public class PlayerCharacter : MonoBehaviour
     public bool IsReturnProcessActive => returnCoroutine != null;
 
 
-    // === 상태 추적 필드 (새로 추가됨) ===
+    // === 상태 추적 필드 ===
     /// <summary>
     /// 플레이어의 모든 하위 시스템(Stats, Attack, Equipment 등)의 Start() 초기화가
     /// 완료되었는지 여부를 나타냅니다. (Start() 메서드 마지막에 true로 설정됨)
@@ -117,16 +124,28 @@ public class PlayerCharacter : MonoBehaviour
 
         // 3. 필수 컴포넌트 누락 여부 확인 (디버깅 목적)
         ValidateSystemReferences();
-        // 4. 귀환 이펙트 오브젝트 초기 비활성화 (추가된 부분)
+
+        // 4. 귀환 이펙트 및 레벨업 이펙트 오브젝트 초기 비활성화
         if (currentReturnEffect != null)
         {
             currentReturnEffect.SetActive(false);
+        }
+        if (levelUpEffectPrefab != null) // 레벨업 이펙트 초기 비활성화 로직 추가
+        {
+            levelUpEffectPrefab.SetActive(false);
         }
     }
 
     private void Start()
     {
-        // Start()에서는 코루틴을 시작하여 모든 컴포넌트의 Start()가 완료되기를 기다립니다.
+        // 1. 레벨업 이벤트 구독 로직 추가
+        if (playerLevelUp != null)
+        {
+            // PlayerLevelUp 스크립트의 레벨업 이벤트에 이펙트 처리 메서드를 구독합니다.
+            PlayerLevelUp.OnPlayerLeveledUp += HandleLevelUpEffects;
+        }
+
+        // 2. Start()에서는 코루틴을 시작하여 모든 컴포넌트의 Start()가 완료되기를 기다립니다.
         StartCoroutine(InitializeAfterStart());
     }
 
@@ -145,7 +164,41 @@ public class PlayerCharacter : MonoBehaviour
     }
 
     // ------------------------------------------------------------------
-    // 귀환 딜레이/이펙트 관리 로직 (새로운 기능)
+    // 레벨업 이벤트 처리 로직 (요청 기능)
+    // ------------------------------------------------------------------
+
+    /// <summary>
+    /// PlayerLevelUp.OnPlayerLeveledUp 이벤트가 발생했을 때 호출됩니다.
+    /// 이펙트 활성화 및 비활성화를 코루틴으로 처리합니다.
+    /// </summary>
+    private void HandleLevelUpEffects()
+    {
+        if (levelUpEffectPrefab != null)
+        {
+            StartCoroutine(ActivateLevelUpEffect(LEVEL_UP_EFFECT_DURATION));
+        }
+        // PlayerLevelUp.cs에 있는 모든 로직(UI/사운드 등)을 유지하셨으므로,
+        // 이 메서드는 순수하게 이펙트 처리 역할만 합니다.
+    }
+
+    /// <summary>
+    /// 지정된 시간 동안 레벨업 이펙트를 활성화했다가 비활성화합니다.
+    /// </summary>
+    /// <param name="duration">이펙트가 활성화될 시간(초)</param>
+    private IEnumerator ActivateLevelUpEffect(float duration)
+    {
+        // 1. 이펙트 활성화
+        levelUpEffectPrefab.SetActive(true);
+
+        // 2. 지정된 시간 동안 대기
+        yield return new WaitForSeconds(duration);
+
+        // 3. 이펙트 비활성화
+        levelUpEffectPrefab.SetActive(false);
+    }
+
+    // ------------------------------------------------------------------
+    // 귀환 딜레이/이펙트 관리 로직
     // ------------------------------------------------------------------
 
     /// <summary>
@@ -266,6 +319,12 @@ public class PlayerCharacter : MonoBehaviour
     }
     private void OnDestroy()
     {
+        // 이벤트 구독 해제 (메모리 누수 방지)
+        if (playerLevelUp != null)
+        {
+            PlayerLevelUp.OnPlayerLeveledUp -= HandleLevelUpEffects;
+        }
+
         // 널 체크를 추가하여 안전성을 높입니다.
         if (DungeonManager.Instance != null)
         {

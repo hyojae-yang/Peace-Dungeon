@@ -1,9 +1,10 @@
-// 파일명: CookingUIManager.cs
+// 파일명: CookingUIManager.cs (수정된 전문)
 using UnityEngine;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine.UI;
 using System.Linq;
+using System.Collections; // 코루틴 사용을 위해 추가
 
 /// <summary>
 /// 요리 시스템의 UI를 관리하는 싱글턴 스크립트입니다.
@@ -32,6 +33,19 @@ public class CookingUIManager : MonoBehaviour
     [Tooltip("오른쪽에 위치한 인벤토리 패널입니다.")]
     [SerializeField]
     private GameObject inventoryPanel;
+
+    // === [추가된 변수] 요리 진행 UI 참조 ===
+    [Header("Cooking Process UI")]
+    [Tooltip("요리 과정(진행도 및 결과)을 표시하는 UI 패널입니다.")]
+    [SerializeField]
+    private GameObject processPanel; // 결과창 패널 (고객님 요청)
+    [Tooltip("요리 과정 상태를 표시하는 텍스트입니다. (예: '요리중...', '성공!')")]
+    [SerializeField]
+    private TextMeshProUGUI processText; // 요리과정 텍스트 (고객님 요청)
+    [Tooltip("요리 진행도를 표시하는 슬라이더입니다.")]
+    [SerializeField]
+    private Slider processSlider; // 슬라이더 (고객님 요청)
+    // ======================================
 
     [Header("Recipe UI")]
     [Tooltip("레시피 아이템을 동적으로 생성할 ScrollView의 Content입니다.")]
@@ -73,7 +87,6 @@ public class CookingUIManager : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            // DontDestroyOnLoad(gameObject); // 필요시 주석 해제
         }
         else
         {
@@ -119,6 +132,7 @@ public class CookingUIManager : MonoBehaviour
             SoundManager.Instance.PlaySFX(SFXType.Restaurant_Enter, 0.5f);
         }
     }
+
     /// <summary>
     /// 외부에서 호출되어 레시피 목록 UI를 즉시 갱신합니다.
     /// CookingManager가 요리 성공 후 해금된 레시피를 바로 표시하기 위해 사용합니다.
@@ -128,6 +142,7 @@ public class CookingUIManager : MonoBehaviour
         // 레시피 목록 갱신 로직을 호출합니다.
         UpdateRecipeListUI();
     }
+
     /// <summary>
     /// 레시피 목록 UI를 동적으로 생성하고, 발견 상태를 반영합니다.
     /// SOLID: 단일 책임 원칙 (레시피 리스트 생성).
@@ -186,15 +201,146 @@ public class CookingUIManager : MonoBehaviour
 
     /// <summary>
     /// 요리하기 버튼이 클릭되었을 때 호출되는 메서드입니다.
+    /// **[핵심 수정]** CookingManager에게 요리 시도를 위임합니다.
     /// </summary>
     private void OnCraftButtonClicked()
     {
+        // 1. 재료가 없으면 요리 시도 실패
+        if (currentIngredients == null || currentIngredients.Count == 0)
+        {
+            Debug.LogWarning("재료가 없어 요리를 시작할 수 없습니다.");
+            return;
+        }
+
+        // 2. CookingManager에게 요리 로직 실행을 요청
         if (CookingManager.Instance != null)
         {
-            // 현재 냄비에 있는 재료 목록을 전달하여 요리를 시도합니다.
-            CookingManager.Instance.TryCraft(currentIngredients);
+            // TryCraft는 재료 소모를 시도하고, 성공하면 CookingUIManager.StartCookingProcessCoroutine을 호출합니다.
+            bool isCraftAttempted = CookingManager.Instance.TryCraft(currentIngredients);
+
+            if (!isCraftAttempted)
+            {
+                // 재료 부족 등으로 TryCraft가 false를 반환하면 UI 초기화 및 갱신만 진행
+                UpdateInventoryUI();
+                ResetCookingIngredientUI();
+            }
         }
     }
+
+    // --------------------------------------------------------------------------------------------------------------------------------
+    // [새로 추가된 메서드] - 코루틴 관련
+    // --------------------------------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// CookingManager에서 호출되어 요리 과정 UI 애니메이션을 시작하고 결과 처리를 담당합니다.
+    /// SOLID: 단일 책임 원칙 (요리 과정의 UI 및 시간 흐름 제어).
+    /// </summary>
+    /// <param name="resultData">요리 결과 데이터 (결과 아이템 및 재료 소모 여부)</param>
+    public void StartCookingProcessCoroutine(CookingManager.CookingResultData resultData)
+    {
+        // 코루틴 시작
+        StartCoroutine(CookingCoroutine(resultData));
+    }
+
+    /// <summary>
+    /// 요리 과정 딜레이, 슬라이더 애니메이션, 결과 표시를 처리하고 최종 아이템을 지급하는 코루틴입니다.
+    /// </summary>
+    /// <param name="resultData">요리 결과 데이터</param>
+    private IEnumerator CookingCoroutine(CookingManager.CookingResultData resultData)
+    {
+        // 1. 준비: 요리 시작 UI 활성화 및 초기 상태 설정
+        if (processPanel != null)
+        {
+            processPanel.SetActive(true);
+
+            // 초기 슬라이더 및 텍스트 설정
+            if (processSlider != null)
+            {
+                processSlider.value = 0f;
+            }
+            if (processText != null)
+            {
+                processText.text = "요리중...";
+            }
+        }
+
+        float cookTime = 3f; // 요리 과정 딜레이 시간 (3초)
+        float elapsedTime = 0f;
+
+        //요리 과정 시작 사운드 재생
+        if (SoundManager.Instance != null)
+        {
+            SoundManager.Instance.PlaySFX(SFXType.Cooking, 0.7f);
+        }
+        // 2. 요리 과정 (3초 딜레이 및 슬라이더 애니메이션)
+        while (elapsedTime < cookTime)
+        {
+            elapsedTime += Time.deltaTime;
+            float progress = elapsedTime / cookTime;
+
+            if (processSlider != null)
+            {
+                processSlider.value = progress;
+            }
+
+            yield return null; // 다음 프레임까지 대기
+        }
+
+        // 3. 결과 텍스트 결정 및 표시
+        BaseItemSO resultItem = resultData.resultItem;
+        string resultName = (resultItem != null) ? resultItem.itemName : "실패작";
+
+        // **[수정 시작]**: 결과 아이템이 CookingManager의 실패작 아이템과 동일한지 비교하여 성공/실패를 정확히 구분합니다.
+        bool isSuccess = (resultItem != null && CookingManager.Instance != null && resultItem != CookingManager.Instance.failResultItem);
+
+        if (processText != null)
+        {
+            if (isSuccess) // 성공작을 획득했을 때만 '성공!' 표시
+            {
+                processText.text = $"성공! \n({resultName} 획득)";
+            }
+            else if (resultItem != null) // 실패작을 획득했을 때 (failResultItem과 동일)
+            {
+                processText.text = $"실패... \n({resultName} 획득)";
+            }
+            else // 아이템을 아예 획득하지 못했을 때 (재료 소모에 실패했거나, 결과가 null일 때)
+            {
+                processText.text = "실패... 아무것도 획득하지 못했습니다.";
+            }
+        }
+        // **[수정 끝]**
+
+        // 4. 아이템 지급
+        if (resultItem != null)
+        {
+            // *주의*: isSuccess 여부와 관계없이 resultItem이 존재하면 지급합니다.
+            // 실패작(failResultItem)도 인벤토리에 지급되어야 합니다.
+            if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.inventoryManager != null)
+            {
+                // **아이템 지급** (CookingManager에서 이리로 이동)
+                PlayerCharacter.Instance.inventoryManager.AddItem(resultItem, 1);
+            }
+            // 레시피 목록 갱신 (성공 시에만)
+            if (isSuccess) // 성공한 경우에만 레시피 목록 갱신 (발견된 레시피를 표시해야 하므로)
+            {
+                RefreshRecipeList();
+            }
+        }
+
+        // 5. UI 갱신 및 냄비 초기화
+        UpdateInventoryUI();
+        ResetCookingIngredientUI();
+
+        // 6. 결과 텍스트 표시 유지
+        yield return new WaitForSeconds(1.5f);
+
+        // 7. 요리 과정 패널 비활성화
+        if (processPanel != null)
+        {
+            processPanel.SetActive(false);
+        }
+    }
+
 
     /// <summary>
     /// 인벤토리 데이터를 받아와 UI에 표시하는 메서드입니다.

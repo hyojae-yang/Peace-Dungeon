@@ -72,7 +72,7 @@ public class Test : MonoBehaviour
         }
 
         // 2. 다음 레벨에 필요한 경험치량(requiredExperience)을 가져옵니다.
-        float expToGrant = PlayerCharacter.Instance.playerStats.requiredExperience + 1;
+        long expToGrant = PlayerCharacter.Instance.playerStats.requiredExperience + 1;
 
         //Debug.Log($"[Cheat] 다음 레벨에 필요한 경험치({PlayerCharacter.Instance.playerStats.requiredExperience:F0}) 이상인 {expToGrant:F0}를 부여하여 레벨업을 유도합니다.");
 

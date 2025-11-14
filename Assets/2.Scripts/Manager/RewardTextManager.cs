@@ -105,7 +105,7 @@ public class RewardTextManager : MonoBehaviour
     /// PlayerLevelUp.OnExperienceAdded 이벤트 발생 시 호출됩니다.
     /// </summary>
     /// <param name="amount">획득한 경험치량 (항상 양수)</param>
-    private void OnExperienceGained(int amount)
+    private void OnExperienceGained(long amount)
     {
         // 경험치 팝업 생성 로직을 담당합니다.
         ShowReward(amount, false); // isGold: false
@@ -118,7 +118,7 @@ public class RewardTextManager : MonoBehaviour
     /// </summary>
     /// <param name="amount">표시할 수량</param>
     /// <param name="isGold">골드(true)인지 경험치(false)인지 구분</param>
-    public void ShowReward(int amount, bool isGold)
+    public void ShowReward(long amount, bool isGold)
     {
         if (mainCamera == null || rewardTextPrefab == null || targetCanvas == null || playerCharacter == null)
         {
