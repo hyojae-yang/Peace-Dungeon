@@ -182,22 +182,12 @@ public class CookingManager : MonoBehaviour, INPCFunction
             {
                 RecipeDiscoveryManager.Instance.DiscoverRecipe(matchedRecipe.recipeID);
             }
-            //요리성공 사운드
-            if (SoundManager.Instance != null)
-            {
-                SoundManager.Instance.PlaySFX(SFXType.Good_Cooking);
-            }
         }
         else
         {
             // 레시피를 찾지 못했다면, 실패작 아이템을 가져옵니다.
             resultData.resultItem = failResultItem;
             //Debug.LogWarning("[Crafting Failure] 일치하는 레시피를 찾지 못했습니다. 실패작을 만들었습니다.");
-            //요리실패 사운드
-            if (SoundManager.Instance != null)
-            {
-                SoundManager.Instance.PlaySFX(SFXType.Bad_Cooking);
-            }
         }
 
         // **[기존 로직 삭제]** 아이템 지급 및 UI 갱신 로직 (6, 7번)을 삭제했습니다.

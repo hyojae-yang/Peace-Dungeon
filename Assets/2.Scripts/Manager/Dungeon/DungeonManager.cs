@@ -126,6 +126,16 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
                 {
                     // 던전 진입 시 몬스터를 스폰하는 메서드를 호출합니다.
                     HandleDungeonEntry();
+
+                    if (MainSceneManager.Instance != null)
+                    {
+                        // 화면을 검게 가렸다가 (Fade Out) 즉시 다시 열어주는 (Fade In) 효과를 줍니다.
+                        // 이 메서드는 Coroutine을 실행하므로 현재 로직의 흐름을 방해하지 않습니다.
+                        MainSceneManager.Instance.PerformScreenFade(
+                            fadeOutDuration: 0.1f,
+                            fadeInDuration: 1.0f
+                        );
+                    }
                     // =======================================================
                     // [핵심 추가] 던전 진입 이벤트 호출
                     // =======================================================
@@ -260,6 +270,14 @@ public class DungeonManager : MonoBehaviour, IBossNotifier, ISavable
     /// </summary>
     public void ExitDungeon()
     {
+        if (MainSceneManager.Instance != null)
+        {
+            // 화면을 검게 가렸다가 (Fade Out) 즉시 다시 열어주는 (Fade In) 효과를 줍니다.
+            MainSceneManager.Instance.PerformScreenFade(
+                fadeOutDuration: 0.1f,
+                fadeInDuration: 0.5f
+            );
+        }
         SoundManager.Instance.PlayBGM(BGMType.Main_A, 1.0f);
         int finalScore = 0;
 

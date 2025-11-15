@@ -180,7 +180,7 @@ public class ShopUIManager : MonoBehaviour
 
                 if (itemUI != null)
                 {
-                    // ⭐️ 수정된 부분: displayPrice로 item.itemPrice (구매 가격)을 전달합니다.
+                    // displayPrice로 item.itemPrice (구매 가격)을 전달합니다.
                     itemUI.Setup(item, item.itemPrice, "구매", () => OpenBuyConfirmation(item));
                 }
             }
@@ -213,10 +213,10 @@ public class ShopUIManager : MonoBehaviour
 
             if (itemUI != null)
             {
-                // ⭐️ 추가된 로직: ShopManager 로직에 맞춰 50% 할인된 판매 가격을 계산합니다.
+                // ShopManager 로직에 맞춰 50% 할인된 판매 가격을 계산합니다.
                 int sellPrice = (int)(itemData.itemSO.itemPrice * 0.5f);
 
-                // ⭐️ 수정된 부분: displayPrice로 계산된 sellPrice를 전달합니다.
+                // displayPrice로 계산된 sellPrice를 전달합니다.
                 itemUI.Setup(itemData.itemSO, sellPrice, "판매", () => OpenSellConfirmation(itemData));
             }
         }

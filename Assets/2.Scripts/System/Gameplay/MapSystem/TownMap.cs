@@ -150,7 +150,16 @@ public class TownMap : MonoBehaviour
 
     private void OnMouseUp()
     {
+        // [수정] 드래그 상태가 아니었다면 (예: 더블클릭으로 인해 isDragging이 false인 경우)
+        // 맵 배치와 사운드 재생 로직을 건너뛰고 즉시 종료합니다.
+        if (!isDragging)
+        {
+            return;
+        }
+
+        // 드래그가 끝났으므로 상태를 false로 설정합니다. (SmallMap과 동일한 순서)
         isDragging = false;
+
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlaySFX(SFXType.Map_Place, 0.5f);

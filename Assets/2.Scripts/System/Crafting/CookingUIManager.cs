@@ -264,7 +264,7 @@ public class CookingUIManager : MonoBehaviour
             }
         }
 
-        float cookTime = 3f; // 요리 과정 딜레이 시간 (3초)
+        float cookTime = 2f; // 요리 과정 딜레이 시간 (2초)
         float elapsedTime = 0f;
 
         //요리 과정 시작 사운드 재생
@@ -308,8 +308,20 @@ public class CookingUIManager : MonoBehaviour
                 processText.text = "실패... 아무것도 획득하지 못했습니다.";
             }
         }
-        // **[수정 끝]**
-
+        // 4. [수정된 부분] 요리 과정 완료 후, 최종 결과에 따른 사운드 재생
+        if (SoundManager.Instance != null)
+        {
+            if (isSuccess)
+            {
+                // 요리 성공 사운드
+                SoundManager.Instance.PlaySFX(SFXType.Good_Cooking);
+            }
+            else
+            {
+                // 요리 실패 사운드
+                SoundManager.Instance.PlaySFX(SFXType.Bad_Cooking);
+            }
+        }
         // 4. 아이템 지급
         if (resultItem != null)
         {

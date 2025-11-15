@@ -110,6 +110,14 @@ public class BossRoomDoor : MonoBehaviour
     /// </summary>
     private void TriggerBossRoomEntry(GameObject player)
     {
+        if (MainSceneManager.Instance != null)
+        {
+            // 화면을 검게 가렸다가 (Fade Out) 즉시 다시 열어주는 (Fade In) 효과를 줍니다.
+            MainSceneManager.Instance.PerformScreenFade(
+                fadeOutDuration: 0.3f,
+                fadeInDuration: 0.5f
+            );
+        }
         // 2. 플레이어 이동 처리
         if (PlayerCharacter.Instance == null || PlayerCharacter.Instance.playerController == null)
         {
@@ -164,6 +172,6 @@ public class BossRoomDoor : MonoBehaviour
         DungeonManager.Instance.ResetDungeonState();
 
         PlayerCharacter.Instance.playerController.outDungeon();
-        Debug.Log("보상 지급 및 던전 퇴장 처리 완료.");
+       // Debug.Log("보상 지급 및 던전 퇴장 처리 완료.");
     }
 }

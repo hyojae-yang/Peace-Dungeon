@@ -97,7 +97,7 @@ public class PlayerStats : MonoBehaviour, ISavable
     {
         if (amount <= 0)
         {
-            Debug.LogWarning("AddGold 메서드에는 양수만 전달해야 합니다. 지출 시에는 SpendGold를 사용하세요.");
+            //Debug.LogWarning("AddGold 메서드에는 양수만 전달해야 합니다. 지출 시에는 SpendGold를 사용하세요.");
             return;
         }
 

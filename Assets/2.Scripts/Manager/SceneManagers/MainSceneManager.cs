@@ -4,6 +4,8 @@ using System.Linq;
 using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using System;
+using System.Collections;
+using UnityEngine.UI; // Coroutine 사용을 위해 추가
 
 /// <summary>
 /// 씬의 주요 UI 패널들을 중앙에서 관리하는 매니저 클래스입니다.
@@ -54,6 +56,18 @@ public class MainSceneManager : MonoBehaviour
     /// </summary>
     public static string NextSceneToLoad = ""; // <-- 이 변수를 추가합니다.
 
+    // === [추가된 요소: 페이드 인/아웃을 위한 변수] ===
+    [Header("씬 전환 페이드 효과")]
+    [Tooltip("씬 전환 시 화면을 덮을 검은색 Image 컴포넌트를 할당하세요. (LoadingScene의 Fade Panel과 동일한 것을 사용하거나 이 씬에 별도로 준비)")]
+    [SerializeField] private Image fadePanel;
+
+    [Tooltip("씬에서 다른 씬으로 넘어갈 때 (페이드 아웃) 걸리는 시간(초)입니다.")]
+    [SerializeField] private float fadeOutDuration = 0.5f;
+
+    [Tooltip("이 씬에 진입했을 때 페이드 인이 필요한 경우 걸리는 시간(초)입니다. (현재 MainScene에서는 Start()에서 사용하지 않음)")]
+    [SerializeField] private float fadeInDuration = 1.0f;
+    // ============================================
+
     /// <summary>
     /// 스크립트 인스턴스가 로드될 때 호출되어 싱글턴을 설정하고 이벤트 리스너를 등록합니다.
     /// </summary>
@@ -74,15 +88,29 @@ public class MainSceneManager : MonoBehaviour
         UIEventHandler.OnPanelActivated += HandlePanelActivation;
         UIEventHandler.OnPanelDeactivated += HandlePanelDeactivation;
 
-        // [수정] 게임 오버 패널의 초기 비활성화는 GameOverPanelController에 의해 처리되거나,
-        // Inspector에서 비활성화되어 있다고 가정하고 이 코드를 제거합니다.
-        // gameOverPanel.SetActive(false); // 기존 코드 삭제/주석 처리
-
         TutorialPanel.SetActive(true);
     }
 
     private void Start()
     {
+        // [추가] MainScene 진입 시 만약 LoadingScene에서 페이드 인이 처리되지 않았다면
+        // (즉시 MainScene을 로드한 경우) 여기서 FadeFromBlack을 호출하여 화면을 드러냅니다.
+        if (fadePanel != null)
+        {
+            // MainScene이 로드될 때, fadePanel이 씬에 있다면 초기 상태를 검은색으로 설정하고
+            // FadeFromBlack을 호출할 수 있습니다. (LoadingManager의 Start()와 유사)
+            Color initialColor = fadePanel.color;
+            initialColor.a = 0f; // 기본적으로는 투명하게 시작
+            fadePanel.color = initialColor;
+            fadePanel.gameObject.SetActive(true);
+
+            // 만약 MainScene이 LoadingScene을 거쳤다면 이미 투명할 것입니다.
+            // 필요하다면, LoadingScene에서 넘어왔는지 확인하는 별도의 로직을 추가하여
+            // 여기서는 FadeFromBlack을 호출하지 않도록 할 수 있습니다.
+            // 하지만 지금은 LoadSceneWithFade만 사용하므로 이 부분은 씬 전환 시 부적절할 수 있어 주석처리합니다.
+            // StartCoroutine(FadeFromBlack(fadeInDuration)); 
+        }
+
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlayBGM(BGMType.Main_A, 2.0f);
@@ -100,6 +128,8 @@ public class MainSceneManager : MonoBehaviour
             SoundManager.Instance.PlayButtonSFX();
         }
     }
+
+    // (HandlePanelActivation, HandlePanelDeactivation 메서드는 변경 없이 유지)
 
     /// <summary>
     /// 이벤트를 통해 패널 활성화 신호를 받으면 호출되는 메서드입니다.
@@ -162,14 +192,154 @@ public class MainSceneManager : MonoBehaviour
         UIEventHandler.OnPanelDeactivated -= HandlePanelDeactivation;
     }
 
+    // === [추가 및 수정된 씬 전환 로직] ===
+
+    /// <summary>
+    /// 씬 전환 전에 페이드 아웃 효과를 실행하고, 완료되면 LoadingScene으로 전환합니다.
+    /// </summary>
+    /// <param name="targetSceneName">다음 로드할 씬의 이름입니다.</param>
+    public void LoadSceneWithFade(string targetSceneName)
+    {
+        // 1. 최종 목적지 씬 이름 설정
+        MainSceneManager.NextSceneToLoad = targetSceneName;
+
+        // 2. 씬 전환 코루틴 시작
+        StartCoroutine(CoLoadSceneWithFade());
+    }
+
+    /// <summary>
+    /// Exit 버튼 클릭 시 TitleScene으로 전환합니다.
+    /// </summary>
     public void Exit()
     {
-        // [수정] 1. 최종 목적지(TitleScene)를 정적 변수에 설정
-        MainSceneManager.NextSceneToLoad = "TitleScene";
+        LoadSceneWithFade("TitleScene");
+    }
 
-        // [수정] 2. LoadingScene으로 전환하여 비동기 로드를 시작
+    /// <summary>
+    /// 게임 오버 후 Restart 버튼 클릭 시 MainScene으로 전환합니다.
+    /// </summary>
+    public void Restart()
+    {
+        // 1. **가장 먼저** isGameOver 상태를 재시작 상태(false)로 변경하여 
+        //    DungeonManager가 보상 로직을 실행하지 못하게 막습니다.
+        isGameOver = false;
+
+        // 2. 저장 불러오기 (위치, 스탯 등 모든 게임 데이터 복구)
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.LoadGame();
+        }
+
+        // 3. 페이드와 함께 MainScene으로 전환
+        LoadSceneWithFade("MainScene");
+    }
+
+    /// <summary>
+    /// 화면을 검게 만든 후 LoadingScene으로 이동시키는 코루틴입니다.
+    /// </summary>
+    private IEnumerator CoLoadSceneWithFade()
+    {
+        // 1. 페이드 아웃 (화면을 검게 가림)
+        yield return StartCoroutine(FadeToBlack(fadeOutDuration));
+
+        // 2. 페이드가 완료된 후 LoadingScene으로 이동
         UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
     }
+
+    /// <summary>
+    /// 씬 로드가 아닌, 순수하게 화면만 페이드 인/아웃시키는 공용 메서드입니다.
+    /// (예: 던전 진입/퇴장 시 연출)
+    /// </summary>
+    /// <param name="fadeInDuration">페이드 인(검은색->투명) 시간입니다.</param>
+    /// <param name="fadeOutDuration">페이드 아웃(투명->검은색) 시간입니다.</param>
+    public void PerformScreenFade(float fadeOutDuration = 0.5f, float fadeInDuration = 0.5f)
+    {
+        StartCoroutine(CoPerformScreenFade(fadeOutDuration, fadeInDuration));
+    }
+
+    /// <summary>
+    /// 화면을 검게 가렸다가 다시 드러내는 연출 코루틴입니다.
+    /// </summary>
+    private IEnumerator CoPerformScreenFade(float fadeOutDuration, float fadeInDuration)
+    {
+        // 1. 화면 검게 가리기 (Fade Out)
+        yield return StartCoroutine(FadeToBlack(fadeOutDuration));
+
+        // 2. 화면이 검은 상태에서 잠시 대기 (원하는 경우 추가 가능)
+        // yield return new WaitForSeconds(0.2f); 
+
+        // 3. 화면 다시 드러내기 (Fade In)
+        yield return StartCoroutine(FadeFromBlack(fadeInDuration));
+    }
+
+
+    /// <summary>
+    /// 화면을 서서히 검은색에서 투명하게(알파값 0) 페이드 인시키는 코루틴입니다.
+    /// (알파 1.0 -> 0.0)
+    /// </summary>
+    private IEnumerator FadeFromBlack(float duration)
+    {
+        if (fadePanel == null) yield break;
+
+        float timer = 0f;
+        Color color = fadePanel.color;
+
+        // 현재 알파값부터 0.0까지 진행합니다.
+        float startAlpha = color.a;
+        float targetAlpha = 0.0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float progress = timer / duration;
+
+            color.a = Mathf.Lerp(startAlpha, targetAlpha, progress);
+            fadePanel.color = color;
+
+            yield return null;
+        }
+
+        // 정확히 0.0으로 설정하여 완료를 보장합니다.
+        color.a = 0.0f;
+        fadePanel.color = color;
+    }
+
+
+    /// <summary>
+    /// 화면을 서서히 검은색으로(알파값 1) 페이드 아웃시키는 코루틴입니다.
+    /// (알파 0.0 -> 1.0)
+    /// </summary>
+    private IEnumerator FadeToBlack(float duration)
+    {
+        if (fadePanel == null) yield break;
+
+        float timer = 0f;
+        Color color = fadePanel.color;
+
+        // 현재 알파값부터 1.0까지 진행합니다.
+        float startAlpha = color.a;
+        float targetAlpha = 1.0f;
+
+        while (timer < duration)
+        {
+            timer += Time.deltaTime;
+            float progress = timer / duration;
+
+            color.a = Mathf.Lerp(startAlpha, targetAlpha, progress);
+            fadePanel.color = color;
+
+            yield return null;
+        }
+
+        // 정확히 1.0으로 설정하여 완료를 보장합니다.
+        color.a = 1.0f;
+        fadePanel.color = color;
+    }
+    public void PerformScreenFade()
+    {
+        StartCoroutine(CoPerformScreenFade(this.fadeOutDuration, this.fadeInDuration));
+    }
+    // === (기존 로직 유지) ===
 
     public void save()
     {
@@ -228,23 +398,5 @@ public class MainSceneManager : MonoBehaviour
         }
 
         // TODO: Time.timeScale = 0; 또는 게임 오버 패널 활성화 등의 추가 로직을 여기에 구현합니다.
-    }
-
-    public void Restart()
-    {
-        // 1. **가장 먼저** isGameOver 상태를 재시작 상태(false)로 변경하여 
-        //    DungeonManager가 보상 로직을 실행하지 못하게 막습니다.
-        isGameOver = false;
-
-        // 2. 저장 불러오기 (위치, 스탯 등 모든 게임 데이터 복구)
-        //    이것이 먼저 실행되어야 던전 상태를 리셋할 때 충돌이 적습니다.
-        if (SaveManager.Instance != null)
-        {
-            SaveManager.Instance.LoadGame();
-        }
-
-        // [수정] 3. MainScene으로 즉시 로드하는 대신, 목표를 설정하고 LoadingScene으로 전환
-        MainSceneManager.NextSceneToLoad = "MainScene";
-        UnityEngine.SceneManagement.SceneManager.LoadScene("LoadingScene");
     }
 }
