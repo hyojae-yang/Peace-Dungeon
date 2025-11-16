@@ -36,7 +36,7 @@ public class BossUIAdapter : MonoBehaviour
         }
 
         // MonsterBase에서 최대 체력 정보를 미리 가져옵니다.
-        maxHealth = monster.monsterData.maxHealth;
+        maxHealth = monster.MaxHealth;
     }
 
     /// <summary>
