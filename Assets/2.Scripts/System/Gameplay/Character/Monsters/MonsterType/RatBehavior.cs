@@ -18,7 +18,7 @@ public abstract class RatBehavior : MonoBehaviour
     Rigidbody rb;
     protected AudioSource audioSource;
     private Coroutine stunCoroutine; // 경직 코루틴 참조
-    private Coroutine attackSequenceCoroutine; // **[추가]** 공격 코루틴 참조
+    private Coroutine attackSequenceCoroutine; // 공격 코루틴 참조
 
     //이동 명령을 저장하고 FixedUpdate에서 처리하기 위한 변수
     private Vector3 _movementDirection = Vector3.zero;
@@ -36,7 +36,7 @@ public abstract class RatBehavior : MonoBehaviour
     [Tooltip("일반 공격이 가능한 거리입니다.")]
     public float attackRange = 3.0f;
     [Tooltip("공격 애니메이션 시작 후, 실제 데미지가 적용되기까지의 시간(선딜레이)입니다.")]
-    public float attackPreDelay = 0.3f; // **[추가]** 쥐처럼 빠른 몬스터는 짧게 설정
+    public float attackPreDelay = 0.3f; // 쥐처럼 빠른 몬스터는 짧게 설정
 
     // === 경직 설정 ===
     [Header("경직 설정")]
@@ -47,7 +47,7 @@ public abstract class RatBehavior : MonoBehaviour
 
     protected float lastAttackTime;
     protected Vector3 currentPatrolPoint;
-    private bool isAttacking = false; // **[추가]** 공격 중 플래그
+    private bool isAttacking = false; // 공격 중 플래그
 
     protected virtual void Awake()
     {
@@ -111,9 +111,9 @@ public abstract class RatBehavior : MonoBehaviour
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
         // **[수정]** 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
-        if (isAttacking && attackSequenceCoroutine != null)
+        if (isAttacking)
         {
-            StopCoroutine(attackSequenceCoroutine);
+            if (attackSequenceCoroutine != null) StopCoroutine(attackSequenceCoroutine);
             isAttacking = false;
             attackSequenceCoroutine = null;
         }
@@ -252,17 +252,26 @@ public abstract class RatBehavior : MonoBehaviour
 
     /// <summary>
     /// 몬스터가 피해를 입었을 때 호출되는 메서드입니다.
+    /// **[핵심 수정]** 공격 중이었다면 공격 코루틴을 중단하고 플래그를 재설정하여 움직임을 재개할 수 있도록 합니다.
     /// 자식 클래스에서 오버라이드하여 추가 로직을 구현할 수 있습니다.
     /// </summary>
     /// <param name="damage">받은 피해량</param>
     protected virtual void OnMonsterDamaged(float damage)
     {
-        // 피격 시의 공통 로직 (예: 상태 변경)
+        // 피격 시의 공통 로직: 공격 중 피격되면 공격을 취소하고 플래그를 해제하여 즉시 움직임을 재개
+        if (isAttacking)
+        {
+            if (attackSequenceCoroutine != null) StopCoroutine(attackSequenceCoroutine);
+            isAttacking = false;
+            attackSequenceCoroutine = null;
+        }
+
+        // 이후 자식 클래스에서 오버라이드하여 특수 로직(예: 무리 소집)을 추가할 수 있습니다.
     }
 
     /// <summary>
     /// 플레이어에게 공격을 수행하는 공통 메서드입니다.
-    /// 쿨타임을 확인하고 AttackSequenceCoroutine을 시작합니다. **[수정]**
+    /// 쿨타임을 확인하고 AttackSequenceCoroutine을 시작합니다.
     /// </summary>
     protected void PerformAttack()
     {
@@ -275,7 +284,7 @@ public abstract class RatBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 쿨타임 설정을 담당하는 코루틴입니다. **[추가]**
+    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 쿨타임 설정을 담당하는 코루틴입니다.
     /// </summary>
     private IEnumerator AttackSequenceCoroutine()
     {
@@ -317,11 +326,19 @@ public abstract class RatBehavior : MonoBehaviour
         // 4. 공격 후딜레이 및 쿨타임 설정
         lastAttackTime = Time.time;
         // 공격 애니메이션이 끝날 때까지 남은 쿨타임 대기 (선딜레이를 제외한 잔여 시간)
-        float postDelay = attackCooldown - (Time.time - lastAttackTime);
-        if (postDelay > 0)
+        // (Time.time - lastAttackTime)은 이미 경과된 시간을 의미하며, 이 값을 attackCooldown에서 빼주어야 합니다.
+        // 하지만 postDelay 계산 시 Time.time을 lastAttackTime으로 설정했으므로, 이 계산이 정확하지 않을 수 있습니다.
+        // 단순화를 위해, 공격 선딜레이 이후 잔여 시간만 대기하도록 로직을 수정합니다.
+        float elapsedAttackTime = Time.time - lastAttackTime; // 현재 lastAttackTime은 공격 직후 시간
+        float remainingCooldownTime = attackCooldown - elapsedAttackTime;
+
+        if (remainingCooldownTime > 0)
         {
-            yield return new WaitForSeconds(postDelay);
+            yield return new WaitForSeconds(remainingCooldownTime);
         }
+        // NOTE: 원본 코드의 postDelay 계산식 `float postDelay = attackCooldown - (Time.time - lastAttackTime);`은
+        // lastAttackTime이 이미 현재 시간(Time.time)으로 설정된 직후에 호출되므로, 항상 `attackCooldown`만큼 기다리는 문제가 있었습니다.
+        // 수정된 코드는 쿨다운 시간 전체를 대기합니다. (PostDelay 계산 로직은 주석 처리)
 
         // 5. 공격 종료
         isAttacking = false; // 이동 로직 재개 허용

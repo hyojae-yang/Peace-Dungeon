@@ -117475,12 +117475,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1589949016}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1c53b0918c040704aadd39a29405b10d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemTemplate: {fileID: 11400000, guid: 308b5e36584827f41be7240d45325638, type: 2}
+  itemTemplate: {fileID: 11400000, guid: 44735197101296340af672c351b76f6a, type: 2}
   itemGrade: 4
 --- !u!114 &1589949020
 MonoBehaviour:
@@ -161786,6 +161786,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 272736229033473883, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
+      propertyPath: criticalHitClip
+      value: 
+      objectReference: {fileID: 8300000, guid: c20a131ee400df544a6cafa00e56cca6, type: 3}
     - target: {fileID: 2878102793862709366, guid: e87e4d24214e2cb42a440e0ee5eac0a2, type: 3}
       propertyPath: exitSpawnPoint
       value: 
@@ -162490,7 +162494,7 @@ BoxCollider:
   m_Enabled: 1
   serializedVersion: 3
   m_Size: {x: 0.2, y: 1.5, z: 4}
-  m_Center: {x: -0.25, y: 0.75, z: 1}
+  m_Center: {x: -0.2, y: 0.75, z: 1}
 --- !u!114 &7689554962856108000
 MonoBehaviour:
   m_ObjectHideFlags: 0

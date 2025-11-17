@@ -49,7 +49,7 @@ public class FireballSkillData : ActiveSkillData, IHasAiming // ⭐ IHasAiming �
             Debug.LogError("스킬 발동 실패: 레벨 정보 부족 또는 프리팹 미할당.");
             return false;
         }
-
+        base.Execute(spawnPoint, playerStats, skillLevel); // 기본 사운드 재생 호출
         SkillLevelInfo currentLevelInfo = levelInfo[skillLevel - 1];
 
         // 2. 최종 데미지 계산 (기존과 동일)

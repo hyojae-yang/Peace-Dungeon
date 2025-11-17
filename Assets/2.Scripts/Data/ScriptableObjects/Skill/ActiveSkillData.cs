@@ -40,7 +40,7 @@ public class ActiveSkillData : SkillData
         // ActiveSkillData 자체는 실행 로직을 가지지 않습니다.
         // 모든 실제 액티브 스킬은 이 메서드를 반드시 오버라이드하여
         // 자신만의 스킬 효과 로직(투사체 발사, 광역 피해 등)을 구현해야 합니다.
-        Debug.LogError($"'{skillName}' 스킬은 Execute() 메서드가 하위 클래스에서 구현되지 않았습니다. 로직을 추가해야 합니다.");
+        //Debug.LogError($"'{skillName}' 스킬은 Execute() 메서드가 하위 클래스에서 구현되지 않았습니다. 로직을 추가해야 합니다.");
 
         // 하위 클래스에서 오버라이드하지 않았다면 논리적 실행에 실패한 것으로 간주하여 false 반환
         return false;

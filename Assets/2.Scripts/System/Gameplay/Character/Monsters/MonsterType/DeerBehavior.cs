@@ -48,9 +48,6 @@ public class DeerBehavior : MonoBehaviour
     [Tooltip("도주/추격 상태에서 플레이어를 향해 회전하는 속도입니다.")]
     [SerializeField] private float rotationSpeed = 10.0f;
 
-    // 기존 attackAnimationDuration은 사용하지 않거나, attackPreDelay + attackPostDelay와 연동되게 조정할 수 있습니다.
-    // 여기서는 로직을 명확히 하기 위해 제거하고 위 두 딜레이를 사용합니다.
-
     // === 경직 설정 ===
     [Header("경직 설정")]
     [Tooltip("경직 효과가 지속될 최소 시간입니다. (랜덤 범위)")]
@@ -140,11 +137,14 @@ public class DeerBehavior : MonoBehaviour
 
         hasTakenDamage = true; // 복수심 발동!
 
-        // 공격 중 피격 시 코루틴을 중지하여 바로 추격으로 전환합니다.
-        if (isAttacking && attackSequenceCoroutine != null)
+        // **[수정]** 공격 중 피격 시 코루틴을 중지하고 isAttacking 플래그를 초기화하여 추격으로 즉시 전환합니다.
+        if (isAttacking)
         {
-            StopCoroutine(attackSequenceCoroutine);
+            if (attackSequenceCoroutine != null) StopCoroutine(attackSequenceCoroutine);
+
+            // isAttacking 플래그와 코루틴 참조를 명시적으로 해제합니다.
             isAttacking = false;
+            attackSequenceCoroutine = null;
         }
 
         // 데미지를 입으면 즉시 공격(추격) 상태로 전환합니다.
@@ -166,11 +166,14 @@ public class DeerBehavior : MonoBehaviour
     {
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
-        // 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
-        if (isAttacking && attackSequenceCoroutine != null)
+        // **[수정]** 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
+        if (isAttacking)
         {
-            StopCoroutine(attackSequenceCoroutine);
+            if (attackSequenceCoroutine != null) StopCoroutine(attackSequenceCoroutine); // 코루틴 중지
+
+            // isAttacking 플래그와 코루틴 참조를 명시적으로 해제합니다.
             isAttacking = false;
+            attackSequenceCoroutine = null;
         }
 
         if (stunCoroutine != null) StopCoroutine(stunCoroutine);
@@ -429,7 +432,7 @@ public class DeerBehavior : MonoBehaviour
     }
 
     /// <summary>
-    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 후딜레이를 담당하는 코루틴입니다. **[핵심 수정]**
+    /// 공격 애니메이션 재생, 선딜레이, 데미지 적용, 후딜레이를 담당하는 코루틴입니다.
     /// </summary>
     private IEnumerator AttackSequenceCoroutine()
     {
@@ -440,9 +443,10 @@ public class DeerBehavior : MonoBehaviour
         // 2. 선딜레이 대기 (데미지 적용 전 대기 시간)
         yield return new WaitForSeconds(attackPreDelay);
 
-        // **[핵심 체크 1]** 선딜레이 후, Stun 상태가 되었다면 데미지 로직을 건너뜁니다.
+        // **[개선]** 선딜레이 후, Stun 상태가 되었다면 데미지 로직을 건너뛰고 종료합니다.
         if (monster.currentState == MonsterBase.MonsterState.Stun)
         {
+            // 중단 시 플래그와 참조를 정리하고 코루틴 종료
             isAttacking = false;
             attackSequenceCoroutine = null;
             yield break;

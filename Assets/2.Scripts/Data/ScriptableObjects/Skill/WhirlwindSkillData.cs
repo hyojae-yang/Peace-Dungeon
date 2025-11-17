@@ -28,7 +28,7 @@ public class WhirlwindSkillData : ActiveSkillData
             Debug.LogError($"[Whirlwind] 스킬 레벨이 유효하지 않습니다. ID: {skillId}");
             return false; // <--- 실패 시 false 반환
         }
-
+        base.Execute(spawnPoint, playerStats, skillLevel); // 기본 사운드 재생 호출
         SkillLevelInfo currentLevelInfo = levelInfo[skillLevel - 1];
 
         // 기본 데미지 스탯을 찾아 최종 데미지를 계산합니다.

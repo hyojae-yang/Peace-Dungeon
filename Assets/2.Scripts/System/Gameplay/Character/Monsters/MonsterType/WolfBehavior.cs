@@ -12,13 +12,13 @@ using System;
 public class WolfBehavior : MonoBehaviour
 {
     // === 종속성 ===
-    private Monster monster;                // 몬스터의 기본 데이터 및 상태 관리를 위한 컴포넌트
-    private MonsterPatrol monsterPatrol;    // 몬스터의 순찰 로직을 처리하는 컴포넌트 (SRP 준수)
-    private MonsterCombat monsterCombat;    // 몬스터의 전투, 체력 관리 로직을 처리하는 컴포넌트 (SRP 준수)
-    private Transform playerTransform;      // 플레이어의 위치를 참조하기 위한 Transform
-    private Animator animator;              // 애니메이션 제어를 위한 컴포넌트
-    private AudioSource audioSource;        // AudioSource 종속성 추가
-    private Coroutine stunCoroutine;        // 경직 코루틴 참조
+    private Monster monster;                // 몬스터의 기본 데이터 및 상태 관리를 위한 컴포넌트
+    private MonsterPatrol monsterPatrol;    // 몬스터의 순찰 로직을 처리하는 컴포넌트 (SRP 준수)
+    private MonsterCombat monsterCombat;    // 몬스터의 전투, 체력 관리 로직을 처리하는 컴포넌트 (SRP 준수)
+    private Transform playerTransform;      // 플레이어의 위치를 참조하기 위한 Transform
+    private Animator animator;              // 애니메이션 제어를 위한 컴포넌트
+    private AudioSource audioSource;        // AudioSource 종속성 추가
+    private Coroutine stunCoroutine;        // 경직 코루틴 참조
     private Coroutine attackSequenceCoroutine; // 공격 시퀀스 코루틴 참조
 
     // === 사운드 설정 추가 ===
@@ -61,11 +61,11 @@ public class WolfBehavior : MonoBehaviour
 
     // === 내부 상태 변수 ===
     private bool hasCalledForHelp = false; // 무리 소집을 한 번만 하도록 플래그 설정
-    private bool isLeader = false;         // 현재 늑대가 무리의 리더인지 여부
-    private WolfBehavior leader;           // 추종자인 경우, 리더 늑대의 참조
+    private bool isLeader = false;         // 현재 늑대가 무리의 리더인지 여부
+    private WolfBehavior leader;            // 추종자인 경우, 리더 늑대의 참조
     private List<WolfBehavior> followers = new List<WolfBehavior>(); // 리더인 경우, 추종자 늑대 목록
-    private float lastAttackTime;          // 마지막 공격 시간 기록
-    private bool isJoinedPack = false;     // 추종자가 리더 주변 합류 위치에 도달했는지 여부
+    private float lastAttackTime;          // 마지막 공격 시간 기록
+    private bool isJoinedPack = false;     // 추종자가 리더 주변 합류 위치에 도달했는지 여부
     private Vector3 initialFlockTarget = Vector3.zero; // 추종자가 합류해야 할, 리더 주변의 고정된 목표 위치
     private bool isAttacking = false; // 공격 중 플래그
 
@@ -142,9 +142,9 @@ public class WolfBehavior : MonoBehaviour
         if (monster.currentState == MonsterBase.MonsterState.Dead) return;
 
         // 공격 애니메이션 중이라면 코루틴을 종료하고 isAttacking 플래그도 초기화합니다.
-        if (isAttacking && attackSequenceCoroutine != null)
+        if (isAttacking)
         {
-            StopCoroutine(attackSequenceCoroutine);
+            if (attackSequenceCoroutine != null) StopCoroutine(attackSequenceCoroutine);
             isAttacking = false;
             attackSequenceCoroutine = null;
         }
@@ -204,6 +204,14 @@ public class WolfBehavior : MonoBehaviour
     /// <param name="damage">입은 피해량</param>
     private void OnMonsterDamaged(float damage)
     {
+        // **[핵심 수정]** 데미지를 입었을 때 공격 코루틴을 중단하고 플래그를 재설정하여 움직임을 재개할 수 있도록 합니다.
+        if (isAttacking)
+        {
+            if (attackSequenceCoroutine != null) StopCoroutine(attackSequenceCoroutine);
+            isAttacking = false;
+            attackSequenceCoroutine = null;
+        }
+
         // 경직 상태와 무관하게 무리 소집 로직은 실행됩니다.
 
         // 체력이 절반 이하로 떨어지면 동료를 소집
@@ -607,7 +615,6 @@ public class WolfBehavior : MonoBehaviour
 
     /// <summary>
     /// 특정 위치(Vector3)를 향해 회전하는 공통 로직. (SRP 준수)
-    /// ⭐️ 고개 방향이 이상했던 문제를 해결하기 위해 Slerp의 보간 값(t)을 정확하게 수정했습니다.
     /// </summary>
     /// <param name="targetPosition">목표 Vector3 위치</param>
     /// <param name="rotationSpeed">회전 속도</param>
@@ -621,8 +628,7 @@ public class WolfBehavior : MonoBehaviour
         {
             Quaternion lookRotation = Quaternion.LookRotation(flatDirection.normalized);
 
-            // ⭐️ 수정된 부분: Slerp의 마지막 인수는 회전 속도에 Time.deltaTime을 곱한 값이어야 합니다.
-            // 이는 매 프레임 일정한 속도로 목표 회전에 다가가게 하여 부드러운 시간 기반 회전을 만듭니다.
+            // Slerp의 마지막 인수는 회전 속도에 Time.deltaTime을 곱한 값이어야 합니다.
             float slerpSpeed = rotationSpeed * Time.deltaTime;
             transform.rotation = Quaternion.Slerp(transform.rotation, lookRotation, slerpSpeed);
         }

@@ -23,7 +23,7 @@ public class QuestData : ScriptableObject
     [TextArea(3, 5)]
     public string questDescription;
 
-    // 💡 추가된 부분: 이 퀘스트를 주는 NPC의 이름입니다.
+    // 추가된 부분: 이 퀘스트를 주는 NPC의 이름입니다.
     [Tooltip("이 퀘스트를 주는 NPC의 이름입니다. 호감도 조건 확인에 사용됩니다.")]
     public string questGiverName;
 
@@ -52,7 +52,7 @@ public class QuestData : ScriptableObject
 
     // 퀘스트 보상 경험치입니다.
     [Tooltip("퀘스트 완료 시 플레이어가 받을 경험치입니다.")]
-    public int experienceReward;
+    public long experienceReward;
 
     // 퀘스트 보상 골드입니다.
     [Tooltip("퀘스트 완료 시 플레이어가 받을 골드입니다.")]

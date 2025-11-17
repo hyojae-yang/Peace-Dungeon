@@ -49,7 +49,7 @@ public class MagicMissileSkillData : ActiveSkillData
             // 타겟이 없으면 논리적으로 스킬 발동 실패로 간주합니다.
             return false; // <--- [핵심 추가] 논리적 실패 시 false 반환
         }
-
+        base.Execute(caster, playerStats, skillLevel); // 기본 사운드 재생 호출
         // 3. 모든 조건이 충족되면 투사체 생성 로직을 시작합니다.
         // 투사체 생성에 실패하면 false를 반환합니다.
         if (!SpawnProjectiles(caster, damage, projectileCount))

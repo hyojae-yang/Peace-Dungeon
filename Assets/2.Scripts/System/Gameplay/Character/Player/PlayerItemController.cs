@@ -6,9 +6,9 @@ using System.Linq;
 
 /// <summary>
 /// 플레이어의 퀵슬롯 아이템 사용 및 관리를 담당하는 컨트롤러 스크립트입니다.
-/// SRP (단일 책임 원칙): 퀵슬롯 아이템 할당, 5~8번 키 입력 감지 및 아이템 사용 요청 위임을 책임집니다.
+/// [SRP]: 퀵슬롯 아이템 할당, 5~8번 키 입력 감지 및 아이템 사용 요청 위임을 책임집니다.
 /// 실제 아이템 사용 유효성 검사 및 수량 관리는 InventoryManager에 위임하여 책임을 분리합니다.
-/// SOLID: 단일 책임 원칙 (퀵슬롯 관리 및 입력), 의존성 역전 원칙 (InventoryManager, ItemDatabaseManager 의존).
+/// [SOLID]: 단일 책임 원칙 (퀵슬롯 관리 및 입력), 의존성 역전 원칙.
 /// </summary>
 public class PlayerItemController : MonoBehaviour, ISavable
 {
@@ -64,10 +64,11 @@ public class PlayerItemController : MonoBehaviour, ISavable
         {
             SaveManager.Instance.RegisterSavable(this);
 
-            // [수정] '새로하기' / '이어하기'에 관계없이 UI 동기화 로직을 항상 실행합니다.
-            // '새로하기' 시에도 UI 컴포넌트가 초기 상태를 확실하게 잡도록 보장합니다.
-            StartCoroutine(Co_InitializeQuickSlotUI());
-        }
+            // [핵심 수정: UI 초기화 로직 제거]
+            // QuickSlotItemPanel.Start()의 RefreshAllSlotQuantities()가 초기 UI 동기화 책임을 맡습니다.
+            // 따라서 뒤늦게 중복 이벤트를 발생시켜 타이밍 충돌을 일으키는 이 코루틴 호출을 제거합니다.
+            // StartCoroutine(Co_InitializeQuickSlotUI());
+        }
 
         // InventoryManager의 아이템 수량 변경 이벤트를 구독하여 퀵슬롯 자동 해제 로직을 연결합니다.
         if (inventoryManager != null)
@@ -197,25 +198,9 @@ public class PlayerItemController : MonoBehaviour, ISavable
         }
     }
 
-    // === UI 동기화 로직 (새로하기/이어하기 모두 사용) ===
-
-    /// <summary>
-    /// UI 컴포넌트들이 이벤트를 구독할 시간을 준 후, 현재 퀵슬롯 데이터를 UI에 동기화합니다.
-    /// '새로하기'의 경우 null 데이터로, '이어하기'의 경우 로드된 데이터로 UI를 초기화합니다.
-    /// </summary>
-    private IEnumerator Co_InitializeQuickSlotUI()
-    {
-        // UI 컴포넌트들의 Start() 실행 완료를 보장하기 위해 한 프레임 지연합니다.
-        yield return null;
-
-        // itemSlots에 로드되었거나 초기화된 데이터를 UI에 알립니다.
-        for (int i = 0; i < SLOT_COUNT; i++)
-        {
-            // OnSlotItemChanged 이벤트 호출: 등록된 아이템 데이터로 UI 업데이트를 요청합니다.
-            OnSlotItemChanged?.Invoke(i, itemSlots[i]);
-        }
-    }
-
+    // === UI 동기화 로직 (제거됨) ===
+    // [핵심 수정: 제거] Co_InitializeQuickSlotUI() 코루틴이 제거되었습니다.
+    // 초기 UI 동기화는 QuickSlotItemPanel.Start()의 RefreshAllSlotQuantities()가 전적으로 담당합니다.
 
     // === ISavable 인터페이스 구현 ===
 
@@ -258,7 +243,7 @@ public class PlayerItemController : MonoBehaviour, ISavable
 
                         if (baseItem is ConsumableItemSO itemToAssign)
                         {
-                            // UI 이벤트 없이 데이터만 로드합니다. UI 동기화는 Start()의 Co_InitializeQuickSlotUI()가 담당합니다.
+                            // UI 이벤트 없이 데이터만 로드합니다.
                             itemSlots[i] = itemToAssign;
                         }
                         else

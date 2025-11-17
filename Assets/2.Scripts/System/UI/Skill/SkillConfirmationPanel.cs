@@ -146,10 +146,10 @@ public class SkillConfirmationPanel : MonoBehaviour
 
                         if (shouldFormatAsPercentage)
                         {
-                            // HealOverTime에 대해서는 10만 곱합니다. (0.1 -> 1.0%)
+                            // HealOverTime에 대해서는 1만 곱합니다. (0.1 -> 0.1%)
                             if (statType == StatType.HealOverTime)
                             {
-                                multiplier = 10f;
+                                multiplier = 1f;
                             }
                             // 그 외의 일반 퍼센트 스탯(AttackPowerRate, LifestealRate 등)은 100을 곱합니다. (0.1 -> 10.0%)
                             else

@@ -557,27 +557,31 @@ public class InventoryManager : MonoBehaviour, ISavable
             onInventoryChanged?.Invoke();
         }
     }
-    // --- 새로 추가할 메서드 ---
     /// <summary>
     /// 새로하기로 게임을 시작했을 때만 호출되며,
     /// 플레이어에게 기본적인 시작 장비나 튜토리얼 아이템 등을 지급합니다.
     /// </summary>
     private void InitializeNewGameInventory()
     {
-        // 1. [장비 아이템 지급] 기본 무기 템플릿 로드 (예: ID 3001)
+        // 1. [장비 아이템 지급] 근접 무기 템플릿 로드 (예: ID 3001)
         const int STARTING_WEAPON_ID = 3001;
+        // 새로 추가: 원거리 무기 템플릿 로드 (예: ID 3501)
+        const int STARTING_ARMOR_ID = 3501; // 예시 ID. 지급하고 싶은 다른 장비의 ID로 변경해주세요!
 
+        // [DIP/SRP] 종속성 및 필수 인스턴스 확인
         if (ItemDatabaseManager.Instance == null || ItemGenerator.Instance == null)
         {
             Debug.LogError("ItemDatabaseManager 또는 ItemGenerator 인스턴스를 찾을 수 없습니다. 시작 장비 지급 실패.");
             return;
         }
 
-        BaseItemSO baseTemplate = ItemDatabaseManager.Instance.GetItemByID(STARTING_WEAPON_ID);
+        // --- 기본 무기 지급 로직 ---
+        // [OCP] Item ID를 통해 BaseItemSO 템플릿을 가져옵니다.
+        BaseItemSO baseWeaponTemplate = ItemDatabaseManager.Instance.GetItemByID(STARTING_WEAPON_ID);
 
-        if (baseTemplate is EquipmentItemSO weaponTemplate)
+        if (baseWeaponTemplate is EquipmentItemSO weaponTemplate)
         {
-            // ItemGenerator를 사용하여 일반(Common) 등급의 고유 아이템 인스턴스를 생성합니다.
+            // [SRP] ItemGenerator를 사용하여 일반(Common) 등급의 고유 무기 인스턴스를 생성합니다.
             EquipmentItemSO startingWeapon = ItemGenerator.Instance.GenerateItem(
                 weaponTemplate,
                 (ItemGrade)Enum.Parse(typeof(ItemGrade), "Common") // ItemGrade Enum이 정의되어 있다고 가정합니다.
@@ -586,13 +590,37 @@ public class InventoryManager : MonoBehaviour, ISavable
             // 생성된 고유 장비 아이템을 AddItem 오버로드를 사용하여 인벤토리에 추가합니다.
             if (startingWeapon != null)
             {
-                // [로직 위임] AddItem을 호출하면 자동으로 7개 패널 중 무기 패널에 추가됩니다.
+                // [로직 위임] AddItem을 호출하면 자동으로 인벤토리에 추가됩니다.
                 AddItem(startingWeapon);
             }
         }
         else
         {
-            Debug.LogWarning($"아이템 ID {STARTING_WEAPON_ID}가 유효한 EquipmentItemSO 템플릿이 아닙니다. 장비를 지급할 수 없습니다.");
+            Debug.LogWarning($"아이템 ID {STARTING_WEAPON_ID}가 유효한 EquipmentItemSO 템플릿이 아닙니다. 무기를 지급할 수 없습니다.");
+        }
+
+        // --- 새로 추가: 기본 방어구 지급 로직 ---
+        // [OCP] Item ID를 통해 BaseItemSO 템플릿을 가져옵니다.
+        BaseItemSO baseArmorTemplate = ItemDatabaseManager.Instance.GetItemByID(STARTING_ARMOR_ID);
+
+        if (baseArmorTemplate is EquipmentItemSO armorTemplate)
+        {
+            // [SRP] ItemGenerator를 사용하여 일반(Common) 등급의 고유 방어구 인스턴스를 생성합니다.
+            EquipmentItemSO startingArmor = ItemGenerator.Instance.GenerateItem(
+                armorTemplate,
+                (ItemGrade)Enum.Parse(typeof(ItemGrade), "Common") // ItemGrade Enum이 정의되어 있다고 가정합니다.
+            );
+
+            // 생성된 고유 장비 아이템을 AddItem 오버로드를 사용하여 인벤토리에 추가합니다.
+            if (startingArmor != null)
+            {
+                // [로직 위임] AddItem을 호출하면 자동으로 인벤토리에 추가됩니다.
+                AddItem(startingArmor);
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"아이템 ID {STARTING_ARMOR_ID}가 유효한 EquipmentItemSO 템플릿이 아닙니다. 방어구를 지급할 수 없습니다.");
         }
 
         // 2. [시작 소모품 지급] (예: ID 6001 포션 5개)
@@ -601,7 +629,7 @@ public class InventoryManager : MonoBehaviour, ISavable
 
         if (potionTemplate != null)
         {
-            // [로직 위임] AddItem을 호출하면 자동으로 7개 패널 중 소모품 패널에 추가되며, 스택킹 로직도 처리됩니다.
+            // [로직 위임] AddItem을 호출하면 자동으로 소모품 패널에 추가되며, 스택킹 로직도 처리됩니다.
             AddItem(potionTemplate, 5);
         }
         else

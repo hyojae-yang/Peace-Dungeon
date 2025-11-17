@@ -25,6 +25,7 @@ public class LifestealBoltSkillData : ActiveSkillData
             Debug.LogError($"[LifestealBolt] 스킬 레벨 ({skillLevel})이 유효한 범위를 벗어났습니다. ID: {skillId}");
             return false; // <--- 실패 시 false 반환
         }
+        base.Execute(spawnPoint, playerStats, skillLevel); // 기본 사운드 재생 호출
         SkillLevelInfo currentLevelInfo = levelInfo[skillLevel - 1];
 
         // === 2. 스킬 스탯 추출 ===
