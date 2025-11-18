@@ -1,163 +1,172 @@
-using UnityEngine;
-using TMPro; // TextMeshPro¸¦ »ç¿ëÇÏ·Á¸é ÇÊ¿äÇÕ´Ï´Ù.
+ï»¿using UnityEngine;
+using TMPro; // TextMeshProë¥¼ ì‚¬ìš©í•˜ë ¤ë©´ í•„ìš”í•©ë‹ˆë‹¤.
 
 /// <summary>
-/// °ñµå ¹× °æÇèÄ¡ È¹µæ/¼Òºñ ÅØ½ºÆ® ÆË¾÷ÀÇ »ı¼º, À§Ä¡ º¯È¯ ¹× ¹èÄ¡¸¦ Àü´ãÇÏ´Â ½Ì±ÛÅæ °ü¸®ÀÚÀÔ´Ï´Ù.
+/// ê³¨ë“œ ë° ê²½í—˜ì¹˜ íšë“/ì†Œë¹„ í…ìŠ¤íŠ¸ íŒì—…ì˜ ìƒì„±, ìœ„ì¹˜ ë³€í™˜ ë° ë°°ì¹˜ë¥¼ ì „ë‹´í•˜ëŠ” ì‹±ê¸€í†¤ ê´€ë¦¬ìì…ë‹ˆë‹¤.
 /// </summary>
 public class RewardTextManager : MonoBehaviour
 {
-    // === ½Ì±ÛÅæ ±¸Çö ===
+    // === ì‹±ê¸€í†¤ êµ¬í˜„ ===
     public static RewardTextManager Instance { get; private set; }
 
-    // === »ó¼ö Á¤ÀÇ ===
-    private const string GOLD_SUFFIX = "¿ø"; // °ñµå Á¢¹Ì»ç
-    private const string EXP_SUFFIX = ""; // °æÇèÄ¡ Á¢¹Ì»ç (ÅëÀÏ¼ºÀ» À§ÇØ " " ´ë½Å " EXP"·Î º¯°æÇß½À´Ï´Ù.)
+    // === ìƒìˆ˜ ì •ì˜ ===
+    private const string GOLD_SUFFIX = "ì›"; // ê³¨ë“œ ì ‘ë¯¸ì‚¬
+    private const string EXP_SUFFIX = ""; // ê²½í—˜ì¹˜ ì ‘ë¯¸ì‚¬ (í†µì¼ì„±ì„ ìœ„í•´ " " ëŒ€ì‹  " EXP"ë¡œ ë³€ê²½í–ˆìŠµë‹ˆë‹¤.)
 
-    // ÆË¾÷ À§Ä¡ ¿ÀÇÁ¼Â (µ¥¹ÌÁö¿Í ±¸ºĞÇÏ°í °ñµå/°æÇèÄ¡ °£ °ãÄ§ ¹æÁö)
-    private const float BASE_OFFSET_Y = 50f;  // µ¥¹ÌÁö ÆË¾÷ (50f)º¸´Ù ³ô°Ô ¶ç¿ï ±âº» YÃà ¿ÀÇÁ¼Â
-    private const float GOLD_OFFSET_X = -50f;  // °ñµå´Â Áß¾Ó¿¡¼­ ¿ŞÂÊÀ¸·Î ¶ç¿ó´Ï´Ù.
-    private const float EXP_OFFSET_X = 50f;   // °æÇèÄ¡´Â Áß¾Ó¿¡¼­ ¿À¸¥ÂÊÀ¸·Î ¶ç¿ó´Ï´Ù.
+    // íŒì—… ìœ„ì¹˜ ì˜¤í”„ì…‹ (ë°ë¯¸ì§€ì™€ êµ¬ë¶„í•˜ê³  ê³¨ë“œ/ê²½í—˜ì¹˜ ê°„ ê²¹ì¹¨ ë°©ì§€)
+    private const float BASE_OFFSET_Y = 50f;Â  // ë°ë¯¸ì§€ íŒì—… (50f)ë³´ë‹¤ ë†’ê²Œ ë„ìš¸ ê¸°ë³¸ Yì¶• ì˜¤í”„ì…‹
+    private const float GOLD_OFFSET_X = -50f;Â  // ê³¨ë“œëŠ” ì¤‘ì•™ì—ì„œ ì™¼ìª½ìœ¼ë¡œ ë„ì›ë‹ˆë‹¤.
+    private const float EXP_OFFSET_X = 50f;Â  Â // ê²½í—˜ì¹˜ëŠ” ì¤‘ì•™ì—ì„œ ì˜¤ë¥¸ìª½ìœ¼ë¡œ ë„ì›ë‹ˆë‹¤.
 
-    // === º¸»ó À¯Çüº° »ö»ó Á¤ÀÇ ===
-    // È¹µæ(¾ç¼ö)Àº ÁÖ·Î ±àÁ¤ÀûÀÎ »ö»ó, ¼Òºñ(À½¼ö)´Â ºÎÁ¤ÀûÀÎ »ö»ó ¶Ç´Â È¸»öÀ» »ç¿ëÇÕ´Ï´Ù.
-    private static readonly Color GOLD_GAIN_COLOR = Color.yellow; // °ñµå È¹µæ: ³ë¶õ»ö
-    private static readonly Color EXP_COLOR = Color.green; // °æÇèÄ¡ È¹µæ: ³ì»ö
+    // === ë³´ìƒ ìœ í˜•ë³„ ìƒ‰ìƒ ì •ì˜ ===
+    // íšë“(ì–‘ìˆ˜)ì€ ì£¼ë¡œ ê¸ì •ì ì¸ ìƒ‰ìƒ, ì†Œë¹„(ìŒìˆ˜)ëŠ” ë¶€ì •ì ì¸ ìƒ‰ìƒ ë˜ëŠ” íšŒìƒ‰ì„ ì‚¬ìš©í•©ë‹ˆë‹¤.
+    private static readonly Color GOLD_GAIN_COLOR = Color.yellow; // ê³¨ë“œ íšë“: ë…¸ë€ìƒ‰
+    private static readonly Color EXP_COLOR = Color.green; // ê²½í—˜ì¹˜ íšë“: ë…¹ìƒ‰
 
-    // === ÀÎ½ºÆåÅÍ ÇÊµå ===
-    [Header("º¸»ó ÅØ½ºÆ® ÇÁ¸®ÆÕ")]
-    [Tooltip("°ñµå/°æÇèÄ¡ ÅØ½ºÆ® UI°¡ Æ÷ÇÔµÈ ÇÁ¸®ÆÕÀ» ¿¬°áÇÕ´Ï´Ù.")]
+    // === ì¸ìŠ¤í™í„° í•„ë“œ ===
+    [Header("ë³´ìƒ í…ìŠ¤íŠ¸ í”„ë¦¬íŒ¹")]
+    [Tooltip("ê³¨ë“œ/ê²½í—˜ì¹˜ í…ìŠ¤íŠ¸ UIê°€ í¬í•¨ëœ í”„ë¦¬íŒ¹ì„ ì—°ê²°í•©ë‹ˆë‹¤.")]
     public GameObject rewardTextPrefab;
 
-    [Header("Äµ¹ö½º ¼³Á¤")]
-    [Tooltip("º¸»ó ÅØ½ºÆ®¸¦ ¶ç¿ï Screen Space - Overlay Äµ¹ö½ºÀÔ´Ï´Ù.")]
+    [Header("ìº”ë²„ìŠ¤ ì„¤ì •")]
+    [Tooltip("ë³´ìƒ í…ìŠ¤íŠ¸ë¥¼ ë„ìš¸ Screen Space - Overlay ìº”ë²„ìŠ¤ì…ë‹ˆë‹¤.")]
     public Canvas targetCanvas;
 
-    private Camera mainCamera; // ¼º´É ÃÖÀûÈ­¸¦ À§ÇØ ¸ŞÀÎ Ä«¸Ş¶ó¸¦ Ä³½ÌÇÕ´Ï´Ù.
-    private PlayerCharacter playerCharacter; // ÆË¾÷ À§Ä¡¸¦ À§ÇØ ÇÃ·¹ÀÌ¾î ÂüÁ¶ Ä³½Ì
+    private Camera mainCamera; // ì„±ëŠ¥ ìµœì í™”ë¥¼ ìœ„í•´ ë©”ì¸ ì¹´ë©”ë¼ë¥¼ ìºì‹±í•©ë‹ˆë‹¤.
+    private PlayerCharacter playerCharacter; // íŒì—… ìœ„ì¹˜ë¥¼ ìœ„í•´ í”Œë ˆì´ì–´ ì°¸ì¡° ìºì‹±
 
     private void Awake()
     {
-        // 1. ½Ì±ÛÅæ ÀÎ½ºÅÏ½º ¼³Á¤
+        // 1. ì‹±ê¸€í†¤ ì¸ìŠ¤í„´ìŠ¤ ì„¤ì •
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
             return;
         }
         Instance = this;
-        // DontDestroyOnLoad(gameObject); // ÀÌÀü¿¡ ÀÖ´ø DontDestroyOnLoad´Â Á¦°ÅÇß½À´Ï´Ù. (¼±ÅÃ »çÇ×ÀÌ¹Ç·Î Á¦°Å °¡´É)
 
-        // 2. ¸ŞÀÎ Ä«¸Ş¶ó Ä³½Ì
+        // 2. ë©”ì¸ ì¹´ë©”ë¼ ìºì‹±
         mainCamera = Camera.main;
 
-        // 3. PlayerCharacter ÂüÁ¶ È¹µæ (Start¿¡¼­ ÁøÇàÇÏ´Â °ÍÀÌ ¾ÈÀüÇÒ ¼ö ÀÖÁö¸¸, ¿©±â¼­´Â ºü¸£°Ô Á¢±ÙÇÕ´Ï´Ù.)
+        // 3. PlayerCharacter ì°¸ì¡° íšë“ (Startì—ì„œ ì§„í–‰í•˜ëŠ” ê²ƒì´ ì•ˆì „í•  ìˆ˜ ìˆì§€ë§Œ, ì—¬ê¸°ì„œëŠ” ë¹ ë¥´ê²Œ ì ‘ê·¼í•©ë‹ˆë‹¤.)
         playerCharacter = PlayerCharacter.Instance;
 
-        // 4. Äµ¹ö½º ¹× ÇÁ¸®ÆÕ °ËÁõ
+        // 4. ìº”ë²„ìŠ¤ ë° í”„ë¦¬íŒ¹ ê²€ì¦
         if (targetCanvas == null || rewardTextPrefab == null)
         {
-            Debug.LogError("[RewardTextManager] Äµ¹ö½º ¶Ç´Â ÇÁ¸®ÆÕÀÌ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù. ÇÒ´çÇØÁÖ¼¼¿ä.");
+            Debug.LogError("[RewardTextManager] ìº”ë²„ìŠ¤ ë˜ëŠ” í”„ë¦¬íŒ¹ì´ í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. í• ë‹¹í•´ì£¼ì„¸ìš”.");
             enabled = false;
         }
     }
 
     private void OnEnable()
     {
-        // [ÇÙ½É] PlayerStats¿Í PlayerLevelUpÀÇ ÀÌº¥Æ®¸¦ ±¸µ¶ÇÕ´Ï´Ù.
-        if (PlayerCharacter.Instance != null)
+        // [í•µì‹¬] PlayerStatsì™€ PlayerLevelUpì˜ ì´ë²¤íŠ¸ë¥¼ êµ¬ë…í•©ë‹ˆë‹¤.
+        if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.playerStats != null)
         {
             PlayerCharacter.Instance.playerStats.OnGoldAdded += OnGoldValueChange;
-            // PlayerLevelUpÀÌ static ÀÌº¥Æ®ÀÌ¹Ç·Î, null Ã¼Å© ¾øÀÌ ±¸µ¶ÇÕ´Ï´Ù.
-            PlayerLevelUp.OnExperienceAdded += OnExperienceGained;
         }
+        // PlayerLevelUpì´ static ì´ë²¤íŠ¸ì´ë¯€ë¡œ, null ì²´í¬ ì—†ì´ êµ¬ë…í•©ë‹ˆë‹¤. (PlayerLevelUpì´ í•­ìƒ ì¡´ì¬í•œë‹¤ê³  ê°€ì •)
+        // PlayerLevelUp í´ë˜ìŠ¤ ìì²´ê°€ ë¡œë“œë˜ì§€ ì•Šì•˜ë‹¤ë©´ Null ì°¸ì¡°ê°€ ë°œìƒí•  ìˆ˜ ìˆìœ¼ë¯€ë¡œ ì£¼ì˜ í•„ìš”
+        PlayerLevelUp.OnExperienceAdded += OnExperienceGained;
     }
 
     private void OnDisable()
     {
-        // ±¸µ¶ ÇØÁö: ¸Ş¸ğ¸® ´©¼ö ¹æÁö
-        if (PlayerCharacter.Instance != null)
+        // êµ¬ë… í•´ì§€: ë©”ëª¨ë¦¬ ëˆ„ìˆ˜ ë°©ì§€
+        if (PlayerCharacter.Instance != null && PlayerCharacter.Instance.playerStats != null)
         {
             PlayerCharacter.Instance.playerStats.OnGoldAdded -= OnGoldValueChange;
         }
-        // PlayerLevelUpÀÌ static ÀÌº¥Æ®ÀÌ¹Ç·Î, null Ã¼Å© ¾øÀÌ ±¸µ¶ ÇØÁöÇÕ´Ï´Ù.
+        // PlayerLevelUpì´ static ì´ë²¤íŠ¸ì´ë¯€ë¡œ, null ì²´í¬ ì—†ì´ êµ¬ë… í•´ì§€í•©ë‹ˆë‹¤.
         PlayerLevelUp.OnExperienceAdded -= OnExperienceGained;
     }
 
-    // === ÀÌº¥Æ® ÇÚµé·¯ ===
+    // === ì´ë²¤íŠ¸ í•¸ë“¤ëŸ¬ ===
 
     /// <summary>
-    /// PlayerStats.OnGoldAdded ÀÌº¥Æ® ¹ß»ı ½Ã È£ÃâµË´Ï´Ù.
-    /// °ñµå ¼Òºñ(À½¼ö)´Â ÇÊÅÍ¸µµÇ¾î È¹µæ(¾ç¼ö)¸¸ Ã³¸®µË´Ï´Ù.
+    /// PlayerStats.OnGoldAdded ì´ë²¤íŠ¸ ë°œìƒ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
+    /// ê³¨ë“œ ì†Œë¹„(ìŒìˆ˜)ëŠ” í•„í„°ë§ë˜ì–´ íšë“(ì–‘ìˆ˜)ë§Œ ì²˜ë¦¬ë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="amount">°ñµå º¯È­·® (È¹µæ:+¾ç¼ö, ¼Òºñ:-À½¼ö)</param>
+    /// <param name="amount">ê³¨ë“œ ë³€í™”ëŸ‰ (íšë“:+ì–‘ìˆ˜, ì†Œë¹„:-ìŒìˆ˜)</param>
     private void OnGoldValueChange(int amount)
     {
-        // °ñµå ¼Òºñ(amount < 0)ÀÏ °æ¿ì ÅØ½ºÆ®¸¦ ¶ç¿ìÁö ¾Ê°í ¹Ù·Î Á¾·áÇÕ´Ï´Ù.
+        // ê³¨ë“œ ì†Œë¹„(amount < 0)ì¼ ê²½ìš° í…ìŠ¤íŠ¸ë¥¼ ë„ìš°ì§€ ì•Šê³  ë°”ë¡œ ì¢…ë£Œí•©ë‹ˆë‹¤.
         if (amount < 0)
         {
             return;
         }
 
-        // °ñµå ÆË¾÷ »ı¼º ·ÎÁ÷À» ´ã´çÇÕ´Ï´Ù.
+        // ê³¨ë“œ íŒì—… ìƒì„± ë¡œì§ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
         ShowReward(amount, true); // isGold: true
     }
 
     /// <summary>
-    /// PlayerLevelUp.OnExperienceAdded ÀÌº¥Æ® ¹ß»ı ½Ã È£ÃâµË´Ï´Ù.
+    /// PlayerLevelUp.OnExperienceAdded ì´ë²¤íŠ¸ ë°œìƒ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="amount">È¹µæÇÑ °æÇèÄ¡·® (Ç×»ó ¾ç¼ö)</param>
+    /// <param name="amount">íšë“í•œ ê²½í—˜ì¹˜ëŸ‰ (í•­ìƒ ì–‘ìˆ˜)</param>
     private void OnExperienceGained(long amount)
     {
-        // °æÇèÄ¡ ÆË¾÷ »ı¼º ·ÎÁ÷À» ´ã´çÇÕ´Ï´Ù.
+        // ê²½í—˜ì¹˜ íŒì—… ìƒì„± ë¡œì§ì„ ë‹´ë‹¹í•©ë‹ˆë‹¤.
         ShowReward(amount, false); // isGold: false
     }
 
-    // === ÆË¾÷ »ı¼º ¹× ¹èÄ¡ ·ÎÁ÷ ===
+    // === íŒì—… ìƒì„± ë° ë°°ì¹˜ ë¡œì§ ===
 
     /// <summary>
-    /// °ñµå ¶Ç´Â °æÇèÄ¡ ÆË¾÷À» È­¸é¿¡ ¶ç¿ó´Ï´Ù.
+    /// ê³¨ë“œ ë˜ëŠ” ê²½í—˜ì¹˜ íŒì—…ì„ í™”ë©´ì— ë„ì›ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="amount">Ç¥½ÃÇÒ ¼ö·®</param>
-    /// <param name="isGold">°ñµå(true)ÀÎÁö °æÇèÄ¡(false)ÀÎÁö ±¸ºĞ</param>
+    /// <param name="amount">í‘œì‹œí•  ìˆ˜ëŸ‰</param>
+    /// <param name="isGold">ê³¨ë“œ(true)ì¸ì§€ ê²½í—˜ì¹˜(false)ì¸ì§€ êµ¬ë¶„</param>
     public void ShowReward(long amount, bool isGold)
     {
+        // í•„ìˆ˜ ì°¸ì¡° ê²€ì¦
         if (mainCamera == null || rewardTextPrefab == null || targetCanvas == null || playerCharacter == null)
         {
             return;
         }
 
-        // 1. ÆË¾÷ÀÌ ½ÃÀÛµÉ 3D ¿ùµå À§Ä¡ (ÇÃ·¹ÀÌ¾î Ä³¸¯ÅÍ À§Ä¡)
+        // [ìˆ˜ì •ëœ ë¶€ë¶„] ìº”ë²„ìŠ¤ í™œì„±í™” ìƒíƒœ ì²´í¬: ìº”ë²„ìŠ¤ê°€ ë¹„í™œì„±í™”ë˜ì–´ ìˆë‹¤ë©´ UI ìƒì„±ì„ ì‹œë„í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.
+        // ì´ëŠ” UI ìŠ¤í¬ë¦½íŠ¸ê°€ ë¹„í™œì„±í™”ëœ ë¶€ëª¨ ì•„ë˜ì—ì„œ ìƒì„±ë  ë•Œ ë°œìƒí•˜ëŠ” Null ì°¸ì¡° ì˜ˆì™¸ë¥¼ ë°©ì§€í•©ë‹ˆë‹¤.
+        if (!targetCanvas.gameObject.activeInHierarchy)
+        {
+            // Debug.Log("[RewardTextManager] íƒ€ê²Ÿ ìº”ë²„ìŠ¤ ë¹„í™œì„±í™” ìƒíƒœ. íŒì—… ìƒì„± ìŠ¤í‚µ."); 
+            return;
+        }
+
+        // 1. íŒì—…ì´ ì‹œì‘ë  3D ì›”ë“œ ìœ„ì¹˜ (í”Œë ˆì´ì–´ ìºë¦­í„° ìœ„ì¹˜)
         Vector3 worldPosition = playerCharacter.transform.position;
 
-        // 2. 3D ¿ùµå ÁÂÇ¥¸¦ 2D È­¸é ÁÂÇ¥·Î º¯È¯ÇÕ´Ï´Ù.
+        // 2. 3D ì›”ë“œ ì¢Œí‘œë¥¼ 2D í™”ë©´ ì¢Œí‘œë¡œ ë³€í™˜í•©ë‹ˆë‹¤.
         Vector3 screenPosition = mainCamera.WorldToScreenPoint(worldPosition);
 
-        // 3. ÅØ½ºÆ® ¼³Á¤ (»ö»ó, ³»¿ë)
+        // 3. í…ìŠ¤íŠ¸ ì„¤ì • (ìƒ‰ìƒ, ë‚´ìš©)
         Color textColor;
         string textContent;
-        float offsetX; // XÃà ¿ÀÇÁ¼Â º¯¼ö
+        float offsetX; // Xì¶• ì˜¤í”„ì…‹ ë³€ìˆ˜
 
         if (isGold)
         {
             textColor = GOLD_GAIN_COLOR;
             textContent = $"+{amount}{GOLD_SUFFIX}";
-            offsetX = GOLD_OFFSET_X; //°ñµå´Â ¿ŞÂÊÀ¸·Î
+            offsetX = GOLD_OFFSET_X; //ê³¨ë“œëŠ” ì™¼ìª½ìœ¼ë¡œ
         }
-        else // °æÇèÄ¡ È¹µæ
+        else // ê²½í—˜ì¹˜ íšë“
         {
             textColor = EXP_COLOR;
             textContent = $"+{amount}{EXP_SUFFIX}";
-            offsetX = EXP_OFFSET_X; //°æÇèÄ¡´Â ¿À¸¥ÂÊÀ¸·Î
+            offsetX = EXP_OFFSET_X; //ê²½í—˜ì¹˜ëŠ” ì˜¤ë¥¸ìª½ìœ¼ë¡œ
         }
 
-        // 4. »ı¼º: º¸»ó ÅØ½ºÆ® ¿ÀºêÁ§Æ®¸¦ »ı¼ºÇÕ´Ï´Ù.
+        // 4. ìƒì„±: ë³´ìƒ í…ìŠ¤íŠ¸ ì˜¤ë¸Œì íŠ¸ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
         GameObject textObject = Instantiate(rewardTextPrefab, targetCanvas.transform);
 
-        // 5. ¹èÄ¡: ÅØ½ºÆ® UIÀÇ À§Ä¡¸¦ º¯È¯µÈ È­¸é ÁÂÇ¥·Î ¼³Á¤ÇÕ´Ï´Ù.
-        screenPosition.y += BASE_OFFSET_Y; // ±âº» Y ¿ÀÇÁ¼Â Àû¿ë
-        screenPosition.x += offsetX;      // X ¿ÀÇÁ¼Â Àû¿ë
+        // 5. ë°°ì¹˜: í…ìŠ¤íŠ¸ UIì˜ ìœ„ì¹˜ë¥¼ ë³€í™˜ëœ í™”ë©´ ì¢Œí‘œë¡œ ì„¤ì •í•©ë‹ˆë‹¤.
+        screenPosition.y += BASE_OFFSET_Y; // ê¸°ë³¸ Y ì˜¤í”„ì…‹ ì ìš©
+        screenPosition.x += offsetX;Â  Â  Â  // X ì˜¤í”„ì…‹ ì ìš©
         textObject.GetComponent<RectTransform>().position = screenPosition;
 
-        // 6. ¾Ö´Ï¸ŞÀÌ¼Ç ½ÃÀÛ
+        // 6. ì• ë‹ˆë©”ì´ì…˜ ì‹œì‘
         RewardText rewardText = textObject.GetComponent<RewardText>();
         if (rewardText != null)
         {
@@ -165,7 +174,7 @@ public class RewardTextManager : MonoBehaviour
         }
         else
         {
-            // Fallback ·ÎÁ÷ (RewardText ½ºÅ©¸³Æ®°¡ ¾øÀ» °æ¿ì)
+            // Fallback ë¡œì§ (RewardText ìŠ¤í¬ë¦½íŠ¸ê°€ ì—†ì„ ê²½ìš°)
             TextMeshProUGUI tmp = textObject.GetComponentInChildren<TextMeshProUGUI>();
             if (tmp != null)
             {

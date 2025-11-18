@@ -6,7 +6,8 @@ using TMPro;
 /// 플레이어의 스탯을 UI로 표시하는 스크립트입니다.
 /// PlayerCharacter를 통해 PlayerStats 데이터에 접근하여 UI를 업데이트합니다.
 /// **[SOLID 원칙 개선]** 슬라이더를 비율 기반(0~1)으로 업데이트하여 시각화 로직을 통일합니다.
-/// **[경험치 개선]** PlayerStats의 experience와 requiredExperience가 long 타입임을 가정하고 수정되었습니다.
+/// **[경험치 개선]** PlayerStats의 experience와 requiredExperience가 long 타입임을 가정하고, 
+/// 경험치 슬라이더 계산 시 정밀도 확보를 위해 double을 사용하도록 수정되었습니다.
 /// </summary>
 public class PlayerUI : MonoBehaviour
 {
@@ -62,15 +63,13 @@ public class PlayerUI : MonoBehaviour
             expSlider.maxValue = 1f;
         }
 
-        // **[개선]** Start에서 초기 UI 상태를 한 번 업데이트합니다. (이벤트 시스템이 없을 경우)
+        // Start에서 초기 UI 상태를 한 번 업데이트합니다.
         UpdateUI();
     }
 
     void Update()
     {
-        // 매 프레임마다 UI를 업데이트합니다.
-        // **[참고]** 성능 최적화를 위해 실시간 데이터 변경 이벤트(OnExperienceChanged 등)를 구독하여 
-        // 필요한 시점에만 UI를 업데이트하는 것을 권장합니다.
+        // 매 프레임마다 UI를 업데이트합니다. (사용자 요청에 따라 유지)
         UpdateUI();
     }
 
@@ -104,17 +103,18 @@ public class PlayerUI : MonoBehaviour
             manaSlider.value = stats.MaxMana > 0 ? stats.mana / stats.MaxMana : 0f;
         }
 
-        // 경험치 슬라이더: (현재 경험치 / 필요 경험치) - long을 float으로 변환하여 정밀한 비율 계산
+        // 경험치 슬라이더: long 타입을 double로 변환하여 계산 -> 정밀도 손실 방지 [수정된 핵심 로직]
         if (expSlider)
         {
-            // requiredExperience가 0이 아니며, long을 float으로 명시적 형변환하여 나눗셈을 수행합니다.
             if (stats.requiredExperience > 0)
             {
-                // long을 double로 변환 후 float으로 변환하는 것이 안전하지만, Unity 환경에서는 float으로 바로 변환해도 
-                // 수십억 단위까지는 충분한 정밀도를 제공합니다.
-                float currentExp = (float)stats.experience;
-                float requiredExp = (float)stats.requiredExperience;
-                expSlider.value = currentExp / requiredExp;
+                // long 값을 double로 명시적 변환하여 나눗셈을 수행합니다. 
+                // double은 float보다 훨씬 높은 정밀도(15자리)를 가지므로 대용량 long 값의 비율 계산에 안전합니다.
+                double currentExpDouble = (double)stats.experience;
+                double requiredExpDouble = (double)stats.requiredExperience;
+
+                // 계산된 double 비율을 최종적으로 float 타입인 expSlider.value에 대입합니다.
+                expSlider.value = (float)(currentExpDouble / requiredExpDouble);
             }
             else
             {
@@ -136,8 +136,16 @@ public class PlayerUI : MonoBehaviour
         // 체력 텍스트: 현재 값 / 최대 값 - float
         if (HpText)
         {
-            // float 값은 소수점 처리를 위해 여전히 Mathf.FloorToInt를 사용합니다.
-            HpText.text = Mathf.FloorToInt(stats.health).ToString("F0") + " / " + Mathf.FloorToInt(stats.MaxHealth).ToString("F0");
+            // [수정] 0.3f 등의 체력이라도 최소 1로 표시되도록 Mathf.Max를 사용하여 1을 보장합니다.
+            float displayHealth = Mathf.Max(1f, stats.health);
+
+            // 표시되는 체력은 FloorToInt를 사용하여 정수로 변환합니다.
+            string currentHealthString = Mathf.FloorToInt(displayHealth).ToString("F0");
+
+            // 최대 체력은 그대로 FloorToInt를 사용합니다.
+            string maxHealthString = Mathf.FloorToInt(stats.MaxHealth).ToString("F0");
+
+            HpText.text = currentHealthString + " / " + maxHealthString;
         }
 
         // 마나 텍스트: 현재 값 / 최대 값 - float
@@ -146,7 +154,7 @@ public class PlayerUI : MonoBehaviour
             MpText.text = Mathf.FloorToInt(stats.mana).ToString("F0") + " / " + Mathf.FloorToInt(stats.MaxMana).ToString("F0");
         }
 
-        // 경험치 텍스트: 현재 값 / 필요 경험치 - long을 안전하게 문자열로 변환
+        // 경험치 텍스트: 현재 값 / 필요 경험치 - long
         if (ExpText)
         {
             // long 타입의 정수 경험치를 바로 문자열로 변환하여 정밀도 손실 없이 표시합니다.

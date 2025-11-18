@@ -284,7 +284,7 @@ public class QuestManager : MonoBehaviour, ISavable
         // 경험치 및 골드 지급
         if (questData.experienceReward > 0)
         {
-            player.playerLevelUp.AddExperience(questData.experienceReward);
+            PlayerCharacter.Instance.playerLevelUp.AddExperience(questData.experienceReward);
         }
 
         if (questData.goldReward > 0)

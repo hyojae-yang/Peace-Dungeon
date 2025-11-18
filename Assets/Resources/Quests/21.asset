@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 153e120926086884683467a63aec7ec2, type: 3}
+  m_Name: 21
+  m_EditorClassIdentifier: 
+  questID: 21
+  questTitle: "[\uC218\uC9D1] \uB9D1\uC740 \uBB3C"
+  questDescription: "\uC2DC\uC6D0\uD55C \uBB3C \uD55C\uC794 \uB300\uC811"
+  questGiverName: "\uAC1C\uBC1C\uC790"
+  requiredAffection: 100
+  prerequisiteQuests: 
+  conditions:
+  - conditionType: 0
+    targetID: 6512
+    requiredAmount: 1
+  isRepeatable: 0
+  rewardItems:
+  - itemSO: {fileID: 11400000, guid: c38995347f7cfb04c8af77c372f17540, type: 2}
+    itemCount: 1
+  experienceReward: 50000
+  goldReward: 100000
+  affectionReward: 5
+  rewardEquipmentGrade: 4

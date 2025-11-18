@@ -161103,6 +161103,8 @@ GameObject:
   - component: {fileID: 7799141613121615589}
   - component: {fileID: 7799141613121615588}
   - component: {fileID: 7799141613121615587}
+  - component: {fileID: 7799141613121615591}
+  - component: {fileID: 7799141613121615590}
   m_Layer: 0
   m_Name: "\uAC1C\uBC1C\uC790"
   m_TagString: Untagged
@@ -162620,6 +162622,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcData: {fileID: 11400000, guid: d45ef2e0bacc628428927698b9e5fc79, type: 2}
+--- !u!114 &7799141613121615590
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3573572776274507296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18ba5b754f2e2bb4a837fbb667c0c48e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7799141613121615591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3573572776274507296}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 73c2e0d87b4a01e40a4139355889686d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  questDatas:
+  - {fileID: 11400000, guid: 78df1454dad1c564fbf5ddab3586c0d6, type: 2}
 --- !u!4 &7886765484553245056
 Transform:
   m_ObjectHideFlags: 0

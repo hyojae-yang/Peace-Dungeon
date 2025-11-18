@@ -62,7 +62,7 @@ public class QuestData : ScriptableObject
     [Tooltip("퀘스트 완료 시 지급되는 호감도 보상입니다. (양수 입력)")]
     public int affectionReward;
 
-    // ⭐ 추가된 부분: 보상 장비 아이템의 등급
+    //보상 장비 아이템의 등급
     [Tooltip("퀘스트 보상 아이템에 EquipmentItemSO가 포함된 경우, 해당 장비에 적용될 등급입니다.")]
     public ItemGrade rewardEquipmentGrade;
 

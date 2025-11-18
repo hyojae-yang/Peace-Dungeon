@@ -1,23 +1,23 @@
-using UnityEngine;
-using System; // Action Å¸ÀÔÀ» »ç¿ëÇÏ±â À§ÇØ ÇÊ¿äÇÕ´Ï´Ù.
+ï»¿using UnityEngine;
+using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÀÌ ½ºÅ©¸³Æ®´Â PlayerItemControllerÀÇ Äü½½·Ô º¯°æ ÀÌº¥Æ®¸¦ ±¸µ¶ÇÏ¿© UI¸¦ ¾÷µ¥ÀÌÆ®ÇÏ´Â Áß°³ÀÚ ¿ªÇÒÀ» ÇÕ´Ï´Ù.
-/// ¶ÇÇÑ, InventoryManagerÀÇ ¾ÆÀÌÅÛ ¼ö·® º¯°æ ÀÌº¥Æ®¸¦ ±¸µ¶ÇÏ¿© Äü½½·Ô¿¡ µî·ÏµÈ ¾ÆÀÌÅÛÀÇ ¼ö·® UI¸¦ ½Ç½Ã°£À¸·Î ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-/// [SRP]: µ¥ÀÌÅÍ º¯°æ ÀÌº¥Æ®¸¦ °¨ÁöÇÏ°í UI ÄÄÆ÷³ÍÆ®¿¡ Àü´ŞÇÏ´Â ¿ªÇÒ¸¸ ¼öÇàÇÕ´Ï´Ù.
+/// ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” PlayerItemControllerì˜ í€µìŠ¬ë¡¯ ë³€ê²½ ì´ë²¤íŠ¸ë¥¼ êµ¬ë…í•˜ì—¬ UIë¥¼ ì—…ë°ì´íŠ¸í•˜ëŠ” ì¤‘ê°œì ì—­í• ì„ í•©ë‹ˆë‹¤.
+/// ë˜í•œ, InventoryManagerì˜ ì•„ì´í…œ ìˆ˜ëŸ‰ ë³€ê²½ ì´ë²¤íŠ¸ë¥¼ êµ¬ë…í•˜ì—¬ í€µìŠ¬ë¡¯ì— ë“±ë¡ëœ ì•„ì´í…œì˜ ìˆ˜ëŸ‰ UIë¥¼ ì‹¤ì‹œê°„ìœ¼ë¡œ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
+/// [SRP]: ë°ì´í„° ë³€ê²½ ì´ë²¤íŠ¸ë¥¼ ê°ì§€í•˜ê³  UI ì»´í¬ë„ŒíŠ¸ì— ì „ë‹¬í•˜ëŠ” ì—­í• ë§Œ ìˆ˜í–‰í•©ë‹ˆë‹¤.
 /// </summary>
 public class QuickSlotItemPanel : MonoBehaviour
 {
-    // === UI ÄÄÆ÷³ÍÆ® ===
-    [Header("UI ÄÄÆ÷³ÍÆ®")]
-    [Tooltip("°³º° Äü½½·Ô UI¸¦ ´ã´çÇÏ´Â QuickSlotItemUI ÄÄÆ÷³ÍÆ® ¹è¿­ÀÔ´Ï´Ù.")]
-    public QuickSlotItemUI[] quickSlotUIs; // °³º° UI ½ºÅ©¸³Æ® ¹è¿­
+    // === UI ì»´í¬ë„ŒíŠ¸ ===
+    [Header("UI ì»´í¬ë„ŒíŠ¸")]
+    [Tooltip("ê°œë³„ í€µìŠ¬ë¡¯ UIë¥¼ ë‹´ë‹¹í•˜ëŠ” QuickSlotItemUI ì»´í¬ë„ŒíŠ¸ ë°°ì—´ì…ë‹ˆë‹¤.")]
+    public QuickSlotItemUI[] quickSlotUIs; // ê°œë³„ UI ìŠ¤í¬ë¦½íŠ¸ ë°°ì—´
 
-    // Áß¾Ó Çãºê ¿ªÇÒÀ» ÇÏ´Â PlayerItemController ÀÎ½ºÅÏ½º¿¡ ´ëÇÑ ÂüÁ¶
+    // ì¤‘ì•™ í—ˆë¸Œ ì—­í• ì„ í•˜ëŠ” PlayerItemController ì¸ìŠ¤í„´ìŠ¤ì— ëŒ€í•œ ì°¸ì¡°
     private PlayerItemController playerItemController;
 
-    // InventoryManager ÂüÁ¶ (¼ö·® ¾÷µ¥ÀÌÆ® ÀÌº¥Æ®¸¦ ±¸µ¶ÇÏ±â À§ÇÔ)
+    // InventoryManager ì°¸ì¡° (ìˆ˜ëŸ‰ ì—…ë°ì´íŠ¸ ì´ë²¤íŠ¸ë¥¼ êµ¬ë…í•˜ê¸° ìœ„í•¨)
     private InventoryManager inventoryManager;
 
     private void Awake()
@@ -25,37 +25,37 @@ public class QuickSlotItemPanel : MonoBehaviour
         PlayerCharacter playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("PlayerCharacter ÀÎ½ºÅÏ½º°¡ Á¸ÀçÇÏÁö ¾Ê½À´Ï´Ù. ¾À¿¡ ÇØ´ç ÄÄÆ÷³ÍÆ®°¡ ÀÖ´ÂÁö È®ÀÎÇØ ÁÖ¼¼¿ä.");
+            Debug.LogError("[QSIP] PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ê°€ ì¡´ì¬í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // PlayerCharacter¿¡¼­ PlayerItemController ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿É´Ï´Ù.
+        // PlayerCharacterì—ì„œ PlayerItemController ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
         playerItemController = playerCharacter.GetComponent<PlayerItemController>();
-        inventoryManager = playerCharacter.inventoryManager; // InventoryManager ÄÄÆ÷³ÍÆ®¸¦ °¡Á®¿É´Ï´Ù.
+        inventoryManager = playerCharacter.inventoryManager; // InventoryManager ì»´í¬ë„ŒíŠ¸ë¥¼ ê°€ì ¸ì˜µë‹ˆë‹¤.
 
         if (playerItemController == null || inventoryManager == null)
         {
-            Debug.LogError("ÇÙ½É ÄÄÆ÷³ÍÆ®(PlayerItemController ¶Ç´Â InventoryManager) Áß ÇÏ³ª°¡ PlayerCharacter¿¡ ÇÒ´çµÇÁö ¾Ê¾Ò½À´Ï´Ù.");
+            Debug.LogError("[QSIP] í•µì‹¬ ì»´í¬ë„ŒíŠ¸(PlayerItemController ë˜ëŠ” InventoryManager) ì¤‘ í•˜ë‚˜ê°€ PlayerCharacterì— í• ë‹¹ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // Äü½½·Ô µî·Ï/ÇØÁ¦ ÀÌº¥Æ® ±¸µ¶
+        // í€µìŠ¬ë¡¯ ë“±ë¡/í•´ì œ ì´ë²¤íŠ¸ êµ¬ë…
         playerItemController.OnSlotItemChanged += UpdateQuickSlotImageUI;
 
-        // ¾ÆÀÌÅÛ ¼ö·® º¯°æ ÀÌº¥Æ® ±¸µ¶ (½Ç½Ã°£ ¼Ò¸ğ/È¹µæ ½Ã)
+        // ì•„ì´í…œ ìˆ˜ëŸ‰ ë³€ê²½ ì´ë²¤íŠ¸ êµ¬ë… (ì‹¤ì‹œê°„ ì†Œëª¨/íšë“ ì‹œ)
         inventoryManager.OnItemQuantityChanged += UpdateQuickSlotCountUI;
     }
 
-    // [Ãß°¡] Start()¿¡¼­ ¸ğµç Äü½½·ÔÀÇ ÇöÀç ¼ö·®À» µ¿±âÈ­ÇÕ´Ï´Ù. (·Îµå ÈÄ ¼ö·® Ç¥½Ã ÇØ°á)
+    // Start()ì—ì„œ ëª¨ë“  í€µìŠ¬ë¡¯ì˜ í˜„ì¬ ìˆ˜ëŸ‰ì„ ë™ê¸°í™”í•©ë‹ˆë‹¤.
     private void Start()
     {
-        // Start ½ÃÁ¡¿¡ ÀÎº¥Åä¸® µ¥ÀÌÅÍ°¡ ¸ğµÎ ·ÎµåµÇ¾ú´Ù°í °¡Á¤ÇÏ°í ¼ö·®À» µ¿±âÈ­ÇÕ´Ï´Ù.
+        // Start ì‹œì ì— ì¸ë²¤í† ë¦¬ ë°ì´í„°ê°€ ëª¨ë‘ ë¡œë“œë˜ì—ˆë‹¤ê³  ê°€ì •í•˜ê³  ìˆ˜ëŸ‰ì„ ë™ê¸°í™”í•©ë‹ˆë‹¤.
         RefreshAllSlotQuantities();
     }
 
     /// <summary>
-    /// ·Îµå ½Ã ¶Ç´Â ÇÊ¿ä ½Ã, PlayerItemController¿¡ µî·ÏµÈ ¸ğµç Äü½½·Ô ¾ÆÀÌÅÛÀÇ ÇöÀç ¼ö·®À» Á¶È¸ÇÏ¿© UI¸¦ °»½ÅÇÕ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â ¼¼ÀÌºê ·Îµå ÈÄ ¼ö·® µ¿±âÈ­¿¡ »ç¿ëµË´Ï´Ù.
+    /// ë¡œë“œ ì‹œ ë˜ëŠ” í•„ìš” ì‹œ, PlayerItemControllerì— ë“±ë¡ëœ ëª¨ë“  í€µìŠ¬ë¡¯ ì•„ì´í…œì˜ í˜„ì¬ ìˆ˜ëŸ‰ì„ ì¡°íšŒí•˜ì—¬ UIë¥¼ ê°±ì‹ í•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” ì„¸ì´ë¸Œ ë¡œë“œ í›„ ìˆ˜ëŸ‰ ë™ê¸°í™”ì— ì‚¬ìš©ë©ë‹ˆë‹¤.
     /// </summary>
     public void RefreshAllSlotQuantities()
     {
@@ -63,85 +63,89 @@ public class QuickSlotItemPanel : MonoBehaviour
 
         for (int i = 0; i < quickSlotUIs.Length; i++)
         {
-            // PlayerItemController·ÎºÎÅÍ ÇØ´ç ½½·Ô¿¡ µî·ÏµÈ ¾ÆÀÌÅÛÀ» °¡Á®¿É´Ï´Ù. (GetItemInSlot ÇÊ¿ä)
+            // PlayerItemControllerë¡œë¶€í„° í•´ë‹¹ ìŠ¬ë¡¯ì— ë“±ë¡ëœ ì•„ì´í…œì„ ê°€ì ¸ì˜µë‹ˆë‹¤.
             ConsumableItemSO registeredItem = playerItemController.GetItemInSlot(i);
 
-            // ¾ÆÀÌÄÜ UI¸¦ °­Á¦·Î ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù. ÀÌÀü¿¡ ³õÃÆ´ø ÃÊ±â µî·Ï ¾ÆÀÌÄÜ ¹®Á¦¸¦ ÇØ°áÇÕ´Ï´Ù.
+            // ì•„ì´ì½˜ UIë¥¼ ê°•ì œë¡œ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤. (ë“±ë¡ëœ ì•„ì´í…œì´ ìˆìœ¼ë©´ í‘œì‹œ, nullì´ë©´ ìˆ¨ê¹€)
             quickSlotUIs[i].UpdateUI(registeredItem);
 
             if (registeredItem != null)
             {
-                // ÀÎº¥Åä¸® ¸Å´ÏÀú·ÎºÎÅÍ ÇöÀç ¼ö·®À» Á¶È¸ÇÕ´Ï´Ù.
+                // ì¸ë²¤í† ë¦¬ ë§¤ë‹ˆì €ë¡œë¶€í„° í˜„ì¬ ìˆ˜ëŸ‰ì„ ì¡°íšŒí•©ë‹ˆë‹¤.
                 int currentQuantity = inventoryManager.GetItemQuantity(registeredItem);
 
-                // UI ¼ö·® ¾÷µ¥ÀÌÆ®¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+                // UI ìˆ˜ëŸ‰ ì—…ë°ì´íŠ¸ë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
                 quickSlotUIs[i].UpdateStackCountUI(currentQuantity);
             }
-            // ¾ÆÀÌÅÛÀÌ µî·ÏµÇ¾î ÀÖÁö ¾ÊÀº °æ¿ì´Â UpdateQuickSlotImageUI(null)¿¡ ÀÇÇØ ÀÌ¹Ì Ã³¸®µÇ¾úÀ» ¼ö ÀÖÁö¸¸,
-            // ¾ÈÀüÀ» À§ÇØ 0À¸·Î ¼ö·®À» ¾÷µ¥ÀÌÆ®ÇÏ¿© ÅØ½ºÆ®¸¦ ¼û±é´Ï´Ù.
             else
             {
+                // ì•„ì´í…œì´ ë“±ë¡ë˜ì–´ ìˆì§€ ì•Šì€ ê²½ìš° ìˆ˜ëŸ‰ì„ 0ìœ¼ë¡œ ì„¤ì •í•˜ì—¬ í…ìŠ¤íŠ¸ë¥¼ ìˆ¨ê¹ë‹ˆë‹¤.
                 quickSlotUIs[i].UpdateStackCountUI(0);
             }
         }
     }
 
     /// <summary>
-    /// PlayerItemControllerÀÇ OnSlotItemChanged ÀÌº¥Æ®·ÎºÎÅÍ È£ÃâµÇ¾î Äü½½·Ô UI ÀÌ¹ÌÁö¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-    /// (¾ÆÀÌÅÛ µî·Ï/ÇØÁ¦ ½Ã È£Ãâ)
+    /// PlayerItemControllerì˜ OnSlotItemChanged ì´ë²¤íŠ¸ë¡œë¶€í„° í˜¸ì¶œë˜ì–´ í€µìŠ¬ë¡¯ UI ì´ë¯¸ì§€ë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
+    /// (ì•„ì´í…œ ë“±ë¡/í•´ì œ ì‹œ í˜¸ì¶œ)
     /// </summary>
-    /// <param name="slotIndex">°»½ÅÀÌ ÇÊ¿äÇÑ ½½·ÔÀÇ ÀÎµ¦½º</param>
-    /// <param name="data">½½·Ô¿¡ µî·ÏµÈ ¼Ò¸ğÇ° ¾ÆÀÌÅÛ µ¥ÀÌÅÍ (ÇØÁ¦ ½Ã null)</param>
+    /// <param name="slotIndex">ê°±ì‹ ì´ í•„ìš”í•œ ìŠ¬ë¡¯ì˜ ì¸ë±ìŠ¤</param>
+    /// <param name="data">ìŠ¬ë¡¯ì— ë“±ë¡ëœ ì†Œëª¨í’ˆ ì•„ì´í…œ ë°ì´í„° (í•´ì œ ì‹œ null)</param>
     private void UpdateQuickSlotImageUI(int slotIndex, ConsumableItemSO data)
     {
         if (slotIndex >= 0 && slotIndex < quickSlotUIs.Length)
         {
-            // 1. UI ½ºÅ©¸³Æ®¿¡ µ¥ÀÌÅÍ¸¸ Àü´ŞÇÏ¿© ÀÌ¹ÌÁö ¾÷µ¥ÀÌÆ®¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+            // 1. UI ìŠ¤í¬ë¦½íŠ¸ì— ë°ì´í„°ë§Œ ì „ë‹¬í•˜ì—¬ ì´ë¯¸ì§€ ì—…ë°ì´íŠ¸ë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
             quickSlotUIs[slotIndex].UpdateUI(data);
 
-            // 2. Äü½½·Ô¿¡ ¾ÆÀÌÅÛÀÌ »õ·Î µî·ÏµÇ°Å³ª ÇØÁ¦µÉ ¶§, ¼ö·®À» Áï½Ã µ¿±âÈ­ÇÕ´Ï´Ù.
+            // 2. í€µìŠ¬ë¡¯ì— ì•„ì´í…œì´ ìƒˆë¡œ ë“±ë¡ë˜ê±°ë‚˜ í•´ì œë  ë•Œ, ìˆ˜ëŸ‰ì„ ì¦‰ì‹œ ë™ê¸°í™”í•©ë‹ˆë‹¤.
             if (data != null)
             {
-                // ÀÎº¥Åä¸® ¸Å´ÏÀú·ÎºÎÅÍ ÇöÀç ¼ö·®À» Á¶È¸ÇÕ´Ï´Ù.
+                // ì¸ë²¤í† ë¦¬ ë§¤ë‹ˆì €ë¡œë¶€í„° í˜„ì¬ ìˆ˜ëŸ‰ì„ ì¡°íšŒí•©ë‹ˆë‹¤.
                 int initialQuantity = inventoryManager.GetItemQuantity(data);
 
-                // UI ¼ö·® ¾÷µ¥ÀÌÆ®¸¦ ¿äÃ»ÇÕ´Ï´Ù.
+                // UI ìˆ˜ëŸ‰ ì—…ë°ì´íŠ¸ë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
                 quickSlotUIs[slotIndex].UpdateStackCountUI(initialQuantity);
             }
             else
             {
-                // ¾ÆÀÌÅÛÀÌ ÇØÁ¦µÇ¾ú´Ù¸é ¼ö·®µµ 0À¸·Î ¾÷µ¥ÀÌÆ®ÇÏ¿© ¼û±é´Ï´Ù.
+                // ì•„ì´í…œì´ í•´ì œë˜ì—ˆë‹¤ë©´ ìˆ˜ëŸ‰ë„ 0ìœ¼ë¡œ ì—…ë°ì´íŠ¸í•˜ì—¬ ìˆ¨ê¹ë‹ˆë‹¤.
                 quickSlotUIs[slotIndex].UpdateStackCountUI(0);
             }
         }
         else
         {
-            Debug.LogError("Àß¸øµÈ Äü½½·Ô ÀÎµ¦½ºÀÔ´Ï´Ù: " + slotIndex);
+            Debug.LogError("[QSIP] ì˜ëª»ëœ í€µìŠ¬ë¡¯ ì¸ë±ìŠ¤ì…ë‹ˆë‹¤: " + slotIndex);
         }
     }
 
     /// <summary>
-    /// InventoryManagerÀÇ OnItemQuantityChanged ÀÌº¥Æ®·ÎºÎÅÍ È£ÃâµÇ¾î Äü½½·Ô¿¡ µî·ÏµÈ ¾ÆÀÌÅÛÀÇ ¼ö·®À» ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
-    /// ÀÌ ¸Ş¼­µå´Â ½Ç½Ã°£ ¼Ò¸ğ ½Ã È£ÃâµË´Ï´Ù.
+    /// InventoryManagerì˜ OnItemQuantityChanged ì´ë²¤íŠ¸ë¡œë¶€í„° í˜¸ì¶œë˜ì–´ í€µìŠ¬ë¡¯ì— ë“±ë¡ëœ ì•„ì´í…œì˜ ìˆ˜ëŸ‰ì„ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
+    /// ì´ ë©”ì„œë“œëŠ” ì‹¤ì‹œê°„ ì†Œëª¨ ì‹œ í˜¸ì¶œë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="itemSO">¼ö·®ÀÌ º¯°æµÈ ¾ÆÀÌÅÛ µ¥ÀÌÅÍ</param>
-    /// <param name="newQuantity">º¯°æ ÈÄ ³²Àº »õ·Î¿î ¼ö·®</param>
-    private void UpdateQuickSlotCountUI(ConsumableItemSO itemSO, int newQuantity)
+    /// <param name="itemSO">ìˆ˜ëŸ‰ì´ ë³€ê²½ëœ ì•„ì´í…œ ë°ì´í„° (BaseItemSO)</param>
+    /// <param name="newQuantity">ë³€ê²½ í›„ ë‚¨ì€ ìƒˆë¡œìš´ ìˆ˜ëŸ‰</param>
+    private void UpdateQuickSlotCountUI(BaseItemSO itemSO, int newQuantity)
     {
-        // Äü½½·Ô ¹è¿­À» ¼øÈ¸ÇÏ¸ç º¯°æµÈ ¾ÆÀÌÅÛÀÌ µî·ÏµÇ¾î ÀÖ´ÂÁö È®ÀÎÇÕ´Ï´Ù.
-        for (int i = 0; i < quickSlotUIs.Length; i++)
+        // [ìˆ˜ì •]: BaseItemSOë¥¼ ConsumableItemSOë¡œ ì•ˆì „í•˜ê²Œ í˜•ë³€í™˜í•©ë‹ˆë‹¤.
+        if (itemSO is ConsumableItemSO consumableItem)
         {
-            // QuickSlotItemUIÀÇ IsDisplayingItem ¸Ş¼­µå¸¦ È°¿ëÇÏ¿© ÇöÀç ¾ÆÀÌÅÛ°ú µ¿ÀÏÇÑÁö È®ÀÎ
-            if (quickSlotUIs[i].IsDisplayingItem(itemSO))
+            // í€µìŠ¬ë¡¯ ë°°ì—´ì„ ìˆœíšŒí•˜ë©° ë³€ê²½ëœ ì†Œëª¨í’ˆ ì•„ì´í…œì´ ë“±ë¡ë˜ì–´ ìˆëŠ”ì§€ í™•ì¸í•©ë‹ˆë‹¤.
+            for (int i = 0; i < quickSlotUIs.Length; i++)
             {
-                // ¼ö·® ÅØ½ºÆ® ¾÷µ¥ÀÌÆ®¸¦ ¿äÃ»ÇÕ´Ï´Ù.
-                quickSlotUIs[i].UpdateStackCountUI(newQuantity);
+                // QuickSlotItemUIì˜ IsDisplayingItem ë©”ì„œë“œë¥¼ í™œìš©í•˜ì—¬ í˜„ì¬ ì•„ì´í…œê³¼ ë™ì¼í•œì§€ í™•ì¸
+                if (quickSlotUIs[i].IsDisplayingItem(consumableItem))
+                {
+                    // ìˆ˜ëŸ‰ í…ìŠ¤íŠ¸ ì—…ë°ì´íŠ¸ë¥¼ ìš”ì²­í•©ë‹ˆë‹¤.
+                    quickSlotUIs[i].UpdateStackCountUI(newQuantity);
+                }
             }
         }
     }
 
     private void OnDisable()
     {
+        // ì´ë²¤íŠ¸ êµ¬ë… í•´ì œ
         if (playerItemController != null)
         {
             playerItemController.OnSlotItemChanged -= UpdateQuickSlotImageUI;

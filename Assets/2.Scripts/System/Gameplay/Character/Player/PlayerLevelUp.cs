@@ -1,179 +1,192 @@
-using UnityEngine;
+ï»¿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
 /// <summary>
-/// ÇÃ·¹ÀÌ¾îÀÇ °æÇèÄ¡¿Í ·¹º§¾÷À» °ü¸®ÇÏ´Â ½ºÅ©¸³Æ®ÀÔ´Ï´Ù.
-/// ÀÌ ½ºÅ©¸³Æ®´Â ´õ ÀÌ»ó ½Ì±ÛÅÏÀÌ ¾Æ´Ï¸ç, PlayerCharacterÀÇ ¸â¹ö·Î °ü¸®µË´Ï´Ù.
-/// **°æÇèÄ¡ º¯¼ö´Â 21¾ï ÀÌ»óÀÇ °ª Ã³¸®¸¦ À§ÇØ ¸ğµÎ 'long' Å¸ÀÔÀ¸·Î °¡Á¤ÇÏ°í ¼öÁ¤µÇ¾ú½À´Ï´Ù.**
+/// í”Œë ˆì´ì–´ì˜ ê²½í—˜ì¹˜ì™€ ë ˆë²¨ì—…ì„ ê´€ë¦¬í•˜ëŠ” ìŠ¤í¬ë¦½íŠ¸ì…ë‹ˆë‹¤.
+/// ì´ ìŠ¤í¬ë¦½íŠ¸ëŠ” ë” ì´ìƒ ì‹±ê¸€í„´ì´ ì•„ë‹ˆë©°, PlayerCharacterì˜ ë©¤ë²„ë¡œ ê´€ë¦¬ë©ë‹ˆë‹¤.
+/// **ê²½í—˜ì¹˜ ë³€ìˆ˜ëŠ” 21ì–µ ì´ìƒì˜ ê°’ ì²˜ë¦¬ë¥¼ ìœ„í•´ ëª¨ë‘ 'long' íƒ€ì…ìœ¼ë¡œ ê°€ì •í•˜ê³  ìˆ˜ì •ë˜ì—ˆìŠµë‹ˆë‹¤.**
+/// SOLID: ì´ë²¤íŠ¸ í˜¸ì¶œ ì‹œ ì™¸ë¶€ ì‹œìŠ¤í…œ ì˜¤ë¥˜ë¡œë¶€í„° í•µì‹¬ ë¡œì§(ë ˆë²¨ì—…)ì„ ë³´í˜¸í•˜ê¸° ìœ„í•´ try-catchë¥¼ ì¶”ê°€í–ˆìŠµë‹ˆë‹¤.
 /// </summary>
 public class PlayerLevelUp : MonoBehaviour
 {
-    // Áß¾Ó Çãºê ¿ªÇÒÀ» ÇÏ´Â PlayerCharacter ÀÎ½ºÅÏ½º¿¡ ´ëÇÑ ÂüÁ¶ÀÔ´Ï´Ù.
+    // ì¤‘ì•™ í—ˆë¸Œ ì—­í• ì„ í•˜ëŠ” PlayerCharacter ì¸ìŠ¤í„´ìŠ¤ì— ëŒ€í•œ ì°¸ì¡°ì…ë‹ˆë‹¤.
     private PlayerCharacter playerCharacter;
 
-    // ´ÙÀ½ ·¹º§¿¡ ÇÊ¿äÇÑ °æÇèÄ¡·®À» °è»êÇÏ´Â µ¥ »ç¿ëµÇ´Â º¯¼ö
-    [Header("·¹º§¾÷ °ø½Ä ¼³Á¤")]
-    [Tooltip("´ÙÀ½ ·¹º§¿¡ ÇÊ¿äÇÑ ±âº» °æÇèÄ¡·®ÀÔ´Ï´Ù.")]
+    // ë‹¤ìŒ ë ˆë²¨ì— í•„ìš”í•œ ê²½í—˜ì¹˜ëŸ‰ì„ ê³„ì‚°í•˜ëŠ” ë° ì‚¬ìš©ë˜ëŠ” ë³€ìˆ˜
+    [Header("ë ˆë²¨ì—… ê³µì‹ ì„¤ì •")]
+    [Tooltip("ë‹¤ìŒ ë ˆë²¨ì— í•„ìš”í•œ ê¸°ë³¸ ê²½í—˜ì¹˜ëŸ‰ì…ë‹ˆë‹¤.")]
     public float baseExp = 10f;
-    [Tooltip("·¹º§ÀÌ ¿À¸¦¼ö·Ï °æÇèÄ¡°¡ Áõ°¡ÇÏ´Â ºñÀ²ÀÔ´Ï´Ù.")]
+    [Tooltip("ë ˆë²¨ì´ ì˜¤ë¥¼ìˆ˜ë¡ ê²½í—˜ì¹˜ê°€ ì¦ê°€í•˜ëŠ” ë¹„ìœ¨ì…ë‹ˆë‹¤.")]
     public float expGrowthFactor = 1.3f;
 
-    // C# 64ºñÆ® Á¤¼ö(long)ÀÇ ÃÖ´ë°ª: ¾à 922°æ
+    // C# 64ë¹„íŠ¸ ì •ìˆ˜(long)ì˜ ìµœëŒ€ê°’: ì•½ 922ê²½
     private const long MAX_EXPERIENCE_CAP = long.MaxValue;
 
-    // === ÀÌº¥Æ® ¼±¾ğ ===
+    // === ì´ë²¤íŠ¸ ì„ ì–¸ ===
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î°¡ ·¹º§¾÷ÇßÀ» ¶§ ¿ÜºÎ¿¡ ¾Ë¸®´Â ÀÌº¥Æ®ÀÔ´Ï´Ù.
+    /// í”Œë ˆì´ì–´ê°€ ë ˆë²¨ì—…í–ˆì„ ë•Œ ì™¸ë¶€ì— ì•Œë¦¬ëŠ” ì´ë²¤íŠ¸ì…ë‹ˆë‹¤.
     /// </summary>
     public static event System.Action OnPlayerLeveledUp;
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î¿¡°Ô °æÇèÄ¡°¡ Ãß°¡µÉ ¶§(È¹µæ ½Ã) ¿ÜºÎ¿¡ Ãß°¡µÈ °æÇèÄ¡·®À» ¾Ë¸³´Ï´Ù.
-    /// Âü°í: ÀÌ ÀÌº¥Æ®´Â ÇöÀç 'int'¸¦ ÀÎ¼ö·Î ¹ŞÀ¸¹Ç·Î, 21¾ïÀ» ÃÊ°úÇÏ´Â °æÇèÄ¡°¡ È¹µæµÉ °æ¿ì 
-    /// ¿À¹öÇÃ·Î¿ì¸¦ ¹æÁöÇÏ±â À§ÇØ 'int.MaxValue'·Î Á¦ÇÑµÇ¾î(Clamp) Àü´ŞµË´Ï´Ù.
+    /// í”Œë ˆì´ì–´ì—ê²Œ ê²½í—˜ì¹˜ê°€ ì¶”ê°€ë  ë•Œ(íšë“ ì‹œ) ì™¸ë¶€ì— ì¶”ê°€ëœ ê²½í—˜ì¹˜ëŸ‰ì„ ì•Œë¦½ë‹ˆë‹¤.
     /// </summary>
     public static event System.Action<long> OnExperienceAdded;
 
     void Start()
     {
-        // PlayerCharacterÀÇ ÀÎ½ºÅÏ½º¸¦ °¡Á®¿Í¼­ ÂüÁ¶¸¦ È®º¸ÇÕ´Ï´Ù.
+        // PlayerCharacterì˜ ì¸ìŠ¤í„´ìŠ¤ë¥¼ ê°€ì ¸ì™€ì„œ ì°¸ì¡°ë¥¼ í™•ë³´í•©ë‹ˆë‹¤.
         playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("PlayerCharacter ¶Ç´Â PlayerStats°¡ ÃÊ±âÈ­µÇÁö ¾Ê¾Ò½À´Ï´Ù. PlayerLevelUp ½ºÅ©¸³Æ®°¡ Á¦´ë·Î µ¿ÀÛÇÏÁö ¾ÊÀ» ¼ö ÀÖ½À´Ï´Ù.");
+            Debug.LogError("PlayerCharacter ë˜ëŠ” PlayerStatsê°€ ì´ˆê¸°í™”ë˜ì§€ ì•Šì•˜ìŠµë‹ˆë‹¤. PlayerLevelUp ìŠ¤í¬ë¦½íŠ¸ê°€ ì œëŒ€ë¡œ ë™ì‘í•˜ì§€ ì•Šì„ ìˆ˜ ìˆìŠµë‹ˆë‹¤.");
             return;
         }
 
-        // °ÔÀÓ ½ÃÀÛ ½Ã ÃÊ±â requiredExperience¸¦ ¼³Á¤ÇÕ´Ï´Ù.
+        // ê²Œì„ ì‹œì‘ ì‹œ ì´ˆê¸° requiredExperienceë¥¼ ì„¤ì •í•©ë‹ˆë‹¤.
         CalculateRequiredExperience();
     }
 
     /// <summary>
-    /// ¿ÜºÎ¿¡¼­ È£ÃâÇÏ¿© ÇÃ·¹ÀÌ¾î¿¡°Ô °æÇèÄ¡¸¦ Ãß°¡ÇÏ´Â ¸Ş¼­µå
-    /// °æÇèÄ¡ º¯¼ö°¡ long Å¸ÀÔÀÌ¹Ç·Î 21¾ï ÀÌ»óµµ ¾ÈÀüÇÏ°Ô Ã³¸®µË´Ï´Ù.
+    /// ì™¸ë¶€ì—ì„œ í˜¸ì¶œí•˜ì—¬ í”Œë ˆì´ì–´ì—ê²Œ ê²½í—˜ì¹˜ë¥¼ ì¶”ê°€í•˜ëŠ” ë©”ì„œë“œ
+    /// ê²½í—˜ì¹˜ ë³€ìˆ˜ê°€ long íƒ€ì…ì´ë¯€ë¡œ 21ì–µ ì´ìƒë„ ì•ˆì „í•˜ê²Œ ì²˜ë¦¬ë©ë‹ˆë‹¤.
     /// </summary>
-    /// <param name="amount">Ãß°¡ÇÒ °æÇèÄ¡·®</param>
+    /// <param name="amount">ì¶”ê°€í•  ê²½í—˜ì¹˜ëŸ‰</param>
     public void AddExperience(long amount)
     {
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("ÇÃ·¹ÀÌ¾î ½ºÅÈ¿¡ Á¢±ÙÇÒ ¼ö ¾ø½À´Ï´Ù. °æÇèÄ¡ Ãß°¡ ½ÇÆĞ.");
+            Debug.LogError("í”Œë ˆì´ì–´ ìŠ¤íƒ¯ì— ì ‘ê·¼í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ê²½í—˜ì¹˜ ì¶”ê°€ ì‹¤íŒ¨.");
             return;
         }
 
-        // floatÀ¸·Î µé¾î¿Â °æÇèÄ¡·®À» 64ºñÆ® Á¤¼ö(long)·Î ¸íÈ®È÷ Á¤ÀÇ
-        long finalAmount = (long)amount;
+        long finalAmount = amount;
 
-        // ÇöÀç °æÇèÄ¡¿¡ Ãß°¡ (long Å¸ÀÔ)
+        // í˜„ì¬ ê²½í—˜ì¹˜ì— ì¶”ê°€ (long íƒ€ì…)
         playerCharacter.playerStats.experience += finalAmount;
 
-        // °æÇèÄ¡ ÃÖ´ëÄ¡(long.MaxValue)¸¦ ÃÊ°úÇÏÁö ¾Êµµ·Ï º¸Àå
+        // ê²½í—˜ì¹˜ ìµœëŒ€ì¹˜(long.MaxValue)ë¥¼ ì´ˆê³¼í•˜ì§€ ì•Šë„ë¡ ë³´ì¥
         if (playerCharacter.playerStats.experience > MAX_EXPERIENCE_CAP)
         {
             playerCharacter.playerStats.experience = MAX_EXPERIENCE_CAP;
-            Debug.LogWarning("°æÇèÄ¡°¡ ÃÖ´ë Çã¿ëÄ¡(long.MaxValue)¿¡ µµ´ŞÇß½À´Ï´Ù!");
+            Debug.LogWarning("ê²½í—˜ì¹˜ê°€ ìµœëŒ€ í—ˆìš©ì¹˜(long.MaxValue)ì— ë„ë‹¬í–ˆìŠµë‹ˆë‹¤!");
         }
 
-        OnExperienceAdded?.Invoke(finalAmount);
+        // --- [ìˆ˜ì •ëœ ë¶€ë¶„: ë°©ì–´ ì½”ë“œ] ì´ë²¤íŠ¸ í˜¸ì¶œ try-catch ì ìš© ---
+        // UI ì‹œìŠ¤í…œ(RewardTextManager)ì˜ Null ì°¸ì¡° ì˜¤ë¥˜ë¡œ ì¸í•´ LevelUp()ì´ ë§‰íˆëŠ” ê²ƒì„ ë°©ì§€í•©ë‹ˆë‹¤.
+        try
+        {
+            OnExperienceAdded?.Invoke(finalAmount);
+        }
+        catch (System.Exception ex)
+        {
+            // ì´ë²¤íŠ¸ êµ¬ë…ìì—ì„œ ì˜ˆì™¸ê°€ ë°œìƒí•˜ë”ë¼ë„ í•µì‹¬ ë¡œì§(ë ˆë²¨ì—… ì²´í¬)ì€ ê³„ì† ì‹¤í–‰ë˜ë„ë¡ í•©ë‹ˆë‹¤.
+            Debug.LogError($"[BUG_GUARD] OnExperienceAdded ì´ë²¤íŠ¸ êµ¬ë…ì(UI)ì—ì„œ ì˜¤ë¥˜ ë°œìƒ! ë ˆë²¨ì—… ì²´í¬ëŠ” ê³„ì† ì§„í–‰ë©ë‹ˆë‹¤. ì˜¤ë¥˜: {ex.Message}");
+        }
+        // ------------------------------------------------------------------
 
+        // ì˜¤ë¥˜ê°€ ë°œìƒí–ˆë”ë¼ë„ ì´ ì½”ë“œê°€ ë°˜ë“œì‹œ í˜¸ì¶œë˜ì–´ ë ˆë²¨ì—…ì´ ì§„í–‰ë˜ë„ë¡ ë³´ì¥í•©ë‹ˆë‹¤.
         CheckForLevelUp();
     }
 
     /// <summary>
-    /// ´ÙÀ½ ·¹º§¿¡ ÇÊ¿äÇÑ °æÇèÄ¡·®À» °è»êÇÏ¿© PlayerStats¿¡ ÀúÀåÇÕ´Ï´Ù.
-    /// °è»ê °á°ú´Â long Å¸ÀÔÀ¸·Î Çüº¯È¯ÇÏ¿© ÀúÀåµÇ¾î ¿À¹öÇÃ·Î¿ì¸¦ ¹æÁöÇÕ´Ï´Ù.
+    /// ë‹¤ìŒ ë ˆë²¨ì— í•„ìš”í•œ ê²½í—˜ì¹˜ëŸ‰ì„ ê³„ì‚°í•˜ì—¬ PlayerStatsì— ì €ì¥í•©ë‹ˆë‹¤.
+    /// ê³„ì‚° ê²°ê³¼ëŠ” long íƒ€ì…ìœ¼ë¡œ í˜•ë³€í™˜í•˜ì—¬ ì €ì¥ë˜ì–´ ì˜¤ë²„í”Œë¡œìš°ë¥¼ ë°©ì§€í•©ë‹ˆë‹¤.
     /// </summary>
     public void CalculateRequiredExperience()
     {
         if (playerCharacter == null || playerCharacter.playerStats == null) return;
 
-        // µîºñ¼ö¿­ °ø½Ä: ÇÊ¿äÇÑ °æÇèÄ¡ = baseExp * (expGrowthFactor ^ (level - 1))
-        // °è»ê °á°ú¸¦ longÀ¸·Î ¸í½ÃÀûÀ¸·Î º¯È¯ÇÏ¿© requiredExperience (long Å¸ÀÔ °¡Á¤)¿¡ ÀúÀå
-        playerCharacter.playerStats.requiredExperience =
-            (long)(baseExp * Mathf.Pow(expGrowthFactor, playerCharacter.playerStats.level - 1));
+        // ë“±ë¹„ìˆ˜ì—´ ê³µì‹: í•„ìš”í•œ ê²½í—˜ì¹˜ = baseExp * (expGrowthFactor ^ (level - 1))
+        long calculatedExp = (long)(baseExp * Mathf.Pow(expGrowthFactor, playerCharacter.playerStats.level - 1));
 
-        // ÇÊ¿äÇÑ °æÇèÄ¡ ¿ª½Ã long.MaxValue¸¦ ÃÊ°úÇÏÁö ¾Êµµ·Ï Ã³¸®
+        playerCharacter.playerStats.requiredExperience = calculatedExp;
+
+        // í•„ìš”í•œ ê²½í—˜ì¹˜ ì—­ì‹œ long.MaxValueë¥¼ ì´ˆê³¼í•˜ì§€ ì•Šë„ë¡ ì²˜ë¦¬
         if (playerCharacter.playerStats.requiredExperience > MAX_EXPERIENCE_CAP)
         {
             playerCharacter.playerStats.requiredExperience = MAX_EXPERIENCE_CAP;
         }
+
     }
 
     /// <summary>
-    /// °æÇèÄ¡¸¦ È®ÀÎÇÏ°í ·¹º§¾÷ÀÌ °¡´ÉÇÑÁö Ã¼Å©ÇÏ´Â ¸Ş¼­µå
+    /// ê²½í—˜ì¹˜ë¥¼ í™•ì¸í•˜ê³  ë ˆë²¨ì—…ì´ ê°€ëŠ¥í•œì§€ ì²´í¬í•˜ëŠ” ë©”ì„œë“œ
     /// </summary>
     private void CheckForLevelUp()
     {
         if (playerCharacter == null || playerCharacter.playerStats == null) return;
 
-        // long ´ë long ºñ±³ÀÌ¹Ç·Î 21¾ï ÀÌ»ó¿¡¼­µµ ¾ÈÀüÇÕ´Ï´Ù.
+        // [ë¡œê·¸ C: ë£¨í”„ ì¡°ê±´ í™•ì¸]
+        bool isLevelUpConditionMet = playerCharacter.playerStats.experience >= playerCharacter.playerStats.requiredExperience;
+
+        // long ëŒ€ long ë¹„êµì´ë¯€ë¡œ 21ì–µ ì´ìƒì—ì„œë„ ì•ˆì „í•©ë‹ˆë‹¤.
         while (playerCharacter.playerStats.experience >= playerCharacter.playerStats.requiredExperience)
         {
             LevelUp();
-            // ·¹º§¾÷À» ÇßÀ¸¹Ç·Î ´ÙÀ½ ·¹º§¿¡ ÇÊ¿äÇÑ °æÇèÄ¡¸¦ Áï½Ã ´Ù½Ã °è»êÇÕ´Ï´Ù.
+
+            // ë ˆë²¨ì—…ì„ í–ˆìœ¼ë¯€ë¡œ ë‹¤ìŒ ë ˆë²¨ì— í•„ìš”í•œ ê²½í—˜ì¹˜ë¥¼ ì¦‰ì‹œ ë‹¤ì‹œ ê³„ì‚°í•©ë‹ˆë‹¤.
             CalculateRequiredExperience();
         }
     }
 
     /// <summary>
-    /// ÇÃ·¹ÀÌ¾î¸¦ ·¹º§¾÷½ÃÅ°´Â ¸Ş¼­µå
+    /// í”Œë ˆì´ì–´ë¥¼ ë ˆë²¨ì—…ì‹œí‚¤ëŠ” ë©”ì„œë“œ
     /// </summary>
     public void LevelUp()
     {
         if (playerCharacter == null || playerCharacter.playerStats == null)
         {
-            Debug.LogError("ÇÃ·¹ÀÌ¾î ½ºÅÈ¿¡ Á¢±ÙÇÒ ¼ö ¾ø½À´Ï´Ù. ·¹º§¾÷ ½ÇÆĞ.");
+            Debug.LogError("í”Œë ˆì´ì–´ ìŠ¤íƒ¯ì— ì ‘ê·¼í•  ìˆ˜ ì—†ìŠµë‹ˆë‹¤. ë ˆë²¨ì—… ì‹¤íŒ¨.");
             return;
         }
 
-        // UI Æ©Åä¸®¾ó ÇÚµé·¯¿¡ ·¹º§¾÷ °¨Áö ¾Ë¸²
-        // (UITutorialHandler°¡ ½ÇÁ¦·Î Á¸ÀçÇÑ´Ù°í °¡Á¤ÇÕ´Ï´Ù)
+        // UI íŠœí† ë¦¬ì–¼ í•¸ë“¤ëŸ¬ì— ë ˆë²¨ì—… ê°ì§€ ì•Œë¦¼
+        // (UITutorialHandlerê°€ ì‹¤ì œë¡œ ì¡´ì¬í•œë‹¤ê³  ê°€ì •í•©ë‹ˆë‹¤)
         if (UITutorialHandler.Instance != null)
         { UITutorialHandler.Instance.OnLevelUpDetected.Invoke(); }
 
-        // ³²Àº °æÇèÄ¡ °è»ê (long - long = long)
+        // ë‚¨ì€ ê²½í—˜ì¹˜ ê³„ì‚° (long - long = long)
         long remainingExp = playerCharacter.playerStats.experience - playerCharacter.playerStats.requiredExperience;
 
-        // ·¹º§°ú °æÇèÄ¡¸¦ ¾÷µ¥ÀÌÆ®ÇÕ´Ï´Ù.
+        // ë ˆë²¨ê³¼ ê²½í—˜ì¹˜ë¥¼ ì—…ë°ì´íŠ¸í•©ë‹ˆë‹¤.
         playerCharacter.playerStats.level++;
-        // ³²Àº °æÇèÄ¡ ÀúÀå (long Å¸ÀÔ À¯Áö)
+        // ë‚¨ì€ ê²½í—˜ì¹˜ ì €ì¥ (long íƒ€ì… ìœ ì§€)
         playerCharacter.playerStats.experience = remainingExp;
 
-        // ·¹º§¾÷ ½Ã ½ºÅÈ Æ÷ÀÎÆ®¸¦ Áö±ŞÇÕ´Ï´Ù.
+        // ë ˆë²¨ì—… ì‹œ ìŠ¤íƒ¯ í¬ì¸íŠ¸ë¥¼ ì§€ê¸‰í•©ë‹ˆë‹¤.
         if (playerCharacter.playerStatSystem != null)
         {
             playerCharacter.playerStatSystem.statPoints += 3;
 
-            // ·¹º§¾÷¿¡ µû¸¥ ½ºÅÈ Áõ°¡ ·ÎÁ÷À» PlayerStatSystem¿¡ À§ÀÓÇÕ´Ï´Ù.
+            // ë ˆë²¨ì—…ì— ë”°ë¥¸ ìŠ¤íƒ¯ ì¦ê°€ ë¡œì§ì„ PlayerStatSystemì— ìœ„ì„í•©ë‹ˆë‹¤.
             playerCharacter.playerStatSystem.UpdateFinalStats();
             playerCharacter.playerStatSystem.StoreTempStats();
         }
 
-        // ·¹º§¾÷ ½Ã ½ºÅ³ Æ÷ÀÎÆ®¸¦ Áö±ŞÇÕ´Ï´Ù.
+        // ë ˆë²¨ì—… ì‹œ ìŠ¤í‚¬ í¬ì¸íŠ¸ë¥¼ ì§€ê¸‰í•©ë‹ˆë‹¤.
         if (playerCharacter.playerStats != null)
         {
             playerCharacter.playerStats.skillPoints += 1;
         }
 
-        // Ã¼·Â ¹× ¸¶³ª È¸º¹
-        // MaxHealth¿Í MaxManaµµ long Å¸ÀÔÀ¸·Î Ã³¸®µÇ¾î¾ß ÇÏÁö¸¸, 
-        // ±âÁ¸ ÄÚµåÀÇ ½Ã±×´ÏÃ³¸¦ À¯ÁöÇÏ±â À§ÇØ float/int È£È¯¼ºÀ» À¯ÁöÇÑ´Ù°í °¡Á¤ÇÕ´Ï´Ù.
+        // ì²´ë ¥ ë° ë§ˆë‚˜ íšŒë³µ
         playerCharacter.playerStats.health = playerCharacter.playerStats.MaxHealth;
         playerCharacter.playerStats.mana = playerCharacter.playerStats.MaxMana;
 
-        // ·¹º§¾÷ÀÌ ¿Ï·áµÇ¾úÀ½À» ¿ÜºÎ¿¡ ¾Ë¸®´Â ÀÌº¥Æ®¸¦ ¹ß»ı½ÃÅµ´Ï´Ù.
+        // ë ˆë²¨ì—…ì´ ì™„ë£Œë˜ì—ˆìŒì„ ì™¸ë¶€ì— ì•Œë¦¬ëŠ” ì´ë²¤íŠ¸ë¥¼ ë°œìƒì‹œí‚µë‹ˆë‹¤.
         OnPlayerLeveledUp?.Invoke();
 
-        // NotificationManager¸¦ »ç¿ëÇÏ¿© ·¹º§ ¾÷ ¼º°ø ¾Ë¸²À» Ç¥½ÃÇÕ´Ï´Ù.
+        // NotificationManagerë¥¼ ì‚¬ìš©í•˜ì—¬ ë ˆë²¨ ì—… ì„±ê³µ ì•Œë¦¼ì„ í‘œì‹œí•©ë‹ˆë‹¤.
         if (NotificationManager.Instance != null)
         {
             string currentLevel = playerCharacter.playerStats.level.ToString();
-            // ÇÃ·¹ÀÌ¾îÀÇ ÇöÀç ·¹º§À» Æ÷ÇÔÇÏ¿© ¸Ş½ÃÁö¸¦ ±¸¼ºÇÕ´Ï´Ù.
-            NotificationManager.Instance.ShowNotification($"·¹º§ ¾÷! Lv. {currentLevel} ´Ş¼º!", NotificationType.Success);
+            // í”Œë ˆì´ì–´ì˜ í˜„ì¬ ë ˆë²¨ì„ í¬í•¨í•˜ì—¬ ë©”ì‹œì§€ë¥¼ êµ¬ì„±í•©ë‹ˆë‹¤.
+            NotificationManager.Instance.ShowNotification($"ë ˆë²¨ ì—…! Lv. {currentLevel} ë‹¬ì„±!", NotificationType.Success);
         }
 
-        // »ç¿îµå Àç»ı
+        // ì‚¬ìš´ë“œ ì¬ìƒ
         if (SoundManager.Instance != null)
         {
             SoundManager.Instance.PlaySFX(SFXType.Levelup_sound, 0.5f);
