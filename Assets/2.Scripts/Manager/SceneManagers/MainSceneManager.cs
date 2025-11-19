@@ -5,7 +5,8 @@ using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using System;
 using System.Collections;
-using UnityEngine.UI; // Coroutine 사용을 위해 추가
+using UnityEngine.UI;
+using TMPro; // Coroutine 사용을 위해 추가
 
 /// <summary>
 /// 씬의 주요 UI 패널들을 중앙에서 관리하는 매니저 클래스입니다.
@@ -67,7 +68,12 @@ public class MainSceneManager : MonoBehaviour
     [Tooltip("이 씬에 진입했을 때 페이드 인이 필요한 경우 걸리는 시간(초)입니다. (현재 MainScene에서는 Start()에서 사용하지 않음)")]
     [SerializeField] private float fadeInDuration = 1.0f;
     // ============================================
-
+    [Tooltip("게임 설정 패널을 활성화할 버튼입니다.")]
+    public Button settingsButton;
+    [Tooltip("게임 설정 내용을 담고 있는 패널입니다. (비활성화/활성화 토글용)")]
+    public GameObject settingsPanel;
+    [Tooltip("저장 경로를 표시할 TextMeshProUGUI 컴포넌트입니다.")]
+    public TextMeshProUGUI saveText;
     /// <summary>
     /// 스크립트 인스턴스가 로드될 때 호출되어 싱글턴을 설정하고 이벤트 리스너를 등록합니다.
     /// </summary>
@@ -115,6 +121,21 @@ public class MainSceneManager : MonoBehaviour
         {
             SoundManager.Instance.PlayBGM(BGMType.Main_A, 2.0f);
         }
+        if (settingsButton != null)
+        {
+            settingsButton.onClick.RemoveAllListeners();
+            // [수정] SFX 재생 리스너 추가
+            settingsButton.onClick.AddListener(PlayButtonSFXSafely);
+            settingsButton.onClick.AddListener(OnSettingsButtonClick);
+        }
+        else
+        {
+            Debug.LogWarning("경고: '게임 설정' 버튼이 할당되지 않았습니다. 해당 기능은 작동하지 않습니다.");
+        }
+        if (saveText != null && SaveManager.Instance != null)
+        {
+            saveText.text = "저장 위치 \n" + SaveManager.Instance.saveFilePath;
+        }
     }
 
     /// <summary>
@@ -128,7 +149,24 @@ public class MainSceneManager : MonoBehaviour
             SoundManager.Instance.PlayButtonSFX();
         }
     }
-
+    public void OnSettingsButtonClick()
+    {
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogWarning("'게임 설정' 패널이 할당되지 않아 기능을 수행할 수 없습니다.");
+        }
+    }
+    public void DeactivatePanel(GameObject targetPanel)
+    {
+        if (targetPanel != null)
+        {
+            targetPanel.SetActive(false);
+        }
+    }
     // (HandlePanelActivation, HandlePanelDeactivation 메서드는 변경 없이 유지)
 
     /// <summary>
