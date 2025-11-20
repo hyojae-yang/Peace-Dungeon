@@ -15,7 +15,7 @@ MonoBehaviour:
   itemID: 6525
   itemName: "\uB291\uB300\uACE0\uAE30"
   itemDescription: "\uCCB4\uB825\uC744 450 \uD68C\uBCF5\uD569\uB2C8\uB2E4.\n\uB291\uB300\uACE0\uAE30\uB2F9"
-  itemIcon: {fileID: 21300000, guid: fcb76a18de7a9e94b978d6de9f29f205, type: 3}
+  itemIcon: {fileID: 21300000, guid: 669a16f6ec935224f93e2aca84d0d05a, type: 3}
   itemPrice: 450
   itemType: 1
   consumptionEffects:
@@ -24,3 +24,4 @@ MonoBehaviour:
     isPercentage: 0
   maxStackCount: 99
   effectDuration: 0
+  useSFXType: 17

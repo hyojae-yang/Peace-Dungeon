@@ -82803,7 +82803,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   notificationPanel: {fileID: 1195087242}
   notificationText: {fileID: 1838486345}
-  displayDuration: 2
+  displayDuration: 1
   generalColor: {r: 1, g: 1, b: 1, a: 1}
   successColor: {r: 0, g: 1, b: 0, a: 1}
   warningColor: {r: 1, g: 0, b: 0, a: 1}

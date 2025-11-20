@@ -57,5 +57,5 @@ MonoBehaviour:
   - itemData: {fileID: 11400000, guid: 4ea55faa179179a4880c1553d116e574, type: 2}
     weight: 2
   minItemDropCount: 0
-  maxItemDropCount: 1
+  maxItemDropCount: 2
   score: 30

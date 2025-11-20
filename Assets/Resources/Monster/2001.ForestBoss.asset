@@ -19,8 +19,8 @@ MonoBehaviour:
   maxMana: 0
   attackPower: 1500
   magicAttackPower: 1000
-  defense: 150
-  magicDefense: 200
+  defense: 200
+  magicDefense: 300
   moveSpeed: 0
   criticalChance: 0
   criticalDamageMultiplier: 0
