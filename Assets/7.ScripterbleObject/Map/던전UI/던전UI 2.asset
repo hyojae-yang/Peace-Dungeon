@@ -18,6 +18,6 @@ MonoBehaviour:
   backgroundColor: {r: 0.40272367, g: 0.6037736, b: 0.24207903, a: 1}
   smallMapPrefab: {fileID: 3301678143447887137, guid: 31af00acd4d46774dbf3bea8092d3757, type: 3}
   uiItemPrefab: {fileID: 2750190332938198540, guid: 6a9086f301850184b9e19f12c1380ea1, type: 3}
-  description: "\uC704\uD5D8\uB3C4 1"
+  description: "\uC704\uD5D8\uB3C4 E"
   price: 1
   currencyType: 3

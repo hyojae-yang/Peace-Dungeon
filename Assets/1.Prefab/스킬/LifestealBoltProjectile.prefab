@@ -132,6 +132,7 @@ MonoBehaviour:
   rotationSpeed: 180
   lifetime: 10
   ignoreCollisionDuration: 0.2
+  damageInterval: 0.5
 --- !u!135 &360873674095377177
 SphereCollider:
   m_ObjectHideFlags: 0

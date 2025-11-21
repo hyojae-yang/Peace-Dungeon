@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd9162e4ef07eda4e859dd5db01e4ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamageAmount: 70
+  baseDamageAmount: 150
 --- !u!1 &1821621863431827518
 GameObject:
   m_ObjectHideFlags: 0
@@ -415,7 +415,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd9162e4ef07eda4e859dd5db01e4ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamageAmount: 70
+  baseDamageAmount: 150
 --- !u!1 &2527571218185527917
 GameObject:
   m_ObjectHideFlags: 0
@@ -1000,7 +1000,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd9162e4ef07eda4e859dd5db01e4ec1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseDamageAmount: 70
+  baseDamageAmount: 150
 --- !u!1 &9205802459193809609
 GameObject:
   m_ObjectHideFlags: 0
