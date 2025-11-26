@@ -31294,20 +31294,20 @@ MonoBehaviour:
   - {fileID: 9082719748672861285}
   monsterSpawnList:
   - monsterPrefab: {fileID: 6009522441560749080, guid: c0d76ac9706567d45ae06ee93c5aae66, type: 3}
-    minSpawnCount: 50
-    maxSpawnCount: 100
+    minSpawnCount: 25
+    maxSpawnCount: 50
   - monsterPrefab: {fileID: 483987322422019827, guid: 20f11513772e41e499b8204dd19dd1e3, type: 3}
-    minSpawnCount: 40
-    maxSpawnCount: 60
-  - monsterPrefab: {fileID: 855980508687128763, guid: 31493d236f0b4f8489b1f5104f8ae301, type: 3}
-    minSpawnCount: 30
-    maxSpawnCount: 50
-  - monsterPrefab: {fileID: 7328140957996147453, guid: 3fd38f141ae796e46a28c94b49982913, type: 3}
-    minSpawnCount: 30
-    maxSpawnCount: 50
-  - monsterPrefab: {fileID: 8512790387996972601, guid: 1ef60801f6633aa46bb2adc98a4af329, type: 3}
-    minSpawnCount: 10
+    minSpawnCount: 20
     maxSpawnCount: 30
+  - monsterPrefab: {fileID: 855980508687128763, guid: 31493d236f0b4f8489b1f5104f8ae301, type: 3}
+    minSpawnCount: 15
+    maxSpawnCount: 25
+  - monsterPrefab: {fileID: 7328140957996147453, guid: 3fd38f141ae796e46a28c94b49982913, type: 3}
+    minSpawnCount: 15
+    maxSpawnCount: 25
+  - monsterPrefab: {fileID: 8512790387996972601, guid: 1ef60801f6633aa46bb2adc98a4af329, type: 3}
+    minSpawnCount: 5
+    maxSpawnCount: 15
   - monsterPrefab: {fileID: 1422477296553940473, guid: 93da36d28c29ac74e97c4707f14ed854, type: 3}
     minSpawnCount: 1
     maxSpawnCount: 5

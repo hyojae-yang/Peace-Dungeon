@@ -14296,11 +14296,11 @@ MonoBehaviour:
   - {fileID: 8849615369536609096}
   monsterSpawnList:
   - monsterPrefab: {fileID: 1422477296553940473, guid: 93da36d28c29ac74e97c4707f14ed854, type: 3}
-    minSpawnCount: 50
-    maxSpawnCount: 70
+    minSpawnCount: 25
+    maxSpawnCount: 35
   - monsterPrefab: {fileID: 8512790387996972601, guid: 1ef60801f6633aa46bb2adc98a4af329, type: 3}
-    minSpawnCount: 30
-    maxSpawnCount: 50
+    minSpawnCount: 15
+    maxSpawnCount: 25
   - monsterPrefab: {fileID: 274126861566411469, guid: 0d3278c3b3eec1648ae14baf322c7e8f, type: 3}
     minSpawnCount: 5
     maxSpawnCount: 10

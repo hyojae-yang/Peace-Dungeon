@@ -39,16 +39,17 @@ public class QuickSlotItemPanel : MonoBehaviour
             return;
         }
 
-        // 퀵슬롯 등록/해제 이벤트 구독
-        playerItemController.OnSlotItemChanged += UpdateQuickSlotImageUI;
-
-        // 아이템 수량 변경 이벤트 구독 (실시간 소모/획득 시)
-        inventoryManager.OnItemQuantityChanged += UpdateQuickSlotCountUI;
+        
     }
 
     // Start()에서 모든 퀵슬롯의 현재 수량을 동기화합니다.
     private void Start()
     {
+        // 퀵슬롯 등록/해제 이벤트 구독
+        playerItemController.OnSlotItemChanged += UpdateQuickSlotImageUI;
+
+        // 아이템 수량 변경 이벤트 구독 (실시간 소모/획득 시)
+        inventoryManager.OnItemQuantityChanged += UpdateQuickSlotCountUI;
         // Start 시점에 인벤토리 데이터가 모두 로드되었다고 가정하고 수량을 동기화합니다.
         RefreshAllSlotQuantities();
     }
