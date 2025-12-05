@@ -4005,7 +4005,7 @@ GameObject:
   - component: {fileID: 4130539503235663500}
   - component: {fileID: 3197665065545039299}
   - component: {fileID: 4354670123092567272}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: "\u31412 Brock"
   m_TagString: SmallMap
   m_Icon: {fileID: 0}

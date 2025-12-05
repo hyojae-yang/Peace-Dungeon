@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 424841027085785459}
   - component: {fileID: 7808082888315789159}
   - component: {fileID: -5726476108932473581}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: MI Brock
   m_TagString: SmallMap
   m_Icon: {fileID: 0}

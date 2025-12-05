@@ -135,6 +135,7 @@ public class BoarBehavior : MonoBehaviour
     /// </summary>
     private void OnMonsterDamaged(float damage)
     {
+
         // 돌진 상태일 때는 피격으로 인한 상태 전환을 무시합니다.
         if (monster.currentState == MonsterBase.MonsterState.Charge)
         {
@@ -145,6 +146,7 @@ public class BoarBehavior : MonoBehaviour
         if (isAttacking)
         {
             if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
             isAttacking = false;
             // 공격 중 상태 전환은 경직(Stun) 로직에서 처리됨
         }
@@ -165,20 +167,22 @@ public class BoarBehavior : MonoBehaviour
         if (isAttacking)
         {
             if (attackCoroutine != null) StopCoroutine(attackCoroutine);
+            attackCoroutine = null;
             isAttacking = false;
             // 몬스터의 상태는 StunRoutine에서 Stun으로 전환됨
         }
 
-        if (stunCoroutine != null) StopCoroutine(stunCoroutine);
+        if (stunCoroutine != null)
+        {
+            StopCoroutine(stunCoroutine);
+        }
 
         // Stun 상태로 진입 시, 현재 돌진 중인지 확인하여 상태 전환 여부를 결정합니다.
-        // 현재 로직대로 Attack 상태에서는 경직이 작동합니다.
         if (monster.currentState != MonsterBase.MonsterState.Charge)
         {
             // 돌진 중이 아니라면 (일반 상태라면) StunRoutine을 시작합니다.
             hasInitiatedCharge = false;
             isPreparingCharge = false;
-            // 이전 상태가 Attack이었다면, 경직 해제 후 Attack 상태로 복귀하여 HandleAttack 로직을 다시 타게 됩니다.
             stunCoroutine = StartCoroutine(StunRoutine());
         }
         else
@@ -203,6 +207,7 @@ public class BoarBehavior : MonoBehaviour
         monsterPatrol.StopPatrol();
 
         // 4. 애니메이션/이펙트 (필요 시 추가)
+        // animator.SetTrigger("Hit"); // 경직 애니메이션 트리거 (필요 시)
 
         // 5. 경직 시간 대기
         float duration = UnityEngine.Random.Range(minStunDuration, maxStunDuration);
@@ -220,8 +225,9 @@ public class BoarBehavior : MonoBehaviour
                 // Patrol 상태로 복귀 시 순찰을 다시 시작
                 monsterPatrol.StartPatrol();
             }
+            // 이전 상태가 Attack이었다면, HandleAttack이 다시 실행됩니다.
         }
-        // 코루틴 종료
+        stunCoroutine = null; // <--- [추가] 코루틴 참조 초기화
     }
 
 
@@ -251,18 +257,7 @@ public class BoarBehavior : MonoBehaviour
 
     void Update()
     {
-        // 사망 또는 게임 오버 상태 체크
-        if (playerTransform == null || monster.currentState == MonsterBase.MonsterState.Dead || MainSceneManager.Instance.isGameOver)
-        {
-            monsterPatrol.StopPatrol();
-            return;
-        }
-
-        // Stun 상태일 때 모든 로직 건너뛰기 
-        if (monster.currentState == MonsterBase.MonsterState.Stun)
-        {
-            return;
-        }
+        // ... (생략: 사망 및 Stun 체크)
 
         // 마나 회복 로직
         if (currentMana < monster.monsterData.maxMana)
@@ -276,6 +271,7 @@ public class BoarBehavior : MonoBehaviour
         switch (monster.currentState)
         {
             case MonsterBase.MonsterState.Patrol:
+                // Debug.Log("[UPDATE] Patrol 상태."); // <--- 너무 자주 출력되므로 주석 처리
                 monsterPatrol.StartPatrol();
 
                 if (distanceToPlayer < monster.detectionRange)
@@ -303,13 +299,7 @@ public class BoarBehavior : MonoBehaviour
                 HandleAttack(distanceToPlayer);
                 break;
 
-            case MonsterBase.MonsterState.Idle:
-                monsterPatrol.StopPatrol();
-                break;
-
-            case MonsterBase.MonsterState.Stun:
-                // Stun 상태일 때 (위에서 return 처리됨)
-                break;
+                // ... (Idle, Stun 생략)
         }
     }
 
@@ -318,6 +308,7 @@ public class BoarBehavior : MonoBehaviour
     /// </summary>
     private void HandleCharge(float distanceToPlayer)
     {
+
         // 1. 돌진 초기화 (Charge 상태 진입 시 한 번 실행)
         if (!hasInitiatedCharge)
         {
@@ -355,7 +346,6 @@ public class BoarBehavior : MonoBehaviour
         }
 
         // 3. 실제 돌진 이동 로직 
-        // Charge 상태는 경직/피격에 영향을 받지 않고 무조건 이동 실행
         transform.position = Vector3.MoveTowards(transform.position, chargeDestination, chargeSpeed * Time.deltaTime);
 
         // 목표 지점에 도착하면 공격 상태로 전환
@@ -450,9 +440,11 @@ public class BoarBehavior : MonoBehaviour
                 playerDamageable.TakeDamage(monster.monsterData.attackPower, DamageType.Physical);
             }
         }
+        else
+        {
+        }
 
         // 4. 후딜레이 대기 (쿨타임의 남은 시간 - 선딜레이)
-        // 안전을 위해 전체 쿨타임에서 선딜레이 시간을 빼고 대기
         float remainingCooldown = attackCooldown - attackPreDelay;
         if (remainingCooldown > 0)
         {
@@ -474,6 +466,7 @@ public class BoarBehavior : MonoBehaviour
         // Stun 상태이거나 공격 중일 때는 이동 로직을 실행하지 않습니다.
         if (monster.currentState == MonsterBase.MonsterState.Stun || isAttacking)
         {
+            // Debug.Log("[MOVE] Stun 또는 Attacking으로 이동 정지."); // <--- 주석 처리
             return;
         }
 

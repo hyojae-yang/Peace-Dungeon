@@ -1699,7 +1699,7 @@ GameObject:
   - component: {fileID: 7656136218840912566}
   - component: {fileID: 2807736361096213726}
   - component: {fileID: 2160512903137871362}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: "M\u3139 Brock"
   m_TagString: SmallMap
   m_Icon: {fileID: 0}

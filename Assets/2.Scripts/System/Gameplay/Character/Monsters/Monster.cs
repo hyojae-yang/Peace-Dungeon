@@ -107,7 +107,15 @@ public class Monster : MonsterBase, IDetectable
             InitializeAndApplyRiskCorrection(monsterData);
         }
     }
-
+    void Start()
+    {
+        // 몬스터가 생성될 때, MinimapMonsterTracker 인스턴스에 자신을 등록합니다.
+        // Static Instance 덕분에 씬 전체를 검색할 필요가 없어 효율적입니다.
+        if (MinimapMonsterTracker.Instance != null)
+        {
+            MinimapMonsterTracker.Instance.RegisterMonster(this.transform);
+        }
+    }
     /// <summary>
     /// MonsterData의 스탯 데이터를 Monster 클래스의 읽기 전용 속성에 할당합니다.
     /// </summary>
@@ -329,7 +337,13 @@ public class Monster : MonsterBase, IDetectable
     {
         return transform;
     }
-
+    private void OnDestroy()
+    {
+        if (MinimapMonsterTracker.Instance != null)
+        {
+            MinimapMonsterTracker.Instance.DeregisterMonster(this.transform);
+        }
+    }
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;

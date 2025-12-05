@@ -153,15 +153,27 @@ public class PlayerHealth : MonoBehaviour, IDetectable, IDamageable
         // [수정된 로직] LoL 방식의 피해 감소율 계산 및 적용
         if (type != DamageType.True)
         {
-            // 1. 피해 감소율 계산 (0 ~ 1.0f)
-            // 공식: DamageReduction = ReductionValue / (ReductionValue + Constant)
-            // 이 공식은 감소율이 100%를 초과할 수 없도록 보장하며, 방어력 증가에 따라 감소율 증가폭이 점차 줄어듭니다.
-            float damageReduction = reductionValue / (reductionValue + DAMAGE_REDUCTION_CONSTANT);
+            // 1. 피해 감소율 계산 (0 ~ 1.0f)
+            float damageReduction = reductionValue / (reductionValue + DAMAGE_REDUCTION_CONSTANT);
 
-            // 2. 최종 피해량 계산: FinalDamage = Amount * (1 - DamageReduction)
-            finalDamage = amount * (1f - damageReduction);
+            // 2. 최종 피해량 계산: FinalDamage = Amount * (1 - DamageReduction)
+            finalDamage = amount * (1f - damageReduction);
 
-            // 최종 피해량이 음수가 되는 것을 방지 (힐이 되는 상황 방지)
+            // 최종 피해량이 음수가 되는 것을 방지 (힐이 되는 상황 방지)
+            finalDamage = Mathf.Max(finalDamage, 0f);
+
+            // ------------------------------------------------------------------------------------------------
+            // [추가된 최소 데미지 1 고정 로직]
+            if (finalDamage > 0f)
+            {
+                // 계산된 피해량이 0보다 큰 경우에만, 최소 피해량을 1로 보장합니다.
+                finalDamage = Mathf.Max(finalDamage, 1f);
+            }
+            // ------------------------------------------------------------------------------------------------
+        }
+        // True Damage는 위 로직을 거치지 않으므로, 아래에서 음수 방지 처리만 합니다.
+        else
+        {
             finalDamage = Mathf.Max(finalDamage, 0f);
         }
 

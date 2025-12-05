@@ -13882,7 +13882,7 @@ GameObject:
   - component: {fileID: 4960203758773736513}
   - component: {fileID: -4266948283470525056}
   - component: {fileID: 2006152461743195833}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: "\u31392 Brock"
   m_TagString: SmallMap
   m_Icon: {fileID: 0}
