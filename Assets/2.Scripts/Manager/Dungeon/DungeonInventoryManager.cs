@@ -197,7 +197,7 @@ public class DungeonInventoryManager : MonoBehaviour, ISavable
 
         if (playerItems.Count == 0)
         {
-            Debug.Log("플레이어가 보유한 아이템이 없습니다.");
+            //Debug.Log("플레이어가 보유한 아이템이 없습니다.");
             return;
         }
 

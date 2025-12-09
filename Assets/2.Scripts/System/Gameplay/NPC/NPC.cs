@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using static MinimapDynamicIconManager;
 
 /// <summary>
 /// 실제 NPC 게임 오브젝트에 부착되는 메인 스크립트.
@@ -57,7 +58,15 @@ public class NPC : MonoBehaviour
         // NPCManager가 특수 기능을 관리하므로 이 로직은 제거합니다.
         // specialFunctions = GetComponentsInChildren<INPCFunction>().ToList();
     }
-
+    private void Start()
+    {
+        // NPC가 생성될 때, 미니맵 관리자에 자신을 NPC 타입으로 등록합니다.
+        if (MinimapDynamicIconManager.Instance != null)
+        {
+            // 팩트: 자신이 NPC 타입임을 Manager에 알려, Manager가 NPC 아이콘 프리팹을 인스턴스화하도록 합니다.
+            MinimapDynamicIconManager.Instance.RegisterTarget(this.transform, MinimapTargetType.NPC);
+        }
+    }
     /// <summary>
     /// NPC의 현재 호감도에 접근하는 메서드.
     /// NPCManager를 통해 동적 데이터를 가져옵니다.
@@ -129,5 +138,13 @@ public class NPC : MonoBehaviour
             return NPCManager.Instance.GetSpecialFunctions(Data.npcName);
         }
         return new List<INPCFunction>();
+    }
+    private void OnDestroy()
+    {
+        // NPC가 파괴될 때, 미니맵 관리자에서 자신을 해제합니다.
+        if (MinimapDynamicIconManager.Instance != null)
+        {
+            MinimapDynamicIconManager.Instance.DeregisterTarget(this.transform);
+        }
     }
 }

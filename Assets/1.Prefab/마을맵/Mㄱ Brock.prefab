@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1602566928147040009}
   - component: {fileID: 5188897966321466163}
   - component: {fileID: 4948162508256154615}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Door1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -172,7 +172,7 @@ GameObject:
   - component: {fileID: 898999916305906779}
   - component: {fileID: 3530926066441456339}
   - component: {fileID: 6188473088392752150}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Door2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -303,7 +303,7 @@ GameObject:
   - component: {fileID: 1461550333359834541}
   - component: {fileID: 5546481184565580383}
   - component: {fileID: 8664565845727215713}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Door3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -868,6 +868,10 @@ MonoBehaviour:
   moveSpeed: 2
   waitTime: 3
   rotationSpeed: 5
+  obstacleCheckDistance: 0.5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 15872
   movementPlanes:
   - {fileID: 2273529117213872310}
   - {fileID: 6934539258047554843}
@@ -991,7 +995,7 @@ GameObject:
   - component: {fileID: 5143799258614455560}
   - component: {fileID: 9051847680798250151}
   - component: {fileID: 886294143340000272}
-  m_Layer: 9
+  m_Layer: 12
   m_Name: Door4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3281,7 +3285,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7673225108693995322, guid: f4e5a31da332954448ecfd9d191eccc4, type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -3593,7 +3597,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7673225108693995322, guid: f4e5a31da332954448ecfd9d191eccc4, type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4091,7 +4095,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7673225108693995322, guid: f4e5a31da332954448ecfd9d191eccc4, type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -5003,7 +5007,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7673225108693995322, guid: f4e5a31da332954448ecfd9d191eccc4, type: 3}
       propertyPath: m_Layer
-      value: 9
+      value: 12
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

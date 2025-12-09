@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using static MinimapDynamicIconManager;
 using static MonsterBase; // MonsterBase.MonsterState에 접근하기 위해 사용됩니다.
 
 /// <summary>
@@ -109,11 +110,10 @@ public class Monster : MonsterBase, IDetectable
     }
     void Start()
     {
-        // 몬스터가 생성될 때, MinimapMonsterTracker 인스턴스에 자신을 등록합니다.
-        // Static Instance 덕분에 씬 전체를 검색할 필요가 없어 효율적입니다.
-        if (MinimapMonsterTracker.Instance != null)
+        if (MinimapDynamicIconManager.Instance != null)
         {
-            MinimapMonsterTracker.Instance.RegisterMonster(this.transform);
+            // 팩트: 자신이 Monster 타입임을 Manager에 알려, Manager가 Monster 아이콘 프리팹을 인스턴스화하도록 합니다.
+            MinimapDynamicIconManager.Instance.RegisterTarget(this.transform, MinimapTargetType.Monster);
         }
     }
     /// <summary>
@@ -339,9 +339,9 @@ public class Monster : MonsterBase, IDetectable
     }
     private void OnDestroy()
     {
-        if (MinimapMonsterTracker.Instance != null)
+        if (MinimapDynamicIconManager.Instance != null)
         {
-            MinimapMonsterTracker.Instance.DeregisterMonster(this.transform);
+            MinimapDynamicIconManager.Instance.DeregisterTarget(this.transform);
         }
     }
     private void OnDrawGizmosSelected()

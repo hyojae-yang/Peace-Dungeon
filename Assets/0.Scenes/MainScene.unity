@@ -96392,8 +96392,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 215a91c0ed4d1654d84d4c64963e8ff9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monsterIconPrefab: {fileID: 789187347580975389, guid: f4e893916b2b6a04ca0d798ba9147fc4, type: 3}
   minimapDisplay: {fileID: 1173542423}
+  iconConfigs:
+  - targetType: 1
+    iconPrefab: {fileID: 789187347580975389, guid: f4e893916b2b6a04ca0d798ba9147fc4, type: 3}
+  - targetType: 2
+    iconPrefab: {fileID: 789187347580975389, guid: 2f799a1ca876e504299fe26499cc1e3a, type: 3}
 --- !u!114 &1173542426
 MonoBehaviour:
   m_ObjectHideFlags: 0

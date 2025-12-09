@@ -684,6 +684,10 @@ MonoBehaviour:
   moveSpeed: 2.5
   waitTime: 2
   rotationSpeed: 5
+  obstacleCheckDistance: 0.5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 15872
   movementPlanes:
   - {fileID: 2287172129104127293}
   - {fileID: 959402905738109778}
@@ -5464,6 +5468,10 @@ MonoBehaviour:
   moveSpeed: 2
   waitTime: 3
   rotationSpeed: 5
+  obstacleCheckDistance: 0.5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 15872
   movementPlanes:
   - {fileID: 2287172129104127293}
   - {fileID: 959402905738109778}
@@ -8074,6 +8082,10 @@ MonoBehaviour:
   moveSpeed: 5
   waitTime: 1
   rotationSpeed: 5
+  obstacleCheckDistance: 0.5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 15872
   movementPlanes:
   - {fileID: 2287172129104127293}
   - {fileID: 959402905738109778}
@@ -10466,6 +10478,10 @@ MonoBehaviour:
   moveSpeed: 5
   waitTime: 1
   rotationSpeed: 5
+  obstacleCheckDistance: 0.5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 15872
   movementPlanes:
   - {fileID: 2287172129104127293}
   - {fileID: 959402905738109778}

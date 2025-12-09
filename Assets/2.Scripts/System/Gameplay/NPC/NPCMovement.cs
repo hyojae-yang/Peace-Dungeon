@@ -5,7 +5,7 @@ using System.Collections.Generic; // List를 사용하기 위해 추가
 /// <summary>
 /// NPC의 이동 로직을 담당하는 스크립트.
 /// Rigidbody를 사용하여 물리적으로 이동하며, 지정된 구역 내에서 무작위로 움직입니다.
-/// 충돌 시 즉시 새로운 경로를 찾아 이동을 계속합니다.
+/// 충돌 및 전방 장애물 감지 시 즉시 새로운 경로를 찾아 이동을 계속합니다.
 /// SOLID: 단일 책임 원칙 (물리적 이동 및 경로 탐색)
 /// 개방-폐쇄 원칙 (SetIsTalking 메서드로 외부에서 이동 제어 가능)
 /// </summary>
@@ -14,6 +14,7 @@ public class NPCMovement : MonoBehaviour
     // NPC의 Rigidbody 컴포넌트
     private Rigidbody npcRigidbody;
     private Animator npcAnimator;
+
     // NPC의 이동 속도입니다.
     [Header("Movement Settings")]
     [Tooltip("NPC의 이동 속도입니다.")]
@@ -29,6 +30,17 @@ public class NPCMovement : MonoBehaviour
     [Tooltip("NPC의 회전 속도입니다. 값이 높을수록 더 빠르게 회전합니다.")]
     [SerializeField]
     private float rotationSpeed = 5f;
+
+    // 전방 장애물 감지 거리입니다. 이 거리 내에 장애물이 있으면 멈추고 경로를 재탐색합니다.
+    [Header("Obstacle Avoidance")]
+    [Tooltip("전방 장애물 감지 거리입니다. 이 거리 내에 장애물이 있으면 멈추고 경로를 재탐색합니다.")]
+    [SerializeField]
+    private float obstacleCheckDistance = 0.5f;
+
+    // 장애물로 인식할 레이어입니다. (예: Default, Environment)
+    [Tooltip("장애물로 인식할 레이어입니다. (예: Default, Environment)")]
+    [SerializeField]
+    private LayerMask obstacleLayer;
 
     // NPC가 이동할 수 있는 평면(Plane) 오브젝트들을 할당합니다.
     [Header("Movement Constraints")]
@@ -46,6 +58,7 @@ public class NPCMovement : MonoBehaviour
 
     // 플레이어의 위치 정보를 저장하는 Transform입니다.
     private Transform playerTransform;
+
     //----------------------------------------------------------------------------------------------------------------
     // MonoBehaviour 생명주기 메서드
     //----------------------------------------------------------------------------------------------------------------
@@ -58,7 +71,8 @@ public class NPCMovement : MonoBehaviour
         // Rigidbody 컴포넌트를 가져옵니다.
         npcRigidbody = GetComponent<Rigidbody>();
         npcAnimator = GetComponent<Animator>();
-        // [추가] "Player" 태그를 가진 오브젝트를 찾아 Transform을 캐싱합니다.
+
+        // "Player" 태그를 가진 오브젝트를 찾아 Transform을 캐싱합니다.
         GameObject playerObject = GameObject.FindWithTag("Player");
         if (playerObject != null)
         {
@@ -68,9 +82,14 @@ public class NPCMovement : MonoBehaviour
         {
             Debug.LogError("씬에서 'Player' 태그를 가진 오브젝트를 찾을 수 없습니다! NPC 상호작용에 문제가 발생할 수 있습니다.");
         }
+
         // 첫 번째 목표 위치를 설정합니다.
         SetNewTargetPosition();
-        npcAnimator.SetFloat("Speed", 1f);
+        // 초기 애니메이션 상태를 걷는 상태로 설정합니다.
+        if (npcAnimator != null)
+        {
+            npcAnimator.SetFloat("Speed", 1f);
+        }
     }
 
     /// <summary>
@@ -91,15 +110,14 @@ public class NPCMovement : MonoBehaviour
     /// <param name="collision">충돌에 대한 정보를 담고 있는 Collision 객체입니다.</param>
     private void OnCollisionEnter(Collision collision)
     {
-        // 충돌한 오브젝트가 NPC 자신이 아닌지 확인하여 무한 충돌 루프를 방지합니다.
-        // 또한 플레이어와의 충돌은 Interaction 스크립트에서 관리하므로 제외할 수 있습니다.
+        // 충돌한 오브젝트가 NPC 자신이 아닌지 확인하고, Player나 다른 NPC는 회피 로직에서 제외합니다.
         if (collision.gameObject.CompareTag("NPC") || collision.gameObject.CompareTag("Player"))
         {
             return;
         }
 
-        // 1. 충돌 시 즉시 현재 목표 위치를 무시하고 새로운 목표를 설정합니다.
-        // 이를 통해 벽에 부딪혔을 때 멈추지 않고 즉시 방향을 전환하게 됩니다.
+        // 충돌 시 즉시 현재 목표 위치를 무시하고 새로운 목표를 설정합니다.
+        // Raycast가 놓칠 수 있는 돌발 충돌 상황을 대비한 보조적인 경로 재탐색입니다.
         SetNewTargetPosition();
     }
 
@@ -117,7 +135,10 @@ public class NPCMovement : MonoBehaviour
         {
             // NPC가 멈추도록 선형 속도를 0으로 설정합니다.
             npcRigidbody.linearVelocity = Vector3.zero;
-            npcAnimator.SetFloat("Speed", 0f);
+            if (npcAnimator != null)
+            {
+                npcAnimator.SetFloat("Speed", 0f);
+            }
             // 대기 타이머를 줄입니다.
             waitTimer -= Time.deltaTime;
             // 대기 시간이 0보다 작거나 같아지면
@@ -131,15 +152,38 @@ public class NPCMovement : MonoBehaviour
         {
             // 목표 위치로 이동할 방향 벡터를 계산합니다.
             Vector3 direction = (targetPosition - transform.position).normalized;
+
+            // [핵심 해결 로직] 전방 장애물 확인 Raycast
+            // 이동하기 전에 전방에 장애물이 있는지 확인하여, 물리적으로 충돌하기 전에 멈추고 경로를 바꿉니다.
+            RaycastHit hit;
+            // Ray의 시작점은 NPC의 현재 위치, 방향은 계산된 이동 방향, 거리는 설정값, 레이어 마스크를 사용합니다.
+            if (Physics.Raycast(transform.position, direction, out hit, obstacleCheckDistance, obstacleLayer))
+            {
+                // 장애물이 감지되면 즉시 이동을 멈춥니다.
+                npcRigidbody.linearVelocity = Vector3.zero;
+                if (npcAnimator != null)
+                {
+                    npcAnimator.SetFloat("Speed", 0f);
+                }
+
+                // 즉시 새로운 목표를 탐색합니다.
+                SetNewTargetPosition();
+
+                // 이동 및 회전 로직을 실행하지 않고 종료합니다.
+                return;
+            }
+
             // Rigidbody를 사용해 물리적으로 이동합니다.
-            // 물리 연산에 더 적합한 linearVelocity를 사용합니다.
             npcRigidbody.linearVelocity = direction * moveSpeed;
-            npcAnimator.SetFloat("Speed", 1f);
+            if (npcAnimator != null)
+            {
+                npcAnimator.SetFloat("Speed", 1f);
+            }
 
             // NPC가 이동하는 방향을 바라보도록 회전합니다.
-            // Y축을 기준으로 회전 방향을 설정하여 NPC가 기울어지지 않도록 합니다.
             if (direction != Vector3.zero)
             {
+                // Y축을 기준으로 회전 방향을 설정하여 NPC가 기울어지지 않도록 합니다.
                 Quaternion targetRotation = Quaternion.LookRotation(direction);
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
             }
@@ -192,13 +236,15 @@ public class NPCMovement : MonoBehaviour
             npcRigidbody.linearVelocity = Vector3.zero;
             // 현재 위치를 목표로 재설정하여 MoveToTarget 메서드가 실행되지 않도록 합니다.
             targetPosition = transform.position;
-            npcAnimator.SetFloat("Speed", 0f);
-            npcAnimator.SetTrigger("wave");
-            // [추가] 플레이어가 있다면 즉시 플레이어를 바라보도록 회전합니다. (즉시 바라보기 방식)
+            if (npcAnimator != null)
+            {
+                npcAnimator.SetFloat("Speed", 0f);
+                npcAnimator.SetTrigger("wave");
+            }
+
+            // 플레이어가 있다면 즉시 플레이어를 바라보도록 회전합니다. (즉시 바라보기 방식)
             if (playerTransform != null)
             {
-                // LookAt을 사용하여 플레이어의 위치를 바라보게 합니다.
-                // 단, NPC의 Y축 회전만 변경되어 머리가 숙여지거나 들리지 않도록 합니다.
                 Vector3 lookPosition = playerTransform.position;
                 // Y축 위치는 NPC 자신의 Y축을 사용하여, 수평 회전만 일어나게 합니다.
                 lookPosition.y = transform.position.y;

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 /// 이 스크립트는 PlayerItemController의 퀵슬롯 변경 이벤트를 구독하여 UI를 업데이트하는 중개자 역할을 합니다.
 /// 또한, InventoryManager의 아이템 수량 변경 이벤트를 구독하여 퀵슬롯에 등록된 아이템의 수량 UI를 실시간으로 업데이트합니다.
 /// [SRP]: 데이터 변경 이벤트를 감지하고 UI 컴포넌트에 전달하는 역할만 수행합니다.
+/// [OCP/강건성]: 이벤트 구독에 실패할 경우, Update 루프를 통해 성공할 때까지 재등록을 시도하여 강건성을 높입니다.
 /// </summary>
 public class QuickSlotItemPanel : MonoBehaviour
 {
@@ -20,38 +21,87 @@ public class QuickSlotItemPanel : MonoBehaviour
     // InventoryManager 참조 (수량 업데이트 이벤트를 구독하기 위함)
     private InventoryManager inventoryManager;
 
+    // 이벤트 구독 성공 여부를 추적하여 불필요한 재구독을 방지합니다.
+    private bool isSubscribed = false;
+
     private void Awake()
     {
+        // 싱글톤 패턴으로 구현된 PlayerCharacter 인스턴스를 가져옵니다.
         PlayerCharacter playerCharacter = PlayerCharacter.Instance;
         if (playerCharacter == null)
         {
-            Debug.LogError("[QSIP] PlayerCharacter 인스턴스가 존재하지 않습니다.");
+            Debug.LogWarning("[QSIP] PlayerCharacter 인스턴스가 아직 존재하지 않습니다. Update에서 재시도합니다.");
             return;
         }
 
-        // PlayerCharacter에서 PlayerItemController 컴포넌트를 가져옵니다.
+        // PlayerCharacter에서 핵심 컴포넌트를 가져옵니다.
+        // 이때 참조가 null일 경우, Start/Update에서 재시도합니다.
         playerItemController = playerCharacter.GetComponent<PlayerItemController>();
-        inventoryManager = playerCharacter.inventoryManager; // InventoryManager 컴포넌트를 가져옵니다.
-
-        if (playerItemController == null || inventoryManager == null)
-        {
-            Debug.LogError("[QSIP] 핵심 컴포넌트(PlayerItemController 또는 InventoryManager) 중 하나가 PlayerCharacter에 할당되지 않았습니다.");
-            return;
-        }
-
-        
+        inventoryManager = playerCharacter.inventoryManager;
     }
 
-    // Start()에서 모든 퀵슬롯의 현재 수량을 동기화합니다.
     private void Start()
     {
-        // 퀵슬롯 등록/해제 이벤트 구독
-        playerItemController.OnSlotItemChanged += UpdateQuickSlotImageUI;
+        // 게임 시작 시 한 번 구독을 시도합니다.
+        TrySubscribeToEvents();
 
-        // 아이템 수량 변경 이벤트 구독 (실시간 소모/획득 시)
-        inventoryManager.OnItemQuantityChanged += UpdateQuickSlotCountUI;
         // Start 시점에 인벤토리 데이터가 모두 로드되었다고 가정하고 수량을 동기화합니다.
+        // 구독 성공 여부와 관계없이 초기화는 시도합니다.
         RefreshAllSlotQuantities();
+    }
+
+    /// <summary>
+    /// 구독에 실패했을 경우, 매 프레임 컴포넌트 참조 및 구독을 재시도합니다.
+    /// 구독 성공 시, 이 로직은 더 이상 실행되지 않습니다.
+    /// </summary>
+    private void Update()
+    {
+        // 구독이 아직 성공하지 않았다면 재시도 로직을 실행합니다.
+        if (!isSubscribed)
+        {
+            TrySubscribeToEvents();
+        }
+    }
+
+    /// <summary>
+    /// 핵심 컴포넌트의 참조를 확인하고, 유효할 경우 이벤트 구독을 시도합니다.
+    /// </summary>
+    private void TrySubscribeToEvents()
+    {
+        // 1. 참조가 누락된 경우, PlayerCharacter 인스턴스를 다시 확인합니다.
+        if (playerItemController == null || inventoryManager == null)
+        {
+            PlayerCharacter playerCharacter = PlayerCharacter.Instance;
+            if (playerCharacter != null)
+            {
+                playerItemController = playerCharacter.GetComponent<PlayerItemController>();
+                inventoryManager = playerCharacter.inventoryManager;
+            }
+        }
+
+        // 2. 모든 핵심 컴포넌트가 유효한지 최종 확인합니다.
+        if (playerItemController != null && inventoryManager != null)
+        {
+            // [구독 로직]
+            playerItemController.OnSlotItemChanged += UpdateQuickSlotImageUI;
+            inventoryManager.OnItemQuantityChanged += UpdateQuickSlotCountUI;
+
+            // 구독 성공 상태 플래그를 true로 변경합니다.
+            isSubscribed = true;
+
+            // 구독에 성공했으므로 초기화 수량을 다시 한번 동기화합니다.
+            RefreshAllSlotQuantities();
+        }
+        else if (PlayerCharacter.Instance != null)
+        {
+            // PlayerCharacter는 있지만, 핵심 컴포넌트가 여전히 null인 경우 (설정 오류 가능성)
+            Debug.LogWarning("[QSIP] 핵심 컴포넌트(PlayerItemController 또는 InventoryManager) 중 하나가 아직 PlayerCharacter에 할당되지 않아 구독을 지연합니다.");
+        }
+        else
+        {
+            // PlayerCharacter 인스턴스가 아직 준비되지 않은 경우
+            // 이 경우가 가장 흔한 재시도 케이스입니다. 경고를 너무 자주 출력하지 않도록 주의합니다.
+        }
     }
 
     /// <summary>
@@ -60,6 +110,7 @@ public class QuickSlotItemPanel : MonoBehaviour
     /// </summary>
     public void RefreshAllSlotQuantities()
     {
+        // 핵심 컴포넌트가 없으면 동작하지 않습니다.
         if (playerItemController == null || inventoryManager == null) return;
 
         for (int i = 0; i < quickSlotUIs.Length; i++)
@@ -146,15 +197,22 @@ public class QuickSlotItemPanel : MonoBehaviour
 
     private void OnDisable()
     {
-        // 이벤트 구독 해제
-        if (playerItemController != null)
+        // 구독이 성공했을 때만 해제를 시도합니다.
+        if (isSubscribed)
         {
-            playerItemController.OnSlotItemChanged -= UpdateQuickSlotImageUI;
-        }
+            // 이벤트 구독 해제
+            if (playerItemController != null)
+            {
+                playerItemController.OnSlotItemChanged -= UpdateQuickSlotImageUI;
+            }
 
-        if (inventoryManager != null)
-        {
-            inventoryManager.OnItemQuantityChanged -= UpdateQuickSlotCountUI;
+            if (inventoryManager != null)
+            {
+                inventoryManager.OnItemQuantityChanged -= UpdateQuickSlotCountUI;
+            }
+
+            // 구독 상태를 재설정하여, 혹시라도 오브젝트가 재활성화되면 다시 구독을 시도할 수 있도록 준비합니다.
+            isSubscribed = false;
         }
     }
 }
